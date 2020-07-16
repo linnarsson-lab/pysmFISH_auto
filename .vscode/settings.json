@@ -1,0 +1,8 @@
+{
+    "python.dataScience.jupyterServerURI": "local",
+    "python.pythonPath": "/opt/miniconda3/envs/messing_around/bin/python",
+    "telemetry.enableTelemetry": false,
+    "python.linting.mypyEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false
+}
