@@ -4,7 +4,7 @@ from prefect.engine.executors import DaskExecutor
 
 
 from pysmFISH.dask_cluster_utilities import local_cluster_setup
-from pysmFISH.prefect_tasks import setup_extra_loggers,  nd2_raw_files_selector
+from pysmFISH.prefect_tasks import setup_extra_loggers, nd2_raw_files_selector
 
 
 cluster = local_cluster_setup()
