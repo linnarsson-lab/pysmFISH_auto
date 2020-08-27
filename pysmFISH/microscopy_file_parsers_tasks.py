@@ -1,24 +1,21 @@
 
 from typing import *
 import pickle
-import subprocess
-import lxml.etree as etree
 import yaml
 import re
 import shutil
 import numpy as np
 import zarr
-import logging
-import prefect
+import nd2reader
+import xarray as xr
 from pathlib import Path
-from collections import OrderedDict
-from nd2reader import ND2Reader
 
+
+import prefect
 from prefect import task
 from prefect.engine import signals
+
 from pysmFISH.logger_utils import prefect_logging_setup
-
-
 
 
 # from pysmFISH.utils import load_pipeline_config_file, create_dir, load_running_analysis_config_file
@@ -52,13 +49,13 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
     logger.setLevel(logging.DEBUG)
     logger.debug('Identify the raw .nd2 file to process.')
 
-    assert '_auto' in experiment_fpath, 'no _auto in the experiment name'
+    assert '_auto' in experiment_fpath.stem, signals.FAIL('no _auto in the experiment name')
 
     experiment_fpath = Path(experiment_fpath)
     searching_key = 'Count*.nd2'
     all_files_to_process = list(experiment_fpath.glob(searching_key))
 
-    assert all_files_to_process, 'no .nd2 raw files to process'
+    assert all_files_to_process, signals.FAIL('no .nd2 raw files to process')
     
     logger.debug(f'Number of files to process {len(all_files_to_process)}.')
     return all_files_to_process
@@ -66,7 +63,7 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
 
 
 @task(name='nd2_autoparser')
-def parser(nd2_file_path):
+def nikon_nd2_autoparser(nd2_file_path):
     """
     This parser not consider the possibility to have multiple experiment running at
     the same time with the raw imaging data present in the same folder. 
@@ -88,6 +85,9 @@ def parser(nd2_file_path):
         nd2_file_path: str
             Path to the .nd2 file to be parsed
 
+    Returns:
+        processing_info: list of tuples
+        each tuple contain the path of the zarr storage and the number of fov
     """
 
     logger = prefect_logging_setup("auto_parser")
@@ -119,76 +119,80 @@ def parser(nd2_file_path):
     except:
         logger.error('Cannot load the nd2 file')
         signals.FAIL('Cannot load the nd2 file')
-    
-    # Collect metadata
-    all_metadata = nd2fh.parser._raw_metadata
-    parsed_metadata = nd2fh.parser._raw_metadata.get_parsed_metadata()
-    
-    channel = parsed_metadata['channels'][0] # works because there is only one channel for file
-    img_height = parsed_metadata['height']
-    img_width = parsed_metadata['width']
-    pixel_microns = parsed_metadata['pixel_microns']
-    z_levels = parsed_metadata['z_levels']
-    fields_of_view = parsed_metadata['fields_of_view']
-    
-    # Collect FOV coords
-    x_data = np.array(all_metadata.x_data)
-    x_data = x_data[:,np.newaxis]
-    y_data = np.array(all_metadata.x_data)
-    y_data = y_data[:,np.newaxis]
-    z_data = np.array(all_metadata.z_data)
-    z_data = z_data[:,np.newaxis]
-    all_coords = np.hstack((z_data,x_data,y_data))
-    fov_coords = all_coords[0::len(z_levels),:]
-    
-    tag_name = experiment_name + '_' + hybridization_name + '_' + channel
-    
-    # Rename the nd2 files
-    new_file_name = tag_name + '.nd2'
-    new_file_path = raw_files_dir / new_file_name
-    nd2_file_path.rename(new_file_path)
-    nd2_file_path = new_file_path
-    
-    # Copy the pkl files
-    new_file_name = tag_name + '_info.pkl'
-    new_file_path = raw_files_dir / new_file_name
-    # Must copy the pkl file in order to be able to use the file for the other channels
-    shutil.copy(str(info_file), str(new_file_path))
-    # Updated the location of the info file value
-    info_file = new_file_path
-    
-    
-    # Save the file as zarr
-    zarr_store = parsed_tmp / (experiment_name + '_' + hybridization_name + '_' + channel + '_raw_images_tmp.zarr')
-    nd2fh.bundle_axes = 'zyx'
-    # set iteration over the fields of view
-    nd2fh.iter_axes = 'v'
-    
-    # Save coords of the FOV
-    rows = np.arange(img_width)
-    cols = np.arange(img_height)
-    
-    for fov in fields_of_view:
-        img = np.array(nd2fh[fov],dtype=np.uint16)
-        fov_attrs = {'channel': channel,
-            'img_height': img_height,
-            'img_width': img_width,
-            'pixel_microns': pixel_microns,
-            'z_levels':list(z_levels),
-            'fov_num': fov} 
-        img_xarray = xr.DataArray(img, coords={'z_levels':z_levels,'rows':rows, 'cols':cols, 'fovs':fov}, 
-                                  dims=['z_levels','rows','cols'],attrs=fov_attrs, name=str(fov))
-        img_xarray = img_xarray.chunk(chunks=(1,img_width,img_height))
-        ds = img_xarray.to_dataset(name = str(fov))
-        if fov == 0:
-            ds.to_zarr(zarr_store, mode='w', consolidated=True)
-        else:
-            ds.to_zarr(zarr_store, mode='a', consolidated=True)
-            
-    parsed_dataset = xr.open_zarr(zarr_store)
-    parsed_dataset.attrs['fovs'] = list(fields_of_view)
-    parsed_dataset.attrs['fovs_coords'] = fov_coords
-    parsed_dataset.attrs['channel'] = channels
-    parsed_dataset.attrs['pixel_microns'] = pixel_microns
-    parsed_dataset.attrs['experiment_name'] = experiment_name
-    parsed_dataset.attrs['hybridization_name'] = hybridization_name
+    else:
+        # Collect metadata
+        all_metadata = nd2fh.parser._raw_metadata
+        parsed_metadata = nd2fh.parser._raw_metadata.get_parsed_metadata()
+        
+        channel = parsed_metadata['channels'][0] # works because there is only one channel for file
+        img_height = parsed_metadata['height']
+        img_width = parsed_metadata['width']
+        pixel_microns = parsed_metadata['pixel_microns']
+        z_levels = parsed_metadata['z_levels']
+        fields_of_view = parsed_metadata['fields_of_view']
+        
+        # Collect FOV coords
+        x_data = np.array(all_metadata.x_data)
+        x_data = x_data[:,np.newaxis]
+        y_data = np.array(all_metadata.x_data)
+        y_data = y_data[:,np.newaxis]
+        z_data = np.array(all_metadata.z_data)
+        z_data = z_data[:,np.newaxis]
+        all_coords = np.hstack((z_data,x_data,y_data))
+        fov_coords = all_coords[0::len(z_levels),:]
+        
+        tag_name = experiment_name + '_' + hybridization_name + '_' + channel
+        
+        
+        # Save the file as zarr
+        zarr_store = parsed_tmp / (experiment_name + '_' + hybridization_name + '_' + channel + '_raw_images_tmp.zarr')
+        nd2fh.bundle_axes = 'zyx'
+        # set iteration over the fields of view
+        nd2fh.iter_axes = 'v'
+        
+        # Save coords of the FOV
+        rows = np.arange(img_width)
+        cols = np.arange(img_height)
+        
+        for fov in fields_of_view[0:10]:
+            img = np.array(nd2fh[fov],dtype=np.uint16)
+            fov_attrs = {'channel': channel,
+                'target_name': info_data['channels'][channel],
+                'img_height': img_height,
+                'img_width': img_width,
+                'pixel_microns': pixel_microns,
+                'z_levels':list(z_levels),
+                'fov_num': fov,
+                'StitchingChannel': info_data['StitchingChannel'],
+                'hybridization_name': hybridization_name,
+                'experiment_name' : experiment_name} 
+            img_xarray = xr.DataArray(img, coords={'z_levels':z_levels,'rows':rows, 'cols':cols, 'fovs':fov}, 
+                                    dims=['z_levels','rows','cols'],attrs=fov_attrs, name=str(fov))
+            img_xarray = img_xarray.chunk(chunks=(1,img_width,img_height))
+            ds = img_xarray.to_dataset(name = str(fov))
+            if fov == 0:
+                ds.to_zarr(zarr_store, mode='w', consolidated=True)
+            else:
+                ds.to_zarr(zarr_store, mode='a', consolidated=True)
+                
+        # Rename the nd2 files
+        new_file_name = tag_name + '.nd2'
+        new_file_path = raw_files_dir / new_file_name
+        nd2_file_path.rename(new_file_path)
+        nd2_file_path = new_file_path
+        
+        # Copy the pkl files
+        new_file_name = tag_name + '_info.pkl'
+        new_file_path = raw_files_dir / new_file_name
+        # Must copy the pkl file in order to be able to use the file for the other channels
+        shutil.copy(str(info_file), str(new_file_path))
+        
+        # Save the fov_coords
+        fname = experiment_fpath / 'tmp' / (tag_name + '_fovs_coords.npy')
+        np.save(fname, fov_coords)
+
+        fovs = list(fields_of_view)
+        list_store = [zarr_store] * len(fovs)
+        processing_info = list(zip(list_store,fovs))
+
+        return processing_info
