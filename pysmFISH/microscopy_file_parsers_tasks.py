@@ -46,9 +46,7 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
     """
 
     logger = prefect.utilities.logging.get_logger("parsing")
-    logger.setLevel(logging.DEBUG)
-    logger.debug('Identify the raw .nd2 file to process.')
-
+    
     assert '_auto' in experiment_fpath.stem, signals.FAIL('no _auto in the experiment name')
 
     experiment_fpath = Path(experiment_fpath)
@@ -63,7 +61,7 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
 
 
 @task(name='nd2_autoparser')
-def nikon_nd2_autoparser(nd2_file_path):
+def nikon_nd2_autoparser(nd2_file_path,parsed_raw_data_fpath):
     """
     This parser not consider the possibility to have multiple experiment running at
     the same time with the raw imaging data present in the same folder. 
@@ -84,6 +82,8 @@ def nikon_nd2_autoparser(nd2_file_path):
     Args:
         nd2_file_path: str
             Path to the .nd2 file to be parsed
+        parsed_raw_data_fpath: str
+            Path to the zarr file that will store the parsed data
 
     Returns:
         processing_info: list of tuples
@@ -145,7 +145,7 @@ def nikon_nd2_autoparser(nd2_file_path):
         
         
         # Save the file as zarr
-        zarr_store = parsed_tmp / (experiment_name + '_' + hybridization_name + '_' + channel + '_raw_images_tmp.zarr')
+        # zarr_store = parsed_tmp / (experiment_name + '_' + hybridization_name + '_' + channel + '_raw_images_tmp.zarr')
         nd2fh.bundle_axes = 'zyx'
         # set iteration over the fields of view
         nd2fh.iter_axes = 'v'
@@ -153,7 +153,7 @@ def nikon_nd2_autoparser(nd2_file_path):
         # Save coords of the FOV
         rows = np.arange(img_width)
         cols = np.arange(img_height)
-        
+        hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view[0:10]:
             img = np.array(nd2fh[fov],dtype=np.uint16)
             fov_attrs = {'channel': channel,
@@ -164,16 +164,14 @@ def nikon_nd2_autoparser(nd2_file_path):
                 'z_levels':list(z_levels),
                 'fov_num': fov,
                 'StitchingChannel': info_data['StitchingChannel'],
-                'hybridization_name': hybridization_name,
+                'hybridization_num': hybridization_num,
                 'experiment_name' : experiment_name} 
-            img_xarray = xr.DataArray(img, coords={'z_levels':z_levels,'rows':rows, 'cols':cols, 'fovs':fov}, 
-                                    dims=['z_levels','rows','cols'],attrs=fov_attrs, name=str(fov))
+            datarray_name = tag_name + '_fov_' + str(fov) 
+            img_xarray = xr.DataArray(img, coords={'z_levels':z_levels,'rows':rows, 'cols':cols}, 
+                                    dims=['z_levels','rows','cols'],attrs=fov_attrs, name=datarray_name)
             img_xarray = img_xarray.chunk(chunks=(1,img_width,img_height))
-            ds = img_xarray.to_dataset(name = str(fov))
-            if fov == 0:
-                ds.to_zarr(zarr_store, mode='w', consolidated=True)
-            else:
-                ds.to_zarr(zarr_store, mode='a', consolidated=True)
+            ds = img_xarray.to_dataset(name = datarray_name)
+            ds.to_zarr(parsed_raw_data_fpath, mode='a', consolidated=True)
                 
         # Rename the nd2 files
         new_file_name = tag_name + '.nd2'
@@ -191,8 +189,8 @@ def nikon_nd2_autoparser(nd2_file_path):
         fname = experiment_fpath / 'tmp' / (tag_name + '_fovs_coords.npy')
         np.save(fname, fov_coords)
 
-        fovs = list(fields_of_view)
-        list_store = [zarr_store] * len(fovs)
-        processing_info = list(zip(list_store,fovs))
+        # fovs = list(fields_of_view)
+        # list_store = [zarr_store] * len(fovs)
+        # processing_info = list(zip(list_store,fovs))
 
-        return processing_info
+        # return processing_info
