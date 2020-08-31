@@ -1,6 +1,6 @@
 import prefect
 import time
-from prefect import task, Flow, Parameter, flatten, unmapped
+from prefect import task, Flow, Parameter, unmapped
 from prefect.engine.executors import DaskExecutor
 
 from pysmFISH.dask_cluster_utilities_tasks import htcondor_cluster_setup
