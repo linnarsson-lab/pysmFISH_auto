@@ -26,6 +26,7 @@ if __name__ == '__main__':
         }
 
     cluster = htcondor_cluster_setup(monod_cluster)
+    cluster.adapt(minimum_jobs=2)
     print(cluster)
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_running") as flow:
