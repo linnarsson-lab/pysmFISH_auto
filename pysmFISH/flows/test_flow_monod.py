@@ -34,7 +34,7 @@ if __name__ == '__main__':
         test_parallel.map(a)
 
 
-    executor = DaskExecutor(address=cluster.scheduler_address, cluster_class='dask_jobqueue.htcondor.HTCondorCluster' adapt_kwargs={'minimum_jobs':2})
+    executor = DaskExecutor(address=cluster.scheduler_address, cluster_class='dask_jobqueue.htcondor.HTCondorCluster', adapt_kwargs={'minimum_jobs':2})
     # with raise_on_exception():
 
     flow_state = flow.run(executor=executor)
