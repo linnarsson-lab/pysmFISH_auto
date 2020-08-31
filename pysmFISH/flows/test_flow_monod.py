@@ -26,7 +26,7 @@ if __name__ == '__main__':
         }
 
     cluster = htcondor_cluster_setup(monod_cluster)
-
+    print(cluster)
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_running") as flow:
 
@@ -38,9 +38,7 @@ if __name__ == '__main__':
     # with raise_on_exception():
 
     flow_state = flow.run(executor=executor)
-    # flow_state = flow.run(executor=executor)
-    
-    flow.visualize(flow_state=flow_state)
+    print('done')
     
 
 
