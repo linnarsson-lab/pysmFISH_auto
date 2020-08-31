@@ -26,16 +26,15 @@ if __name__ == '__main__':
         }
 
     cluster = htcondor_cluster_setup(monod_cluster)
-    cluster.adapt(minimum_jobs=2)
     print(cluster)
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_running") as flow:
 
-        a = list(range(20))
+        a = list(range(10))
         test_parallel.map(a)
 
 
-    executor = DaskExecutor(address=cluster.scheduler_address)
+    executor = DaskExecutor(address=cluster.scheduler_address, adapt_kwargs={'minimum_jobs':2})
     # with raise_on_exception():
 
     flow_state = flow.run(executor=executor)
