@@ -28,7 +28,7 @@ def transfer_data_flow(transfer_config_fpath):
 
     schedule = IntervalSchedule(
     start_date=datetime.utcnow() + timedelta(seconds=1),
-    interval=timedelta(days=1),)
+    interval=timedelta(seconds=1),)
 
 
     # with Flow("test_running",schedule=schedule) as flow:
@@ -48,7 +48,7 @@ def transfer_data_flow(transfer_config_fpath):
 
         
         cluster = start_transfering_env(processing_hd_location=transfer_config['processing_hd_location'])
-
+        cluster.adapt(minimum_jobs=2)
 
         
         experiment_fpath = check_completed_transfer_to_monod(path_tmp_storage_server,flag_file_key)
