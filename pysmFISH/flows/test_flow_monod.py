@@ -13,7 +13,7 @@ from pathlib import Path
 @task
 def test_parallel(a):
     print('test_parallel')
-    time.sleep(200)
+    time.sleep(100)
 
 
 if __name__ == '__main__':
@@ -26,20 +26,21 @@ if __name__ == '__main__':
         }
 
     cluster = htcondor_cluster_setup(monod_cluster)
+    cluster.adapt(minimum_jobs=2)
     print(cluster)
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_running") as flow:
 
-        a = list(range(10))
+        a = list(range(100))
         test_parallel.map(a)
 
 
-    executor = DaskExecutor(address=cluster.scheduler_address, cluster_class='dask_jobqueue.htcondor.HTCondorCluster', adapt_kwargs={'minimum_jobs':2})
+    executor = DaskExecutor(address=cluster.scheduler_address)
     # with raise_on_exception():
 
     flow_state = flow.run(executor=executor)
     print('done')
-    
+
 
 
 
