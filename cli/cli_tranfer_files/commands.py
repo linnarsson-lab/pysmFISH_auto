@@ -11,7 +11,7 @@ def data_transfer():
     """
     pass
 
-@click.command('transfer-data-flow')
+@data_transfer.command('transfer-data-flow')
 @click.option('--config_db_path', type=str, help='Path to the directory with the config files with the \
                  parameters for data transfering')
 def transfer_data_to_processing_hd(config_db_path:str):
