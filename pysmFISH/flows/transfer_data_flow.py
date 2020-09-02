@@ -28,7 +28,7 @@ def transfer_data_flow(transfer_config_fpath):
 
     schedule = IntervalSchedule(
     start_date=datetime.utcnow() + timedelta(seconds=1),
-    interval=timedelta(seconds=1),)
+    interval=timedelta(days=1),)
 
 
     # with Flow("test_running",schedule=schedule) as flow:
