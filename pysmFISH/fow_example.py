@@ -63,15 +63,15 @@ if __name__ == '__main__':
     with Flow("test_running") as flow:
  
         # Adjust folder structure and data
-        create_folder_structure(experiment_fpath)
-        collect_extra_files(experiment_fpath=experiment_fpath,experiment_info=experiment_info)
-        sort_data_folder(experiment_fpath,experiment_info)
+        # create_folder_structure(experiment_fpath)
+        # collect_extra_files(experiment_fpath=experiment_fpath,experiment_info=experiment_info)
+        # sort_data_folder(experiment_fpath,experiment_info)
 
-        experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
-        experiment_info = Parameter('experiment_info',default=experiment_info)
+        # experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
+        # experiment_info = Parameter('experiment_info',default=experiment_info)
    
-        # Prepare configuration files
-        create_analysis_config_file(experiment_fpath, experiment_info)
+        # # Prepare configuration files
+        # create_analysis_config_file(experiment_fpath, experiment_info)
 
         # Parsing
         #  Get all the .nd2 files to process
