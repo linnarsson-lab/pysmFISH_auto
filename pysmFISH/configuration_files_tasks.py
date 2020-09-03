@@ -17,7 +17,7 @@ from pysmFISH.logger_utils import prefect_logging_setup
 # https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml (comment)
 yaml.SafeDumper.ignore_aliases = lambda *args : True
 
-def create_processing_env_config_file(experimnent_fpath:str):
+def create_processing_env_config_file(experiment_fpath:str):
     """
     This function creates a configuration files with the parameters requested for the 
     setup of the processing cluster. 
@@ -28,7 +28,7 @@ def create_processing_env_config_file(experimnent_fpath:str):
             path to the experiment that will be processed
     """
 
-    processing_env_config_fpath = experimnent_fpath / 'pipeline_config' / 'processing_env_config.yaml'
+    processing_env_config_fpath = experiment_fpath / 'pipeline_config' / 'processing_env_config.yaml'
     processing_env_config = OrderedDict()
 
     processing_env_config['htcondor'] = {}
@@ -140,7 +140,7 @@ def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
 
         analysis_config['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
 
-        if 'barcoded' in experiment_info['experiment_type']:
+        if 'barcoded' in experiment_info['Experiment_type']:
             analysis_config['fresh_nuclei'] = {}
             analysis_config['fresh_nuclei']['preprocessing'] = {}
             analysis_config['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
@@ -188,7 +188,7 @@ def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
 
         analysis_config['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
 
-        if 'barcoded' in experiment_info['experiment_type']:
+        if 'barcoded' in experiment_info['Experiment_type']:
             analysis_config['fresh_nuclei'] = {}
             analysis_config['fresh_nuclei']['preprocessing'] = {}
             analysis_config['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
@@ -236,7 +236,7 @@ def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
 
         analysis_config['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
 
-        if 'barcoded' in experiment_info['experiment_type']:
+        if 'barcoded' in experiment_info['Experiment_type']:
             analysis_config['fresh_nuclei'] = {}
             analysis_config['fresh_nuclei']['preprocessing'] = {}
             analysis_config['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
@@ -270,7 +270,7 @@ def load_processing_env_config_file(experiment_fpath:str):
 
 
 @task(name='load-analysis-config')
-def load_analysis_config_file(experiment_fpath:str):
+def load_analysis_config_file(expxeriment_fpath:str):
     logger = prefect_logging_setup('load-analysis-config')
     experiment_fpath = Path(experiment_fpath)
     analysis_config_fpath = experiment_fpath / 'pipeline_config' / 'analysis_config.yaml'

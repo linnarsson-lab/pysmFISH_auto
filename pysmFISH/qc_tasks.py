@@ -12,6 +12,82 @@ import numpy as np
 from pathlib import Path
 
 from pysmFISH.logger_utils import prefect_logging_setup
+from pysmFISH.configuration_files_tasks import load_experiment_config_file
+
+
+def check_experiment_yaml_file(experiment_fpath:str):
+    """
+    This function is used to check that the parameter
+    needed for processing are included in the experiment_name.yaml
+    file and have the expected values
+    
+    Args:
+        experiment_fpath: str
+            str with the path to the folder of the experiment to process
+    """
+
+    experiment_info = load_experiment_config_file(experiment_fpath)
+    
+    logger = prefect_logging_setup('qc_experiment_yaml')
+
+    experiment_info_keys = list(experiment_info.keys())
+
+    if 'Codebook' not in experiment_info_keys:
+        logger.error(f'Codebook keyword in the experiment file')
+        raise signals.FAIL(f'Codebook keyword in the experiment file')
+
+    if 'Barcode' not in experiment_info_keys:
+        logger.error(f'Barcode keyword in the experiment file')
+        raise signals.FAIL(f'Barcode keyword in the experiment file')
+
+    if 'Barcode_length' not in experiment_info_keys:
+        logger.error(f'Barcode_length keyword in the experiment file')
+        raise signals.FAIL(f'Barcode_length keyword in the experiment file')
+    
+    if 'Machine' not in experiment_info_keys:
+        logger.error(f'Machine keyword in the experiment file')
+        raise signals.FAIL(f'Machine keyword in the experiment file')
+    elif experiment_info['Machine'] not in ['ROBOFISH1', 'ROBOFISH2', 'NOT-DEFINED']:
+        logger.error(f'Wrong machine name')
+        raise signals.FAIL(f'Wrong machine name') 
+    
+    if 'Overlapping_percentage' not in experiment_info_keys:
+        logger.error(f'Overlapping_percentage keyword in the experiment file')
+        raise signals.FAIL(f'Overlapping_percentage keyword in the experiment file')
+
+    if 'Species' not in experiment_info_keys:
+        logger.error(f'Species keyword in the experiment file')
+        raise signals.FAIL(f'Species keyword in the experiment file')
+    elif experiment_info['Species'] not in ['Mus Musculus', 'Homo Sapiens']:
+        logger.error(f'Unknown Species selected')
+        raise signals.FAIL(f'Unknown Species selected')
+
+    if 'roi' not in experiment_info_keys:
+        logger.error(f'roi keyword in the experiment file')
+        raise signals.FAIL(f'roi keyword in the experiment file')
+
+    if 'StitchingChannel' not in experiment_info_keys:
+        logger.error(f'StitchingChannel keyword in the experiment file')
+        raise signals.FAIL(f'StitchingChannel keyword in the experiment file')
+
+    if 'Stitching_type' not in experiment_info_keys:
+        logger.error(f'Stitching_type keyword in the experiment file')
+        raise signals.FAIL(f'Stitching_type keyword in the experiment file')
+    elif experiment_info['Stitching_type'] not in ['small-beads', 'large-beads', 'nuclei']:
+        logger.error(f'Wrong Stitching_type selected in the experiment file')
+        raise signals.FAIL(f'Wrong Stitching_type selected in the experiment file')
+
+    if 'Experiment_type' not in experiment_info_keys:
+        logger.error(f'Experiment_type keyword in the experiment file')
+        raise signals.FAIL(f'Experiment_type keyword in the experiment file')
+    elif experiment_info['Experiment_type'] not in ['smfish-serial', 'smfish-barcoded', 'eel-barcoded']:
+        logger.error(f'Wrong Experiment_type selected in the experiment file')
+        raise signals.FAIL(f'Wrong Experiment_type selected in the experiment file')
+
+    if 'Probes' not in experiment_info_keys:
+        logger.error(f'Probes keyword in the experiment file')
+        raise signals.FAIL(f'Probes keyword in the experiment file')
+
 
 
 @task(name='qc_matching_pkl')

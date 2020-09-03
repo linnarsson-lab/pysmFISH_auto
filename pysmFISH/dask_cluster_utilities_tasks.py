@@ -86,8 +86,8 @@ def start_processing_env(experiment_fpath:str,experiment_info:Dict):
     else:
         processing_engine = processing_env_config['processing_engine']
         if processing_engine == 'htcondor':
-            experiment_type = experiment_info['experiment_type']
-            cluster_config_parameters = processing_env_config[processing_engine][experiment_type]
+            Experiment_type = experiment_info['Experiment_type']
+            cluster_config_parameters = processing_env_config[processing_engine][Experiment_type]
             cluster = htcondor_cluster_setup(cluster_config_parameters)
             return cluster
         elif processing_engine == 'local':
@@ -140,7 +140,7 @@ def start_transfering_env(processing_hd_location:str):
 # if __name__ == "__main__":
 #     experiment_fpath = '/Users/simone/Documents/local_data_storage/prefect_test/exp_pre_auto'
 #     experiment_info = {'processing_engine': 'local',
-#                         'experiment_type': 'eel-barcoded'}
+#                         'Experiment_type': 'eel-barcoded'}
 
 #     processing_env_config = {}
 #     processing_env_config['htcondor'] = {}
