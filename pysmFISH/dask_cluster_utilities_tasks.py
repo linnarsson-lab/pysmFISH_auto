@@ -73,8 +73,6 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict):
 
     """
     logger = prefect.utilities.logging.get_logger("start_processing_env")
-    experiment_fpath = Path(experiment_fpath)
-    processing_env_config_fpath = experiment_fpath / 'pipeline_config' / 'processing_env_config.yaml'
     processing_engine = processing_env_config['processing_engine']
     if processing_engine == 'htcondor':
         experiment_type = experiment_info['Experiment_type']
