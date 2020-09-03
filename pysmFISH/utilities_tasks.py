@@ -295,17 +295,17 @@ def sort_data_folder(experiment_fpath:str,experiment_info:Dict):
     # Move the robofish generated logs
     robofish_logs = experiment_fpath.glob('*.log')
     for log in robofish_logs:
-        shutil.move(log, (experiment_fpath / 'original_robofish_logs'))
+        shutil.move(log.as_posix(), (experiment_fpath / 'original_robofish_logs').as_posix())
 
     # Move the crosses images
     crosses_files = experiment_fpath.glob('*_cross.nd2')
     for cross in crosses_files:
-        shutil.move(cross, (experiment_fpath / 'extra_files'))
+        shutil.move(cross.as_posix(), (experiment_fpath / 'extra_files').as_posix())
 
     # Move the coords files
     coords_files = experiment_fpath.glob('*.xml')
     for coord in coords_files:
-        shutil.move(coord, (experiment_fpath / 'extra_files'))
+        shutil.move(coord.as_posix(), (experiment_fpath / 'extra_files').as_posix())
 
     # Move the fresh nuclei file for eel
     if 'eel' in experiment_info['Experiment_type']:
@@ -319,6 +319,6 @@ def sort_data_folder(experiment_fpath:str,experiment_info:Dict):
                 os.chmod(experiment_fpath / 'fresh_nuclei',0o777)
             
             for nuclei in nuclei_files:
-                shutil.move(nuclei, (experiment_fpath / 'fresh_nuclei'))
+                shutil.move(nuclei.as_posix(), (experiment_fpath / 'fresh_nuclei').as_posix())
         else:
             logger.info(f'The experiment do not have images of fresh nuclei')
