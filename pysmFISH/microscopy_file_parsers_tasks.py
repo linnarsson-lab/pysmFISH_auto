@@ -155,7 +155,7 @@ def nikon_nd2_autoparser(nd2_file_path,parsed_raw_data_fpath):
         rows = np.arange(img_width)
         cols = np.arange(img_height)
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
-        for fov in fields_of_view[0:10]:
+        for fov in fields_of_view:
             img = np.array(nd2fh[fov],dtype=np.uint16)
             fov_attrs = {'channel': channel,
                 'target_name': info_data['channels'][channel],
