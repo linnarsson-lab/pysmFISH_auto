@@ -52,6 +52,10 @@ if __name__ == '__main__':
         experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
         experiment_info = load_experiment_config_file(experiment_fpath)
 
+        # Adjust folder structure and data
+        create_folder_structure(experiment_fpath)
+        collect_extra_files(experiment_fpath=experiment_fpath,experiment_info=experiment_info)
+        sort_data_folder(experiment_fpath,experiment_info)
 
         # get info for submitting the error notification to github
         processing_env_config = load_processing_env_config_file(experiment_fpath)
@@ -65,11 +69,6 @@ if __name__ == '__main__':
         experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
         experiment_info = Parameter('experiment_info',default=experiment_info)
    
-        # Adjust folder structure and data
-        create_folder_structure(experiment_fpath)
-        collect_extra_files(experiment_fpath=experiment_fpath,experiment_info=experiment_info)
-        sort_data_folder(experiment_fpath,experiment_info)
-
         # Prepare configuration files
         create_analysis_config_file(experiment_fpath, experiment_info)
 
