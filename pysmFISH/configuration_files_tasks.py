@@ -248,7 +248,7 @@ def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
         signals.FAIL(f'cannot save the analysis_config_file')
 
 
-# @task(name='load-processing-env-config')
+@task(name='load-processing-env-config')
 def load_processing_env_config_file(experiment_fpath:str):
     logger = prefect_logging_setup('load-processing-env-config')
     experiment_fpath = Path(experiment_fpath)
