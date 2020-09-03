@@ -42,6 +42,18 @@ if __name__ == '__main__':
     flag_file_key = Parameter('flag_file_key', default='transfer_to_monod_completed.txt')
     processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
 
+     # get info for submitting the error notification to github
+    processing_env_config = load_processing_env_config_file(processing_hd_location.default)
+    git_repo = processing_env_config['git_repo']
+    git_token = processing_env_config['git_token']
+
+    experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
+    experiment_info = load_experiment_config_file(experiment_fpath)
+
+    # Activate processing cluster
+    cluster = start_processing_env(processing_env_config,experiment_info)
+    cluster.adapt(minimum_jobs=2)
+
     # schedule = IntervalSchedule(
     # start_date=datetime.utcnow() + timedelta(seconds=1),
     # interval=timedelta(minutes=1),)
@@ -49,22 +61,10 @@ if __name__ == '__main__':
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_running") as flow:
  
-        experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
-        experiment_info = load_experiment_config_file(experiment_fpath)
-
         # Adjust folder structure and data
         create_folder_structure(experiment_fpath)
         collect_extra_files(experiment_fpath=experiment_fpath,experiment_info=experiment_info)
         sort_data_folder(experiment_fpath,experiment_info)
-
-        # get info for submitting the error notification to github
-        processing_env_config = load_processing_env_config_file(experiment_fpath)
-        git_repo = processing_env_config['git_repo']
-        git_token = processing_env_config['git_token']
-        
-        # Activate processing cluster
-        cluster = start_processing_env(experiment_fpath,experiment_info)
-        cluster.adapt(minimum_jobs=2)
 
         experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
         experiment_info = Parameter('experiment_info',default=experiment_info)

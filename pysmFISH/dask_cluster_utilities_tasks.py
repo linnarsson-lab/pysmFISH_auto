@@ -56,18 +56,15 @@ def local_cluster_setup():
     return cluster
 
 
-def start_processing_env(experiment_fpath:str,experiment_info:Dict):
+def start_processing_env(processing_env_config:Dict,experiment_info:Dict):
     """
     Function to start the processing env. In the current setup
     is set up to run on the local computer or in a HPC cluster 
     manged by HTCondor
 
-    It requires a processing_env_config.yaml in a folder called config_db
-    in the folder where the experiments are processed
-
     Args;
-        experiment_fpath: str
-            path to the folder with the experiment to process
+        processing_env_config: Dict
+            Dict with the parameters for starting the cluster
         experiment_info: Dict
             dictionary with all the info describing the experiment
     Return:
@@ -78,25 +75,18 @@ def start_processing_env(experiment_fpath:str,experiment_info:Dict):
     logger = prefect.utilities.logging.get_logger("start_processing_env")
     experiment_fpath = Path(experiment_fpath)
     processing_env_config_fpath = experiment_fpath / 'pipeline_config' / 'processing_env_config.yaml'
-    try:
-        processing_env_config = yaml.safe_load(open(processing_env_config_fpath,'rb'))
-    except (FileExistsError,NameError) as e:
-        logger.error(f'missing processing env configuration file')
-        signals.FAIL(f'missing processing env configuration file')
+    processing_engine = processing_env_config['processing_engine']
+    if processing_engine == 'htcondor':
+        experiment_type = experiment_info['Experiment_type']
+        cluster_config_parameters = processing_env_config[processing_engine][experiment_type]
+        cluster = htcondor_cluster_setup(cluster_config_parameters)
+        return cluster
+    elif processing_engine == 'local':
+        cluster = local_cluster_setup()
+        return cluster
     else:
-        processing_engine = processing_env_config['processing_engine']
-        if processing_engine == 'htcondor':
-            Experiment_type = experiment_info['Experiment_type']
-            cluster_config_parameters = processing_env_config[processing_engine][Experiment_type]
-            cluster = htcondor_cluster_setup(cluster_config_parameters)
-            return cluster
-        elif processing_engine == 'local':
-            cluster = local_cluster_setup()
-            return cluster
-        else:
-            logger.error(f'the processing engine is not defined check the name')
-            signals.FAIL(f'the processing engine is not defined check the name')
-
+        logger.error(f'the processing engine is not defined check the name')
+        signals.FAIL(f'the processing engine is not defined check the name')
 
 
 def start_transfering_env(processing_hd_location:str):
