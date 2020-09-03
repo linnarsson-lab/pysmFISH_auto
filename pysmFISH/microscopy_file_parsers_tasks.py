@@ -50,7 +50,7 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
     assert '_auto' in experiment_fpath.stem, signals.FAIL('no _auto in the experiment name')
 
     experiment_fpath = Path(experiment_fpath)
-    searching_key = 'Count*.nd2'
+    searching_key = '*Count*.nd2'
     all_files_to_process = list(experiment_fpath.glob(searching_key))
 
     assert all_files_to_process, signals.FAIL('no .nd2 raw files to process')
