@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
      # get info for submitting the error notification to github
     config_db_fpath = Path(processing_hd_location.default / 'config_db')
-    processing_env_config = load_processing_env_config_file(processing_hd_location.default)
+    processing_env_config = load_processing_env_config_file(config_db_fpath)
     git_repo = processing_env_config['git_repo']
     git_token = processing_env_config['git_token']
 
