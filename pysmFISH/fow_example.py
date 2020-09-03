@@ -43,6 +43,7 @@ if __name__ == '__main__':
     processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
 
      # get info for submitting the error notification to github
+    config_db_fpath = Path(processing_hd_location.default / 'config_db')
     processing_env_config = load_processing_env_config_file(processing_hd_location.default)
     git_repo = processing_env_config['git_repo']
     git_token = processing_env_config['git_token']
