@@ -42,18 +42,22 @@ if __name__ == '__main__':
     flag_file_key = Parameter('flag_file_key', default='transfer_to_monod_completed.txt')
     processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
 
+    experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
+    experiment_info = load_experiment_config_file(experiment_fpath)
+
 
 
     # schedule = IntervalSchedule(
     # start_date=datetime.utcnow() + timedelta(seconds=1),
     # interval=timedelta(minutes=1),)
 
-    experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
-    experiment_info = load_experiment_config_file(experiment_fpath)
-
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_running") as flow:
  
+        experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
+        experiment_info = load_experiment_config_file(experiment_fpath)
+
+
         # get info for submitting the error notification to github
         processing_env_config = load_processing_env_config_file(experiment_fpath)
         git_repo = processing_env_config['git_repo']

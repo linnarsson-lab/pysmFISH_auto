@@ -19,7 +19,7 @@ from pysmFISH.logger_utils import prefect_logging_setup
 yaml.SafeDumper.ignore_aliases = lambda *args : True
 
 
-@task(name='check_completed_transfer_to_monod')
+# @task(name='check_completed_transfer_to_monod')
 def check_completed_transfer_to_monod(path_tmp_storage_server:str, flag_file_key:str):
     """
     Function to scan the folder where the data are transferred from the machines.
