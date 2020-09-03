@@ -98,7 +98,8 @@ def nikon_nd2_autoparser(nd2_file_path,parsed_raw_data_fpath):
     logger.debug(f'processing file {nd2_fname}')
 
     experiment_fpath = nd2_file_path.parent
-    experiment_name = nd2_file_path.parent.stem  
+    experiment_name = nd2_file_path.parent.stem
+    experiment_name = experiment_name.split('_auto')[0]
        
     raw_files_dir = experiment_fpath / 'raw_data'
     parsed_tmp = experiment_fpath / 'parsed_tmp'

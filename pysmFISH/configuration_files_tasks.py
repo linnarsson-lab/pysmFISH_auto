@@ -353,6 +353,7 @@ def load_experiment_config_file(experiment_fpath:str):
 
     experiment_fpath = Path(experiment_fpath)
     experiment_name = experiment_fpath.stem
+    experiment_name = experiment_name.split('_auto')[0]
     search_key = experiment_name + '_config.yaml'
     
     try:
