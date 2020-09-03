@@ -40,7 +40,7 @@ if __name__ == '__main__':
     # has been transferred to monod
     # -------------------------------------------------------
     flag_file_key = Parameter('flag_file_key', default='transfer_to_monod_completed.txt')
-    processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
+    processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
 
     experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
     experiment_info = load_experiment_config_file(experiment_fpath)
