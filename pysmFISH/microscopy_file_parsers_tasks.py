@@ -316,17 +316,17 @@ def nikon_nd2_autoparser_single_files(nd2_file_path,parsed_raw_data_fpath):
             ds = img_xarray.to_dataset(name = datarray_name)
             ds.to_zarr(zarr_store, mode='a', consolidated=True)
                 
-        # Rename the nd2 files
-        new_file_name = tag_name + '.nd2'
-        new_file_path = raw_files_dir / new_file_name
-        nd2_file_path.rename(new_file_path)
-        nd2_file_path = new_file_path
+        # # Rename the nd2 files
+        # new_file_name = tag_name + '.nd2'
+        # new_file_path = raw_files_dir / new_file_name
+        # nd2_file_path.rename(new_file_path)
+        # nd2_file_path = new_file_path
         
-        # Copy the pkl files
-        new_file_name = tag_name + '_info.pkl'
-        new_file_path = raw_files_dir / new_file_name
-        # Must copy the pkl file in order to be able to use the file for the other channels
-        shutil.copy(str(info_file), str(new_file_path))
+        # # Copy the pkl files
+        # new_file_name = tag_name + '_info.pkl'
+        # new_file_path = raw_files_dir / new_file_name
+        # # Must copy the pkl file in order to be able to use the file for the other channels
+        # shutil.copy(str(info_file), str(new_file_path))
         
         # Save the fov_coords
         fname = experiment_fpath / 'tmp' / (tag_name + '_fovs_coords.npy')
