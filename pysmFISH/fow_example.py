@@ -116,3 +116,4 @@ if __name__ == '__main__':
     # flow_state = flow.run(executor=executor)
     
     flow.visualize(flow_state=flow_state)
+    cluster.close()
