@@ -571,19 +571,20 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
             array_name = tag_name + '_fov_' + str(fov)
             dgrp = root.create_group(array_name)
             fov_name = 'raw_data_fov_' + str(fov)
+            dgrp.attrs['grp_name'] = array_name
+            dgrp.attrs['fov_name'] = fov_name
+            dgrp.attrs['channel'] = channel
+            dgrp.attrs['target_name'] = info_data['channels'][channel]
+            dgrp.attrs['img_height'] = img_height
+            dgrp.attrs['img_width'] = img_width
+            dgrp.attrs['pixel_microns'] = pixel_microns
+            dgrp.attrs['z_levels'] = list(z_levels)
+            dgrp.attrs['fov_num'] = fov
+            dgrp.attrs['StitchingChannel'] = info_data['StitchingChannel']
+            dgrp.attrs['hybridization_num'] = hybridization_num
+            dgrp.attrs['experiment_name'] = experiment_name
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
-            dset.attrs['grp_name'] = array_name
-            dset.attrs['fov_name'] = fov_name
-            dset.attrs['channel'] = channel
-            dset.attrs['target_name'] = info_data['channels'][channel]
-            dset.attrs['img_height'] = img_height
-            dset.attrs['img_width'] = img_width
-            dset.attrs['pixel_microns'] = pixel_microns
-            dset.attrs['z_levels'] = list(z_levels)
-            dset.attrs['fov_num'] = fov
-            dset.attrs['StitchingChannel'] = info_data['StitchingChannel']
-            dset.attrs['hybridization_num'] = hybridization_num
-            dset.attrs['experiment_name'] = experiment_name
+            dset.attrs['img_data_type'] = img.dtype
                
         # Rename the nd2 files
         # new_file_name = tag_name + '.nd2'
