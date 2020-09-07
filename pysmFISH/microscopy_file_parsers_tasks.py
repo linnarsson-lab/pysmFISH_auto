@@ -568,8 +568,12 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view:
             img = np.array(nd2fh[fov],dtype=np.uint16)      
-            array_name = tag_name + '_fov_' + str(fov)   
-            dset = root.create_dataset(array_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
+            array_name = tag_name + '_fov_' + str(fov)
+            dgrp = root.create_group(array_name)
+            fov_name = 'raw_data_fov_' + str(fov)
+            dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
+            dset.attrs['grp_name'] = array_name
+            dset.attrs['fov_name'] = fov_name
             dset.attrs['channel'] = channel
             dset.attrs['target_name'] = info_data['channels'][channel]
             dset.attrs['img_height'] = img_height
@@ -593,6 +597,6 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
         # # Must copy the pkl file in order to be able to use the file for the other channels
         # shutil.copy(str(info_file), str(new_file_path))
         
-        # # Save the fov_coords
-        # fname = experiment_fpath / 'tmp' / (tag_name + '_fovs_coords.npy')
-        # np.save(fname, fov_coords)
+        # Save the fov_coords
+        fname = experiment_fpath / 'tmp' / (tag_name + '_fovs_coords.npy')
+        np.save(fname, fov_coords)
