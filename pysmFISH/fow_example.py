@@ -84,9 +84,9 @@ if __name__ == '__main__':
         check_matching_metadata_robofish(all_raw_files)
         # report_input_files_errors(git_repo,experiment_fpath,git_token)
         # # Parse .nd2 files
-        tag = 'parsed_raw_data'
+        tag = 'img_data'
         parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
-        nikon_nd2_autoparser_single_files.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
 
         
 
