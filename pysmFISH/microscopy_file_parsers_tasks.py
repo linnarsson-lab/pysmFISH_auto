@@ -584,7 +584,6 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
             dgrp.attrs['hybridization_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
-            dset.attrs['img_data_type'] = img.dtype
                
         # Rename the nd2 files
         # new_file_name = tag_name + '.nd2'
