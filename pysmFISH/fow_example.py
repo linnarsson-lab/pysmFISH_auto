@@ -14,7 +14,7 @@ from pysmFISH.configuration_files_tasks import load_processing_env_config_file, 
 from pysmFISH.microscopy_file_parsers_tasks import nd2_raw_files_selector, nikon_nd2_autoparser, nikon_nd2_autoparser_single_files, nikon_nd2_autoparser_zarr, nikon_nd2_autoparser_zarr_single_files
 from pysmFISH.qc_tasks import check_matching_metadata_robofish
 from pysmFISH.utilities_tasks import check_completed_transfer_to_monod, sort_data_folder, create_empty_zarr_file
-from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array
+from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array,consolidate_zarr_metadata
 from pysmFISH.notifications_tasks import report_input_files_errors
 
 from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup
@@ -78,17 +78,17 @@ if __name__ == '__main__':
 
         # Parsing
         #  Get all the .nd2 files to process
-        all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath)
+        # all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath)
         
-        # Run the crosscheck for all the pkl files
-        check_matching_metadata_robofish(all_raw_files)
-        # report_input_files_errors(git_repo,experiment_fpath,git_token)
-        # # Parse .nd2 files
-        tag = 'img_data'
-        parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
-        nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
-
-        
+        # # Run the crosscheck for all the pkl files
+        # check_matching_metadata_robofish(all_raw_files)
+        # # report_input_files_errors(git_repo,experiment_fpath,git_token)
+        # # # Parse .nd2 files
+        # tag = 'img_data'
+        # parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
+        # nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
+        consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)        
 
         # experiment_fpath = Path('/Users/simone/Documents/local_data_storage/prefect_test/whd/exp_pre_auto')
         

@@ -322,3 +322,31 @@ def sort_data_folder(experiment_fpath:str,experiment_info:Dict):
                 shutil.move(nuclei.as_posix(), (experiment_fpath / 'fresh_nuclei').as_posix())
         else:
             logger.info(f'The experiment do not have images of fresh nuclei')
+
+
+@task(name = 'consolidate-metadata')
+def consolidate_zarr_metadata(parsed_raw_data_fpath:str):
+    """
+    Function to consolidate all the zarr metadata in one unique
+    json file for eady indexing and searching
+
+    Args:
+        parsed_raw_data_fpath: str
+            path to the file with all the parsed images
+    
+    Returns:
+        consolidated_grp: zarr group
+            zarr groups instance with the consolidated metadata
+    """
+
+    logger = prefect_logging_setup(f'consolidate-metadata')
+    
+    try:
+        store = zarr.DirectoryStore(parsed_raw_data_fpath)
+        consolidated_grp = zarr.consolidate_metadata(store)
+    except:
+        logger.error(f'cannot consolidate metadata of the parsed zarr file')
+        signals.FAIL(f'cannot consolidate metadata of the parsed zarr file')
+    
+    else:
+        return consolidated_grp
