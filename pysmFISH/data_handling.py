@@ -93,6 +93,15 @@ def create_shoji_db(experiment_info:Dict):
         ws.DataGenerationDate =            shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Start_date'],dtype=object))
 
 
+        # Tensors used to store the output of dot calling
+        ws.DotsCoordsFOV =           shoji.Tensor("float64", dims=('genes','dots','rc'))
+        ws.DotID =                   shoji.Tensor("string", dims=('genes','dots'))
+        ws.FovNumber =               shoji.Tensor("uint16", dims=('genes','dots'))
+        ws.HybridizationNumber =     shoji.Tensor("uint16", dims=('genes','dots'))
+        ws.DotIntensity =            shoji.Tensor("float64", dims=('genes','dots'))
+        ws.SelectedThreshold =       shoji.Tensor("float64", dims=('genes','dots'))
+        ws.DotChannel =              shoji.Tensor("string", dims=('genes','dots'))
+
         # Properties with the defauls analysis settings. The settings are 
         # adjusted according to the machine used for acquisition. In our case
         # the machines have different components
@@ -114,25 +123,24 @@ def create_shoji_db(experiment_info:Dict):
 
             ws.CountingFishMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingFishMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingSmallBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingLargeBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=3)                                                                   
 
             ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
 
-            if 'barcoded' in experiment_info['Experiment_type']:
-                ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
+            ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
 
         elif machine == 'ROBOFISH2':
 
@@ -150,25 +158,24 @@ def create_shoji_db(experiment_info:Dict):
 
             ws.CountingFishMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingFishMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingSmallBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingLargeBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=3)                                                                   
 
             ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
 
-            if 'barcoded' in experiment_info['Experiment_type']:
-                ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
+            ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
 
         elif machine == 'NOT_DEFINED':
 
@@ -186,23 +193,22 @@ def create_shoji_db(experiment_info:Dict):
 
             ws.CountingFishMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingFishMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingSmallBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingLargeBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
+            ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=3)                                                                   
 
             ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
 
-            if 'barcoded' in experiment_info['Experiment_type']:
-                ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
-                        
+            ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
+        
