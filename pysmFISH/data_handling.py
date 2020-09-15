@@ -27,7 +27,7 @@ def create_shoji_db(experiment_info:Dict):
     """
     logger = prefect_logging_setup('create-analasys-config-file')
 
-
+    experiment_name = experiment_info['EXP_number']
     try:
         machine = experiment_info['Machine']
     except NameError:
@@ -42,13 +42,12 @@ def create_shoji_db(experiment_info:Dict):
     else:
         if 'FISH' not in db:
             db.FISH = shoji.Workspace()
+        
+        if experiment_name not in db.FISH:
+            db.FISH[experiment_name] = shoji.Workspace()
+            ws = db.FISH[experiment_name]
         else:
-            experiment_name = experiment_info['EXP_number']
-            if experiment_name not in db.FISH:
-                db.FISH[experiment_name] = shoji.Workspace()
-                ws = db.FISH[experiment_name]
-            else:
-                ws = db.FISH[experiment_name]
+            ws = db.FISH[experiment_name]
 
         # Dimenstion of the tensors
         ws.genes = shoji.Dimension(shape=None)   # None means jagged or variable-length
@@ -127,12 +126,12 @@ def create_shoji_db(experiment_info:Dict):
             ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingSmallBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
+            ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingLargeBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
+            ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
@@ -162,12 +161,12 @@ def create_shoji_db(experiment_info:Dict):
             ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingSmallBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
+            ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingLargeBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
+            ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
@@ -197,12 +196,12 @@ def create_shoji_db(experiment_info:Dict):
             ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingSmallBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
+            ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 
             ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=2)
-            ws.CountingLargeBeadsRegistrationhMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
+            ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=2)
             ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=200)
             ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=1)
 

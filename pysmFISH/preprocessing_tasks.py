@@ -48,15 +48,15 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
 
 
 @task(name='preprocessing-raw-fish-images')
-def preprocessing_dot_raw_images(img:np.ndarray,dark_img:np.ndarray,
+def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
                             FlatFieldKernel:np.ndarray,FilteringSmallKernel:np.ndarray, 
                             LaplacianKernel:np.ndarray )->np.ndarray:
     """
     Function that preprocess the images in order to enhance the dots
 
     Args:
-        img: np.ndarray
-            image to filter
+        img_meta: tuple
+            tuple containing (image np.ndarray and metadata dict)
         dark_img: np.ndarray
             image for correction of dark current
         FlatFieldKernel: np.ndarray
@@ -69,6 +69,8 @@ def preprocessing_dot_raw_images(img:np.ndarray,dark_img:np.ndarray,
 
     """
     logger = prefect_logging_setup('preprocessing-raw-fish-images')
+    img = img_meta[0]
+    img_metadata = img_meta[1]
     img = convert_from_uint16_to_float64(img)
     img -= dark_img
     img = np.amax(img, axis=0)
@@ -82,4 +84,4 @@ def preprocessing_dot_raw_images(img:np.ndarray,dark_img:np.ndarray,
     img = (img - np.mean(img)) / np.std(img)
     img[img<0] = 0 
     
-    return img
+    return (img, img_meta)
