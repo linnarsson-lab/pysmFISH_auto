@@ -525,7 +525,8 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
         nd2fh = nd2reader.ND2Reader(nd2_file_path)
     except:
         logger.error('Cannot load the nd2 file')
-        signals.FAIL('Cannot load the nd2 file')
+        err = signals.FAIL('Cannot load the nd2 file')
+        raise err
     else:
         # Collect metadata
         all_metadata = nd2fh.parser._raw_metadata
