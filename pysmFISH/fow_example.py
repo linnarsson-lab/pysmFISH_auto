@@ -15,7 +15,7 @@ from pysmFISH.data_handling import create_shoji_db
 from pysmFISH.microscopy_file_parsers_tasks import nd2_raw_files_selector, nikon_nd2_autoparser, nikon_nd2_autoparser_single_files, nikon_nd2_autoparser_zarr, nikon_nd2_autoparser_zarr_single_files
 from pysmFISH.qc_tasks import check_matching_metadata_robofish
 from pysmFISH.utilities_tasks import check_completed_transfer_to_monod, sort_data_folder, create_empty_zarr_file
-from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array,consolidate_zarr_metadata
+from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array,consolidate_zarr_metadata, load_analysis_parameters
 from pysmFISH.notifications_tasks import report_input_files_errors
 
 from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup
@@ -32,6 +32,7 @@ def test_parallel():
     return 22
 
 
+
 if __name__ == '__main__':
 
     # Add all the components to check for _auto files in the folder
@@ -44,8 +45,8 @@ if __name__ == '__main__':
     logger = prefect_logging_setup("logger testing")
     
     flag_file_key = Parameter('flag_file_key', default='transfer_to_monod_completed.txt')
-    # processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
-    processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
+    processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
+    # processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
 
      # get info for submitting the error notification to github
     config_db_fpath = Path(processing_hd_location.default) / 'config_db'
@@ -66,8 +67,12 @@ if __name__ == '__main__':
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_running") as flow:
  
+        # --------------------------------------------------
+        #                 HOUSEKEEPING
+        # --------------------------------------------------
+
         # Create the shoji database that will contain the data
-        create_shoji_db(experiment_info)
+        # create_shoji_db(experiment_info)
         
         # Adjust folder structure and data
         # create_folder_structure(experiment_fpath)
@@ -77,22 +82,34 @@ if __name__ == '__main__':
         # experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
         # experiment_info = Parameter('experiment_info',default=experiment_info)
    
-        # # Prepare configuration files
-        # create_analysis_config_file(experiment_fpath, experiment_info)
+        # analysis_parameters = load_analysis_parameters(experiment_fpath)
 
-        # Parsing
+        # --------------------------------------------------
+        #                     PARSING
+        # --------------------------------------------------
         # Get all the .nd2 files to process
-        # all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath)
+        all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath)
         
         # Run the crosscheck for all the pkl files
         # check_matching_metadata_robofish(all_raw_files)
         # report_input_files_errors(git_repo,experiment_fpath,git_token)
         # # Parse .nd2 files
-        # tag = 'img_data'
-        # parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
-        # nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
-        # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
-        # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)        
+        tag = 'img_data'
+        parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
+        nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
+        consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)        
+        # --------------------------------------------------
+
+
+
+        # --------------------------------------------------
+        #         PREPROCESSING AND DOTS CALLING            
+        # --------------------------------------------------
+        # Get the list of raw image groups to preprocess
+        # raw_images_groups = list(consolidated_zarr_grp.keys())
+
+
 
         # experiment_fpath = Path('/Users/simone/Documents/local_data_storage/prefect_test/whd/exp_pre_auto')
         
