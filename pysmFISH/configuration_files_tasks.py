@@ -361,8 +361,6 @@ def load_experiment_config_file(experiment_fpath:str):
     except:
         logger.error(f'No experiment info file in {experiment_fpath}')
         fail_signal = signals.FAIL("No experiment info file in the folder")
-        fail_signal.flag = True
-        fail_signal.value = None
         raise fail_signal
     
     try:
@@ -371,7 +369,4 @@ def load_experiment_config_file(experiment_fpath:str):
     except:
         logger.error(f'Experiment info file has the wrong name in {experiment_fpath}')
         fail_signal = signals.FAIL("Experiment info file has the wrong name in the folder")
-        fail_signal.flag = True
-        fail_signal.value = None
         raise fail_signal
-
