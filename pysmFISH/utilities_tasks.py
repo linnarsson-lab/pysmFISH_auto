@@ -171,6 +171,12 @@ def collect_extra_files(experiment_fpath:str, experiment_info:Dict):
     """
     logger = prefect_logging_setup('collect_extra_files')
     experiment_fpath = Path(experiment_fpath)
+
+    try:
+        machine = experiment_info['Machine']
+    except NameError:
+        machine = 'NOT_DEFINED'
+
     dark_img_fpath = experiment_fpath.parent / 'dark_imgs' / (experiment_info['Machine'] + '_dark_img.npy')
     try:
         shutil.copy(dark_img_fpath, (experiment_fpath / 'extra_processing_data'))
