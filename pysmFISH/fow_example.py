@@ -57,6 +57,9 @@ if __name__ == '__main__':
     experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
     experiment_info = load_experiment_config_file(experiment_fpath)
 
+    # QC for experiment info if contains all the info
+
+
     # Activate processing cluster
     cluster = start_processing_env(processing_env_config,experiment_info)
 
@@ -96,7 +99,8 @@ if __name__ == '__main__':
         # # Parse .nd2 files
         tag = 'img_data'
         parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
-        nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+                                    experiment_info=unmapped(experiment_info))
         # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
         # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)        
         # --------------------------------------------------

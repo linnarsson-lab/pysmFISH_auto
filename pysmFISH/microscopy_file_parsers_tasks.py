@@ -469,7 +469,7 @@ def nikon_nd2_autoparser_zarr_single_files(nd2_file_path,parsed_raw_data_fpath):
         # np.save(fname, fov_coords)
 
 @task(name='nd2_autoparser')
-def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
+def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info):
     """
     This parser not consider the possibility to have multiple experiment running at
     the same time with the raw imaging data present in the same folder. 
@@ -492,6 +492,8 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
             Path to the .nd2 file to be parsed
         parsed_raw_data_fpath: str
             Path to the zarr file that will store the parsed data
+        experiment_info: dict
+            Dictionary with overall experiment info
 
     Returns:
         processing_info: list of tuples
@@ -580,8 +582,8 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
             dgrp.attrs['z_levels'] = list(z_levels)
             dgrp.attrs['fov_num'] = fov
             dgrp.attrs['stitching_channel'] = info_data['StitchingChannel']
-            #dgrp.attrs['stitching_type'] = info_data['Stitching_type']
-            #dgrp.attrs['experiment_type'] = info_data['Experiment_type']
+            dgrp.attrs['stitching_type'] = experiment_info['Stitching_type']
+            dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']
             dgrp.attrs['hybridization_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
