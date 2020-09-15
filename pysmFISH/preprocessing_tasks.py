@@ -48,7 +48,7 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
 
 
 @task(name='preprocessing-raw-fish-images')
-def preprocessing_fish_raw_images(img:np.ndarray,dark_img:np.ndarray,
+def preprocessing_dot_raw_images(img:np.ndarray,dark_img:np.ndarray,
                             FlatFieldKernel:np.ndarray,FilteringSmallKernel:np.ndarray, 
                             LaplacianKernel:np.ndarray )->np.ndarray:
     """
