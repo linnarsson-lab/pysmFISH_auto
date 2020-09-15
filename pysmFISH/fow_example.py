@@ -80,7 +80,7 @@ if __name__ == '__main__':
         # sort_data_folder(experiment_fpath,experiment_info)
 
         experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
-        experiment_info = Parameter('experiment_info',default=experiment_info)
+        # experiment_info = Parameter('experiment_info',default=experiment_info)
    
         # analysis_parameters = load_analysis_parameters(experiment_fpath)
 
