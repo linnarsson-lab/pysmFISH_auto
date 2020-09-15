@@ -4,7 +4,7 @@ import zarr
 import shutil
 import yaml
 import datetime
-import shoji
+# import shoji
 import xarray as xr
 import numpy as np
 from pathlib import Path
