@@ -78,6 +78,7 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict):
         experiment_type = experiment_info['Experiment_type']
         cluster_config_parameters = processing_env_config[processing_engine][experiment_type]
         cluster = htcondor_cluster_setup(cluster_config_parameters)
+        cluster.adapt(minimum_jobs=2)
         return cluster
     elif processing_engine == 'local':
         cluster = local_cluster_setup()
