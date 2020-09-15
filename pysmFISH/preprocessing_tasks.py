@@ -72,11 +72,11 @@ def preprocessing_fish_raw_images(img:np.ndarray,dark_img:np.ndarray,
     img = convert_from_uint16_to_float64(img)
     img -= dark_img
     img = np.amax(img, axis=0)
-    background = filters.gaussian(img,(100,100),preserve_range=True)
-    img -= filters.gaussian(img,(8,8),preserve_range=True)
+    background = filters.gaussian(img,FlatFieldKernel,preserve_range=True)
+    img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=True)
     img[img<0] = 0
     img /= background
-    img = nd.gaussian_laplace(img,(1,1))
+    img = nd.gaussian_laplace(img,LaplacianKernel)
     img = -img
     img[img<0] = 0
     img = (img - np.mean(img)) / np.std(img)
