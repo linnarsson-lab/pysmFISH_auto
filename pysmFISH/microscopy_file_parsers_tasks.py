@@ -510,9 +510,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
     experiment_name = experiment_name.split('_auto')[0]
        
     raw_files_dir = experiment_fpath / 'raw_data'
-    parsed_tmp = experiment_fpath / 'parsed_tmp'
     
-
     # Extract the Count code from the file name
     count_code = re.search(r'(Count)\d{5}', nd2_file_path.stem).group()
     
