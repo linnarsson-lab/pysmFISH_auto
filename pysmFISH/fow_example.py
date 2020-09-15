@@ -10,7 +10,7 @@ from prefect.schedules import IntervalSchedule
 from pysmFISH.dask_cluster_utilities_tasks import start_processing_env, local_cluster_setup
 
 from pysmFISH.configuration_files_tasks import load_processing_env_config_file, load_experiment_config_file
-from pysmFISH.data_handling import create_shoji_db
+#from pysmFISH.data_handling import create_shoji_db
 
 from pysmFISH.microscopy_file_parsers_tasks import nd2_raw_files_selector, nikon_nd2_autoparser, nikon_nd2_autoparser_single_files, nikon_nd2_autoparser_zarr, nikon_nd2_autoparser_zarr_single_files
 from pysmFISH.qc_tasks import check_matching_metadata_robofish
