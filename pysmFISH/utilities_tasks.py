@@ -4,7 +4,9 @@ import zarr
 import shutil
 import yaml
 import datetime
+import shoji
 import xarray as xr
+import numpy as np
 from pathlib import Path
 from collections import OrderedDict
 
@@ -356,3 +358,96 @@ def consolidate_zarr_metadata(parsed_raw_data_fpath:str):
     
     else:
         return consolidated_grp
+
+
+@task(name = 'load-preprocessing-parameters')
+def load_analysis_parameters(experiment_name:str):
+    """
+    Function to load all the possible parameters that can be
+    selected for the preprocessing 
+    NB: If you add additional parameters you are required to
+        modify the code and add them to the dictionary
+    experiment_name: str
+            name of the experiment. Used to access the parameters in the shoji db
+    """
+    logger = prefect_logging_setup(f'load-analysis-parameters')
+    
+    try:
+        db = shoji.connect()
+    except:
+        logger.error(f'cannot connect to shoji db')
+        err = signals.FAIL(f'cannot connect to shoji db')
+        raise err
+    else:
+        try:
+            ws = db.FISH[experiment_name]
+        except:
+            logger.error(f'cannot connect to the experiment working space')
+            err = signals.FAIL(f'cannot connect to the experiment working space')
+            raise err
+        else:
+            # Collect all parameters
+            analysis_parameters = {}
+            analysis_parameters['fish'] = {}
+            analysis_parameters['small-beads'] = {}
+            analysis_parameters['large-beads'] = {}
+            analysis_parameters['staining'] = {}
+            analysis_parameters['fresh-nuclei'] = {}
+            analysis_parameters['BarcodesExtractionResolution'] = ws.BarcodesExtractionResolution            
+            analysis_parameters['RegistrationReferenceHybridization'] = ws.RegistrationReferenceHybridization
+
+            analysis_parameters['fish']['PreprocessingFishFlatFieldKernel'] = ws.PreprocessingFishFlatFieldKernel
+            analysis_parameters['fish']['PreprocessingFishFilteringSmallKernel'] = ws.PreprocessingFishFilteringSmallKernel
+            analysis_parameters['fish']['PreprocessingFishFilteringLaplacianKernel'] = ws.PreprocessingFishFilteringLaplacianKernel
+            analysis_parameters['fish']['CountingFishMinObjDistance'] = ws.CountingFishMinObjDistance
+            analysis_parameters['fish']['CountingFishMaxObjSize'] = ws.CountingFishMinObjSize
+            analysis_parameters['fish']['CountingFishMinObjSize'] = ws.CountingFishMinObjSize
+            analysis_parameters['fish']['CountingFishNumPeaksPerLabel'] = ws.CountingFishNumPeaksPerLabel
+            
+            analysis_parameters['small-beads']['PreprocessingSmallBeadsRegistrationFlatFieldKernel'] = ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel
+            analysis_parameters['small-beads']['PreprocessingSmallBeadsRegistrationFilteringSmallKernel'] = ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel
+            analysis_parameters['small-beads']['PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel'] = ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel 
+            analysis_parameters['small-beads']['CountingSmallBeadsRegistrationMinObjDistance'] = ws.CountingSmallBeadsRegistrationMinObjDistance
+            analysis_parameters['small-beads']['CountingSmallBeadsRegistrationhMinObjSize'] = ws.CountingSmallBeadsRegistrationhMinObjSize
+            analysis_parameters['small-beads']['CountingSmallBeadsRegistrationhMaxObjSize'] = ws.CountingSmallBeadsRegistrationhMaxObjSize
+            analysis_parameters['small-beads']['CountingSmallBeadsRegistrationNumPeaksPerLabel'] = ws.CountingSmallBeadsRegistrationNumPeaksPerLabel 
+            
+            analysis_parameters['large-beads']['PreprocessingLargeBeadsRegistrationFlatFieldKernel'] = ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel
+            analysis_parameters['large-beads']['PreprocessingLargeBeadsRegistrationFilteringSmallKernel'] = ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel
+            analysis_parameters['large-beads']['PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel'] = ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel
+            analysis_parameters['large-beads']['CountingLargeBeadsRegistrationMinObjDistance'] = ws.CountingLargeBeadsRegistrationMinObjDistance
+            analysis_parameters['large-beads']['CountingLargeBeadsRegistrationhMinObjSize'] = ws.CountingLargeBeadsRegistrationhMinObjSize
+            analysis_parameters['large-beads']['CountingLargeBeadsRegistrationhMaxObjSize'] = ws.CountingLargeBeadsRegistrationhMaxObjSize
+            analysis_parameters['large-beads']['CountingLargeBeadsRegistrationNumPeaksPerLabel'] = ws.CountingLargeBeadsRegistrationNumPeaksPerLabel
+            
+            analysis_parameters['staining']['PreprocessingStainingFlatFieldKernel'] = ws.PreprocessingStainingFlatFieldKernel
+            
+            analysis_parameters['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  ws.PreprocessingFreshNucleiLargeKernelSize
+
+            return analysis_parameters
+
+
+@task(name = 'load-raw-images-and-filtering-attrs')
+def load_raw_images(experiment_name:str,zarr_fpath:str,zarr_grp_name:str)->np.ndarray:
+    """
+    Function used to load a raw image and metadata from the 
+    parsed raw file and the attrs for the filtering
+        experiment_name: str
+            name of the experiment. Used to access the parameters in the shoji db
+        zarr_fpath: str
+            fpath to zarr store containing the parsed raw images
+        zarr_grp_name: str
+            fpath to the group to process. The group contain the raw images and the 
+            corresponding metadata
+
+            grp = experiment_name_channel_fov_X
+                dataset = raw_data_fov_X
+
+    """
+    logger = prefect_logging_setup(f'consolidate-metadata')
+    st = zarr.DirectoryStore(zarr_fpath)
+    root = zarr.group(store=st,overwrite=False)
+
+    metadata = root[zarr_grp_name].attrs
+    img = root[zarr_grp_name][metadata['fov_name']][...]
+    return (img, dict(metadata))
