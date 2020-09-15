@@ -580,7 +580,9 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath):
             dgrp.attrs['pixel_microns'] = pixel_microns
             dgrp.attrs['z_levels'] = list(z_levels)
             dgrp.attrs['fov_num'] = fov
-            dgrp.attrs['StitchingChannel'] = info_data['StitchingChannel']
+            dgrp.attrs['stitching_channel'] = info_data['StitchingChannel']
+            dgrp.attrs['stitching_type'] = info_data['Stitching_type']
+            dgrp.attrs['experiment_type'] = info_data['Experiment_type']
             dgrp.attrs['hybridization_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
