@@ -96,7 +96,7 @@ if __name__ == '__main__':
         # # Parse .nd2 files
         tag = 'img_data'
         parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
-        nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        # nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
         # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
         # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)        
         # --------------------------------------------------
