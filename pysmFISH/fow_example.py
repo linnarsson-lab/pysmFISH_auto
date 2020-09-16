@@ -16,6 +16,8 @@ from pysmFISH.microscopy_file_parsers_tasks import nd2_raw_files_selector, nikon
 from pysmFISH.qc_tasks import check_matching_metadata_robofish
 from pysmFISH.utilities_tasks import check_completed_transfer_to_monod, sort_data_folder, create_empty_zarr_file, load_analysis_parameters
 from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array,consolidate_zarr_metadata,sorting_grps,load_raw_images
+from pysmFISH.dots_calling import osmFISH_peak_based_detection
+
 from pysmFISH.notifications_tasks import report_input_files_errors
 from pysmFISH.preprocessing_tasks import preprocessing_dot_raw_image, load_dark_image
 from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup
@@ -103,6 +105,10 @@ if __name__ == '__main__':
         PreprocessingBeadsRegistrationFilteringSmallKernel = Parameter('PreprocessingBeadsRegistrationFilteringSmallKernel',default=(8,8))
         PreprocessingBeadsRegistrationFilteringLaplacianKernel = Parameter('PreprocessingBeadsRegistrationFilteringLaplacianKernel',default=(1,1))
 
+        min_distance = Parameter('min_distance', default=1)
+        min_obj_size = Parameter('min_obj_size', default=2)
+        max_obj_size = Parameter('max_obj_size', default=200)
+        num_peaks_per_label = Parameter('num_peaks_per_label', default=1)
 
         # --------------------------------------------------
         #                     PARSING
@@ -153,6 +159,13 @@ if __name__ == '__main__':
                             FilteringSmallKernel=unmapped(FilteringSmallKernel),
                             LaplacianKernel=unmapped(PreprocessingFishFilteringLaplacianKernel))
 
+
+        fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images,
+                    min_distance=unmapped(min_distance),
+                    min_obj_size=unmapped(min_obj_size),
+                    max_obj_size=unmapped(max_obj_size),
+                    num_peaks_per_label=unmapped(num_peaks_per_label))
+
         raw_beads_images_meta = load_raw_images.map(zarr_grp_name=out[1],
                                 experiment_name=unmapped(experiment_info['EXP_number']),
                                 parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
@@ -168,6 +181,12 @@ if __name__ == '__main__':
                             FlatFieldKernel=unmapped(PreprocessingBeadsRegistrationFlatFieldKernel),
                             FilteringSmallKernel=unmapped(PreprocessingBeadsRegistrationFilteringSmallKernel),
                             LaplacianKernel=unmapped(PreprocessingBeadsRegistrationFilteringLaplacianKernel))
+
+        fish_counts = osmFISH_peak_based_detection.map(filtered_beads_images,
+                    min_distance=unmapped(min_distance),
+                    min_obj_size=unmapped(min_obj_size),
+                    max_obj_size=unmapped(max_obj_size),
+                    num_peaks_per_label=unmapped(num_peaks_per_label))
 
 
         # experiment_fpath = Path('/Users/simone/Documents/local_data_storage/prefect_test/whd/exp_pre_auto')
