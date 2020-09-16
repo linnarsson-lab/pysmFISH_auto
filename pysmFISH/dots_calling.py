@@ -15,6 +15,13 @@ from pathlib import Path
 from pysmFISH.utils import load_pipeline_config_file, convert_from_uint16_to_float64
 
 
+from prefect import task
+from prefect.engine import signals
+
+from pysmFISH.logger_utils import prefect_logging_setup
+
+
+
 class osmFISH_dots_thr_selection():
 
     '''
@@ -199,226 +206,84 @@ class osmFISH_dots_mapping():
             self.intensity_array = np.nan
 
 
-class osmFISH_barcoded_peak_based_detection():
-
-    # Need to add all the cases with no counts
-    """
-    This class apply the same strategy used for dots calling in osmFISH
-    on files that are structured for barcoded analysis
-
-    Attributes:
-    -----------
-    fov_name: str
-        name of the fov that is processed ex. fov_1
-    img_stack: np.ndarray
-        image stack containing in which each layer 
-        correspond to a round
-    parameters_dic:
-        dict with the parameters used for the counting
-
-    """
-
-    def __init__(self, fov_name:str, img_stack:np.ndarray, counting_parameters_dict:Dict):
-        self.fov_name = fov_name
-        self.img_stack = img_stack
-        self.counting_parameters_dict = counting_parameters_dict
-        self.fov = int(self.fov_name.split('_')[-1])
-
-        self.fill_value = np.nan
-        self.logger = logging.getLogger(__name__)
+@task(name='peak-based-detection')
+def osmFISH_peak_based_detection(img_meta:tuple,
+                                        min_distance: np.float64,
+                                        min_obj_size: np.uint16,
+                                        max_obj_size: np.uint16,
+                                        num_peaks_per_label: np.uint16):
     
-    def call_dots(self):
-        try:
-            number_layers = self.img_stack.shape[0]
-        except:
-            self.logger.error(f'image is not a stack')
-
-        column_names = ['r_px_original','c_px_original','dot_id','fov_num','round_num','dot_intensity_norm','dot_intensity_not','selected_thr' ]
-        self.output = pd.DataFrame(columns = column_names)
-
-        if number_layers > 1:
-            self.max_thr = []
-            # First round for calcolating thr range
-            for layer_idx in range(number_layers):
-                counts = osmFISH_dots_thr_selection(self.img_stack[layer_idx,:,:],self.counting_parameters_dict)
-                counts.counting_graph()
-                counts.thr_identification()
-                if not np.isnan(counts.selected_thr):
-                        dots = osmFISH_dots_mapping(self.img_stack[layer_idx,:,:],counts.selected_thr,self.counting_parameters_dict)
-                        if isinstance(dots.selected_peaks,np.ndarray):
-                            total_dots = dots.selected_peaks.shape[0]
-                            dot_id_array = np.array([str(self.fov)+'_'+str(layer_idx+1)+'_'+str(nid) for nid in range(total_dots)])
-                            fov_array = np.repeat(self.fov,total_dots)
-                            round_array = np.repeat(layer_idx+1,total_dots)
-                            thr_array = np.repeat(counts.selected_thr,total_dots)
-                            intensity_array_non_normalized = self.img_stack[layer_idx,:,:][dots.selected_peaks[:,0],dots.selected_peaks[:,1]]
-                            self.output_round_dict = {'r_px_original': dots.selected_peaks[:,0],
-                                'c_px_original': dots.selected_peaks[:,1],
-                                'dot_id': dot_id_array,
-                                'fov_num': fov_array,
-                                'round_num': round_array,
-                                'dot_intensity_norm': dots.intensity_array,
-                                'dot_intensity_not': intensity_array_non_normalized,
-                                'selected_thr':thr_array}
-                        else:
-                            self.output_round_dict = {'r_px_original': np.array([self.fill_value]),
-                                'c_px_original': np.array([self.fill_value]),
-                                'dot_id': np.array([self.fill_value]),
-                                'fov_num': np.array(self.fov),
-                                'round_num': np.array([layer_idx+1]),
-                                'dot_intensity_norm': np.array([self.fill_value]),
-                                'dot_intensity_not': np.array([self.fill_value]),
-                                'selected_thr':np.array([self.fill_value])}
-                else:
-                    self.output_round_dict = {'r_px_original': np.array([self.fill_value]),
-                            'c_px_original': np.array([self.fill_value]),
-                            'dot_id': np.array([self.fill_value]),
-                            'fov_num': np.array(self.fov),
-                            'round_num': np.array([layer_idx+1]),
-                            'dot_intensity_norm': np.array([self.fill_value]),
-                            'dot_intensity_not': np.array([self.fill_value]),
-                            'selected_thr':np.array([self.fill_value])}
-                self.output = pd.concat([self.output,pd.DataFrame(self.output_round_dict)],axis=0,ignore_index=True)
-        else:
-
-            self.logger.error(f'this image in not suitable for barcoded experiments')
-
-
-
-class osmFISH_serial_peak_detection():
-
-    # Need to add all the cases with no counts
     """
-    This class calculate the number of dots after normalization of the
-    image
-
-    Attributes:
-    -----------
-    fov_name: str
-        name of the fov that is processed ex. fov_1
-    img_stack: np.ndarray
-        image stack containing in which each layer 
-        correspond to a round
-    parameters_dic:
-        dict with the parameters used for the counting
-   
-         
-    """
-
-    def __init__(self, fov_name:str, img_stack:np.ndarray, parameters_dict:Dict):
-        self.fov_name = fov_name
-        self.img_stack = img_stack
-        self.parameters_dict = parameters_dict
-        self.fov = int(self.fov_name.split('_')[-1])
-
-        self.fill_value = np.nan
-        self.logger = logging.getLogger(__name__)
+    This funtion apply the same peak based detection strategy used for 
+    dots calling in the osmFISH paper
     
-    def call_dots(self):
-        
-        try:
-            number_layers = self.img_stack.shape[0]
-        except:
-            self.logger.error(f'image is not a stack')
+    Args:
+    -----------
+    img_meta: tuple
+        tuple containing (image np.ndarray and metadata dict)
+    min_distance: np.float64
+        minimum distance between two peaks
+    min_obj_size: np.uint16
+        minimum object size of the objects that will be processed for peak detection
+        objects below this value are discharged
+    max_obj_size: np.uint16
+        maximum object size of the objects that will be processed for peak detection
+        objects above this value are discharged
+    num_peaks_per_label: np.uint16
+        Max number of peaks detected in each segmented object. Use None for max detection
 
+    """
 
-        column_names = ['r_px_original','c_px_original','dot_id','fov_num','round_num','dot_intensity','selected_thr' ]
-        self.output = pd.DataFrame(columns = column_names)
+    logger = prefect_logging_setup(f'osmFISH_barcoded_peak_based_detection')
 
-        counts = osmFISH_dots_thr_selection( self.img_stack,self.parameters_dict)
-        counts.counting_graph()
-        counts.thr_identification()
-        if not np.isnan(counts.selected_thr):
-            dots = osmFISH_dots_mapping(self.img_stack,counts.selected_thr,self.parameters_dict)
+    img = img_meta[0]
+    img_metadata = img_meta[1]
+    fov = img_metadata['fov_num']
+    hybridization_num = img_metadata['hybridization_num']
+
+    counting_parameters_dict = {
+                            'min_distance': min_distance,
+                            'min_obj_size': min_obj_size,
+                            'max_obj_size': max_obj_size,
+                            'num_peaks_per_label': num_peaks_per_label,
+                                }
+    fill_value = np.nan
+    counts = osmFISH_dots_thr_selection(img,counting_parameters_dict)
+    counts.counting_graph()
+    counts.thr_identification()
+
+    if not np.isnan(counts.selected_thr):
+            dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
             if isinstance(dots.selected_peaks,np.ndarray):
                 total_dots = dots.selected_peaks.shape[0]
-                dot_id_array = np.array([str(self.fov)+'_'+str(nid) for nid in range(total_dots)])
-                fov_array = np.repeat(self.fov,total_dots)
+                dot_id_array = np.array([str(fov)+'_'+str(hybridization_num)+'_'+str(nid) for nid in range(total_dots)])
+                fov_array = np.repeat(fov,total_dots)
                 thr_array = np.repeat(counts.selected_thr,total_dots)
-                intensity_array= self.img_stack[dots.selected_peaks[:,0],dots.selected_peaks[:,1]]
-                self.output_round_dict = {'r_px_original': dots.selected_peaks[:,0],
-                    'c_px_original': dots.selected_peaks[:,1],
-                    'dot_id': dot_id_array,
-                    'fov_num': fov_array,
-                    'dot_intensity': dots.intensity_array,
-                    'selected_thr':thr_array}
+                channel_array = np.repeat(counts.selected_thr,img_metadata['channel'])
+                counts_dict = {
+                    'DotsCoordsFOV': dots.selected_peaks,
+                    'DotID': dot_id_array,
+                    'FovNumber': fov_array,
+                    'DotIntensity': dots.intensity_array,
+                    'SelectedThreshold':thr_array,
+                    'DotChannel':channel_array}
             else:
-                self.output_round_dict = {'r_px_original': np.array([self.fill_value]),
-                    'c_px_original': np.array([self.fill_value]),
-                    'dot_id': np.array([self.fill_value]),
-                    'fov_num': np.array(self.fov),
-                    'dot_intensity': np.array([self.fill_value]),
-                    'selected_thr':np.array([self.fill_value])}
-        else:
-            self.output_round_dict = {'r_px_original': np.array([self.fill_value]),
-                    'c_px_original': np.array([self.fill_value]),
-                    'dot_id': np.array([self.fill_value]),
-                    'fov_num': np.array(self.fov),
-                    'dot_intensity': np.array([self.fill_value]),
-                    'selected_thr':np.array([self.fill_value])}
-        self.output = pd.concat([self.output,pd.DataFrame(self.output_round_dict)],axis=0,ignore_index=True)
-
-
-
-class osmFISH_serial_peak_detection_defined_thr():
-
-    # Need to add all the cases with no counts
-    """
-    This class calculate the number of dots after normalization of the
-    image
-
-    Attributes:
-    -----------
-    fov_name: str
-        name of the fov that is processed ex. fov_1
-    img_stack: np.ndarray
-        image stack containing in which each layer 
-        correspond to a round
-    parameters_dic:
-        dict with the parameters used for the counting
-   
-         
-    """
-
-    def __init__(self, fov_name:str, img_stack:np.ndarray, parameters_dict:Dict, thr:float):
-        self.fov_name = fov_name
-        self.img_stack = img_stack
-        self.parameters_dict = parameters_dict
-        self.thr = thr
-        self.fov = int(self.fov_name.split('_')[-1])
-
-        self.fill_value = np.nan
-        self.logger = logging.getLogger(__name__)
+                logger.info('f fov {fov} does not have counts (mapping)')
+                counts_dict = {
+                    'DotsCoordsFOV': np.array([fill_value, fill_value]),
+                    'DotID': np.array([fill_value]),
+                    'FovNumber': np.array(fov),
+                    'DotIntensity': np.array([fill_value]),
+                    'SelectedThreshold':np.array([fill_value]),
+                    'DotChannel':np.array([fill_value])}
+    else:
+        logger.info('f fov {fov} does not have counts (thr)')
+        counts_dict = {
+                    'DotsCoordsFOV': np.array([fill_value, fill_value]),
+                    'DotID': np.array([fill_value]),
+                    'FovNumber': np.array(fov),
+                    'DotIntensity': np.array([fill_value]),
+                    'SelectedThreshold':np.array([fill_value]),
+                    'DotChannel':np.array([fill_value])}
     
-    def call_dots(self):
-        
-        try:
-            number_layers = self.img_stack.shape[0]
-        except:
-            self.logger.error(f'image is not a stack')
-
-
-        column_names = ['r_px_original','c_px_original','dot_id','fov_num','round_num','dot_intensity','selected_thr' ]
-        self.output = pd.DataFrame(columns = column_names)
-
-        dots = osmFISH_dots_mapping(self.img_stack,self.thr,self.parameters_dict)
-        if isinstance(dots.selected_peaks,np.ndarray):
-            total_dots = dots.selected_peaks.shape[0]
-            dot_id_array = np.array([str(self.fov)+'_'+str(nid) for nid in range(total_dots)])
-            fov_array = np.repeat(self.fov,total_dots)
-            thr_array = np.repeat(self.thr,total_dots)
-            intensity_array= self.img_stack[dots.selected_peaks[:,0],dots.selected_peaks[:,1]]
-            self.output_round_dict = {'r_px_original': dots.selected_peaks[:,0],
-                'c_px_original': dots.selected_peaks[:,1],
-                'dot_id': dot_id_array,
-                'fov_num': fov_array,
-                'dot_intensity': dots.intensity_array,
-                'selected_thr':thr_array}
-        else:
-            self.output_round_dict = {'r_px_original': np.array([self.fill_value]),
-                'c_px_original': np.array([self.fill_value]),
-                'dot_id': np.array([self.fill_value]),
-                'fov_num': np.array(self.fov),
-                'dot_intensity': np.array([self.fill_value]),
-                'selected_thr':np.array([self.fill_value])}
-        self.output = pd.concat([self.output,pd.DataFrame(self.output_round_dict)],axis=0,ignore_index=True)
+    return counts_dict
