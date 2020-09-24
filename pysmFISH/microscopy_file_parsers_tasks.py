@@ -586,6 +586,13 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_inf
             dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']
             dgrp.attrs['hybridization_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
+            if info_data['StitchingChannel'] == channel:
+                dgrp.attrs['processing_type'] = dgrp.attrs['stitching_type']
+            elif '_ST' in dgrp.attrs['target_name']:
+                dgrp.attrs['processing_type'] = 'staining'
+            else:
+                dgrp.attrs['processing_type'] = 'fish'
+
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
                
         # Rename the nd2 files

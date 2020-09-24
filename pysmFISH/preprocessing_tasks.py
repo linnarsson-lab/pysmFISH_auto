@@ -84,4 +84,4 @@ def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
     img = (img - np.mean(img)) / np.std(img)
     img[img<0] = 0 
     
-    return (img, img_meta)
+    return (img, img_metadata)

@@ -393,47 +393,45 @@ def load_analysis_parameters(experiment_name:str):
             analysis_parameters['large-beads'] = {}
             analysis_parameters['staining'] = {}
             analysis_parameters['fresh-nuclei'] = {}
-            analysis_parameters['BarcodesExtractionResolution'] = ws.BarcodesExtractionResolution            
-            analysis_parameters['RegistrationReferenceHybridization'] = ws.RegistrationReferenceHybridization
+            analysis_parameters['BarcodesExtractionResolution'] = ws[:].BarcodesExtractionResolution            
+            analysis_parameters['RegistrationReferenceHybridization'] = ws[:].RegistrationReferenceHybridization
 
-            analysis_parameters['fish']['PreprocessingFishFlatFieldKernel'] = ws.PreprocessingFishFlatFieldKernel
-            analysis_parameters['fish']['PreprocessingFishFilteringSmallKernel'] = ws.PreprocessingFishFilteringSmallKernel
-            analysis_parameters['fish']['PreprocessingFishFilteringLaplacianKernel'] = ws.PreprocessingFishFilteringLaplacianKernel
-            analysis_parameters['fish']['CountingFishMinObjDistance'] = ws.CountingFishMinObjDistance
-            analysis_parameters['fish']['CountingFishMaxObjSize'] = ws.CountingFishMinObjSize
-            analysis_parameters['fish']['CountingFishMinObjSize'] = ws.CountingFishMinObjSize
-            analysis_parameters['fish']['CountingFishNumPeaksPerLabel'] = ws.CountingFishNumPeaksPerLabel
+            analysis_parameters['fish']['PreprocessingFishFlatFieldKernel'] = ws[:].PreprocessingFishFlatFieldKernel
+            analysis_parameters['fish']['PreprocessingFishFilteringSmallKernel'] = ws[:].PreprocessingFishFilteringSmallKernel
+            analysis_parameters['fish']['PreprocessingFishFilteringLaplacianKernel'] = ws[:].PreprocessingFishFilteringLaplacianKernel
+            analysis_parameters['fish']['CountingFishMinObjDistance'] = ws[:].CountingFishMinObjDistance
+            analysis_parameters['fish']['CountingFishMaxObjSize'] = ws[:].CountingFishMinObjSize
+            analysis_parameters['fish']['CountingFishMinObjSize'] = ws[:].CountingFishMinObjSize
+            analysis_parameters['fish']['CountingFishNumPeaksPerLabel'] = ws[:].CountingFishNumPeaksPerLabel
             
-            analysis_parameters['small-beads']['PreprocessingBeadsRegistrationFlatFieldKernel'] = ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel
-            analysis_parameters['small-beads']['PreprocessingBeadsRegistrationFilteringSmallKernel'] = ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel
-            analysis_parameters['small-beads']['PreprocessingBeadsRegistrationFilteringLaplacianKernel'] = ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel 
-            analysis_parameters['small-beads']['CountingBeadsRegistrationMinObjDistance'] = ws.CountingSmallBeadsRegistrationMinObjDistance
-            analysis_parameters['small-beads']['CountingBeadsRegistratiohMinObjSize'] = ws.CountingSmallBeadsRegistrationMinObjSize
-            analysis_parameters['small-beads']['CountingBeadsRegistrationMaxObjSize'] = ws.CountingSmallBeadsRegistrationMaxObjSize
-            analysis_parameters['small-beads']['CountingBeadsRegistrationNumPeaksPerLabel'] = ws.CountingSmallBeadsRegistrationNumPeaksPerLabel 
+            analysis_parameters['small-beads']['PreprocessingBeadsRegistrationFlatFieldKernel'] = ws[:].PreprocessingSmallBeadsRegistrationFlatFieldKernel
+            analysis_parameters['small-beads']['PreprocessingBeadsRegistrationFilteringSmallKernel'] = ws[:].PreprocessingSmallBeadsRegistrationFilteringSmallKernel
+            analysis_parameters['small-beads']['PreprocessingBeadsRegistrationFilteringLaplacianKernel'] = ws[:].PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel 
+            analysis_parameters['small-beads']['CountingBeadsRegistrationMinObjDistance'] = ws[:].CountingSmallBeadsRegistrationMinObjDistance
+            analysis_parameters['small-beads']['CountingBeadsRegistratiohMinObjSize'] = ws[:].CountingSmallBeadsRegistrationMinObjSize
+            analysis_parameters['small-beads']['CountingBeadsRegistrationMaxObjSize'] = ws[:].CountingSmallBeadsRegistrationMaxObjSize
+            analysis_parameters['small-beads']['CountingBeadsRegistrationNumPeaksPerLabel'] = ws[:].CountingSmallBeadsRegistrationNumPeaksPerLabel 
             
-            analysis_parameters['large-beads']['PreprocessingBeadsRegistrationFlatFieldKernel'] = ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel
-            analysis_parameters['large-beads']['PreprocessingBeadsRegistrationFilteringSmallKernel'] = ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel
-            analysis_parameters['large-beads']['PreprocessingBeadsRegistrationFilteringLaplacianKernel'] = ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel
-            analysis_parameters['large-beads']['CountingBeadsRegistrationMinObjDistance'] = ws.CountingLargeBeadsRegistrationMinObjDistance
-            analysis_parameters['large-beads']['CountingBeadsRegistrationMinObjSize'] = ws.CountingLargeBeadsRegistrationMinObjSize
-            analysis_parameters['large-beads']['CountingBeadsRegistrationMaxObjSize'] = ws.CountingLargeBeadsRegistrationMaxObjSize
-            analysis_parameters['large-beads']['CountingBeadsRegistrationNumPeaksPerLabel'] = ws.CountingLargeBeadsRegistrationNumPeaksPerLabel
+            analysis_parameters['large-beads']['PreprocessingBeadsRegistrationFlatFieldKernel'] = ws[:].PreprocessingLargeBeadsRegistrationFlatFieldKernel
+            analysis_parameters['large-beads']['PreprocessingBeadsRegistrationFilteringSmallKernel'] = ws[:].PreprocessingLargeBeadsRegistrationFilteringSmallKernel
+            analysis_parameters['large-beads']['PreprocessingBeadsRegistrationFilteringLaplacianKernel'] = ws[:].PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel
+            analysis_parameters['large-beads']['CountingBeadsRegistrationMinObjDistance'] = ws[:].CountingLargeBeadsRegistrationMinObjDistance
+            analysis_parameters['large-beads']['CountingBeadsRegistrationMinObjSize'] = ws[:].CountingLargeBeadsRegistrationMinObjSize
+            analysis_parameters['large-beads']['CountingBeadsRegistrationMaxObjSize'] = ws[:].CountingLargeBeadsRegistrationMaxObjSize
+            analysis_parameters['large-beads']['CountingBeadsRegistrationNumPeaksPerLabel'] = ws[:].CountingLargeBeadsRegistrationNumPeaksPerLabel
             
-            analysis_parameters['staining']['PreprocessingStainingFlatFieldKernel'] = ws.PreprocessingStainingFlatFieldKernel
+            analysis_parameters['staining']['PreprocessingStainingFlatFieldKernel'] = ws[:].PreprocessingStainingFlatFieldKernel
             
-            analysis_parameters['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  ws.PreprocessingFreshNucleiLargeKernelSize
+            analysis_parameters['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  ws[:].PreprocessingFreshNucleiLargeKernelSize
 
             return analysis_parameters
 
 
 @task(name = 'load-raw-images-and-filtering-attrs')
-def load_raw_images(zarr_grp_name:str,experiment_name:str,parsed_raw_data_fpath:str)->np.ndarray:
+def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
     """
     Function used to load a raw image and metadata from the 
     parsed raw file and the attrs for the filtering
-        experiment_name: str
-            name of the experiment. Used to access the parameters in the shoji db
         parsed_raw_data_fpath: str
             fpath to zarr store containing the parsed raw images
         zarr_grp_name: str
@@ -470,7 +468,7 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
     beads_grp = []
     staining_grp = []
     for name, grp in grps.items():
-        if grp.attrs['StitchingChannel'] == grp.attrs['channel']:
+        if grp.attrs['stitching_channel'] == grp.attrs['channel']:
             beads_grp.append(name)
         elif '_ST' in grp.attrs['target_name']:
             staining_grp.append(name)
@@ -497,3 +495,85 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
     staining_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
 
     return fish_grp, fish_selected_parameters, beads_grp, beads_selected_parameters, staining_grp, staining_selected_parameters
+
+
+@task(name='sort-images-according-processing-type')
+def sorting_grps_fov(grps, experiment_info, analysis_parameters):
+    """
+    Function used to separate the group names according to 
+    the processing type and by fov to reduce the number of calls
+    to the writing.
+
+    Args:
+    -----
+        grps = zarr.hierarchy.Group
+            consolidate hierarchy zarr groups for fast access to metadata
+        experiment_info: ordered dict
+            ordered dict with the parsed info generated by the instrument
+        analysis_parameters: dict
+            dict with all the parameters to use for analysis  
+    """
+
+    fish_grp = {}
+    beads_grp = {}
+    staining_grp = []
+    for name, grp in grps.items():
+        if grp.attrs['stitching_channel'] == grp.attrs['channel']:
+            if grp.attrs['channel'] not in beads_grp.keys():
+                beads_grp[grp.attrs['channel']] = {}
+            if grp.attrs['fov_num'] not in beads_grp[grp.attrs['channel']].keys():
+                beads_grp[grp.attrs['channel']][grp.attrs['fov_num']] = []
+                beads_grp[grp.attrs['channel']][grp.attrs['fov_num']].append(name)
+            else:
+                beads_grp[grp.attrs['channel']][grp.attrs['fov_num']].append(name)
+        elif '_ST' in grp.attrs['target_name']:
+            staining_grp.append(name)
+        else:
+            if grp.attrs['channel'] not in fish_grp.keys():
+                fish_grp[grp.attrs['channel']] = {}
+            if  grp.attrs['fov_num'] not in fish_grp[grp.attrs['channel']].keys():
+                fish_grp[grp.attrs['channel']][grp.attrs['fov_num']] = []
+                fish_grp[grp.attrs['channel']][grp.attrs['fov_num']].append(name)
+            else:
+                fish_grp[grp.attrs['channel']][grp.attrs['fov_num']].append(name)
+
+    fish_list = []
+    beads_list = []
+    for channel in fish_grp.keys():
+        for fov, names in fish_grp[channel].items():
+            fish_list.append(names)
+    
+    if len(fish_grp.keys()) > 1:
+        fish_list = [el for sgr in fish_list for el in sgr]
+    
+    for channel in beads_grp.keys():
+        for fov, names in beads_grp[channel].items():
+            beads_list.append(names)
+    
+    if len(beads_grp.keys()) > 1:
+        beads_list = [el for sgr in beads_list for el in sgr]
+
+
+    logger = prefect_logging_setup(f'sort-groups')
+    if experiment_info['Stitching_type'] == 'small-beads':
+        beads_selected_parameters  = analysis_parameters['small-beads']
+        beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+    elif experiment_info['Stitching_type'] == 'large-beads':
+        beads_selected_parameters  = analysis_parameters['small-beads']
+        beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+    else:
+        logger.error(f'Wrong stitching type in the experiment file')
+        err = signals.FAIL(f'Wrong stitching type in the experiment file')
+        raise err
+    
+    fish_selected_parameters = analysis_parameters['fish']
+    fish_selected_parameters['BarcodesExtractionResolution'] = analysis_parameters['BarcodesExtractionResolution']
+    fish_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+
+    staining_selected_parameters = analysis_parameters['staining']
+    staining_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+
+    logger.info(f'fish group {fish_list}')
+    logger.info(f'beads group {beads_list}')
+
+    return fish_list, fish_selected_parameters, beads_list, beads_selected_parameters, staining_grp, staining_selected_parameters
