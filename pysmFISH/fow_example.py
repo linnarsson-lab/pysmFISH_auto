@@ -10,13 +10,15 @@ from prefect.schedules import IntervalSchedule
 from pysmFISH.dask_cluster_utilities_tasks import start_processing_env, local_cluster_setup
 
 from pysmFISH.configuration_files_tasks import load_processing_env_config_file, load_experiment_config_file
-from pysmFISH.data_handling import create_shoji_db
+from pysmFISH.data_model import create_shoji_db
 
 from pysmFISH.microscopy_file_parsers_tasks import nd2_raw_files_selector, nikon_nd2_autoparser, nikon_nd2_autoparser_single_files, nikon_nd2_autoparser_zarr, nikon_nd2_autoparser_zarr_single_files
 from pysmFISH.qc_tasks import check_matching_metadata_robofish
-from pysmFISH.utilities_tasks import check_completed_transfer_to_monod, sort_data_folder, create_empty_zarr_file, load_analysis_parameters
+from pysmFISH.utilities_tasks import check_completed_transfer_to_monod, sort_data_folder, create_empty_zarr_file
 from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array,consolidate_zarr_metadata,sorting_grps,load_raw_images, sorting_grps_fov
 from pysmFISH.dots_calling import osmFISH_peak_based_detection
+
+from pysmFISH.io import load_analysis_parameters
 
 from pysmFISH.notifications_tasks import report_input_files_errors
 from pysmFISH.preprocessing_tasks import preprocessing_dot_raw_image, load_dark_image
