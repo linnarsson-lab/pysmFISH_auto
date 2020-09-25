@@ -10,7 +10,7 @@ from prefect.engine import signals
 from pysmFISH.logger_utils import prefect_logging_setup
 
 
-# @task(name='create_shoji_db')
+@task(name='create_shoji_db')
 def create_shoji_db(experiment_info):
     """
     This function creates the shoji database that will be used to store
@@ -215,35 +215,12 @@ def create_shoji_db(experiment_info):
 
 
         # Create dimension and tensors for storage of image related properties
-        analysis_parameters_ws.hybridization =             shoji.Dimension(shape=None)   
-        analysis_parameters_ws.fov =                       shoji.Dimension(shape=None)   
-        analysis_parameters_ws.dots =                      shoji.Dimension(shape=None)   
-        analysis_parameters_ws.acquisitioncoords=           shoji.Dimension(shape=3)      
-        analysis_parameters_ws.registrationshiftcoords=    shoji.Dimension(shape=2)
-        analysis_parameters_ws.image =                     shoji.Dimension(shape=None)
-
-
-        analysis_parameters_ws.AcquistionChannel = shoji.Tensor("string",dims=('fov','hybridization'))
-        analysis_parameters_ws.GroupName = shoji.Tensor("string",dims=('fov','hybridization'))
-        analysis_parameters_ws.FovName = shoji.Tensor("string",dims=('fov','hybridization'))
-        analysis_parameters_ws.FovNumber = shoji.Tensor("uint16",dims=('fov','hybridization'))
-        analysis_parameters_ws.TargetName = shoji.Tensor("string",dims=('fov','hybridization'))
-        analysis_parameters_ws.ImageHeight = shoji.Tensor("uint8",dims=('fov','hybridization'))
-        analysis_parameters_ws.ImageWidth = shoji.Tensor("uint8",dims=('fov','hybridization'))
-        analysis_parameters_ws.PixelMicrons = shoji.Tensor("float64",dims=('fov','hybridization'))
-        analysis_parameters_ws.HybridizationNumber = shoji.Tensor("uint8",dims=('fov','hybridization'))
-        analysis_parameters_ws.FilteredImage = shoji.Tensor("uint16",dims=('fov','hybridization','image'))
-        analysis_parameters_ws.AcquisitionCoords = shoji.Tensor("float64",dims=('fov','hybridization','microscopecoords'))
-        analysis_parameters_ws.RegistrationShift = shoji.Tensor("uint16",dims=('fov','hybridization','registrationshiftcoords'))
-        
-
-        # Create dimension and tensors for storage of image related properties
         images_properties_ws.hybridization =             shoji.Dimension(shape=None)   
         images_properties_ws.fov =                       shoji.Dimension(shape=None)   
         images_properties_ws.dots =                      shoji.Dimension(shape=None)   
-        images_properties_ws.microscopecoords=           shoji.Dimension(shape=2)      
+        images_properties_ws.acquisitioncoords=          shoji.Dimension(shape=3)      
         images_properties_ws.registrationshiftcoords=    shoji.Dimension(shape=2)
-        images_properties_ws.image =                     shoji.Dimension(shape=None)
+        # images_properties_ws.image =                     shoji.Dimension(shape=None)
         images_properties_ws.imageshaperc =              shoji.Dimension(shape=2)
 
 
@@ -255,8 +232,8 @@ def create_shoji_db(experiment_info):
         images_properties_ws.ImageShape = shoji.Tensor("uint16",dims=('fov','hybridization','imageshaperc'))
         images_properties_ws.PixelMicrons = shoji.Tensor("float64",dims=('fov','hybridization'))
         images_properties_ws.HybridizationNumber = shoji.Tensor("uint8",dims=('fov','hybridization'))
-        images_properties_ws.PreprocessedImage = shoji.Tensor("uint16",dims=('fov','hybridization','image'))
-        images_properties_ws.AcquisitionCoords = shoji.Tensor("float64",dims=('fov','hybridization','acquisitioncoords'))
+        images_properties_ws.PreprocessedImage = shoji.Tensor("uint16",dims=('fov','hybridization',None,None))
+        images_properties_ws.FovCoords = shoji.Tensor("float64",dims=('fov','hybridization','acquisitioncoords'))
         images_properties_ws.RegistrationShift = shoji.Tensor("uint16",dims=('fov','hybridization','registrationshiftcoords'))
 
 

@@ -91,61 +91,60 @@ def load_analysis_parameters(experiment_name:str):
                 return analysis_parameters
 
 
-# @task(name = 'load-preprocessing-parameters')
-# def save_images_metadata(img:np.ndarray, img_metadata:dict):
-#     """
-#     Function used to store the images metadata in the shoji database
+@task(name = 'load-preprocessing-parameters')
+def save_images_metadata(img_metadata:Tuple):
+    """
+    Function used to store the images metadata in the shoji database
 
-#     Args:
-#         image: np.ndarray
-#             Filtered image
-#         image_metadata: dict
-#             Dictionary with the metadata collected duriring the 
-#             parsing or acquisition of the images
-#     """
+    Args:
+        img_metadata : Tuple 
+        contanining (image,metadata) 
+            Filtered image uint16 and image_metadata dictionary with the metadata collected duriring the 
+            parsing or acquisition of the images
+    """
 
-#     logger = prefect_logging_setup(f'save-images-metadata')
+    logger = prefect_logging_setup(f'save-images-metadata')
+    metadata = img_metadata[1]
+    experiment_name = metadata['experiment_name']
+    img = convert_to_uint16(img_metadata[0])
+    fov_acquisition_coords = np.array((metadata['fov_acquisition_coords_x'],
+                                       metadata['fov_acquisition_coords_y'],
+                                       metadata['fov_acquisition_coords_z']),dtype=np.float64)
+    img_shape = np.array((metadata['img_height'],
+                          metadata['img_width']),np.uint16)
+    try:
+        db = shoji.connect()
+    except:
+        logger.error(f'Cannot connect to shoji DB')
+        err = signals.FAIL(f'Cannot connect to shoji DB')
+        raise err
+    else:
+        try:
+             ws = db.FISH[experiment_name]
+        except:
+            logger.error(f'experiment workspace missing')
+            err = signals.FAIL(f'experiment workspace missing')
+            raise err
 
-#     experiment_name = img_metadata['experiment_name']
-#     img = convert_to_uint16(img)
-#     fov_acquisition_coords = np.array((img_metadata['fov_acquisition_coords_x'],
-#                                        img_metadata['fov_acquisition_coords_y'],
-#                                        img_metadata['fov_acquisition_coords_z']),dtype=np.float64)
-#     img_shape = np.array((img_metadata['img_height'],
-#                           img_metadata['img_width']),np.uint16)
-#     try:
-#         db = shoji.connect()
-#     except:
-#         logger.error(f'Cannot connect to shoji DB')
-#         err = signals.FAIL(f'Cannot connect to shoji DB')
-#         raise err
-#     else:
-#         try:
-#              ws = db.FISH[experiment_name]
-#         except:
-#             logger.error(f'experiment workspace missing')
-#             err = signals.FAIL(f'experiment workspace missing')
-#             raise err
-
-#         else:
-#             try:
-#                 images_properties_ws = db.FISH[experiment_name]['images_properties']
-#             except:
-#                 logger.error(f'image properties workspace missing')
-#                 err = signals.FAIL(f'image properties workspace missing')
-#                 raise err
+        else:
+            try:
+                images_properties_ws = db.FISH[experiment_name]['images_properties']
+            except:
+                logger.error(f'image properties workspace missing')
+                err = signals.FAIL(f'image properties workspace missing')
+                raise err
         
-#             else:
-#                 images_properties_ws.fov.append({
-#                     'GroupName': np.array([img_metadata['grp_name']],dtypy=np.object).reshape(1,1),
-#                     'FovName' : np.array([img_metadata['fov_name']],dtypy=np.object).reshape(1,1),
-#                     'FovNumber' : np.array([img_metadata['fov_num']],dtypy=np.uint16).reshape(1,1),
-#                     'AcquistionChannel' : np.array([img_metadata['channel']],dtypy=np.object).reshape(1,1),
-#                     'TargetName' : np.array([img_metadata['target_name']],dtypy=np.object).reshape(1,1),
-#                     'ImageShape' : np.array([img_metadata['target_name']],dtypy=np.uint16).reshape(1,1,2),
-#                     'PixelMicrons' : np.array([img_metadata['pixel_microns']],dtypy=np.float64).reshape(1,1),
-#                     'HybridizationNumber' : np.array([img_metadata['hybridization_num']],dtypy=np.uint8).reshape(1,1),
-#                     'PreprocessedImage': np.array(img,dtypy=np.uint8).reshape(1,1,2),
-#                     'AcquisitionCoords': np.array(fov_acquisition_coords,dtypy=np.float64).reshape(1,1,3),
-#                     'RegistrationShift' : np.array([0,0],dtypy=np.float64).reshape(1,1,2)
-#                 })
+            else:
+                images_properties_ws.fov.append({
+                    'GroupName': np.array([metadata['grp_name']],dtype=np.object).reshape(1,1),
+                    'FovName' : np.array([metadata['fov_name']],dtype=np.object).reshape(1,1),
+                    'FovNumber' : np.array([metadata['fov_num']],dtype=np.uint16).reshape(1,1),
+                    'AcquistionChannel' : np.array([metadata['channel']],dtype=np.object).reshape(1,1),
+                    'TargetName' : np.array([metadata['target_name']],dtype=np.object).reshape(1,1),
+                    'ImageShape' : np.array(img_shape,dtype=np.uint16).reshape(1,1,2),
+                    'PixelMicrons' : np.array([metadata['pixel_microns']],dtype=np.float64).reshape(1,1),
+                    'HybridizationNumber' : np.array([metadata['hybridization_num']],dtype=np.uint8).reshape(1,1),
+                    'PreprocessedImage': np.array(img,dtype=np.uint8)[None][None],
+                    'FovCoords': np.array(fov_acquisition_coords,dtype=np.float64).reshape(1,1,3),
+                    'RegistrationShift' : np.array([0,0],dtype=np.float64).reshape(1,1,2)
+                })
