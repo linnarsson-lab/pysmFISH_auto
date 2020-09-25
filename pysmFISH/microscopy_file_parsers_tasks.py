@@ -542,13 +542,13 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_inf
         
         # Collect FOV coords
         x_data = np.array(all_metadata.x_data)
-        x_data = x_data[:,np.newaxis]
+        #x_data = x_data[:,np.newaxis]
         y_data = np.array(all_metadata.x_data)
-        y_data = y_data[:,np.newaxis]
+        #y_data = y_data[:,np.newaxis]
         z_data = np.array(all_metadata.z_data)
-        z_data = z_data[:,np.newaxis]
-        all_coords = np.hstack((z_data,x_data,y_data))
-        fov_coords = all_coords[0::len(z_levels),:]
+        #z_data = z_data[:,np.newaxis]
+        #all_coords = np.hstack((z_data,x_data,y_data))
+        #fov_coords = all_coords[0::len(z_levels),:]
         
         tag_name = experiment_name + '_' + hybridization_name + '_' + channel
         
@@ -563,28 +563,35 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_inf
         nd2fh.iter_axes = 'v'
         
         # Save coords of the FOV
-        rows = np.arange(img_shape[0])
-        cols = np.arange(img_shape[1])
+        rows = np.arange(parsed_metadata['width'])
+        cols = np.arange(parsed_metadata['height'])
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view:
             img = np.array(nd2fh[fov],dtype=np.uint16)      
             array_name = tag_name + '_fov_' + str(fov)
             dgrp = root.create_group(array_name)
             fov_name = 'raw_data_fov_' + str(fov)
+            # Remember that attrs must be JSON-serializable to be stored
+            # in zarr
             dgrp.attrs['grp_name'] = array_name
             dgrp.attrs['fov_name'] = fov_name
             dgrp.attrs['channel'] = channel
             dgrp.attrs['target_name'] = info_data['channels'][channel]
-            dgrp.attrs['img_shape'] = img_shape
+            dgrp.attrs['img_width'] = parsed_metadata['width']
+            dgrp.attrs['img_height'] = parsed_metadata['height']
             dgrp.attrs['pixel_microns'] = pixel_microns
-            dgrp.attrs['z_levels'] = np.array(z_levels)
+            dgrp.attrs['z_levels'] = list(z_levels)
             dgrp.attrs['fov_num'] = fov
             dgrp.attrs['stitching_channel'] = info_data['StitchingChannel']
             dgrp.attrs['stitching_type'] = experiment_info['Stitching_type']
             dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']
             dgrp.attrs['hybridization_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
-            dgrp.attrs['fov_acquisition_coords'] = fov_coords[fov,:]
+            dgrp.attrs['fov_acquisition_coords_x'] = x_data[fov]
+            dgrp.attrs['fov_acquisition_coords_y'] = y_data[fov]
+            dgrp.attrs['fov_acquisition_coords_z'] = z_data[fov]
+
+
             if info_data['StitchingChannel'] == channel:
                 dgrp.attrs['processing_type'] = dgrp.attrs['stitching_type']
             elif '_ST' in dgrp.attrs['target_name']:
