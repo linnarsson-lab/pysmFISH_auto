@@ -18,7 +18,7 @@ from pysmFISH.utilities_tasks import check_completed_transfer_to_monod, sort_dat
 from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array,consolidate_zarr_metadata,sorting_grps,load_raw_images, sorting_grps_fov
 from pysmFISH.dots_calling import osmFISH_peak_based_detection
 
-from pysmFISH.io import load_analysis_parameters
+# from pysmFISH.io import load_analysis_parameters
 
 from pysmFISH.notifications_tasks import report_input_files_errors
 from pysmFISH.preprocessing_tasks import preprocessing_dot_raw_image, load_dark_image
