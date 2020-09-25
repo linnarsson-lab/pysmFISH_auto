@@ -14,7 +14,7 @@ from prefect import task
 from prefect.engine import signals
 
 from pysmFISH.logger_utils import prefect_logging_setup
-
+from pysmFISH.utils import convert_to_uint16
 
 @task(name = 'load-preprocessing-parameters')
 def load_analysis_parameters(experiment_name:str):
@@ -89,3 +89,58 @@ def load_analysis_parameters(experiment_name:str):
                 analysis_parameters['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  analysis_parameters_ws[:].PreprocessingFreshNucleiLargeKernelSize
 
                 return analysis_parameters
+
+
+@task(name = 'load-preprocessing-parameters')
+def save_images_metadata(img:np.ndarray, img_metadata:dict):
+    """
+    Function used to store the images metadata in the shoji database
+
+    Args:
+        image: np.ndarray
+            Filtered image
+        image_metadata: dict
+            Dictionary with the metadata collected duriring the 
+            parsing or acquisition of the images
+    """
+
+    logger = prefect_logging_setup(f'save-images-metadata')
+
+    experiment_name = img_metadata['experiment_name']
+    img = convert_to_uint16(img)
+    try:
+        db = shoji.connect()
+    except:
+        logger.error(f'Cannot connect to shoji DB')
+        err = signals.FAIL(f'Cannot connect to shoji DB')
+        raise err
+    else:
+        try:
+             ws = db.FISH[experiment_name]
+        except:
+            logger.error(f'experiment workspace missing')
+            err = signals.FAIL(f'experiment workspace missing')
+            raise err
+
+        else:
+            try:
+                images_properties_ws = db.FISH[experiment_name]['images_properties']
+            except:
+                logger.error(f'image properties workspace missing')
+                err = signals.FAIL(f'image properties workspace missing')
+                raise err
+        
+            else:
+                images_properties_ws.fov.append({
+                    'GroupName': np.array([img_metadata['grp_name']],dtypy=np.object).reshape(1,1),
+                    'FovName' : np.array([img_metadata['fov_name']],dtypy=np.object).reshape(1,1),
+                    'FovNumber' : np.array([img_metadata['fov_num']],dtypy=np.uint16).reshape(1,1),
+                    'AcquistionChannel' : np.array([img_metadata['channel']],dtypy=np.object).reshape(1,1),
+                    'TargetName' : np.array([img_metadata['target_name']],dtypy=np.object).reshape(1,1),
+                    'ImageShape' : np.array([img_metadata['target_name']],dtypy=np.uint16).reshape(1,1,2),
+                    'PixelMicrons' : np.array([img_metadata['pixel_microns']],dtypy=np.float64).reshape(1,1),
+                    'HybridizationNumber' : np.array([img_metadata['hybridization_num']],dtypy=np.uint8).reshape(1,1),
+                    'PreprocessedImage': np.array(img,dtypy=np.uint8).reshape(1,1,2),
+                    'AcquisitionCoords': np.array([img_metadata['fov_acquisition_coords']],dtypy=np.float64).reshape(1,1,3),
+                    'RegistrationShift' : np.array([0,0],dtypy=np.float64).reshape(1,1,2)
+                })
