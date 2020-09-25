@@ -59,14 +59,14 @@ if __name__ == '__main__':
     logger = prefect_logging_setup("logger testing")
     
     flag_file_key = Parameter('flag_file_key', default='transfer_to_monod_completed.txt')
-    # processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
-    processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
+    processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
+    # processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
 
      # get info for submitting the error notification to github
     config_db_fpath = Path(processing_hd_location.default) / 'config_db'
     processing_env_config = load_processing_env_config_file(config_db_fpath)
-    git_repo = processing_env_config['git_repo']
-    git_token = processing_env_config['git_token']
+    # git_repo = processing_env_config['git_repo']
+    # git_token = processing_env_config['git_token']
 
     experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key.default)
     experiment_info = load_experiment_config_file(experiment_fpath)
@@ -97,9 +97,9 @@ if __name__ == '__main__':
         experiment_info = Parameter('experiment_info',default=experiment_info)
 
         # Create the shoji database that will contain the data
-        ref = create_shoji_db(experiment_info)
+        # ref = create_shoji_db(experiment_info)
         # Get the list of raw image groups to preprocess
-        analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'],upstream_tasks=[ref])
+        # analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'],upstream_tasks=[ref])
 
 
         # SOMEWHERE COLLECT THE INFO OF NUMBER OF HYBRIDIZATION AND FOVS
@@ -109,22 +109,22 @@ if __name__ == '__main__':
         #                     PARSING
         # --------------------------------------------------
         # Get all the .nd2 files to process
-        # all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath)
+        all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath)
         
         # Run the crosscheck for all the pkl files
         # check_matching_metadata_robofish(all_raw_files)
         # report_input_files_errors(git_repo,experiment_fpath,git_token)
         # # Parse .nd2 files
-        # tag = 'img_data'
-        # parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
-        # nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-        #                             experiment_info=unmapped(experiment_info))
+        tag = 'img_data'
+        parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
+        nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+                                    experiment_info=unmapped(experiment_info))
         
         parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
         parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/Users/simone/Documents/local_data_storage/prefect_test/whd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
         
 
-        consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[ref])        
+        # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[ref])        
         
     
         # Sort the type of images according to processing
@@ -132,51 +132,51 @@ if __name__ == '__main__':
         # Order of output from the sorting_grps:
         # fish_grp, fish_selected_parameters, beads_grp, beads_selected_parameters,\
         # staining_grp, staining_selected_parameters
-        sorted_grps = sorting_grps(consolidated_zarr_grp,experiment_info,analysis_parameters)
+        # sorted_grps = sorting_grps(consolidated_zarr_grp,experiment_info,analysis_parameters)
         # # --------------------------------------------------
     
         # --------------------------------------------------
         #         PREPROCESSING AND DOTS CALLING                        
         # --------------------------------------------------
-        dark_img = load_dark_image(experiment_fpath,upstream_tasks=[sorted_grps[0]])
-        raw_fish_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[0],
-                                parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        # dark_img = load_dark_image(experiment_fpath,upstream_tasks=[sorted_grps[0]])
+        # raw_fish_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[0],
+        #                         parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
         
 
-        filtered_fish_images = preprocessing_dot_raw_image.map(raw_fish_images_meta,
-                            dark_img=unmapped(dark_img),
-                            FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
-                            FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
-                            LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
+        # filtered_fish_images = preprocessing_dot_raw_image.map(raw_fish_images_meta,
+        #                     dark_img=unmapped(dark_img),
+        #                     FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
+        #                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
+        #                     LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
 
         # SAVE IMAGE AND CORRESPONDING METADATA
 
 
-        fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images,
-                    min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
-                    min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
-                    max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
-                    num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
+        # fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images,
+        #             min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
+        #             min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
+        #             max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
+        #             num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
 
 
         # SAVE COUNTS
 
-        raw_beads_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[2],
-                                parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        # raw_beads_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[2],
+        #                         parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
         
-        filtered_beads_images = preprocessing_dot_raw_image.map(raw_beads_images_meta,
-                            dark_img=unmapped(dark_img),
-                            FlatFieldKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFlatFieldKernel']),
-                            FilteringSmallKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringSmallKernel']),
-                            LaplacianKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringLaplacianKernel']))
+        # filtered_beads_images = preprocessing_dot_raw_image.map(raw_beads_images_meta,
+        #                     dark_img=unmapped(dark_img),
+        #                     FlatFieldKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFlatFieldKernel']),
+        #                     FilteringSmallKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringSmallKernel']),
+        #                     LaplacianKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringLaplacianKernel']))
 
         # SAVE IMAGE AND CORRESPONDING METADATA
 
-        beads_counts = osmFISH_peak_based_detection.map(filtered_beads_images,
-                    min_distance=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjDistance']),
-                    min_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistratiohMinObjSize']),
-                    max_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMaxObjSize']),
-                    num_peaks_per_label=unmapped(sorted_grps[3]['CountingBeadsRegistrationNumPeaksPerLabel']))
+        # beads_counts = osmFISH_peak_based_detection.map(filtered_beads_images,
+        #             min_distance=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjDistance']),
+        #             min_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistratiohMinObjSize']),
+        #             max_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMaxObjSize']),
+        #             num_peaks_per_label=unmapped(sorted_grps[3]['CountingBeadsRegistrationNumPeaksPerLabel']))
 
         # SAVE COUNTS
 
