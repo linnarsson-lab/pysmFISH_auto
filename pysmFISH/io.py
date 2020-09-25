@@ -108,6 +108,11 @@ def load_analysis_parameters(experiment_name:str):
 
 #     experiment_name = img_metadata['experiment_name']
 #     img = convert_to_uint16(img)
+#     fov_acquisition_coords = np.array((img_metadata['fov_acquisition_coords_x'],
+#                                        img_metadata['fov_acquisition_coords_y'],
+#                                        img_metadata['fov_acquisition_coords_z']),dtype=np.float64)
+#     img_shape = np.array((img_metadata['img_height'],
+#                           img_metadata['img_width']),np.uint16)
 #     try:
 #         db = shoji.connect()
 #     except:
@@ -141,6 +146,6 @@ def load_analysis_parameters(experiment_name:str):
 #                     'PixelMicrons' : np.array([img_metadata['pixel_microns']],dtypy=np.float64).reshape(1,1),
 #                     'HybridizationNumber' : np.array([img_metadata['hybridization_num']],dtypy=np.uint8).reshape(1,1),
 #                     'PreprocessedImage': np.array(img,dtypy=np.uint8).reshape(1,1,2),
-#                     'AcquisitionCoords': np.array([img_metadata['fov_acquisition_coords']],dtypy=np.float64).reshape(1,1,3),
+#                     'AcquisitionCoords': np.array(fov_acquisition_coords,dtypy=np.float64).reshape(1,1,3),
 #                     'RegistrationShift' : np.array([0,0],dtypy=np.float64).reshape(1,1,2)
 #                 })

@@ -60,7 +60,7 @@ if __name__ == '__main__':
     
     flag_file_key = Parameter('flag_file_key', default='transfer_to_monod_completed.txt')
     processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
-    # processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
+    #processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
 
      # get info for submitting the error notification to github
     config_db_fpath = Path(processing_hd_location.default) / 'config_db'
@@ -120,8 +120,8 @@ if __name__ == '__main__':
         nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
                                     experiment_info=unmapped(experiment_info))
         
-        parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
-        parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/Users/simone/Documents/local_data_storage/prefect_test/whd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
+        # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
+        # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/Users/simone/Documents/local_data_storage/prefect_test/whd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
         
 
         # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[ref])        
