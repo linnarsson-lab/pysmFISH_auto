@@ -18,7 +18,7 @@ from pysmFISH.utilities_tasks import check_completed_transfer_to_monod, sort_dat
 from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array,consolidate_zarr_metadata,sorting_grps,load_raw_images, sorting_grps_fov
 from pysmFISH.dots_calling import osmFISH_peak_based_detection
 
-from pysmFISH.io import load_analysis_parameters, save_images_metadata
+from pysmFISH.io import load_analysis_parameters, save_images_metadata, save_dots_data
 
 from pysmFISH.notifications_tasks import report_input_files_errors
 from pysmFISH.preprocessing_tasks import preprocessing_dot_raw_image, load_dark_image
@@ -151,36 +151,42 @@ if __name__ == '__main__':
 
         save_images_metadata.map(filtered_fish_images_metadata)
         
-        # SAVE IMAGE AND CORRESPONDING METADATA
+
+        fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images_metadata,
+                    min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
+                    min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
+                    max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
+                    num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
+
+        save_dots_data.map(fish_counts)
 
 
-        # fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images_metadata,
-        #             min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
-        #             min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
-        #             max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
-        #             num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
-
-
-        # SAVE COUNTS
-
-        # raw_beads_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[2],
-        #                         parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        raw_beads_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[2],
+                                parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
         
-        # filtered_beads_images_metadata = preprocessing_dot_raw_image.map(raw_beads_images_meta,
-        #                     dark_img=unmapped(dark_img),
-        #                     FlatFieldKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFlatFieldKernel']),
-        #                     FilteringSmallKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringSmallKernel']),
-        #                     LaplacianKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringLaplacianKernel']))
 
-        # SAVE IMAGE AND CORRESPONDING METADATA
+        filtered_beads_images_metadata = preprocessing_dot_raw_image.map(raw_beads_images_meta,
+                            dark_img=unmapped(dark_img),
+                            FlatFieldKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFlatFieldKernel']),
+                            FilteringSmallKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringSmallKernel']),
+                            LaplacianKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringLaplacianKernel']))
 
-        # beads_counts = osmFISH_peak_based_detection.map(filtered_beads_images_metadata,
-        #             min_distance=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjDistance']),
-        #             min_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistratiohMinObjSize']),
-        #             max_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMaxObjSize']),
-        #             num_peaks_per_label=unmapped(sorted_grps[3]['CountingBeadsRegistrationNumPeaksPerLabel']))
+        save_images_metadata.map(filtered_beads_images_metadata)
+        
 
-        # SAVE COUNTS
+        beads_counts = osmFISH_peak_based_detection.map(filtered_beads_images_metadata,
+                    min_distance=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjDistance']),
+                    min_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistratiohMinObjSize']),
+                    max_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMaxObjSize']),
+                    num_peaks_per_label=unmapped(sorted_grps[3]['CountingBeadsRegistrationNumPeaksPerLabel']))
+
+        save_dots_data.map(beads_counts)
+        
+
+
+
+
+        
 
         # experiment_fpath = Path('/Users/simone/Documents/local_data_storage/prefect_test/whd/exp_pre_auto')
         

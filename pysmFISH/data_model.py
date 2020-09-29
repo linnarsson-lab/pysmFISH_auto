@@ -110,143 +110,148 @@ def create_shoji_db(experiment_info):
         analysis_parameters_ws.RegistrationReferenceHybridization = shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
 
         if machine == 'ROBOFISH1':
-            analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16))
 
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16))
 
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8)) 
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
 
-            analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
             analysis_parameters_ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=np.array(3,dtype=np.uint8))                                                                   
 
-            analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
 
-            analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint16", dims=(2,), inits=np.array([50,50], dtype=np.uint16))
 
         elif machine == 'ROBOFISH2':
 
-            analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8)) 
+            analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
 
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8)) 
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
 
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16))
 
-            analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
             analysis_parameters_ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=np.array(3,dtype=np.uint8))                                                              
 
-            analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
 
-            analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint16", dims=(2,), inits=np.array([50,50], dtype=np.uint16))
 
         elif machine == 'NOT_DEFINED':
 
-            analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8)) 
+            analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
 
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8)) 
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
 
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([8,8], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
-            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([1,1], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
+            analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16))
 
-            analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(2,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint8", dims=(), inits=np.array(200,dtype=np.uint8))
-            analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
+            analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
 
             analysis_parameters_ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=np.array(3,dtype=np.uint8))                                                                    
 
-            analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint8", dims=(2,), inits=np.array([100,100], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
 
-            analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint8", dims=(2,), inits=np.array([50,50], dtype=np.uint8))
+            analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint16", dims=(2,), inits=np.array([50,50], dtype=np.uint16))
 
 
-        # Create dimension and tensors for storage of image related properties
-        images_properties_ws.hybridization =             shoji.Dimension(shape=None)   
-        images_properties_ws.fov =                       shoji.Dimension(shape=None)   
-        images_properties_ws.dots =                      shoji.Dimension(shape=None)   
+        # Create dimension and tensors for storage of image related properties   
+        images_properties_ws.fov =                       shoji.Dimension(shape=None)
+
+        images_properties_ws.hybridization =             shoji.Dimension(shape=1)      
         images_properties_ws.acquisitioncoords=          shoji.Dimension(shape=3)      
         images_properties_ws.registrationshiftcoords=    shoji.Dimension(shape=2)
-        # images_properties_ws.image =                     shoji.Dimension(shape=None)
+        images_properties_ws.channel =                   shoji.Dimension(shape=1)
         images_properties_ws.imageshaperc =              shoji.Dimension(shape=2)
 
 
-        images_properties_ws.GroupName = shoji.Tensor("string",dims=('fov','hybridization'))
-        images_properties_ws.FovName = shoji.Tensor("string",dims=('fov','hybridization'))
-        images_properties_ws.AcquistionChannel = shoji.Tensor("string",dims=('fov','hybridization'))
-        images_properties_ws.FovNumber = shoji.Tensor("uint16",dims=('fov','hybridization'))
-        images_properties_ws.TargetName = shoji.Tensor("string",dims=('fov','hybridization'))
-        images_properties_ws.ImageShape = shoji.Tensor("uint16",dims=('fov','hybridization','imageshaperc'))
-        images_properties_ws.PixelMicrons = shoji.Tensor("float64",dims=('fov','hybridization'))
-        images_properties_ws.HybridizationNumber = shoji.Tensor("uint8",dims=('fov','hybridization'))
-        images_properties_ws.PreprocessedImage = shoji.Tensor("uint16",dims=('fov','hybridization',None,None))
-        images_properties_ws.FovCoords = shoji.Tensor("float64",dims=('fov','hybridization','acquisitioncoords'))
-        images_properties_ws.RegistrationShift = shoji.Tensor("uint16",dims=('fov','hybridization','registrationshiftcoords'))
+        images_properties_ws.GroupName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
+        images_properties_ws.FovName = shoji.Tensor("string",dims=('fov',))
+        images_properties_ws.AcquistionChannel = shoji.Tensor("string",dims=('fov',))
+        images_properties_ws.FovNumber = shoji.Tensor("uint16",dims=('fov',))
+        images_properties_ws.TargetName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
+        images_properties_ws.ImageShape = shoji.Tensor("uint16",dims=('fov','hybridization','channel','imageshaperc'))
+        images_properties_ws.PixelMicrons = shoji.Tensor("float64",dims=('fov','hybridization','channel'))
+        images_properties_ws.HybridizationNumber = shoji.Tensor("uint8",dims=('fov',))
+        images_properties_ws.PreprocessedImage = shoji.Tensor("uint16",dims=('fov','hybridization','channel',None,None))
+        images_properties_ws.FovCoords = shoji.Tensor("float64",dims=('fov','hybridization','channel','acquisitioncoords'))
+        images_properties_ws.RegistrationShift = shoji.Tensor("float64",dims=('fov','hybridization','channel','registrationshiftcoords'))
+        images_properties_ws.RegistrationError = shoji.Tensor("float64",dims=('fov','hybridization','channel'))
+        images_properties_ws.StitchingShift = shoji.Tensor("float64",dims=('fov','hybridization','channel','registrationshiftcoords'))
+        images_properties_ws.StitchingError = shoji.Tensor("float64",dims=('fov','hybridization','channel'))
 
 
         # Create dimension and tensors for dots acquisition
         # Dimenstion of the tensors
-        dots_data_ws.hybridization =    shoji.Dimension(shape=None)   # None means jagged or variable-length
-        dots_data_ws.fov =              shoji.Dimension(shape=None)   # None means jagged or variable-length
-        dots_data_ws.dots =             shoji.Dimension(shape=None)   # None means jagged
-        dots_data_ws.rc =               shoji.Dimension(shape=2)      # 2 spatial coordinates
+        dots_data_ws.hybridization =    shoji.Dimension(shape=1)   
+        dots_data_ws.fov =              shoji.Dimension(shape=1)   
+        dots_data_ws.dots =             shoji.Dimension(shape=None)   
+        dots_data_ws.rc =               shoji.Dimension(shape=2)      
+        dots_data_ws.bits =             shoji.Dimension(shape=16)  # Depend on the barcodes used
+        dots_data_ws.gene =             shoji.Dimension(shape=1) 
        
         
         # Tensors used to store the output of dot calling
-        dots_data_ws.DotsCoordsFOV =                   shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
+        dots_data_ws.DotCoordsFOV =                    shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
         dots_data_ws.DotID =                           shoji.Tensor("string", dims=('dots',))
         dots_data_ws.FovNumber =                       shoji.Tensor("uint16", dims=('dots',))
         dots_data_ws.HybridizationNumber =             shoji.Tensor("uint8", dims=('dots',))
@@ -254,7 +259,10 @@ def create_shoji_db(experiment_info):
         dots_data_ws.SelectedThreshold =               shoji.Tensor("float64", dims=('dots','fov','hybridization'))
         dots_data_ws.DotChannel =                      shoji.Tensor("string", dims=('dots','fov','hybridization'))
         dots_data_ws.ProcessingType =                  shoji.Tensor("string", dims=('dots','fov','hybridization'))
-        dots_data_ws.ShiftFOV =                        shoji.Tensor("float64", dims=('dots','fov','rc'))
-        dots_data_ws.ShiftErrrorFOV =                  shoji.Tensor("float64", dims=('dots','fov'))
         dots_data_ws.DotsCoordsRegisteredFOV =         shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
-        
+        dots_data_ws.DotsCoordsStitched =              shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
+        # Tensor with the barcode related info
+        dots_data_ws.BarcodeReferenceDotID =           shoji.Tensor("string", dims=('dots',))
+        dots_data_ws.RawBarcode =                      shoji.Tensor("bool", dims=('dots','bits'))
+        dots_data_ws.GeneID =                          shoji.Tensor("string", dims=('dots','gene'))
+        dots_data_ws.HammingDistanceRawBarcode =       shoji.Tensor("float64", dims=('dots','gene'))

@@ -286,4 +286,4 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'SelectedThreshold':np.array([fill_value]),
                     'DotChannel':np.array([fill_value])}
     
-    return counts_dict
+    return (counts_dict, img_metadata)

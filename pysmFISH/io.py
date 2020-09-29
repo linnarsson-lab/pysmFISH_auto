@@ -91,7 +91,7 @@ def load_analysis_parameters(experiment_name:str):
                 return analysis_parameters
 
 
-@task(name = 'load-preprocessing-parameters')
+@task(name = 'save-img-and-metadata')
 def save_images_metadata(img_metadata:Tuple):
     """
     Function used to store the images metadata in the shoji database
@@ -136,15 +136,117 @@ def save_images_metadata(img_metadata:Tuple):
         
             else:
                 images_properties_ws.fov.append({
-                    'GroupName': np.array([metadata['grp_name']],dtype=np.object).reshape(1,1),
-                    'FovName' : np.array([metadata['fov_name']],dtype=np.object).reshape(1,1),
-                    'FovNumber' : np.array([metadata['fov_num']],dtype=np.uint16).reshape(1,1),
-                    'AcquistionChannel' : np.array([metadata['channel']],dtype=np.object).reshape(1,1),
-                    'TargetName' : np.array([metadata['target_name']],dtype=np.object).reshape(1,1),
-                    'ImageShape' : np.array(img_shape,dtype=np.uint16).reshape(1,1,2),
-                    'PixelMicrons' : np.array([metadata['pixel_microns']],dtype=np.float64).reshape(1,1),
-                    'HybridizationNumber' : np.array([metadata['hybridization_num']],dtype=np.uint8).reshape(1,1),
-                    'PreprocessedImage': np.array(img,dtype=np.uint8)[None][None],
-                    'FovCoords': np.array(fov_acquisition_coords,dtype=np.float64).reshape(1,1,3),
-                    'RegistrationShift' : np.array([0,0],dtype=np.float64).reshape(1,1,2)
+                    'GroupName': np.array([metadata['grp_name']],dtype=np.object).reshape(1,1,1),
+                    'FovName' : np.array([metadata['fov_name']],dtype=np.object),
+                    'FovNumber' : np.array([metadata['fov_num']],dtype=np.uint16),
+                    'AcquistionChannel' : np.array([metadata['channel']],dtype=np.object),
+                    'TargetName' : np.array([metadata['target_name']],dtype=np.object).reshape(1,1,1),
+                    'ImageShape' : np.array(img_shape,dtype=np.uint16).reshape(1,1,1,2),
+                    'PixelMicrons' : np.array([metadata['pixel_microns']],dtype=np.float64).reshape(1,1,1),
+                    'HybridizationNumber' : np.array([metadata['hybridization_num']],dtype=np.uint8),
+                    'PreprocessedImage': img[None][None][None],
+                    'FovCoords': np.array(fov_acquisition_coords,dtype=np.float64).reshape(1,1,1,3),
+                    'RegistrationShift' : np.array([0,0],dtype=np.float64).reshape(1,1,1,2),
+                    'RegistrationError' : np.array([0],dtype=np.float64).reshape(1,1,1),
+                    'StitchingShift' : np.array([0,0],dtype=np.float64).reshape(1,1,1,2),
+                    'StitchingError' : np.array([0],dtype=np.float64).reshape(1,1,1)
+
                 })
+
+
+@task(name = 'save-dots-identification')
+def save_dots_data(filtered_img_meta:Tuple):
+    """
+    Function used to store the dots relative data in the shoji database
+
+    Args:
+        filtered_img_meta: Tuple
+        countains (counts_dict, img_metadata)
+        counts_dict : contains data relative to the counted dots
+            DotsCoordsFOV
+            DotID
+            FovNumber
+            DotIntensity
+            SelectedThreshold
+            DotChannel
+        img_metadata
+    """
+
+    logger = prefect_logging_setup(f'save-dots-identification')
+    counts_dict, metadata = filtered_img_meta
+    experiment_name = metadata['experiment_name']
+    try:
+        db = shoji.connect()
+    except:
+        logger.error(f'Cannot connect to shoji DB')
+        err = signals.FAIL(f'Cannot connect to shoji DB')
+        raise err
+    else:
+        try:
+             ws = db.FISH[experiment_name]
+        except:
+            logger.error(f'experiment workspace missing')
+            err = signals.FAIL(f'experiment workspace missing')
+            raise err
+
+        else:
+            try:
+                dots_data_ws = db.FISH[experiment_name]['dots_data']
+            except:
+                logger.error(f'image properties workspace missing')
+                err = signals.FAIL(f'image properties workspace missing')
+                raise err
+        
+            else:
+                DotCoordsFOV = counts_dict['DotsCoordsFOV'].astype(np.float64)
+                DotCoordsFOV = DotCoordsFOV.reshape(DotCoordsFOV.shape[0],1,1,2)
+                
+                DotIntensity = counts_dict['DotIntensity'].astype(np.float64)
+                DotIntensity = DotIntensity[:,np.newaxis,np.newaxis]
+                
+                SelectedThreshold = counts_dict['SelectedThreshold'].astype(np.float64)
+                SelectedThreshold = SelectedThreshold[:,np.newaxis,np.newaxis]
+                
+                DotChannel = counts_dict['DotChannel'].astype(np.object)
+                DotChannel = DotChannel[:,np.newaxis,np.newaxis]
+                
+                ProcessingType = np.repeat(metadata['processing_type'],DotIntensity.shape[0])
+                ProcessingType = ProcessingType.astype(np.object)
+                ProcessingType = ProcessingType[:,np.newaxis,np.newaxis]
+                
+                HybridizationNumber = np.repeat(metadata['hybridization_num'],DotIntensity.shape[0])
+                HybridizationNumber = HybridizationNumber.astype(np.uint8)
+                
+                DotsCoordsRegisteredFOV = np.zeros([DotIntensity.shape[0],1,1,2],dtype=np.float64)
+                
+                DotsCoordsStitched = np.zeros([DotIntensity.shape[0],1,1,2],dtype=np.float64)
+
+                BarcodeReferenceDotID = np.repeat(str(),DotIntensity.shape[0])
+                BarcodeReferenceDotID = BarcodeReferenceDotID.astype(np.object)
+
+                RawBarcode = np.zeros([DotIntensity.shape[0],16],dtype=np.bool)
+                
+                GeneID = np.repeat(str(),DotIntensity.shape[0])
+                GeneID = GeneID.astype(np.object)
+                GeneID = GeneID.reshape(DotIntensity.shape[0],1)
+                
+
+                HammingDistanceRawBarcode = np.zeros([DotIntensity.shape[0],1],dtype=np.float64)
+
+                dots_data_ws.dots.append({
+                    'DotCoordsFOV': DotCoordsFOV,
+                    'DotID' : counts_dict['DotID'].astype(np.object),          
+                    'FovNumber' :  counts_dict['FovNumber'].astype(np.uint16),                
+                    'HybridizationNumber' :  HybridizationNumber,
+                    'DotIntensity' : DotIntensity,            
+                    'SelectedThreshold' : SelectedThreshold,            
+                    'DotChannel' : DotChannel,               
+                    'ProcessingType' : ProcessingType,               
+                    'DotsCoordsRegisteredFOV' : DotsCoordsRegisteredFOV,
+                    'DotsCoordsStitched' : DotsCoordsStitched,
+                    'BarcodeReferenceDotID' : BarcodeReferenceDotID,
+                    'RawBarcode' : RawBarcode,
+                    'GeneID': GeneID,
+                    'HammingDistanceRawBarcode' : HammingDistanceRawBarcode
+
+                })  
