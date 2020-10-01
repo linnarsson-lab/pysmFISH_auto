@@ -228,10 +228,10 @@ def save_dots_data(filtered_img_meta:Tuple):
                 
                 GeneID = np.repeat(str(),DotIntensity.shape[0])
                 GeneID = GeneID.astype(np.object)
-                GeneID = GeneID.reshape(DotIntensity.shape[0],1)
+                # GeneID = GeneID.reshape(DotIntensity.shape[0],1)
                 
 
-                HammingDistanceRawBarcode = np.zeros([DotIntensity.shape[0],1],dtype=np.float64)
+                HammingDistanceRawBarcode = np.zeros([DotIntensity.shape[0]],dtype=np.float64)
 
                 dots_data_ws.dots.append({
                     'DotCoordsFOV': DotCoordsFOV,
