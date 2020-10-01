@@ -581,6 +581,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_inf
             dgrp.attrs['img_height'] = parsed_metadata['height']
             dgrp.attrs['pixel_microns'] = pixel_microns
             dgrp.attrs['z_levels'] = list(z_levels)
+            dgrp.attrs['fields_of_view'] = list(fields_of_view)
             dgrp.attrs['fov_num'] = fov
             dgrp.attrs['stitching_channel'] = info_data['StitchingChannel']
             dgrp.attrs['stitching_type'] = experiment_info['Stitching_type']
