@@ -228,8 +228,8 @@ def create_shoji_db(experiment_info):
         images_properties_ws.AcquistionChannel = shoji.Tensor("string",dims=('fov',))
         images_properties_ws.FovNumber = shoji.Tensor("uint16",dims=('fov',))
         images_properties_ws.HybridizationNumber = shoji.Tensor("uint8",dims=('fov',))
-        
         # Higher ranking tensors
+        images_properties_ws.FieldsOfView = shoji.Tensor("uint16",dims=('fov',None))
         images_properties_ws.GroupName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
         images_properties_ws.TargetName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
         images_properties_ws.ImageShape = shoji.Tensor("uint16",dims=('fov','hybridization','channel','imageshaperc'))
@@ -257,6 +257,8 @@ def create_shoji_db(experiment_info):
         dots_data_ws.HybridizationNumber =             shoji.Tensor("uint8", dims=('dots',))
         dots_data_ws.BarcodeReferenceDotID =           shoji.Tensor("string", dims=('dots',))
         dots_data_ws.DotChannel =                      shoji.Tensor("string", dims=('dots',))
+
+        # add rank-1 tensors for the fitering of the barcodes and genes
 
         # Higher ranking tensors
         dots_data_ws.DotCoordsFOV =                    shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))

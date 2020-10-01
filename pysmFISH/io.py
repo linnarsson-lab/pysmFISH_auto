@@ -149,7 +149,8 @@ def save_images_metadata(img_metadata:Tuple):
                     'RegistrationShift' : np.array([0,0],dtype=np.float64).reshape(1,1,1,2),
                     'RegistrationError' : np.array([0],dtype=np.float64).reshape(1,1,1),
                     'StitchingShift' : np.array([0,0],dtype=np.float64).reshape(1,1,1,2),
-                    'StitchingError' : np.array([0],dtype=np.float64).reshape(1,1,1)
+                    'StitchingError' : np.array([0],dtype=np.float64).reshape(1,1,1),
+                    'FieldsOfView': np.array([metadata['FieldsOfView']],dtype=np.uint16)[None]
 
                 })
 
