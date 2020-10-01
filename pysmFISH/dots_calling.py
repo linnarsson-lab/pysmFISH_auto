@@ -256,7 +256,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
             dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
             if isinstance(dots.selected_peaks,np.ndarray):
                 total_dots = dots.selected_peaks.shape[0]
-                dot_id_array = np.array([str(fov)+'_'+str(hybridization_num)+'_'+str(nid) for nid in range(total_dots)])
+                dot_id_array = np.array([str(fov)+'_'+str(hybridization_num)+'_'+ img_metadata['channel'] +'_'+str(nid) for nid in range(total_dots)])
                 fov_array = np.repeat(fov,total_dots)
                 thr_array = np.repeat(counts.selected_thr,total_dots)
                 channel_array = np.repeat(img_metadata['channel'],total_dots)
