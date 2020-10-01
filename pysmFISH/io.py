@@ -208,7 +208,6 @@ def save_dots_data(filtered_img_meta:Tuple):
                 SelectedThreshold = SelectedThreshold[:,np.newaxis,np.newaxis]
                 
                 DotChannel = counts_dict['DotChannel'].astype(np.object)
-                DotChannel = DotChannel[:,np.newaxis,np.newaxis]
                 
                 ProcessingType = np.repeat(metadata['processing_type'],DotIntensity.shape[0])
                 ProcessingType = ProcessingType.astype(np.object)

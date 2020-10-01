@@ -223,15 +223,17 @@ def create_shoji_db(experiment_info):
         images_properties_ws.channel =                   shoji.Dimension(shape=1)
         images_properties_ws.imageshaperc =              shoji.Dimension(shape=2)
 
-
-        images_properties_ws.GroupName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
+        # Rank-1 tensors
         images_properties_ws.FovName = shoji.Tensor("string",dims=('fov',))
         images_properties_ws.AcquistionChannel = shoji.Tensor("string",dims=('fov',))
         images_properties_ws.FovNumber = shoji.Tensor("uint16",dims=('fov',))
+        images_properties_ws.HybridizationNumber = shoji.Tensor("uint8",dims=('fov',))
+        
+        # Higher ranking tensors
+        images_properties_ws.GroupName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
         images_properties_ws.TargetName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
         images_properties_ws.ImageShape = shoji.Tensor("uint16",dims=('fov','hybridization','channel','imageshaperc'))
         images_properties_ws.PixelMicrons = shoji.Tensor("float64",dims=('fov','hybridization','channel'))
-        images_properties_ws.HybridizationNumber = shoji.Tensor("uint8",dims=('fov',))
         images_properties_ws.PreprocessedImage = shoji.Tensor("uint16",dims=('fov','hybridization','channel',None,None))
         images_properties_ws.FovCoords = shoji.Tensor("float64",dims=('fov','hybridization','channel','acquisitioncoords'))
         images_properties_ws.RegistrationShift = shoji.Tensor("float64",dims=('fov','hybridization','channel','registrationshiftcoords'))
@@ -249,20 +251,21 @@ def create_shoji_db(experiment_info):
         dots_data_ws.bits =             shoji.Dimension(shape=16)  # Depend on the barcodes used
         dots_data_ws.gene =             shoji.Dimension(shape=1) 
        
-        
-        # Tensors used to store the output of dot calling
-        dots_data_ws.DotCoordsFOV =                    shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
+        # Rank-1 tensors
         dots_data_ws.DotID =                           shoji.Tensor("string", dims=('dots',))
         dots_data_ws.FovNumber =                       shoji.Tensor("uint16", dims=('dots',))
         dots_data_ws.HybridizationNumber =             shoji.Tensor("uint8", dims=('dots',))
+        dots_data_ws.BarcodeReferenceDotID =           shoji.Tensor("string", dims=('dots',))
+        dots_data_ws.DotChannel =                      shoji.Tensor("string", dims=('dots',))
+
+        # Higher ranking tensors
+        dots_data_ws.DotCoordsFOV =                    shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
         dots_data_ws.DotIntensity =                    shoji.Tensor("float64", dims=('dots','fov','hybridization'))
         dots_data_ws.SelectedThreshold =               shoji.Tensor("float64", dims=('dots','fov','hybridization'))
-        dots_data_ws.DotChannel =                      shoji.Tensor("string", dims=('dots','fov','hybridization'))
         dots_data_ws.ProcessingType =                  shoji.Tensor("string", dims=('dots','fov','hybridization'))
         dots_data_ws.DotsCoordsRegisteredFOV =         shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
         dots_data_ws.DotsCoordsStitched =              shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
-        # Tensor with the barcode related info
-        dots_data_ws.BarcodeReferenceDotID =           shoji.Tensor("string", dims=('dots',))
         dots_data_ws.RawBarcode =                      shoji.Tensor("bool", dims=('dots','bits'))
         dots_data_ws.GeneID =                          shoji.Tensor("string", dims=('dots','gene'))
         dots_data_ws.HammingDistanceRawBarcode =       shoji.Tensor("float64", dims=('dots','gene'))
+
