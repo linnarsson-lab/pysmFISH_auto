@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>pysmFISH.configuration_files_tasks API documentation</title>
+<meta name="description" content="create configuration files needed to run the pipeline" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pysmFISH.configuration_files_tasks</code></h1>
+</header>
+<section id="section-intro">
+<p>create configuration files needed to run the pipeline</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+create configuration files needed to run the pipeline
+
+&#34;&#34;&#34;
+from typing import *
+import yaml
+from pathlib import Path
+from collections import OrderedDict
+
+from prefect import task
+from prefect.engine import signals
+
+from pysmFISH.logger_utils import prefect_logging_setup
+
+
+# to avoid reference for nested structures
+# https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml (comment)
+yaml.SafeDumper.ignore_aliases = lambda *args : True
+
+def create_processing_env_config_file(experiment_fpath:str):
+    &#34;&#34;&#34;
+    This function creates a configuration files with the parameters requested for the 
+    setup of the processing cluster. 
+    The current file is defaulted to htcondor
+
+    Args:
+        experiment_fpath: str
+            path to the experiment that will be processed
+    &#34;&#34;&#34;
+
+    processing_env_config_fpath = experiment_fpath / &#39;pipeline_config&#39; / &#39;processing_env_config.yaml&#39;
+    processing_env_config = OrderedDict()
+
+    processing_env_config[&#39;htcondor&#39;] = {}
+
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;] = {}
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;][&#39;cores&#39;] = 1
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;][&#39;memory&#39;] = &#39;10GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;][&#39;disk&#39;] = &#39;0.1GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;][&#39;local_directory&#39;] = &#39;/tmp&#39;
+
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;] = {}
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;][&#39;cores&#39;] = 1
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;][&#39;memory&#39;] = &#39;10GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;][&#39;disk&#39;] = &#39;0.1GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;][&#39;local_directory&#39;] = &#39;/tmp&#39;
+
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;] = {}
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;][&#39;cores&#39;] = 1
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;][&#39;memory&#39;] = &#39;10GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;][&#39;disk&#39;] = &#39;0.1GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;][&#39;local_directory&#39;] = &#39;/tmp&#39;
+
+    with open(processing_env_config_fpath, &#39;w&#39;) as new_config:
+            yaml.safe_dump(dict(processing_env_config), new_config,default_flow_style=False,sort_keys=False)
+
+@task(name=&#39;create_analysis_config_file&#39;)
+def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
+    &#34;&#34;&#34;
+    This function creates a basic standard configuration files with the parameters used for running
+    analysis
+    The selection of the paramenters is dependent of the machine used for image acquisition. If the
+    machine is not defined in the experiment_info dictionary a generic processing set up is defined
+
+    Args:
+        experiment_fpath: str
+            path to the experiment that will be processed
+
+        experiment_info: dict
+            dictionary containing all the info generated by robofish
+    &#34;&#34;&#34;
+    logger = prefect_logging_setup(&#39;create-analasys-config-file&#39;)
+    analysis_config_fpath = experiment_fpath / &#39;pipeline_config&#39; / &#39;analysis_config.yaml&#39;
+    analysis_config = OrderedDict()
+
+    try:
+        machine = experiment_info[&#39;Machine&#39;]
+    except NameError:
+        machine = &#39;NOT_DEFINED&#39;
+    
+    analysis_config[&#39;fish_signal&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;] = {}
+
+    analysis_config[&#39;fish_signal&#39;][&#39;rounds_registration&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;rounds_registration&#39;][&#39;reference_hybridization&#39;] = 1
+
+    analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;] = {}
+
+    analysis_config[&#39;fish_signal&#39;][&#39;barcodes_extraction&#39;] = {}
+
+    analysis_config[&#39;staining&#39;] = {}
+    analysis_config[&#39;staining&#39;][&#39;preprocessing&#39;] = {}
+
+    if machine == &#39;ROBOFISH1&#39;:
+
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+
+    
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+        
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;barcodes_extraction&#39;][&#39;pxl_hood_size&#39;] = 3
+
+        analysis_config[&#39;staining&#39;][&#39;preprocessing&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+
+        if &#39;barcoded&#39; in experiment_info[&#39;Experiment_type&#39;]:
+            analysis_config[&#39;fresh_nuclei&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;][&#39;large_kernel_size&#39;] = (5,50,50)
+
+    elif machine == &#39;ROBOFISH2&#39;:
+
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+
+    
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+        
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;barcodes_extraction&#39;][&#39;pxl_hood_size&#39;] = 3
+
+        analysis_config[&#39;staining&#39;][&#39;preprocessing&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+
+        if &#39;barcoded&#39; in experiment_info[&#39;Experiment_type&#39;]:
+            analysis_config[&#39;fresh_nuclei&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;][&#39;large_kernel_size&#39;] = (5,50,50)
+
+    elif machine == &#39;NOT_DEFINED&#39;:
+
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+
+    
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+        
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;barcodes_extraction&#39;][&#39;pxl_hood_size&#39;] = 3
+
+        analysis_config[&#39;staining&#39;][&#39;preprocessing&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+
+        if &#39;barcoded&#39; in experiment_info[&#39;Experiment_type&#39;]:
+            analysis_config[&#39;fresh_nuclei&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;][&#39;large_kernel_size&#39;] = (5,50,50)
+    try:
+        with open(analysis_config_fpath, &#39;w&#39;) as new_config:
+                yaml.safe_dump(dict(analysis_config), new_config,default_flow_style=False,sort_keys=False)
+    except:
+        logger.error(f&#39;cannot save the analysis_config_file&#39;)
+        signals.FAIL(f&#39;cannot save the analysis_config_file&#39;)
+
+
+# @task(name=&#39;load-processing-env-config&#39;)
+# def load_processing_env_config_file(experiment_fpath:str):
+#     logger = prefect_logging_setup(&#39;load-processing-env-config&#39;)
+#     experiment_fpath = Path(experiment_fpath)
+#     processing_env_config_fpath = experiment_fpath / &#39;pipeline_config&#39; / &#39;processing_env_config.yaml&#39;
+#     try:
+#         processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, &#39;rb&#39;)))
+#     except (FileExistsError,NameError,FileNotFoundError) as e:
+#         logger.debug(f&#39;{processing_env_config_fpath} missing&#39;)
+#         try:
+#             create_processing_env_config_file(experiment_fpath)
+#         except:
+#             logger.error(&#39;cannot create the processing config file&#39;)
+#             signals.FAIL(&#39;cannot create the processing config file&#39;)
+#         else:
+#             processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, &#39;rb&#39;)))
+#             return processing_env_config
+#     else:
+#         return processing_env_config
+
+
+def load_processing_env_config_file(config_db_fpath:str):
+    &#34;&#34;&#34;
+    Function used to load the parameters used for setting up 
+    the processing cluster
+
+    Args:
+        config_db_fpath; str
+            path to the folder containing the data_transfer_config.yaml
+    &#34;&#34;&#34;
+    logger = prefect_logging_setup(&#39;load-processing-env-config&#39;)
+    config_db_fpath = Path(config_db_fpath)
+    processing_env_config_fpath = config_db_fpath / &#39;processing_env_config.yaml&#39;
+    try:
+        processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, &#39;rb&#39;)))
+    except (FileExistsError,NameError,FileNotFoundError) as e:
+        logger.debug(f&#39;{processing_env_config_fpath} missing&#39;)
+        try:
+            create_processing_env_config_file(experiment_fpath)
+        except:
+            logger.error(&#39;cannot create the processing config file&#39;)
+            signals.FAIL(&#39;cannot create the processing config file&#39;)
+        else:
+            processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, &#39;rb&#39;)))
+            return processing_env_config
+    else:
+        return processing_env_config
+
+
+
+@task(name=&#39;load-analysis-config&#39;)
+def load_analysis_config_file(expxeriment_fpath:str):
+    logger = prefect_logging_setup(&#39;load-analysis-config&#39;)
+    experiment_fpath = Path(experiment_fpath)
+    analysis_config_fpath = experiment_fpath / &#39;pipeline_config&#39; / &#39;analysis_config.yaml&#39;
+    try:
+        analysis_config = OrderedDict(yaml.safe_load(open(analysis_config_fpath, &#39;rb&#39;)))
+    except (FileExistsError,NameError,FileNotFoundError) as e:
+        logger.debug(f&#39;{analysis_config_fpath} missing&#39;)
+        signals.FAIL(f&#39;{analysis_config_fpath} missing&#39;)
+    else:
+        return analysis_config
+
+
+def load_transferring_config(config_db_fpath:str)-&gt;Dict:
+    &#34;&#34;&#34;
+    Function used to load the parameters used for transfering
+    the data from the storage to the processing HD
+
+    Args:
+        config_db_fpath; str
+            path to the folder containing the data_transfer_config.yaml
+    &#34;&#34;&#34;
+    
+    logger = prefect_logging_setup(f&#39;load-transfer-config&#39;)
+    config_db_fpath = Path(config_db_fpath)
+
+    transfer_config_fpath = config_db_fpath / &#39;data_transfer_config.yaml&#39;
+    try:
+         transfer_config = OrderedDict(yaml.safe_load(open(transfer_config_fpath, &#39;rb&#39;)))
+    except (FileExistsError,NameError,FileNotFoundError) as e:
+        logger.debug(f&#39;{transfer_config_fpath} missing&#39;)
+        signals.FAIL(f&#39;{transfer_config_fpath} missing&#39;)
+    else:
+        return  transfer_config
+
+# @task(name=&#39;load_experiments_info_file&#39;)
+def load_experiment_config_file(experiment_fpath:str):
+    &#34;&#34;&#34;
+    Function that load the experiment general information generated by the
+    machines.
+
+    Args:
+        experiment_fpath: str
+            location of the folder to be processed
+    Return:
+        experiment_info: ordered dict
+            ordered dict with the parsed info generated by the instrument
+
+    &#34;&#34;&#34;
+    
+    logger = prefect_logging_setup(&#39;load_experiments_info_file&#39;)
+
+    experiment_fpath = Path(experiment_fpath)
+    experiment_name = experiment_fpath.stem
+    experiment_name = experiment_name.split(&#39;_auto&#39;)[0]
+    search_key = experiment_name + &#39;_config.yaml&#39;
+    
+    try:
+        experiment_info_fpath = list(experiment_fpath.glob(search_key))[0]
+    except:
+        logger.error(f&#39;No experiment info file in {experiment_fpath}&#39;)
+        fail_signal = signals.FAIL(&#34;No experiment info file in the folder&#34;)
+        raise fail_signal
+    
+    try:
+        experiment_info = OrderedDict(yaml.safe_load(open(experiment_info_fpath, &#39;rb&#39;)))
+        return experiment_info
+    except:
+        logger.error(f&#39;Experiment info file has the wrong name in {experiment_fpath}&#39;)
+        fail_signal = signals.FAIL(&#34;Experiment info file has the wrong name in the folder&#34;)
+        raise fail_signal</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pysmFISH.configuration_files_tasks.create_analysis_config_file"><code class="name flex">
+<span>def <span class="ident">create_analysis_config_file</span></span>(<span>experiment_fpath: str, experiment_info: Dict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This function creates a basic standard configuration files with the parameters used for running
+analysis
+The selection of the paramenters is dependent of the machine used for image acquisition. If the
+machine is not defined in the experiment_info dictionary a generic processing set up is defined</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>experiment_fpath</code></strong></dt>
+<dd>str
+path to the experiment that will be processed</dd>
+<dt><strong><code>experiment_info</code></strong></dt>
+<dd>dict
+dictionary containing all the info generated by robofish</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@task(name=&#39;create_analysis_config_file&#39;)
+def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
+    &#34;&#34;&#34;
+    This function creates a basic standard configuration files with the parameters used for running
+    analysis
+    The selection of the paramenters is dependent of the machine used for image acquisition. If the
+    machine is not defined in the experiment_info dictionary a generic processing set up is defined
+
+    Args:
+        experiment_fpath: str
+            path to the experiment that will be processed
+
+        experiment_info: dict
+            dictionary containing all the info generated by robofish
+    &#34;&#34;&#34;
+    logger = prefect_logging_setup(&#39;create-analasys-config-file&#39;)
+    analysis_config_fpath = experiment_fpath / &#39;pipeline_config&#39; / &#39;analysis_config.yaml&#39;
+    analysis_config = OrderedDict()
+
+    try:
+        machine = experiment_info[&#39;Machine&#39;]
+    except NameError:
+        machine = &#39;NOT_DEFINED&#39;
+    
+    analysis_config[&#39;fish_signal&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;] = {}
+
+    analysis_config[&#39;fish_signal&#39;][&#39;rounds_registration&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;rounds_registration&#39;][&#39;reference_hybridization&#39;] = 1
+
+    analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;] = {}
+    analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;] = {}
+
+    analysis_config[&#39;fish_signal&#39;][&#39;barcodes_extraction&#39;] = {}
+
+    analysis_config[&#39;staining&#39;] = {}
+    analysis_config[&#39;staining&#39;][&#39;preprocessing&#39;] = {}
+
+    if machine == &#39;ROBOFISH1&#39;:
+
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+
+    
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+        
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;barcodes_extraction&#39;][&#39;pxl_hood_size&#39;] = 3
+
+        analysis_config[&#39;staining&#39;][&#39;preprocessing&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+
+        if &#39;barcoded&#39; in experiment_info[&#39;Experiment_type&#39;]:
+            analysis_config[&#39;fresh_nuclei&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;][&#39;large_kernel_size&#39;] = (5,50,50)
+
+    elif machine == &#39;ROBOFISH2&#39;:
+
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+
+    
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+        
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;barcodes_extraction&#39;][&#39;pxl_hood_size&#39;] = 3
+
+        analysis_config[&#39;staining&#39;][&#39;preprocessing&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+
+        if &#39;barcoded&#39; in experiment_info[&#39;Experiment_type&#39;]:
+            analysis_config[&#39;fresh_nuclei&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;][&#39;large_kernel_size&#39;] = (5,50,50)
+
+    elif machine == &#39;NOT_DEFINED&#39;:
+
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;fish&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+
+    
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;small-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3 
+        
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_small_kernel&#39;] = (1,8,8)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;filtering_laplacian_kernel&#39;] = (0.2,0.5,0.5)
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_percentile&#39;] = 99
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_min_obj_size&#39;] = 50
+        analysis_config[&#39;fish_signal&#39;][&#39;preprocessing&#39;][&#39;large-beads-registration&#39;][&#39;large_obj_removal_selem&#39;] = 3
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;fish&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;small-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_distance&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;min_obj_size&#39;] = 2
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;max_obj_size&#39;] = 200
+        analysis_config[&#39;fish_signal&#39;][&#39;counting&#39;][&#39;large-beads-registration&#39;][&#39;num_peaks_per_label&#39;] = 1
+
+        analysis_config[&#39;fish_signal&#39;][&#39;barcodes_extraction&#39;][&#39;pxl_hood_size&#39;] = 3
+
+        analysis_config[&#39;staining&#39;][&#39;preprocessing&#39;][&#39;flat_field_kernel&#39;] = (2,100,100)
+
+        if &#39;barcoded&#39; in experiment_info[&#39;Experiment_type&#39;]:
+            analysis_config[&#39;fresh_nuclei&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;] = {}
+            analysis_config[&#39;fresh_nuclei&#39;][&#39;preprocessing&#39;][&#39;large_kernel_size&#39;] = (5,50,50)
+    try:
+        with open(analysis_config_fpath, &#39;w&#39;) as new_config:
+                yaml.safe_dump(dict(analysis_config), new_config,default_flow_style=False,sort_keys=False)
+    except:
+        logger.error(f&#39;cannot save the analysis_config_file&#39;)
+        signals.FAIL(f&#39;cannot save the analysis_config_file&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.configuration_files_tasks.create_processing_env_config_file"><code class="name flex">
+<span>def <span class="ident">create_processing_env_config_file</span></span>(<span>experiment_fpath: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This function creates a configuration files with the parameters requested for the
+setup of the processing cluster.
+The current file is defaulted to htcondor</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>experiment_fpath</code></strong></dt>
+<dd>str
+path to the experiment that will be processed</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_processing_env_config_file(experiment_fpath:str):
+    &#34;&#34;&#34;
+    This function creates a configuration files with the parameters requested for the 
+    setup of the processing cluster. 
+    The current file is defaulted to htcondor
+
+    Args:
+        experiment_fpath: str
+            path to the experiment that will be processed
+    &#34;&#34;&#34;
+
+    processing_env_config_fpath = experiment_fpath / &#39;pipeline_config&#39; / &#39;processing_env_config.yaml&#39;
+    processing_env_config = OrderedDict()
+
+    processing_env_config[&#39;htcondor&#39;] = {}
+
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;] = {}
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;][&#39;cores&#39;] = 1
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;][&#39;memory&#39;] = &#39;10GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;][&#39;disk&#39;] = &#39;0.1GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-serial&#39;][&#39;local_directory&#39;] = &#39;/tmp&#39;
+
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;] = {}
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;][&#39;cores&#39;] = 1
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;][&#39;memory&#39;] = &#39;10GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;][&#39;disk&#39;] = &#39;0.1GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;smfish-barcoded&#39;][&#39;local_directory&#39;] = &#39;/tmp&#39;
+
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;] = {}
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;][&#39;cores&#39;] = 1
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;][&#39;memory&#39;] = &#39;10GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;][&#39;disk&#39;] = &#39;0.1GB&#39;
+    processing_env_config[&#39;htcondor&#39;][&#39;eel-barcoded&#39;][&#39;local_directory&#39;] = &#39;/tmp&#39;
+
+    with open(processing_env_config_fpath, &#39;w&#39;) as new_config:
+            yaml.safe_dump(dict(processing_env_config), new_config,default_flow_style=False,sort_keys=False)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.configuration_files_tasks.load_analysis_config_file"><code class="name flex">
+<span>def <span class="ident">load_analysis_config_file</span></span>(<span>expxeriment_fpath: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@task(name=&#39;load-analysis-config&#39;)
+def load_analysis_config_file(expxeriment_fpath:str):
+    logger = prefect_logging_setup(&#39;load-analysis-config&#39;)
+    experiment_fpath = Path(experiment_fpath)
+    analysis_config_fpath = experiment_fpath / &#39;pipeline_config&#39; / &#39;analysis_config.yaml&#39;
+    try:
+        analysis_config = OrderedDict(yaml.safe_load(open(analysis_config_fpath, &#39;rb&#39;)))
+    except (FileExistsError,NameError,FileNotFoundError) as e:
+        logger.debug(f&#39;{analysis_config_fpath} missing&#39;)
+        signals.FAIL(f&#39;{analysis_config_fpath} missing&#39;)
+    else:
+        return analysis_config</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.configuration_files_tasks.load_experiment_config_file"><code class="name flex">
+<span>def <span class="ident">load_experiment_config_file</span></span>(<span>experiment_fpath: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function that load the experiment general information generated by the
+machines.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>experiment_fpath</code></strong></dt>
+<dd>str
+location of the folder to be processed</dd>
+</dl>
+<h2 id="return">Return</h2>
+<p>experiment_info: ordered dict
+ordered dict with the parsed info generated by the instrument</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_experiment_config_file(experiment_fpath:str):
+    &#34;&#34;&#34;
+    Function that load the experiment general information generated by the
+    machines.
+
+    Args:
+        experiment_fpath: str
+            location of the folder to be processed
+    Return:
+        experiment_info: ordered dict
+            ordered dict with the parsed info generated by the instrument
+
+    &#34;&#34;&#34;
+    
+    logger = prefect_logging_setup(&#39;load_experiments_info_file&#39;)
+
+    experiment_fpath = Path(experiment_fpath)
+    experiment_name = experiment_fpath.stem
+    experiment_name = experiment_name.split(&#39;_auto&#39;)[0]
+    search_key = experiment_name + &#39;_config.yaml&#39;
+    
+    try:
+        experiment_info_fpath = list(experiment_fpath.glob(search_key))[0]
+    except:
+        logger.error(f&#39;No experiment info file in {experiment_fpath}&#39;)
+        fail_signal = signals.FAIL(&#34;No experiment info file in the folder&#34;)
+        raise fail_signal
+    
+    try:
+        experiment_info = OrderedDict(yaml.safe_load(open(experiment_info_fpath, &#39;rb&#39;)))
+        return experiment_info
+    except:
+        logger.error(f&#39;Experiment info file has the wrong name in {experiment_fpath}&#39;)
+        fail_signal = signals.FAIL(&#34;Experiment info file has the wrong name in the folder&#34;)
+        raise fail_signal</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.configuration_files_tasks.load_processing_env_config_file"><code class="name flex">
+<span>def <span class="ident">load_processing_env_config_file</span></span>(<span>config_db_fpath: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function used to load the parameters used for setting up
+the processing cluster</p>
+<h2 id="args">Args</h2>
+<p>config_db_fpath; str
+path to the folder containing the data_transfer_config.yaml</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_processing_env_config_file(config_db_fpath:str):
+    &#34;&#34;&#34;
+    Function used to load the parameters used for setting up 
+    the processing cluster
+
+    Args:
+        config_db_fpath; str
+            path to the folder containing the data_transfer_config.yaml
+    &#34;&#34;&#34;
+    logger = prefect_logging_setup(&#39;load-processing-env-config&#39;)
+    config_db_fpath = Path(config_db_fpath)
+    processing_env_config_fpath = config_db_fpath / &#39;processing_env_config.yaml&#39;
+    try:
+        processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, &#39;rb&#39;)))
+    except (FileExistsError,NameError,FileNotFoundError) as e:
+        logger.debug(f&#39;{processing_env_config_fpath} missing&#39;)
+        try:
+            create_processing_env_config_file(experiment_fpath)
+        except:
+            logger.error(&#39;cannot create the processing config file&#39;)
+            signals.FAIL(&#39;cannot create the processing config file&#39;)
+        else:
+            processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, &#39;rb&#39;)))
+            return processing_env_config
+    else:
+        return processing_env_config</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.configuration_files_tasks.load_transferring_config"><code class="name flex">
+<span>def <span class="ident">load_transferring_config</span></span>(<span>config_db_fpath: str) ‑> Dict</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function used to load the parameters used for transfering
+the data from the storage to the processing HD</p>
+<h2 id="args">Args</h2>
+<p>config_db_fpath; str
+path to the folder containing the data_transfer_config.yaml</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_transferring_config(config_db_fpath:str)-&gt;Dict:
+    &#34;&#34;&#34;
+    Function used to load the parameters used for transfering
+    the data from the storage to the processing HD
+
+    Args:
+        config_db_fpath; str
+            path to the folder containing the data_transfer_config.yaml
+    &#34;&#34;&#34;
+    
+    logger = prefect_logging_setup(f&#39;load-transfer-config&#39;)
+    config_db_fpath = Path(config_db_fpath)
+
+    transfer_config_fpath = config_db_fpath / &#39;data_transfer_config.yaml&#39;
+    try:
+         transfer_config = OrderedDict(yaml.safe_load(open(transfer_config_fpath, &#39;rb&#39;)))
+    except (FileExistsError,NameError,FileNotFoundError) as e:
+        logger.debug(f&#39;{transfer_config_fpath} missing&#39;)
+        signals.FAIL(f&#39;{transfer_config_fpath} missing&#39;)
+    else:
+        return  transfer_config</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pysmFISH" href="index.html">pysmFISH</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pysmFISH.configuration_files_tasks.create_analysis_config_file" href="#pysmFISH.configuration_files_tasks.create_analysis_config_file">create_analysis_config_file</a></code></li>
+<li><code><a title="pysmFISH.configuration_files_tasks.create_processing_env_config_file" href="#pysmFISH.configuration_files_tasks.create_processing_env_config_file">create_processing_env_config_file</a></code></li>
+<li><code><a title="pysmFISH.configuration_files_tasks.load_analysis_config_file" href="#pysmFISH.configuration_files_tasks.load_analysis_config_file">load_analysis_config_file</a></code></li>
+<li><code><a title="pysmFISH.configuration_files_tasks.load_experiment_config_file" href="#pysmFISH.configuration_files_tasks.load_experiment_config_file">load_experiment_config_file</a></code></li>
+<li><code><a title="pysmFISH.configuration_files_tasks.load_processing_env_config_file" href="#pysmFISH.configuration_files_tasks.load_processing_env_config_file">load_processing_env_config_file</a></code></li>
+<li><code><a title="pysmFISH.configuration_files_tasks.load_transferring_config" href="#pysmFISH.configuration_files_tasks.load_transferring_config">load_transferring_config</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

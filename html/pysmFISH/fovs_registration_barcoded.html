@@ -1,0 +1,3318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>pysmFISH.fovs_registration_barcoded API documentation</title>
+<meta name="description" content="group of class or functions use to register the fov" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pysmFISH.fovs_registration_barcoded</code></h1>
+</header>
+<section id="section-intro">
+<p>group of class or functions use to register the fov</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+group of class or functions use to register the fov
+&#34;&#34;&#34;
+import logging
+import zarr
+import pickle
+import pandas as pd
+import numpy as np
+import sys
+from pathlib import Path
+from sklearn.neighbors import NearestNeighbors
+from skimage import transform
+from skimage.measure import ransac
+from scipy.spatial import distance
+
+from pysmFISH.utils import load_pipeline_config_file
+from skimage.feature import register_translation
+# from skimage.registration import phase_cross_correlation UPDATE SKIMAGEN
+from skimage import filters
+
+import itertools
+import math
+import operator
+from scipy.optimize import minimize
+
+import prefect
+from prefect import task
+from prefect.engine import signals
+
+from pysmFISH.logger_utils import prefect_logging_setup
+
+
+
+def create_fake_image(img_shape,coords):
+    gaussian_sigma = 5
+    img = np.zeros(img_shape,dtype=np.float64)
+    img[coords[:,0].astype(int),coords[:,1].astype(int)] = 1000
+    img = filters.gaussian(img,sigma=gaussian_sigma)
+    return img
+
+
+@task(name=&#39;fft_registration_beads&#39;)# ADD LOGGER
+def fft_registration_beads(reference_coords:np.ndarray, translated_coords:np.ndarray,
+                       img_width: int, img_height:int, fov_num:int,
+                       hybridization_num_translated:int):
+
+    logger = prefect.utilities.logging.get_logger(&#34;fft_registration_beads&#34;)
+    # CHECK THE VALUES AND CATCH THE ERROR TO BLOCK FOV FOR REGISTRATION     
+    if np.any(np.isnan(reference_coords)):
+        logger.error(f&#39;missing reference round for registration for fov {fov_num}&#39;) 
+        signals.SKIP(f&#39;missing reference round for registration for fov {fov_num}&#39;)
+        shift = np.array([np.nan,np.nan])
+        error = 0
+        tran_registered_coords = translated_coords
+        
+        # RETURN VALUES TO WRITE ON DB
+    elif np.any(np.isnan(translated_coords)):
+        logger.error(f&#39;missing registration round {hybridization_num_translated} for registration for fov {fov_num}&#39;)   
+        shift = np.array([np.nan,np.nan])
+        error = 0
+        tran_registered_coords = translated_coords
+        
+    else:
+        img_shape = [img_width,img_height]
+        img_ref = create_fake_image(img_shape,reference_coords)    
+        img_tran = create_fake_image(img_shape,translated_coords)
+        shift, error, diffphase = register_translation(img_ref, img_tran)
+        tran_registered_coords = translated_coords + shift
+        tran_registered_coords = tran_registered_coords.astype(int)
+
+    return tran_registered_coords, shift, error, fov_num, hybridization_num_translated 
+
+
+@task(name=&#39;registration-fish-round&#39;)
+def registration_fish_hybridization(reference_coords:np.ndarray,shift:np.ndarray,
+                                    fov_num:int, hybridization_num_translated:int):
+    &#34;&#34;&#34;
+    Function for the registration of the fish counts using
+    the shift calculated by aligning the registration channel
+
+    Parameters:
+    -----------
+
+    all_rounds_shifts: dict
+        dictionary containing the round number as key and 
+        shift as item
+    counts: pandas dataframe
+        pandas dataframe containing the fish counting 
+        output
+
+    &#34;&#34;&#34;
+    logger = prefect.utilities.logging.get_logger(&#34;registration_fish&#34;)
+
+    if len(reference_coords):
+        if np.any(np.isnan(shift)):
+            registered_coords = reference_coords
+            logger.info(f&#39;registration of {fov_num} of hybridization {hybridization_num_translated} failed&#39;)
+        else:
+            registered_coords = reference_coords + shift
+    else:
+        logger.info(f&#39;no counts in fov {fov_num} of hybridization {hybridization_num_translated}&#39;)
+        registered_coords=np.array([np.nan,np.nan])
+    
+    return registered_coords, shift
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############
+# utility function to use in stitching
+def determine_overlap_region(self):
+        &#34;&#34;&#34;Determine the overlap between two neighbouring tiles
+
+        Parameters:
+        -----------
+
+        ind1: int
+            Index (flattened) of tile 1
+        ind2: int
+            Index (flattened) of tile 2
+
+        micData: object
+            MicroscopeData object containing coordinates
+
+        Returns:
+        --------
+
+        overlap1: np.array
+            Overlapping part of tile_1
+        overlap2: np.array
+            Overlapping part of tile_2
+        plot_order: np.array
+            Numpy array of ones. The shape of this array is
+            used for plotting the overlaps in well fitting
+            subplots.
+        &#34;&#34;&#34;
+        
+        
+        if np.ma.is_masked(self.micData.tile_set.flat[:][self.ind1]):
+            tile_1 = False
+        else:
+            tile_1 = True
+            fnum_tile_1 = self.micData.tile_set.flat[:][self.ind1] + self.micData.tile_nr.min()
+            
+        
+        if np.ma.is_masked(self.micData.tile_set.flat[:][self.ind2]):
+            tile_2 = False
+        else:
+            tile_2 = True
+            fnum_tile_2 = self.micData.tile_set.flat[:][self.ind2] + self.micData.tile_nr.min()
+            
+
+        if (tile_1 and tile_2):
+            self.tiles_num = (fnum_tile_1, fnum_tile_2)
+            self.tile1_x_coords = self.micData.x_coords[self.micData.tile_set.flat[:][self.ind1]]
+            self.tile2_x_coords = self.micData.x_coords[self.micData.tile_set.flat[:][self.ind2]]
+            self.tile1_y_coords = self.micData.y_coords[self.micData.tile_set.flat[:][self.ind1]]
+            self.tile2_y_coords = self.micData.y_coords[self.micData.tile_set.flat[:][self.ind2]]
+
+            tile_1_fpath = [fpath for fpath in self.counting_files_list if &#39;pos_&#39;+str(fnum_tile_1)+&#39;.&#39; in str(fpath)][0]
+            self.tile_1_store = zarr.DirectoryStore(tile_1_fpath)
+            self.tile_1_root = zarr.group(store=self.tile_1_store, overwrite=False)
+            self.tile_1_counts = self.tile_1_root[&#39;stringency_raw_counts&#39;][&#39;coords_original&#39;][...]
+            tile_1_ref_coords = np.array([self.tile1_y_coords,self.tile1_x_coords])
+            tile_1_ref_coords = tile_1_ref_coords[:,np.newaxis]
+            self.tile_1_adj_coords = self.tile_1_counts + tile_1_ref_coords
+
+
+            tile_2_fpath = [fpath for fpath in self.counting_files_list if &#39;pos_&#39;+str(fnum_tile_2)+&#39;.&#39; in str(fpath)][0]
+            self.tile_2_store = zarr.DirectoryStore(tile_2_fpath)
+            self.tile_2_root = zarr.group(store=self.tile_2_store, overwrite=False)
+            self.tile_2_counts = self.tile_2_root[&#39;stringency_raw_counts&#39;][&#39;coords_original&#39;][...]
+            tile_2_ref_coords = np.array([self.tile2_y_coords,self.tile2_x_coords])
+            tile_2_ref_coords = tile_2_ref_coords[:,np.newaxis]
+            self.tile_2_adj_coords = self.tile_2_counts + tile_2_ref_coords
+
+
+            
+            if self.tile1_y_coords &gt; self.tile2_y_coords:
+                r_tl = self.tile1_y_coords
+                r_br = self.tile2_y_coords + self.img_size
+
+                r_bl = self.tile2_y_coords + self.img_size
+                r_tr = self.tile1_y_coords
+                
+            else:
+                r_tl = self.tile2_y_coords
+                r_br = self.tile1_y_coords + self.img_size
+                
+                r_bl = self.tile1_y_coords + self.img_size
+                r_tr = self.tile2_y_coords
+
+            if self.tile1_x_coords &gt; self.tile2_x_coords:
+                c_tl = self.tile1_x_coords
+                c_br = self.tile2_x_coords + self.img_size
+                
+                c_tr = self.tile2_x_coords + self.img_size
+                c_bl = self.tile1_x_coords
+                
+            else:
+                c_tl = self.tile2_x_coords
+                c_br = self.tile1_x_coords + self.img_size
+                
+                c_bl = self.tile2_x_coords
+                c_tr = self.tile1_x_coords + self.img_size
+
+
+            self.tl_coords = np.array([r_tl,c_tl])
+            self.br_coords = np.array([r_br,c_br])
+            self.tr_coords = np.array([r_tr,c_tr])
+            self.bl_coords = np.array([r_bl,c_bl])
+            num_r = np.abs(self.tl_coords[1] - self.tr_coords[1])
+            num_c = np.abs(self.tr_coords[0] - self.bl_coords[0])
+            self.region_dimensions = (num_c,num_r)
+
+
+        else:
+            self.tl_coords = self.br_coords = self.tr_coords = self.bl_coords = None
+            
+###################################
+
+
+
+
+class chunking():
+    &#34;&#34;&#34;
+    utility class to create processing chunks
+    &#34;&#34;&#34;
+
+    def __init__(self, region_dimensions, chunk_size, percent_padding, tl_coords):
+        self.region_dimensions = region_dimensions
+        self.chunk_size = chunk_size
+        self.percent_padding = percent_padding
+        self.tl_coords = tl_coords
+    
+
+    @staticmethod
+    def block_chunks_calculator(dimension,chunk_size):
+        &#34;&#34;&#34;
+        Helper function to calculate the size of the chunks created according
+        the length of the vector and the chunk size.
+
+        Parameters:
+        -----------
+
+        dimension: int
+            Length of the vector to Chunk
+        chunkSize: int 
+            Dimension of the Chunks
+
+        Returns:
+        -----------
+
+        chunks_sizes: np.array 
+            Array of the sizes of the created chunks. It deals with conditions 
+            when the expected chunks size do not fit an even number of times in the 
+            dimension
+        &#34;&#34;&#34;
+        number_even_chunks=int(dimension//chunk_size)
+        total_size_even_chunks=number_even_chunks*chunk_size
+        odd_tile_size=dimension-total_size_even_chunks
+        chunk_sizes=[]
+        chunks_sizes=list(np.repeat(chunk_size,number_even_chunks-1))
+        if odd_tile_size &lt; chunk_size:
+            chunks_sizes.append(chunk_size+odd_tile_size)
+        else:
+            chunks_sizes.append(odd_tile_size)
+        return tuple(chunks_sizes)
+    
+    def block_chunking(self):
+        &#34;&#34;&#34;
+        Function used to generate the coords of the images according to the
+        chunking 
+
+        Parameters:
+        -----------
+
+        PercentPadding: float 
+            Percent of overlapping between the different images (Ex. 0.2).
+        ChunkSize: int 
+            Dimension of the Chunks.
+
+        Returns:
+        -----------
+
+        Coords_Chunks_list: list 
+            List of np.array with the coords of the images without padding
+        Coords_Padded_Chunks_list: list 
+            List of np.array with the coords of the images with padding
+
+        Notes:
+        ------
+
+        For both lists each np.array contains the coords in the following order:
+        [row_tl,row_br,col_tl,col_br]
+
+        &#34;&#34;&#34;
+        num_r,num_c = self.region_dimensions
+        pixel_padding = int(self.chunk_size*self.percent_padding)
+        self.starting_position = self.tl_coords
+
+        # Calculate the size of the chunks
+        r_chunks_size = self.block_chunks_calculator(num_r,self.chunk_size)
+        
+        c_chunks_size = self.block_chunks_calculator(num_c,self.chunk_size)
+        
+        # Calculate the total numbers of chunks
+        nr_chunks = len(r_chunks_size)
+        
+        nc_chunks = len(c_chunks_size)
+       
+
+
+        # Coords top left corner (tl)
+        if nr_chunks == 1:
+            r_coords_tl = self.starting_position[0]
+        else:  
+            r_coords_tl = np.arange(self.starting_position[0],(self.starting_position[0]+self.chunk_size*(nr_chunks)),self.chunk_size)
+        
+        
+        if nc_chunks == 1:
+            c_coords_tl = self.starting_position[1]
+        else:
+            c_coords_tl = np.arange(self.starting_position[1],(self.starting_position[1]+self.chunk_size*(nc_chunks)),self.chunk_size)
+
+        
+        # Coords of all the tl in the image
+        r_coords_tl_all,c_coords_tl_all = np.meshgrid(r_coords_tl,c_coords_tl,indexing=&#39;ij&#39;)
+        self.coords_all_to_test = [r_coords_tl_all,c_coords_tl_all]
+        # Calculate all the br coords
+        r_coords_br_all = r_coords_tl_all.copy()
+        c_coords_br_all = c_coords_tl_all.copy()
+
+        for c in np.arange(0,r_coords_tl_all.shape[1]):
+            r_coords_br_all[:,c] = r_coords_br_all[:,c]+r_chunks_size
+
+        for r in np.arange(0,r_coords_tl_all.shape[0]):
+             c_coords_br_all[r,:] = c_coords_br_all[r,:]+c_chunks_size
+
+        # Calculate the padded coords
+        r_coords_tl_all_padded = r_coords_tl_all-pixel_padding
+        c_coords_tl_all_padded = c_coords_tl_all-pixel_padding
+        r_coords_br_all_padded = r_coords_br_all+pixel_padding
+        c_coords_br_all_padded = c_coords_br_all+pixel_padding
+
+        # Correct for coords out of the image (where tl&lt;0,br&gt;Img.shape)
+        r_coords_tl_all_padded[r_coords_tl_all_padded&lt;0] = r_coords_tl_all[r_coords_tl_all_padded&lt;0]
+        c_coords_tl_all_padded[c_coords_tl_all_padded&lt;0] = c_coords_tl_all[c_coords_tl_all_padded&lt;0]
+        r_coords_br_all_padded[r_coords_br_all_padded&gt;num_r] = r_coords_br_all[r_coords_br_all_padded&gt;num_r]
+        c_coords_br_all_padded[c_coords_br_all_padded&gt;num_c] = c_coords_br_all[c_coords_br_all_padded&gt;num_c]
+
+        # The coords list are generated as:
+        # row_tl,row_br,col_tl,col_br
+
+
+        # Create a list for the padded coords
+        self.Coords_Padded_Chunks_list = list()
+        for r in np.arange(0,r_coords_tl_all_padded.shape[0]):
+            for c in np.arange(0,r_coords_tl_all_padded.shape[1]):
+                self.Coords_Padded_Chunks_list.append(np.array([r_coords_tl_all_padded[r][c],\
+                                                           r_coords_br_all_padded[r][c],\
+                                                           c_coords_tl_all_padded[r][c],\
+                                                           c_coords_br_all_padded[r][c]])) 
+    
+
+
+class reference_beads_registration():
+
+    def __init__(self,ref_hyb_coords, comp_hyb_coords, Coords_Padded_Chunks_list, n_neighbors,
+                min_acceptable_distance, min_samples, residual_threshold, max_trials, matching_radius):
+
+        self.ref_hyb_coords = ref_hyb_coords
+        self.comp_hyb_coords = comp_hyb_coords
+        self.Coords_Padded_Chunks_list = Coords_Padded_Chunks_list
+
+        self.n_neighbors = n_neighbors
+        self.min_acceptable_distance = min_acceptable_distance
+        self.min_samples = min_samples
+        self.residual_threshold = residual_threshold
+        self.max_trials = max_trials
+        self.matching_radius = matching_radius
+
+        self.logger = logging.getLogger(__name__)
+
+    @staticmethod
+    def calculate_min_distances(selected_ref):
+        ref_dist = distance.cdist(selected_ref.T, selected_ref.T)
+        ref_dist = np.triu(ref_dist)
+        ref_dist = ref_dist[:-1,:]
+        mref = np.ma.masked_where(ref_dist==0,ref_dist)
+        mref_min = mref.min(axis=1)
+        return np.sort(mref_min.data)
+    
+    @staticmethod
+    # CALCULATE ERROR OVER THE DIAGONAL
+    def errors(transformed_coords, ref_good):
+        diagonals = np.sqrt((ref_good[:,0]- transformed_coords[:,0])**2 + (ref_good[:,1]- transformed_coords[:,1])**2)
+        diagonal_mean = np.mean(diagonals,axis=0)
+        diagonal_median = np.median(diagonals,axis=0)
+        err1 = np.sum((diagonals-diagonal_mean),axis=0)/len(diagonals)
+        err2 = np.sum((diagonals-diagonal_mean)**2,axis=0)/len(diagonals)
+        diag_std = np.std(diagonals)
+        diag_sem = diag_std/len(diagonals)
+        
+        # delta = np.abs(ref_good - transformed_coords)
+        # delta_mean = np.mean(delta,axis=0)
+        # err1 = np.sum((delta-delta_mean),axis=0)/len(transformed_coords)
+        # err2 = np.sum((delta-delta_mean)**2,axis=0)/len(transformed_coords)
+        return err1,err2, diagonal_mean, diagonal_median, diag_std, diag_sem
+
+    def calculate_NN_roi(self,chunk_coords):    
+        r_tl = chunk_coords[0]
+        r_br = chunk_coords[1]
+        c_tl = chunk_coords[2]
+        c_br = chunk_coords[3]
+
+        # Select only the coords in the trimmed region
+        ref_trimmed = self.ref_hyb_coords[:,((r_tl &lt; self.ref_hyb_coords[0,:]) &amp; (self.ref_hyb_coords[0,:]&lt;r_br)\
+                                      &amp; (c_tl &lt;self.ref_hyb_coords[1,:]) &amp;(self.ref_hyb_coords[1,:]&lt;c_br)) ]
+        tran_trimmed = self.comp_hyb_coords[:,((r_tl &lt; self.comp_hyb_coords[0,:]) &amp; (self.comp_hyb_coords[0,:]&lt;r_br)\
+                                          &amp; (c_tl &lt;self.comp_hyb_coords[1,:]) &amp;(self.comp_hyb_coords[1,:]&lt;c_br)) ]
+        
+        # Add check if there are dots in the timmed region
+        if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+            nbrs_ref = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(ref_trimmed.T)
+            nbrs_tr = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(tran_trimmed.T)
+        else:
+            nbrs_ref = nbrs_tr = np.nan
+            
+        return ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr
+   
+
+    def calculate_NN_overlapping_region(self, coords_overlapping_region):
+        
+        # Add check if there are dots in the timmed region
+        if coords_overlapping_region.size &gt;= 2*self.n_neighbors and coords_overlapping_region.size &gt;= 2*self.n_neighbors:
+            nbrs = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(coords_overlapping_region.T)
+        else:
+            nbrs = np.nan
+            
+        return nbrs
+
+    
+    def calculate_registration(self):
+        
+        self.c = []
+        passing_num = 0
+        matching_points = False
+        if self.ref_hyb_coords.size and self.comp_hyb_coords.size:
+            for chunk_coords in self.Coords_Padded_Chunks_list:
+                ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr= self.calculate_NN_roi(chunk_coords)
+                if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+                    if nbrs_ref != np.nan and nbrs_tr != np.nan:
+                        # create dots id list
+                        trans_dot_id_list = np.arange(tran_trimmed.shape[1])
+                        for tran_dot_id in trans_dot_id_list:
+                            searching=tran_trimmed[:,tran_dot_id]
+                            searching = searching[np.newaxis,:]
+                            dist, idx  = nbrs_tr.kneighbors(searching,n_neighbors=self.n_neighbors)
+                            selected_tran = tran_trimmed[:,idx[0]]
+                            tran_dist = self.calculate_min_distances(selected_tran)
+                            for id_r in np.arange(ref_trimmed.shape[1]):
+                                searching_r=ref_trimmed[:,id_r]
+                                searching_r = searching_r[np.newaxis,:]
+                                dist_r, idx_r  = nbrs_ref.kneighbors(searching_r,n_neighbors=self.n_neighbors)
+                                if idx_r[0].shape[0] == idx[0].shape[0]: 
+                                    selected_ref = ref_trimmed[:,idx_r[0]]
+                                    ref_dist = self.calculate_min_distances(selected_ref)
+                                    if np.all(np.abs(ref_dist - tran_dist)&lt;self.min_acceptable_distance):
+                                        ref = ref_trimmed[:,idx_r[0]]
+                                        ref_srt = ref[:,ref[0,:].argsort()]
+                                        tran = tran_trimmed[:,idx[0]]
+                                        tran_srt = tran[:,tran[0,:].argsort()]
+                                        cpls = np.concatenate((ref_srt.T,tran_srt.T),axis=1)
+                                        self.c.append(cpls)
+                                        if passing_num == 0:
+                                            matching_points = cpls
+                                            passing_num += 1
+                                        else:
+                                            matching_points = np.concatenate((matching_points,cpls),axis=0)
+            if isinstance(matching_points,np.ndarray):
+                matching_points = np.unique(matching_points,axis=0)
+                self.ref = matching_points[:,0:2]
+                self.tran = matching_points[:,2:]
+                if (self.min_samples &lt; self.ref.shape[0]) and (self.min_samples &lt; self.tran.shape[0]):
+                    self.model, self.inliers = ransac((self.tran, self.ref), transform.SimilarityTransform, min_samples=self.min_samples,
+                                    residual_threshold=self.residual_threshold, max_trials=self.max_trials)
+    #                 self.model = transform.estimate_transform(&#39;Affine&#39;,self.tran, self.ref)
+                    self.missing_pos = False
+                else:
+                    self.missing_pos = True 
+            else:
+                self.missing_pos = True 
+        else: 
+            self.missing_pos = True
+        
+        if not self.missing_pos:
+            if self.model:
+                self.tr_good = self.tran[self.inliers]
+                self.ref_good = self.ref[self.inliers]
+                self.transformed_coords = transform.matrix_transform(self.tr_good, self.model.params)
+                self.transformed_all_coords = transform.matrix_transform(self.comp_hyb_coords.T, self.model.params)
+                self.delta = self.ref_good - self.tr_good
+                self.translation_mean = np.mean(self.delta,axis=0)
+                self.translation_median = np.median(self.delta,axis=0)
+                self.translation_diagonal = np.sqrt((self.ref_good[:,0] - self.tr_good[:,0])**2 + (self.ref_good[:,1] - self.tr_good[:,1])**2)
+                self.translational_diagonal_mean = np.mean(self.translation_diagonal)
+                self.translational_diagonal_median = np.median(self.translation_diagonal)
+                self.translation_diagonal_std = np.std(self.translation_diagonal)
+                self.translation_diagonal_sem = np.std(self.translation_diagonal)/ len(self.translation_diagonal)
+                self.err1,self.err2, self.diagonal_mean, self.diagonal_median, self.diag_std, self.diag_sem = self.errors(self.transformed_coords, self.ref_good)
+                self.used_points = [self.ref_good,self.tr_good]
+            else:
+                self.missing_pos = True
+
+
+    def deploy(self):
+        self.registration_data = {}
+        if self.ref_hyb_coords.size &gt;= 2*self.n_neighbors:
+            self.ref_nbrs = self.calculate_NN_overlapping_region(self.ref_hyb_coords)
+            if self.comp_hyb_coords.size &gt;= 2*self.n_neighbors:
+                self.comp_nbrs = self.calculate_NN_overlapping_region(self.comp_hyb_coords)
+                if (self.ref_nbrs != np.nan) and (self.comp_nbrs != np.nan):
+                    self.calculate_registration()
+                else:
+                    self.logger.info(f&#39;no neighbors identified&#39;)
+                    self.missing_pos = True
+            else:
+                self.logger.info(f&#39;comp region \
+                        does not contain enough dots for registration&#39;)
+                self.missing_pos = True
+                
+                # ADJUST WHEN SAVING THE DATA
+                self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+        else:
+            self.logger.info(f&#39;reference region\
+                            does not contain enough dots for registration&#39;)
+            self.missing_pos = True
+            
+        if self.missing_pos:
+            self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+        else:
+            self.registration_data = {&#39;translation_diagonal_mean&#39;:self.translational_diagonal_mean, 
+                                    &#39;translation_diagonal_median&#39;: self.translational_diagonal_median, 
+                                    &#39;translation_diagonal_std&#39;: self.translation_diagonal_std,
+                                    &#39;translation_diagonal_sem&#39;:self.translation_diagonal_sem,
+                                    &#39;used_points&#39;: self.used_points,
+                                    &#39;model_params&#39;:self.model.params, 
+                                    &#39;err1&#39;:self.err1, 
+                                    &#39;err2&#39;:self.err2, 
+                                    &#39;diagonal_mean&#39;:self.diagonal_mean,
+                                    &#39;diagonal_median&#39;:self.translational_diagonal_median,
+                                    &#39;diag_std&#39;:self.diag_std, 
+                                    &#39;diag_sem&#39;:self.diag_sem,
+                                    &#39;transformed_coords&#39;:self.transformed_coords,
+                                    &#39;transformed_all_coords&#39;:self.transformed_all_coords,
+                                    &#39;missing_pos&#39;:self.missing_pos}
+
+
+
+class reference_beads_registration_couple():
+
+    &#34;&#34;&#34;
+    class used to register a couple of rounds. It is used to monitor the outcome
+    because it saves a lot of information useful for troubleshooting. Once the
+    parameters are well define the corresponding non test function is used in the
+    data processing
+    &#34;&#34;&#34;
+
+    def __init__(self,ref_hyb_coords, comp_hyb_coords, Coords_Padded_Chunks_list, n_neighbors,
+                min_acceptable_distance, min_samples, residual_threshold, max_trials, matching_radius):
+
+        self.ref_hyb_coords = ref_hyb_coords
+        self.comp_hyb_coords = comp_hyb_coords
+        self.Coords_Padded_Chunks_list = Coords_Padded_Chunks_list
+
+        self.n_neighbors = n_neighbors
+        self.min_acceptable_distance = min_acceptable_distance
+        self.min_samples = min_samples
+        self.residual_threshold = residual_threshold
+        self.max_trials = max_trials
+        self.matching_radius = matching_radius
+
+        self.logger = logging.getLogger(__name__)
+
+    @staticmethod
+    def calculate_min_distances(selected_ref):
+        ref_dist = distance.cdist(selected_ref, selected_ref)
+        ref_dist = np.triu(ref_dist)
+        ref_dist = ref_dist[:-1,:]
+        mref = np.ma.masked_where(ref_dist==0,ref_dist)
+        mref_min = mref.min(axis=1)
+        return np.sort(mref_min.data)
+    
+    @staticmethod
+    # CALCULATE ERROR OVER THE DIAGONAL
+    def errors(transformed_coords, ref_good):
+        diagonals = np.sqrt((ref_good[:,0]- transformed_coords[:,0])**2 + (ref_good[:,1]- transformed_coords[:,1])**2)
+        diagonal_mean = np.mean(diagonals,axis=0)
+        diagonal_median = np.median(diagonals,axis=0)
+        err1 = np.sum((diagonals-diagonal_mean),axis=0)/len(diagonals)
+        err2 = np.sum((diagonals-diagonal_mean)**2,axis=0)/len(diagonals)
+        diag_std = np.std(diagonals)
+        diag_sem = diag_std/len(diagonals)
+        
+        # delta = np.abs(ref_good - transformed_coords)
+        # delta_mean = np.mean(delta,axis=0)
+        # err1 = np.sum((delta-delta_mean),axis=0)/len(transformed_coords)
+        # err2 = np.sum((delta-delta_mean)**2,axis=0)/len(transformed_coords)
+        return err1,err2, diagonal_mean, diagonal_median, diag_std, diag_sem
+
+    def calculate_NN_roi(self,chunk_coords):    
+        r_tl = chunk_coords[0]
+        r_br = chunk_coords[1]
+        c_tl = chunk_coords[2]
+        c_br = chunk_coords[3]
+
+        # Select only the coords in the trimmed region
+        ref_trimmed = self.ref_hyb_coords[((r_tl &lt; self.ref_hyb_coords[:,0]) &amp; (self.ref_hyb_coords[:,0]&lt;r_br)\
+                                      &amp; (c_tl &lt;self.ref_hyb_coords[:,1]) &amp;(self.ref_hyb_coords[:,1]&lt;c_br)),:]
+        tran_trimmed = self.comp_hyb_coords[((r_tl &lt; self.comp_hyb_coords[:,0]) &amp; (self.comp_hyb_coords[:,0]&lt;r_br)\
+                                          &amp; (c_tl &lt;self.comp_hyb_coords[:,1]) &amp;(self.comp_hyb_coords[:,1]&lt;c_br)),:]
+        
+        # Add check if there are dots in the timmed region
+        if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+            nbrs_ref = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(ref_trimmed)
+            nbrs_tr = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(tran_trimmed)
+        else:
+            nbrs_ref = nbrs_tr = np.nan
+            
+        return ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr
+   
+
+    def calculate_NN_overlapping_region(self, coords_overlapping_region):
+        
+        # Add check if there are dots in the timmed region
+        if coords_overlapping_region.size &gt;= 2*self.n_neighbors and coords_overlapping_region.size &gt;= 2*self.n_neighbors:
+            nbrs = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(coords_overlapping_region)
+        else:
+            nbrs = np.nan
+            
+        return nbrs
+
+    
+    def calculate_registration(self):
+        self.monitor = []
+        self.c = []
+        passing_num = 0
+        self.matching_points = False
+        if self.ref_hyb_coords.size and self.comp_hyb_coords.size:
+            for chunk_coords in self.Coords_Padded_Chunks_list:
+                ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr= self.calculate_NN_roi(chunk_coords)
+                #if ref_trimmed.shape[0] &gt;= 2*self.n_neighbors and tran_trimmed.shape[0] &gt;= 2*self.n_neighbors:
+                if ref_trimmed.shape[0] &gt;= 20 and tran_trimmed.shape[0] &gt;= 20: 
+                    self.monitor.append((ref_trimmed,tran_trimmed))
+                    if nbrs_ref != np.nan and nbrs_tr != np.nan:
+                        # create dots id list
+                        trans_dot_id_list = np.arange(tran_trimmed.shape[0])
+                        for tran_dot_id in trans_dot_id_list:
+                            searching=tran_trimmed[tran_dot_id,:]
+                            searching = searching[np.newaxis,:]
+                            dist, idx  = nbrs_tr.kneighbors(searching,n_neighbors=self.n_neighbors)
+                            selected_tran = tran_trimmed[idx[0],:]
+                            tran_dist = self.calculate_min_distances(selected_tran)
+                            for id_r in np.arange(ref_trimmed.shape[0]):
+                                self.searching_r=ref_trimmed[id_r,:]
+                                self.searching_r = self.searching_r[np.newaxis,:]
+                                dist_r, self.idx_r  = nbrs_ref.kneighbors(self.searching_r,n_neighbors=self.n_neighbors)
+                                if self.idx_r[0].shape[0] == idx[0].shape[0]: 
+                                    selected_ref = ref_trimmed[self.idx_r[0],:]
+                                    ref_dist = self.calculate_min_distances(selected_ref)
+                                    if np.all(np.abs(ref_dist - tran_dist)&lt;self.min_acceptable_distance):
+                                        ref = ref_trimmed[self.idx_r[0],:]
+                                        ref_srt = ref[ref[0,:].argsort(),:]
+                                        tran = tran_trimmed[idx[0],:]
+                                        tran_srt = tran[tran[0,:].argsort(),:]
+                                        cpls = np.concatenate((ref_srt,tran_srt),axis=1)
+                                        self.c.append(cpls)
+                                        if passing_num == 0:
+                                            self.matching_points = cpls
+                                            passing_num += 1
+                                        else:
+                                            self.matching_points = np.concatenate((self.matching_points,cpls),axis=0)
+            if isinstance(self.matching_points,np.ndarray):
+                self.matching_points = np.unique(self.matching_points,axis=0)
+                self.ref = self.matching_points[:,0:2]
+                self.tran = self.matching_points[:,2:]
+                if (self.min_samples &lt; self.ref.shape[0]) and (self.min_samples &lt; self.tran.shape[0]):
+                    self.model, self.inliers = ransac((self.tran, self.ref), transform.SimilarityTransform, min_samples=self.min_samples,
+                                    residual_threshold=self.residual_threshold, max_trials=self.max_trials)
+    #                 self.model = transform.estimate_transform(&#39;Affine&#39;,self.tran, self.ref)
+                    self.missing_pos = False
+                else:
+                    self.missing_pos = True 
+            else:
+                self.missing_pos = True 
+        else: 
+            self.missing_pos = True
+        
+        if not self.missing_pos:
+            if self.model:
+                self.tr_good = self.tran[self.inliers]
+                self.ref_good = self.ref[self.inliers]
+                self.transformed_coords = transform.matrix_transform(self.tr_good, self.model.params)
+                self.transformed_all_coords = transform.matrix_transform(self.comp_hyb_coords, self.model.params)
+                self.delta = self.ref_good - self.tr_good
+                self.translation_mean = np.mean(self.delta,axis=0)
+                self.translation_median = np.median(self.delta,axis=0)
+                self.translation_diagonal = np.sqrt((self.ref_good[:,0] - self.tr_good[:,0])**2 + (self.ref_good[:,1] - self.tr_good[:,1])**2)
+                self.translational_diagonal_mean = np.mean(self.translation_diagonal)
+                self.translational_diagonal_median = np.median(self.translation_diagonal)
+                self.translation_diagonal_std = np.std(self.translation_diagonal)
+                self.translation_diagonal_sem = np.std(self.translation_diagonal)/ len(self.translation_diagonal)
+                self.err1,self.err2, self.diagonal_mean, self.diagonal_median, self.diag_std, self.diag_sem = self.errors(self.transformed_coords, self.ref_good)
+                self.used_points = [self.ref_good,self.tr_good]
+            else:
+                self.missing_pos = True
+
+
+    def deploy(self):
+        self.registration_data = {}
+        if self.ref_hyb_coords.size &gt;= 2*self.n_neighbors:
+            self.ref_nbrs = self.calculate_NN_overlapping_region(self.ref_hyb_coords)
+            if self.comp_hyb_coords.size &gt;= 2*self.n_neighbors:
+                self.comp_nbrs = self.calculate_NN_overlapping_region(self.comp_hyb_coords)
+                if (self.ref_nbrs != np.nan) and (self.comp_nbrs != np.nan):
+                    self.calculate_registration()
+                else:
+                    self.logger.info(f&#39;no neighbors identified&#39;)
+                    self.missing_pos = True
+            else:
+                self.logger.info(f&#39;comp region \
+                        does not contain enough dots for registration&#39;)
+                self.missing_pos = True
+                
+                # ADJUST WHEN SAVING THE DATA
+                self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+        else:
+            self.logger.info(f&#39;reference region\
+                            does not contain enough dots for registration&#39;)
+            self.missing_pos = True
+            
+        if self.missing_pos:
+            self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+        else:
+            self.registration_data = {&#39;translation_diagonal_mean&#39;:self.translational_diagonal_mean, 
+                                    &#39;translation_diagonal_median&#39;: self.translational_diagonal_median, 
+                                    &#39;translation_diagonal_std&#39;: self.translation_diagonal_std,
+                                    &#39;translation_diagonal_sem&#39;:self.translation_diagonal_sem,
+                                    &#39;used_points&#39;: self.used_points,
+                                    &#39;model_params&#39;:self.model.params, 
+                                    &#39;err1&#39;:self.err1, 
+                                    &#39;err2&#39;:self.err2, 
+                                    &#39;diagonal_mean&#39;:self.diagonal_mean,
+                                    &#39;diagonal_median&#39;:self.translational_diagonal_median,
+                                    &#39;diag_std&#39;:self.diag_std, 
+                                    &#39;diag_sem&#39;:self.diag_sem,
+                                    &#39;transformed_coords&#39;:self.transformed_coords,
+                                    &#39;transformed_all_coords&#39;:self.transformed_all_coords,
+                                    &#39;missing_pos&#39;:self.missing_pos}
+
+
+
+
+
+class triangles_based_registration():
+    &#34;&#34;&#34;
+    Class used to register the different rounds by searaching and
+    matching all possible triangles formed by the dots in the reference
+    and translated image. This function run only a registration to the reference
+    round
+    
+    The calculation of the triangle is based on list processing and may 
+    be improved in ported to numpy.
+    https://stackoverflow.com/questions/43126580/match-set-of-x-y-points-to-another-set-that-is-scaled-rotated-translated-and
+
+    &#34;&#34;&#34;
+
+    def __init__(self, counts, experiment_fpath, channel_name, roi_number, fov_name):
+        self.counts = counts
+        self.experiment_fpath = Path(experiment_fpath)
+        self.channel_name = channel_name
+        self.roi_number = roi_number
+        self.fov_name = fov_name
+        
+        self.logger = logging.getLogger(__name__)
+        
+        self.pipeline_config_fpath = self.experiment_fpath / &#39;pipeline_config&#39;
+        self.experiment_config_fpath =  self.pipeline_config_fpath / &#39;experiment.yaml&#39;
+        self.experiment_config = load_pipeline_config_file(self.experiment_config_fpath)
+        
+        searching_key = &#39;*roi_&#39; +str(self.roi_number) + &#39;_&#39; + self.channel_name + &#39;_images_config.yaml&#39;        
+        
+        try:
+            self.image_config_fpath = list(self.pipeline_config_fpath.glob(searching_key))[0]
+        except:
+            self.logger.error(f&#39;the reference beads image_config file is missing {searching_key}&#39;)
+            sys.exit(f&#39;the reference beads image_config file&#39;)
+
+        
+        # Load registration parameters
+        self.image_config = load_pipeline_config_file(self.image_config_fpath)
+        self.registration_parameters = self.image_config[fov_name][&#39;fov_analysis_parameters&#39;][&#39;rounds_registration&#39;]
+        self.chunk_size = self.registration_parameters[&#39;chunk_size&#39;]
+        self.min_dots_chunk = self.registration_parameters[&#39;min_dots_chunk&#39;]
+        self.min_error_triangles = self.registration_parameters[&#39;min_error_triangles&#39;]
+        self.percent_padding = self.registration_parameters[&#39;percent_padding&#39;]
+        self.reference_round = self.registration_parameters[&#39;reference_round&#39;]
+        self.collect_all_chunks = self.registration_parameters[&#39;collect_all_chunks&#39;]
+        self.reference_round_name = &#39;round_&#39; + str(self.reference_round)
+       
+        # The top lef coords are 0,0 because we are using relative coords
+        self.tl_coords = (0,0)
+
+        self.img_dimensions = (self.image_config[fov_name][&#39;rounds&#39;][self.reference_round_name][&#39;shape&#39;][&#39;height&#39;],
+                               self.image_config[fov_name][&#39;rounds&#39;][self.reference_round_name][&#39;shape&#39;][&#39;width&#39;])    
+                    
+
+    @staticmethod
+    def combine_coords(counts, round_num):
+        data_reference = counts.loc[counts[&#39;round_num&#39;] == round_num]
+        r_px = data_reference.r_px_original.to_list()
+        c_px = data_reference.c_px_original.to_list()
+        coords = np.array(list(zip(r_px,c_px)))
+        position_idx = data_reference.index
+        return coords, position_idx
+
+
+    @staticmethod
+    def obj_fun(pars,x,src):
+        tx, ty = pars
+        H = np.array([[1, 0, tx],\
+            [0, 1, ty]])
+        src1 = np.c_[src,np.ones(src.shape[0])]
+        return np.sum( (x - src1.dot(H.T)[:,:2])**2 )
+
+    @staticmethod
+    def apply_transform(pars, src):
+        tx, ty = pars
+        H = np.array([[1, 0, tx],\
+            [0, 1, ty]])
+        src1 = np.c_[src,np.ones(src.shape[0])]
+        return src1.dot(H.T)[:,:2]
+
+    @staticmethod
+    def distance(x1,y1,x2,y2):
+        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2 )
+
+    @staticmethod
+    def list_subtract(list1,list2):
+        return np.absolute(np.array(list1)-np.array(list2))
+
+    def tri_sides(self,set_x, set_x_tri):
+
+        triangles = []
+        for i in range(len(set_x_tri)):
+
+            point1 = set_x_tri[i][0]
+            point2 = set_x_tri[i][1]
+            point3 = set_x_tri[i][2]
+
+            point1x, point1y = set_x[point1][0], set_x[point1][1]
+            point2x, point2y = set_x[point2][0], set_x[point2][1]
+            point3x, point3y = set_x[point3][0], set_x[point3][1] 
+
+            len1 = self.distance(point1x,point1y,point2x,point2y)
+            len2 = self.distance(point1x,point1y,point3x,point3y)
+            len3 = self.distance(point2x,point2y,point3x,point3y)
+
+            # you need to normalize in case the ref and the tran
+            # are warped
+            #min_side = min(len1,len2,len3)
+            #len1/=min_side
+            #len2/=min_side
+            #len3/=min_side
+            t=[len1,len2,len3]
+            t.sort()
+            triangles.append(t)
+
+        return triangles
+
+
+    def identify_matching_coords(self,set_A, set_B, threshold):
+        match_A_pts = []
+        match_B_pts = []
+        set_A_tri = list(itertools.combinations(range(len(set_A)), 3))
+        set_B_tri = list(itertools.combinations(range(len(set_B)), 3))
+        A_triangles = self.tri_sides(set_A, set_A_tri)
+        B_triangles = self.tri_sides(set_B, set_B_tri)
+        sums = []
+        for i in range(len(A_triangles)):
+            for j in range(len(B_triangles)):
+                k = sum(self.list_subtract(A_triangles[i], B_triangles[j]))
+                if k &lt; threshold:
+                    sums.append([i,j,k])
+        # sort by smallest sum
+        sums = sorted(sums, key=operator.itemgetter(2))
+        if len(sums):
+            match_A = set_A_tri[sums[0][0]]
+            match_B = set_B_tri[sums[0][1]]
+            for i in range(3):
+                match_A_pts.append(set_A[match_A[i]])
+                match_B_pts.append(set_B[match_B[i]])
+        return (match_A_pts,match_B_pts)
+
+
+
+    def calculate_chunks(self):
+        self.chunks = chunking(self.img_dimensions,self.chunk_size,
+                          self.registration_parameters[&#39;percent_padding&#39;],self.tl_coords)   
+        self.chunks.block_chunking()
+        self.Coords_Padded_Chunks_list = self.chunks.Coords_Padded_Chunks_list
+        
+    def calculate_dots_chunks(self,coords,chunk_coords):  
+        r_tl = chunk_coords[0]
+        r_br = chunk_coords[1]
+        c_tl = chunk_coords[2]
+        c_br = chunk_coords[3]
+
+        # Select only the coords in the trimmed region
+        coords_in_chunk = coords[((r_tl &lt; coords[:,0]) &amp; (coords[:,0]&lt;r_br)\
+                    &amp; (c_tl &lt;coords[:,1]) &amp;(coords[:,1]&lt;c_br)),: ]
+        return coords_in_chunk
+
+
+    def optimize_chunking(self,ref_coords, tran_coords):       
+        self.enough_dots = False
+        chunk_size = self.chunk_size
+        while chunk_size &lt; min(self.img_dimensions):
+            chunks = chunking(self.img_dimensions, chunk_size, self.percent_padding, self.tl_coords)
+            chunks.block_chunking()
+            Coords_Padded_Chunks_list = chunks.Coords_Padded_Chunks_list
+            ref_max_number_dots = []
+            tran_max_number_dots = []
+            ref_total = []
+            tran_total = []
+            for chunk_coords in Coords_Padded_Chunks_list:
+                ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
+                tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
+                if ref_coords_in_chunk.shape[0] &gt; self.min_dots_chunk and tran_coords_in_chunk.shape[0] &gt; self.min_dots_chunk:
+                        self.enough_dots = True
+                        break
+            if self.enough_dots:
+                break
+            else:
+                self.enough_dots = False
+                chunk_size += 200
+
+        if self.enough_dots:
+            # Collect the ref and tran coords from the chunks with enough dots
+            self.ref_tran_screening_list = []
+            for chunk_coords in Coords_Padded_Chunks_list:
+                ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
+                tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
+                if ref_coords_in_chunk.shape[0] &gt; self.min_dots_chunk and tran_coords_in_chunk.shape[0] &gt; self.min_dots_chunk:
+                    self.ref_tran_screening_list.append((ref_coords_in_chunk,tran_coords_in_chunk,chunk_coords))
+            self.chunk_size = chunk_size
+
+
+    def rounds_to_register(self):
+        # remember that round_num is not pythonic
+        self.rounds_list = list(self.counts[&#39;round_num&#39;].unique())
+        if self.reference_round == False:
+            logger.error(f&#39;missing reference round&#39;)
+            sys.exit(f&#39;missing reference round&#39;)
+        elif self.reference_round &lt;0 or self.reference_round &gt; max(self.rounds_list):
+            logger.error(f&#39;selected reference round {self.reference_round} is out of range&#39;)
+            sys.exit(f&#39;selected reference round {self.reference_round} is out of range&#39;)
+        else:
+            self.rounds_list = list(self.counts[&#39;round_num&#39;].unique()) 
+            self.processing_combinations = []
+            self.rounds_list.remove(self.reference_round)
+            for el in self.rounds_list:
+                self.processing_combinations.append((self.reference_round,el))
+
+    def cpl_registration(self,ref_coords,tran_coords,cpl):
+        self.optimize_chunking(ref_coords, tran_coords)
+        self.completed_registration = False
+        if self.enough_dots:
+            match_ref_pts_all = []
+            match_tran_pts_all = []
+            if self.collect_all_chunks:
+            # Collect all matching dots in all chunked regions with number of dots above threshold
+                for ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords in self.ref_tran_screening_list:
+                        match_ref_pts, match_tran_pts = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
+                        if len(match_ref_pts) and len(match_tran_pts):
+                            match_ref_pts_all.append(match_ref_pts)
+                            match_tran_pts_all.append(match_tran_pts)
+                match_ref_pts_all = [pts for grp in match_ref_pts_all for pts in grp]
+                match_tran_pts_all = [pts for grp in match_tran_pts_all for pts in grp]
+            else:
+                ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords = self.ref_tran_screening_list[0]
+                match_ref_pts_all, match_tran_pts_all = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
+
+            if len(match_ref_pts_all):
+                match_ref_pts_all = np.vstack(match_ref_pts_all)
+                match_tran_pts_all = np.vstack(match_tran_pts_all)
+                minimization_output = minimize(self.obj_fun,[0,0],args=(match_ref_pts_all,match_tran_pts_all), method=&#39;Nelder-Mead&#39;)
+                if minimization_output.success:
+                    self.tran_registered_coords = self.apply_transform(minimization_output.x, tran_coords)
+                    self.transformation_matrix = minimization_output.x
+                    self.completed_registration = True
+                else:
+                    self.logger.info(f&#39;chunk {chunk_coords} of {cpl} failed minimization of distances&#39;)
+            else:
+                self.logger.info(f&#39;chunk {chunk_coords} of {cpl} did not find matching triangles&#39;)
+
+        else:
+            self.logger.info(f&#39;cannot register rounds {cpl} not enough dots&#39;)
+            self.tran_registered_coords = tran_coords
+            self.transformation_matrix = np.empty([1,2])
+            self.transformation_matrix[:] = np.nan
+
+        if not self.completed_registration:
+            self.logger.info(f&#39;was not possible to register {cpl} &#39;)
+            self.tran_registered_coords = tran_coords
+            self.transformation_matrix = np.empty([1,2])
+            self.transformation_matrix[:] = np.nan
+
+
+    def register(self):
+        all_registration_matrix = {}
+        r_px_col_name = &#39;r_px_registered&#39;
+        c_px_col_name = &#39;c_px_registered&#39;
+        self.counts[r_px_col_name] = np.nan
+        self.counts[c_px_col_name] = np.nan
+        self.counts[&#39;r_transformation_registration&#39;] = np.nan
+        self.counts[&#39;c_transformation_registration&#39;] = np.nan
+        self.rounds_to_register()
+        for cpl in self.processing_combinations:
+            ref_round, tran_round = cpl
+            ref_coords, ref_position_idx = self.combine_coords(self.counts,ref_round)
+            tran_coords, tran_position_idx = self.combine_coords(self.counts,tran_round)
+            self.cpl_registration(ref_coords,tran_coords,cpl)
+            all_registration_matrix[cpl] = self.transformation_matrix
+            self.ref_registered_coords = ref_coords
+            self.counts.loc[ref_position_idx, r_px_col_name] = self.ref_registered_coords[:,0]
+            self.counts.loc[ref_position_idx, c_px_col_name] = self.ref_registered_coords[:,1]
+            self.counts.loc[ref_position_idx, &#39;r_transformation_registration&#39;] = np.ones(self.ref_registered_coords.shape[0])
+            self.counts.loc[ref_position_idx, &#39;c_transformation_registration&#39;] = np.ones(self.ref_registered_coords.shape[0])
+            self.counts.loc[tran_position_idx, r_px_col_name] = self.tran_registered_coords[:,0]
+            self.counts.loc[tran_position_idx, c_px_col_name] = self.tran_registered_coords[:,1]
+            all_transf = np.tile(self.transformation_matrix,(self.tran_registered_coords.shape[0],1))
+            self.counts.loc[tran_position_idx, &#39;r_transformation_registration&#39;] = all_transf[:,0]
+            self.counts.loc[tran_position_idx, &#39;c_transformation_registration&#39;] = all_transf[:,1]
+       
+        return self.counts, all_registration_matrix</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.create_fake_image"><code class="name flex">
+<span>def <span class="ident">create_fake_image</span></span>(<span>img_shape, coords)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_fake_image(img_shape,coords):
+    gaussian_sigma = 5
+    img = np.zeros(img_shape,dtype=np.float64)
+    img[coords[:,0].astype(int),coords[:,1].astype(int)] = 1000
+    img = filters.gaussian(img,sigma=gaussian_sigma)
+    return img</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.determine_overlap_region"><code class="name flex">
+<span>def <span class="ident">determine_overlap_region</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Determine the overlap between two neighbouring tiles</p>
+<h2 id="parameters">Parameters:</h2>
+<p>ind1: int
+Index (flattened) of tile 1
+ind2: int
+Index (flattened) of tile 2</p>
+<p>micData: object
+MicroscopeData object containing coordinates</p>
+<h2 id="returns">Returns:</h2>
+<p>overlap1: np.array
+Overlapping part of tile_1
+overlap2: np.array
+Overlapping part of tile_2
+plot_order: np.array
+Numpy array of ones. The shape of this array is
+used for plotting the overlaps in well fitting
+subplots.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def determine_overlap_region(self):
+        &#34;&#34;&#34;Determine the overlap between two neighbouring tiles
+
+        Parameters:
+        -----------
+
+        ind1: int
+            Index (flattened) of tile 1
+        ind2: int
+            Index (flattened) of tile 2
+
+        micData: object
+            MicroscopeData object containing coordinates
+
+        Returns:
+        --------
+
+        overlap1: np.array
+            Overlapping part of tile_1
+        overlap2: np.array
+            Overlapping part of tile_2
+        plot_order: np.array
+            Numpy array of ones. The shape of this array is
+            used for plotting the overlaps in well fitting
+            subplots.
+        &#34;&#34;&#34;
+        
+        
+        if np.ma.is_masked(self.micData.tile_set.flat[:][self.ind1]):
+            tile_1 = False
+        else:
+            tile_1 = True
+            fnum_tile_1 = self.micData.tile_set.flat[:][self.ind1] + self.micData.tile_nr.min()
+            
+        
+        if np.ma.is_masked(self.micData.tile_set.flat[:][self.ind2]):
+            tile_2 = False
+        else:
+            tile_2 = True
+            fnum_tile_2 = self.micData.tile_set.flat[:][self.ind2] + self.micData.tile_nr.min()
+            
+
+        if (tile_1 and tile_2):
+            self.tiles_num = (fnum_tile_1, fnum_tile_2)
+            self.tile1_x_coords = self.micData.x_coords[self.micData.tile_set.flat[:][self.ind1]]
+            self.tile2_x_coords = self.micData.x_coords[self.micData.tile_set.flat[:][self.ind2]]
+            self.tile1_y_coords = self.micData.y_coords[self.micData.tile_set.flat[:][self.ind1]]
+            self.tile2_y_coords = self.micData.y_coords[self.micData.tile_set.flat[:][self.ind2]]
+
+            tile_1_fpath = [fpath for fpath in self.counting_files_list if &#39;pos_&#39;+str(fnum_tile_1)+&#39;.&#39; in str(fpath)][0]
+            self.tile_1_store = zarr.DirectoryStore(tile_1_fpath)
+            self.tile_1_root = zarr.group(store=self.tile_1_store, overwrite=False)
+            self.tile_1_counts = self.tile_1_root[&#39;stringency_raw_counts&#39;][&#39;coords_original&#39;][...]
+            tile_1_ref_coords = np.array([self.tile1_y_coords,self.tile1_x_coords])
+            tile_1_ref_coords = tile_1_ref_coords[:,np.newaxis]
+            self.tile_1_adj_coords = self.tile_1_counts + tile_1_ref_coords
+
+
+            tile_2_fpath = [fpath for fpath in self.counting_files_list if &#39;pos_&#39;+str(fnum_tile_2)+&#39;.&#39; in str(fpath)][0]
+            self.tile_2_store = zarr.DirectoryStore(tile_2_fpath)
+            self.tile_2_root = zarr.group(store=self.tile_2_store, overwrite=False)
+            self.tile_2_counts = self.tile_2_root[&#39;stringency_raw_counts&#39;][&#39;coords_original&#39;][...]
+            tile_2_ref_coords = np.array([self.tile2_y_coords,self.tile2_x_coords])
+            tile_2_ref_coords = tile_2_ref_coords[:,np.newaxis]
+            self.tile_2_adj_coords = self.tile_2_counts + tile_2_ref_coords
+
+
+            
+            if self.tile1_y_coords &gt; self.tile2_y_coords:
+                r_tl = self.tile1_y_coords
+                r_br = self.tile2_y_coords + self.img_size
+
+                r_bl = self.tile2_y_coords + self.img_size
+                r_tr = self.tile1_y_coords
+                
+            else:
+                r_tl = self.tile2_y_coords
+                r_br = self.tile1_y_coords + self.img_size
+                
+                r_bl = self.tile1_y_coords + self.img_size
+                r_tr = self.tile2_y_coords
+
+            if self.tile1_x_coords &gt; self.tile2_x_coords:
+                c_tl = self.tile1_x_coords
+                c_br = self.tile2_x_coords + self.img_size
+                
+                c_tr = self.tile2_x_coords + self.img_size
+                c_bl = self.tile1_x_coords
+                
+            else:
+                c_tl = self.tile2_x_coords
+                c_br = self.tile1_x_coords + self.img_size
+                
+                c_bl = self.tile2_x_coords
+                c_tr = self.tile1_x_coords + self.img_size
+
+
+            self.tl_coords = np.array([r_tl,c_tl])
+            self.br_coords = np.array([r_br,c_br])
+            self.tr_coords = np.array([r_tr,c_tr])
+            self.bl_coords = np.array([r_bl,c_bl])
+            num_r = np.abs(self.tl_coords[1] - self.tr_coords[1])
+            num_c = np.abs(self.tr_coords[0] - self.bl_coords[0])
+            self.region_dimensions = (num_c,num_r)
+
+
+        else:
+            self.tl_coords = self.br_coords = self.tr_coords = self.bl_coords = None</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.fft_registration_beads"><code class="name flex">
+<span>def <span class="ident">fft_registration_beads</span></span>(<span>reference_coords: numpy.ndarray, translated_coords: numpy.ndarray, img_width: int, img_height: int, fov_num: int, hybridization_num_translated: int)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@task(name=&#39;fft_registration_beads&#39;)# ADD LOGGER
+def fft_registration_beads(reference_coords:np.ndarray, translated_coords:np.ndarray,
+                       img_width: int, img_height:int, fov_num:int,
+                       hybridization_num_translated:int):
+
+    logger = prefect.utilities.logging.get_logger(&#34;fft_registration_beads&#34;)
+    # CHECK THE VALUES AND CATCH THE ERROR TO BLOCK FOV FOR REGISTRATION     
+    if np.any(np.isnan(reference_coords)):
+        logger.error(f&#39;missing reference round for registration for fov {fov_num}&#39;) 
+        signals.SKIP(f&#39;missing reference round for registration for fov {fov_num}&#39;)
+        shift = np.array([np.nan,np.nan])
+        error = 0
+        tran_registered_coords = translated_coords
+        
+        # RETURN VALUES TO WRITE ON DB
+    elif np.any(np.isnan(translated_coords)):
+        logger.error(f&#39;missing registration round {hybridization_num_translated} for registration for fov {fov_num}&#39;)   
+        shift = np.array([np.nan,np.nan])
+        error = 0
+        tran_registered_coords = translated_coords
+        
+    else:
+        img_shape = [img_width,img_height]
+        img_ref = create_fake_image(img_shape,reference_coords)    
+        img_tran = create_fake_image(img_shape,translated_coords)
+        shift, error, diffphase = register_translation(img_ref, img_tran)
+        tran_registered_coords = translated_coords + shift
+        tran_registered_coords = tran_registered_coords.astype(int)
+
+    return tran_registered_coords, shift, error, fov_num, hybridization_num_translated </code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.registration_fish_hybridization"><code class="name flex">
+<span>def <span class="ident">registration_fish_hybridization</span></span>(<span>reference_coords: numpy.ndarray, shift: numpy.ndarray, fov_num: int, hybridization_num_translated: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function for the registration of the fish counts using
+the shift calculated by aligning the registration channel</p>
+<h2 id="parameters">Parameters:</h2>
+<p>all_rounds_shifts: dict
+dictionary containing the round number as key and
+shift as item
+counts: pandas dataframe
+pandas dataframe containing the fish counting
+output</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@task(name=&#39;registration-fish-round&#39;)
+def registration_fish_hybridization(reference_coords:np.ndarray,shift:np.ndarray,
+                                    fov_num:int, hybridization_num_translated:int):
+    &#34;&#34;&#34;
+    Function for the registration of the fish counts using
+    the shift calculated by aligning the registration channel
+
+    Parameters:
+    -----------
+
+    all_rounds_shifts: dict
+        dictionary containing the round number as key and 
+        shift as item
+    counts: pandas dataframe
+        pandas dataframe containing the fish counting 
+        output
+
+    &#34;&#34;&#34;
+    logger = prefect.utilities.logging.get_logger(&#34;registration_fish&#34;)
+
+    if len(reference_coords):
+        if np.any(np.isnan(shift)):
+            registered_coords = reference_coords
+            logger.info(f&#39;registration of {fov_num} of hybridization {hybridization_num_translated} failed&#39;)
+        else:
+            registered_coords = reference_coords + shift
+    else:
+        logger.info(f&#39;no counts in fov {fov_num} of hybridization {hybridization_num_translated}&#39;)
+        registered_coords=np.array([np.nan,np.nan])
+    
+    return registered_coords, shift</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.chunking"><code class="flex name class">
+<span>class <span class="ident">chunking</span></span>
+<span>(</span><span>region_dimensions, chunk_size, percent_padding, tl_coords)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>utility class to create processing chunks</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class chunking():
+    &#34;&#34;&#34;
+    utility class to create processing chunks
+    &#34;&#34;&#34;
+
+    def __init__(self, region_dimensions, chunk_size, percent_padding, tl_coords):
+        self.region_dimensions = region_dimensions
+        self.chunk_size = chunk_size
+        self.percent_padding = percent_padding
+        self.tl_coords = tl_coords
+    
+
+    @staticmethod
+    def block_chunks_calculator(dimension,chunk_size):
+        &#34;&#34;&#34;
+        Helper function to calculate the size of the chunks created according
+        the length of the vector and the chunk size.
+
+        Parameters:
+        -----------
+
+        dimension: int
+            Length of the vector to Chunk
+        chunkSize: int 
+            Dimension of the Chunks
+
+        Returns:
+        -----------
+
+        chunks_sizes: np.array 
+            Array of the sizes of the created chunks. It deals with conditions 
+            when the expected chunks size do not fit an even number of times in the 
+            dimension
+        &#34;&#34;&#34;
+        number_even_chunks=int(dimension//chunk_size)
+        total_size_even_chunks=number_even_chunks*chunk_size
+        odd_tile_size=dimension-total_size_even_chunks
+        chunk_sizes=[]
+        chunks_sizes=list(np.repeat(chunk_size,number_even_chunks-1))
+        if odd_tile_size &lt; chunk_size:
+            chunks_sizes.append(chunk_size+odd_tile_size)
+        else:
+            chunks_sizes.append(odd_tile_size)
+        return tuple(chunks_sizes)
+    
+    def block_chunking(self):
+        &#34;&#34;&#34;
+        Function used to generate the coords of the images according to the
+        chunking 
+
+        Parameters:
+        -----------
+
+        PercentPadding: float 
+            Percent of overlapping between the different images (Ex. 0.2).
+        ChunkSize: int 
+            Dimension of the Chunks.
+
+        Returns:
+        -----------
+
+        Coords_Chunks_list: list 
+            List of np.array with the coords of the images without padding
+        Coords_Padded_Chunks_list: list 
+            List of np.array with the coords of the images with padding
+
+        Notes:
+        ------
+
+        For both lists each np.array contains the coords in the following order:
+        [row_tl,row_br,col_tl,col_br]
+
+        &#34;&#34;&#34;
+        num_r,num_c = self.region_dimensions
+        pixel_padding = int(self.chunk_size*self.percent_padding)
+        self.starting_position = self.tl_coords
+
+        # Calculate the size of the chunks
+        r_chunks_size = self.block_chunks_calculator(num_r,self.chunk_size)
+        
+        c_chunks_size = self.block_chunks_calculator(num_c,self.chunk_size)
+        
+        # Calculate the total numbers of chunks
+        nr_chunks = len(r_chunks_size)
+        
+        nc_chunks = len(c_chunks_size)
+       
+
+
+        # Coords top left corner (tl)
+        if nr_chunks == 1:
+            r_coords_tl = self.starting_position[0]
+        else:  
+            r_coords_tl = np.arange(self.starting_position[0],(self.starting_position[0]+self.chunk_size*(nr_chunks)),self.chunk_size)
+        
+        
+        if nc_chunks == 1:
+            c_coords_tl = self.starting_position[1]
+        else:
+            c_coords_tl = np.arange(self.starting_position[1],(self.starting_position[1]+self.chunk_size*(nc_chunks)),self.chunk_size)
+
+        
+        # Coords of all the tl in the image
+        r_coords_tl_all,c_coords_tl_all = np.meshgrid(r_coords_tl,c_coords_tl,indexing=&#39;ij&#39;)
+        self.coords_all_to_test = [r_coords_tl_all,c_coords_tl_all]
+        # Calculate all the br coords
+        r_coords_br_all = r_coords_tl_all.copy()
+        c_coords_br_all = c_coords_tl_all.copy()
+
+        for c in np.arange(0,r_coords_tl_all.shape[1]):
+            r_coords_br_all[:,c] = r_coords_br_all[:,c]+r_chunks_size
+
+        for r in np.arange(0,r_coords_tl_all.shape[0]):
+             c_coords_br_all[r,:] = c_coords_br_all[r,:]+c_chunks_size
+
+        # Calculate the padded coords
+        r_coords_tl_all_padded = r_coords_tl_all-pixel_padding
+        c_coords_tl_all_padded = c_coords_tl_all-pixel_padding
+        r_coords_br_all_padded = r_coords_br_all+pixel_padding
+        c_coords_br_all_padded = c_coords_br_all+pixel_padding
+
+        # Correct for coords out of the image (where tl&lt;0,br&gt;Img.shape)
+        r_coords_tl_all_padded[r_coords_tl_all_padded&lt;0] = r_coords_tl_all[r_coords_tl_all_padded&lt;0]
+        c_coords_tl_all_padded[c_coords_tl_all_padded&lt;0] = c_coords_tl_all[c_coords_tl_all_padded&lt;0]
+        r_coords_br_all_padded[r_coords_br_all_padded&gt;num_r] = r_coords_br_all[r_coords_br_all_padded&gt;num_r]
+        c_coords_br_all_padded[c_coords_br_all_padded&gt;num_c] = c_coords_br_all[c_coords_br_all_padded&gt;num_c]
+
+        # The coords list are generated as:
+        # row_tl,row_br,col_tl,col_br
+
+
+        # Create a list for the padded coords
+        self.Coords_Padded_Chunks_list = list()
+        for r in np.arange(0,r_coords_tl_all_padded.shape[0]):
+            for c in np.arange(0,r_coords_tl_all_padded.shape[1]):
+                self.Coords_Padded_Chunks_list.append(np.array([r_coords_tl_all_padded[r][c],\
+                                                           r_coords_br_all_padded[r][c],\
+                                                           c_coords_tl_all_padded[r][c],\
+                                                           c_coords_br_all_padded[r][c]])) </code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.chunking.block_chunks_calculator"><code class="name flex">
+<span>def <span class="ident">block_chunks_calculator</span></span>(<span>dimension, chunk_size)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper function to calculate the size of the chunks created according
+the length of the vector and the chunk size.</p>
+<h2 id="parameters">Parameters:</h2>
+<p>dimension: int
+Length of the vector to Chunk
+chunkSize: int
+Dimension of the Chunks</p>
+<h2 id="returns">Returns:</h2>
+<p>chunks_sizes: np.array
+Array of the sizes of the created chunks. It deals with conditions
+when the expected chunks size do not fit an even number of times in the
+dimension</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def block_chunks_calculator(dimension,chunk_size):
+    &#34;&#34;&#34;
+    Helper function to calculate the size of the chunks created according
+    the length of the vector and the chunk size.
+
+    Parameters:
+    -----------
+
+    dimension: int
+        Length of the vector to Chunk
+    chunkSize: int 
+        Dimension of the Chunks
+
+    Returns:
+    -----------
+
+    chunks_sizes: np.array 
+        Array of the sizes of the created chunks. It deals with conditions 
+        when the expected chunks size do not fit an even number of times in the 
+        dimension
+    &#34;&#34;&#34;
+    number_even_chunks=int(dimension//chunk_size)
+    total_size_even_chunks=number_even_chunks*chunk_size
+    odd_tile_size=dimension-total_size_even_chunks
+    chunk_sizes=[]
+    chunks_sizes=list(np.repeat(chunk_size,number_even_chunks-1))
+    if odd_tile_size &lt; chunk_size:
+        chunks_sizes.append(chunk_size+odd_tile_size)
+    else:
+        chunks_sizes.append(odd_tile_size)
+    return tuple(chunks_sizes)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.chunking.block_chunking"><code class="name flex">
+<span>def <span class="ident">block_chunking</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function used to generate the coords of the images according to the
+chunking </p>
+<h2 id="parameters">Parameters:</h2>
+<p>PercentPadding: float
+Percent of overlapping between the different images (Ex. 0.2).
+ChunkSize: int
+Dimension of the Chunks.</p>
+<h2 id="returns">Returns:</h2>
+<p>Coords_Chunks_list: list
+List of np.array with the coords of the images without padding
+Coords_Padded_Chunks_list: list
+List of np.array with the coords of the images with padding</p>
+<h2 id="notes">Notes:</h2>
+<p>For both lists each np.array contains the coords in the following order:
+[row_tl,row_br,col_tl,col_br]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def block_chunking(self):
+    &#34;&#34;&#34;
+    Function used to generate the coords of the images according to the
+    chunking 
+
+    Parameters:
+    -----------
+
+    PercentPadding: float 
+        Percent of overlapping between the different images (Ex. 0.2).
+    ChunkSize: int 
+        Dimension of the Chunks.
+
+    Returns:
+    -----------
+
+    Coords_Chunks_list: list 
+        List of np.array with the coords of the images without padding
+    Coords_Padded_Chunks_list: list 
+        List of np.array with the coords of the images with padding
+
+    Notes:
+    ------
+
+    For both lists each np.array contains the coords in the following order:
+    [row_tl,row_br,col_tl,col_br]
+
+    &#34;&#34;&#34;
+    num_r,num_c = self.region_dimensions
+    pixel_padding = int(self.chunk_size*self.percent_padding)
+    self.starting_position = self.tl_coords
+
+    # Calculate the size of the chunks
+    r_chunks_size = self.block_chunks_calculator(num_r,self.chunk_size)
+    
+    c_chunks_size = self.block_chunks_calculator(num_c,self.chunk_size)
+    
+    # Calculate the total numbers of chunks
+    nr_chunks = len(r_chunks_size)
+    
+    nc_chunks = len(c_chunks_size)
+   
+
+
+    # Coords top left corner (tl)
+    if nr_chunks == 1:
+        r_coords_tl = self.starting_position[0]
+    else:  
+        r_coords_tl = np.arange(self.starting_position[0],(self.starting_position[0]+self.chunk_size*(nr_chunks)),self.chunk_size)
+    
+    
+    if nc_chunks == 1:
+        c_coords_tl = self.starting_position[1]
+    else:
+        c_coords_tl = np.arange(self.starting_position[1],(self.starting_position[1]+self.chunk_size*(nc_chunks)),self.chunk_size)
+
+    
+    # Coords of all the tl in the image
+    r_coords_tl_all,c_coords_tl_all = np.meshgrid(r_coords_tl,c_coords_tl,indexing=&#39;ij&#39;)
+    self.coords_all_to_test = [r_coords_tl_all,c_coords_tl_all]
+    # Calculate all the br coords
+    r_coords_br_all = r_coords_tl_all.copy()
+    c_coords_br_all = c_coords_tl_all.copy()
+
+    for c in np.arange(0,r_coords_tl_all.shape[1]):
+        r_coords_br_all[:,c] = r_coords_br_all[:,c]+r_chunks_size
+
+    for r in np.arange(0,r_coords_tl_all.shape[0]):
+         c_coords_br_all[r,:] = c_coords_br_all[r,:]+c_chunks_size
+
+    # Calculate the padded coords
+    r_coords_tl_all_padded = r_coords_tl_all-pixel_padding
+    c_coords_tl_all_padded = c_coords_tl_all-pixel_padding
+    r_coords_br_all_padded = r_coords_br_all+pixel_padding
+    c_coords_br_all_padded = c_coords_br_all+pixel_padding
+
+    # Correct for coords out of the image (where tl&lt;0,br&gt;Img.shape)
+    r_coords_tl_all_padded[r_coords_tl_all_padded&lt;0] = r_coords_tl_all[r_coords_tl_all_padded&lt;0]
+    c_coords_tl_all_padded[c_coords_tl_all_padded&lt;0] = c_coords_tl_all[c_coords_tl_all_padded&lt;0]
+    r_coords_br_all_padded[r_coords_br_all_padded&gt;num_r] = r_coords_br_all[r_coords_br_all_padded&gt;num_r]
+    c_coords_br_all_padded[c_coords_br_all_padded&gt;num_c] = c_coords_br_all[c_coords_br_all_padded&gt;num_c]
+
+    # The coords list are generated as:
+    # row_tl,row_br,col_tl,col_br
+
+
+    # Create a list for the padded coords
+    self.Coords_Padded_Chunks_list = list()
+    for r in np.arange(0,r_coords_tl_all_padded.shape[0]):
+        for c in np.arange(0,r_coords_tl_all_padded.shape[1]):
+            self.Coords_Padded_Chunks_list.append(np.array([r_coords_tl_all_padded[r][c],\
+                                                       r_coords_br_all_padded[r][c],\
+                                                       c_coords_tl_all_padded[r][c],\
+                                                       c_coords_br_all_padded[r][c]])) </code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration"><code class="flex name class">
+<span>class <span class="ident">reference_beads_registration</span></span>
+<span>(</span><span>ref_hyb_coords, comp_hyb_coords, Coords_Padded_Chunks_list, n_neighbors, min_acceptable_distance, min_samples, residual_threshold, max_trials, matching_radius)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class reference_beads_registration():
+
+    def __init__(self,ref_hyb_coords, comp_hyb_coords, Coords_Padded_Chunks_list, n_neighbors,
+                min_acceptable_distance, min_samples, residual_threshold, max_trials, matching_radius):
+
+        self.ref_hyb_coords = ref_hyb_coords
+        self.comp_hyb_coords = comp_hyb_coords
+        self.Coords_Padded_Chunks_list = Coords_Padded_Chunks_list
+
+        self.n_neighbors = n_neighbors
+        self.min_acceptable_distance = min_acceptable_distance
+        self.min_samples = min_samples
+        self.residual_threshold = residual_threshold
+        self.max_trials = max_trials
+        self.matching_radius = matching_radius
+
+        self.logger = logging.getLogger(__name__)
+
+    @staticmethod
+    def calculate_min_distances(selected_ref):
+        ref_dist = distance.cdist(selected_ref.T, selected_ref.T)
+        ref_dist = np.triu(ref_dist)
+        ref_dist = ref_dist[:-1,:]
+        mref = np.ma.masked_where(ref_dist==0,ref_dist)
+        mref_min = mref.min(axis=1)
+        return np.sort(mref_min.data)
+    
+    @staticmethod
+    # CALCULATE ERROR OVER THE DIAGONAL
+    def errors(transformed_coords, ref_good):
+        diagonals = np.sqrt((ref_good[:,0]- transformed_coords[:,0])**2 + (ref_good[:,1]- transformed_coords[:,1])**2)
+        diagonal_mean = np.mean(diagonals,axis=0)
+        diagonal_median = np.median(diagonals,axis=0)
+        err1 = np.sum((diagonals-diagonal_mean),axis=0)/len(diagonals)
+        err2 = np.sum((diagonals-diagonal_mean)**2,axis=0)/len(diagonals)
+        diag_std = np.std(diagonals)
+        diag_sem = diag_std/len(diagonals)
+        
+        # delta = np.abs(ref_good - transformed_coords)
+        # delta_mean = np.mean(delta,axis=0)
+        # err1 = np.sum((delta-delta_mean),axis=0)/len(transformed_coords)
+        # err2 = np.sum((delta-delta_mean)**2,axis=0)/len(transformed_coords)
+        return err1,err2, diagonal_mean, diagonal_median, diag_std, diag_sem
+
+    def calculate_NN_roi(self,chunk_coords):    
+        r_tl = chunk_coords[0]
+        r_br = chunk_coords[1]
+        c_tl = chunk_coords[2]
+        c_br = chunk_coords[3]
+
+        # Select only the coords in the trimmed region
+        ref_trimmed = self.ref_hyb_coords[:,((r_tl &lt; self.ref_hyb_coords[0,:]) &amp; (self.ref_hyb_coords[0,:]&lt;r_br)\
+                                      &amp; (c_tl &lt;self.ref_hyb_coords[1,:]) &amp;(self.ref_hyb_coords[1,:]&lt;c_br)) ]
+        tran_trimmed = self.comp_hyb_coords[:,((r_tl &lt; self.comp_hyb_coords[0,:]) &amp; (self.comp_hyb_coords[0,:]&lt;r_br)\
+                                          &amp; (c_tl &lt;self.comp_hyb_coords[1,:]) &amp;(self.comp_hyb_coords[1,:]&lt;c_br)) ]
+        
+        # Add check if there are dots in the timmed region
+        if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+            nbrs_ref = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(ref_trimmed.T)
+            nbrs_tr = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(tran_trimmed.T)
+        else:
+            nbrs_ref = nbrs_tr = np.nan
+            
+        return ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr
+   
+
+    def calculate_NN_overlapping_region(self, coords_overlapping_region):
+        
+        # Add check if there are dots in the timmed region
+        if coords_overlapping_region.size &gt;= 2*self.n_neighbors and coords_overlapping_region.size &gt;= 2*self.n_neighbors:
+            nbrs = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(coords_overlapping_region.T)
+        else:
+            nbrs = np.nan
+            
+        return nbrs
+
+    
+    def calculate_registration(self):
+        
+        self.c = []
+        passing_num = 0
+        matching_points = False
+        if self.ref_hyb_coords.size and self.comp_hyb_coords.size:
+            for chunk_coords in self.Coords_Padded_Chunks_list:
+                ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr= self.calculate_NN_roi(chunk_coords)
+                if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+                    if nbrs_ref != np.nan and nbrs_tr != np.nan:
+                        # create dots id list
+                        trans_dot_id_list = np.arange(tran_trimmed.shape[1])
+                        for tran_dot_id in trans_dot_id_list:
+                            searching=tran_trimmed[:,tran_dot_id]
+                            searching = searching[np.newaxis,:]
+                            dist, idx  = nbrs_tr.kneighbors(searching,n_neighbors=self.n_neighbors)
+                            selected_tran = tran_trimmed[:,idx[0]]
+                            tran_dist = self.calculate_min_distances(selected_tran)
+                            for id_r in np.arange(ref_trimmed.shape[1]):
+                                searching_r=ref_trimmed[:,id_r]
+                                searching_r = searching_r[np.newaxis,:]
+                                dist_r, idx_r  = nbrs_ref.kneighbors(searching_r,n_neighbors=self.n_neighbors)
+                                if idx_r[0].shape[0] == idx[0].shape[0]: 
+                                    selected_ref = ref_trimmed[:,idx_r[0]]
+                                    ref_dist = self.calculate_min_distances(selected_ref)
+                                    if np.all(np.abs(ref_dist - tran_dist)&lt;self.min_acceptable_distance):
+                                        ref = ref_trimmed[:,idx_r[0]]
+                                        ref_srt = ref[:,ref[0,:].argsort()]
+                                        tran = tran_trimmed[:,idx[0]]
+                                        tran_srt = tran[:,tran[0,:].argsort()]
+                                        cpls = np.concatenate((ref_srt.T,tran_srt.T),axis=1)
+                                        self.c.append(cpls)
+                                        if passing_num == 0:
+                                            matching_points = cpls
+                                            passing_num += 1
+                                        else:
+                                            matching_points = np.concatenate((matching_points,cpls),axis=0)
+            if isinstance(matching_points,np.ndarray):
+                matching_points = np.unique(matching_points,axis=0)
+                self.ref = matching_points[:,0:2]
+                self.tran = matching_points[:,2:]
+                if (self.min_samples &lt; self.ref.shape[0]) and (self.min_samples &lt; self.tran.shape[0]):
+                    self.model, self.inliers = ransac((self.tran, self.ref), transform.SimilarityTransform, min_samples=self.min_samples,
+                                    residual_threshold=self.residual_threshold, max_trials=self.max_trials)
+    #                 self.model = transform.estimate_transform(&#39;Affine&#39;,self.tran, self.ref)
+                    self.missing_pos = False
+                else:
+                    self.missing_pos = True 
+            else:
+                self.missing_pos = True 
+        else: 
+            self.missing_pos = True
+        
+        if not self.missing_pos:
+            if self.model:
+                self.tr_good = self.tran[self.inliers]
+                self.ref_good = self.ref[self.inliers]
+                self.transformed_coords = transform.matrix_transform(self.tr_good, self.model.params)
+                self.transformed_all_coords = transform.matrix_transform(self.comp_hyb_coords.T, self.model.params)
+                self.delta = self.ref_good - self.tr_good
+                self.translation_mean = np.mean(self.delta,axis=0)
+                self.translation_median = np.median(self.delta,axis=0)
+                self.translation_diagonal = np.sqrt((self.ref_good[:,0] - self.tr_good[:,0])**2 + (self.ref_good[:,1] - self.tr_good[:,1])**2)
+                self.translational_diagonal_mean = np.mean(self.translation_diagonal)
+                self.translational_diagonal_median = np.median(self.translation_diagonal)
+                self.translation_diagonal_std = np.std(self.translation_diagonal)
+                self.translation_diagonal_sem = np.std(self.translation_diagonal)/ len(self.translation_diagonal)
+                self.err1,self.err2, self.diagonal_mean, self.diagonal_median, self.diag_std, self.diag_sem = self.errors(self.transformed_coords, self.ref_good)
+                self.used_points = [self.ref_good,self.tr_good]
+            else:
+                self.missing_pos = True
+
+
+    def deploy(self):
+        self.registration_data = {}
+        if self.ref_hyb_coords.size &gt;= 2*self.n_neighbors:
+            self.ref_nbrs = self.calculate_NN_overlapping_region(self.ref_hyb_coords)
+            if self.comp_hyb_coords.size &gt;= 2*self.n_neighbors:
+                self.comp_nbrs = self.calculate_NN_overlapping_region(self.comp_hyb_coords)
+                if (self.ref_nbrs != np.nan) and (self.comp_nbrs != np.nan):
+                    self.calculate_registration()
+                else:
+                    self.logger.info(f&#39;no neighbors identified&#39;)
+                    self.missing_pos = True
+            else:
+                self.logger.info(f&#39;comp region \
+                        does not contain enough dots for registration&#39;)
+                self.missing_pos = True
+                
+                # ADJUST WHEN SAVING THE DATA
+                self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+        else:
+            self.logger.info(f&#39;reference region\
+                            does not contain enough dots for registration&#39;)
+            self.missing_pos = True
+            
+        if self.missing_pos:
+            self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+        else:
+            self.registration_data = {&#39;translation_diagonal_mean&#39;:self.translational_diagonal_mean, 
+                                    &#39;translation_diagonal_median&#39;: self.translational_diagonal_median, 
+                                    &#39;translation_diagonal_std&#39;: self.translation_diagonal_std,
+                                    &#39;translation_diagonal_sem&#39;:self.translation_diagonal_sem,
+                                    &#39;used_points&#39;: self.used_points,
+                                    &#39;model_params&#39;:self.model.params, 
+                                    &#39;err1&#39;:self.err1, 
+                                    &#39;err2&#39;:self.err2, 
+                                    &#39;diagonal_mean&#39;:self.diagonal_mean,
+                                    &#39;diagonal_median&#39;:self.translational_diagonal_median,
+                                    &#39;diag_std&#39;:self.diag_std, 
+                                    &#39;diag_sem&#39;:self.diag_sem,
+                                    &#39;transformed_coords&#39;:self.transformed_coords,
+                                    &#39;transformed_all_coords&#39;:self.transformed_all_coords,
+                                    &#39;missing_pos&#39;:self.missing_pos}</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_min_distances"><code class="name flex">
+<span>def <span class="ident">calculate_min_distances</span></span>(<span>selected_ref)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def calculate_min_distances(selected_ref):
+    ref_dist = distance.cdist(selected_ref.T, selected_ref.T)
+    ref_dist = np.triu(ref_dist)
+    ref_dist = ref_dist[:-1,:]
+    mref = np.ma.masked_where(ref_dist==0,ref_dist)
+    mref_min = mref.min(axis=1)
+    return np.sort(mref_min.data)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration.errors"><code class="name flex">
+<span>def <span class="ident">errors</span></span>(<span>transformed_coords, ref_good)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+# CALCULATE ERROR OVER THE DIAGONAL
+def errors(transformed_coords, ref_good):
+    diagonals = np.sqrt((ref_good[:,0]- transformed_coords[:,0])**2 + (ref_good[:,1]- transformed_coords[:,1])**2)
+    diagonal_mean = np.mean(diagonals,axis=0)
+    diagonal_median = np.median(diagonals,axis=0)
+    err1 = np.sum((diagonals-diagonal_mean),axis=0)/len(diagonals)
+    err2 = np.sum((diagonals-diagonal_mean)**2,axis=0)/len(diagonals)
+    diag_std = np.std(diagonals)
+    diag_sem = diag_std/len(diagonals)
+    
+    # delta = np.abs(ref_good - transformed_coords)
+    # delta_mean = np.mean(delta,axis=0)
+    # err1 = np.sum((delta-delta_mean),axis=0)/len(transformed_coords)
+    # err2 = np.sum((delta-delta_mean)**2,axis=0)/len(transformed_coords)
+    return err1,err2, diagonal_mean, diagonal_median, diag_std, diag_sem</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_NN_overlapping_region"><code class="name flex">
+<span>def <span class="ident">calculate_NN_overlapping_region</span></span>(<span>self, coords_overlapping_region)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_NN_overlapping_region(self, coords_overlapping_region):
+    
+    # Add check if there are dots in the timmed region
+    if coords_overlapping_region.size &gt;= 2*self.n_neighbors and coords_overlapping_region.size &gt;= 2*self.n_neighbors:
+        nbrs = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(coords_overlapping_region.T)
+    else:
+        nbrs = np.nan
+        
+    return nbrs</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_NN_roi"><code class="name flex">
+<span>def <span class="ident">calculate_NN_roi</span></span>(<span>self, chunk_coords)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_NN_roi(self,chunk_coords):    
+    r_tl = chunk_coords[0]
+    r_br = chunk_coords[1]
+    c_tl = chunk_coords[2]
+    c_br = chunk_coords[3]
+
+    # Select only the coords in the trimmed region
+    ref_trimmed = self.ref_hyb_coords[:,((r_tl &lt; self.ref_hyb_coords[0,:]) &amp; (self.ref_hyb_coords[0,:]&lt;r_br)\
+                                  &amp; (c_tl &lt;self.ref_hyb_coords[1,:]) &amp;(self.ref_hyb_coords[1,:]&lt;c_br)) ]
+    tran_trimmed = self.comp_hyb_coords[:,((r_tl &lt; self.comp_hyb_coords[0,:]) &amp; (self.comp_hyb_coords[0,:]&lt;r_br)\
+                                      &amp; (c_tl &lt;self.comp_hyb_coords[1,:]) &amp;(self.comp_hyb_coords[1,:]&lt;c_br)) ]
+    
+    # Add check if there are dots in the timmed region
+    if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+        nbrs_ref = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(ref_trimmed.T)
+        nbrs_tr = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(tran_trimmed.T)
+    else:
+        nbrs_ref = nbrs_tr = np.nan
+        
+    return ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_registration"><code class="name flex">
+<span>def <span class="ident">calculate_registration</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_registration(self):
+    
+    self.c = []
+    passing_num = 0
+    matching_points = False
+    if self.ref_hyb_coords.size and self.comp_hyb_coords.size:
+        for chunk_coords in self.Coords_Padded_Chunks_list:
+            ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr= self.calculate_NN_roi(chunk_coords)
+            if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+                if nbrs_ref != np.nan and nbrs_tr != np.nan:
+                    # create dots id list
+                    trans_dot_id_list = np.arange(tran_trimmed.shape[1])
+                    for tran_dot_id in trans_dot_id_list:
+                        searching=tran_trimmed[:,tran_dot_id]
+                        searching = searching[np.newaxis,:]
+                        dist, idx  = nbrs_tr.kneighbors(searching,n_neighbors=self.n_neighbors)
+                        selected_tran = tran_trimmed[:,idx[0]]
+                        tran_dist = self.calculate_min_distances(selected_tran)
+                        for id_r in np.arange(ref_trimmed.shape[1]):
+                            searching_r=ref_trimmed[:,id_r]
+                            searching_r = searching_r[np.newaxis,:]
+                            dist_r, idx_r  = nbrs_ref.kneighbors(searching_r,n_neighbors=self.n_neighbors)
+                            if idx_r[0].shape[0] == idx[0].shape[0]: 
+                                selected_ref = ref_trimmed[:,idx_r[0]]
+                                ref_dist = self.calculate_min_distances(selected_ref)
+                                if np.all(np.abs(ref_dist - tran_dist)&lt;self.min_acceptable_distance):
+                                    ref = ref_trimmed[:,idx_r[0]]
+                                    ref_srt = ref[:,ref[0,:].argsort()]
+                                    tran = tran_trimmed[:,idx[0]]
+                                    tran_srt = tran[:,tran[0,:].argsort()]
+                                    cpls = np.concatenate((ref_srt.T,tran_srt.T),axis=1)
+                                    self.c.append(cpls)
+                                    if passing_num == 0:
+                                        matching_points = cpls
+                                        passing_num += 1
+                                    else:
+                                        matching_points = np.concatenate((matching_points,cpls),axis=0)
+        if isinstance(matching_points,np.ndarray):
+            matching_points = np.unique(matching_points,axis=0)
+            self.ref = matching_points[:,0:2]
+            self.tran = matching_points[:,2:]
+            if (self.min_samples &lt; self.ref.shape[0]) and (self.min_samples &lt; self.tran.shape[0]):
+                self.model, self.inliers = ransac((self.tran, self.ref), transform.SimilarityTransform, min_samples=self.min_samples,
+                                residual_threshold=self.residual_threshold, max_trials=self.max_trials)
+#                 self.model = transform.estimate_transform(&#39;Affine&#39;,self.tran, self.ref)
+                self.missing_pos = False
+            else:
+                self.missing_pos = True 
+        else:
+            self.missing_pos = True 
+    else: 
+        self.missing_pos = True
+    
+    if not self.missing_pos:
+        if self.model:
+            self.tr_good = self.tran[self.inliers]
+            self.ref_good = self.ref[self.inliers]
+            self.transformed_coords = transform.matrix_transform(self.tr_good, self.model.params)
+            self.transformed_all_coords = transform.matrix_transform(self.comp_hyb_coords.T, self.model.params)
+            self.delta = self.ref_good - self.tr_good
+            self.translation_mean = np.mean(self.delta,axis=0)
+            self.translation_median = np.median(self.delta,axis=0)
+            self.translation_diagonal = np.sqrt((self.ref_good[:,0] - self.tr_good[:,0])**2 + (self.ref_good[:,1] - self.tr_good[:,1])**2)
+            self.translational_diagonal_mean = np.mean(self.translation_diagonal)
+            self.translational_diagonal_median = np.median(self.translation_diagonal)
+            self.translation_diagonal_std = np.std(self.translation_diagonal)
+            self.translation_diagonal_sem = np.std(self.translation_diagonal)/ len(self.translation_diagonal)
+            self.err1,self.err2, self.diagonal_mean, self.diagonal_median, self.diag_std, self.diag_sem = self.errors(self.transformed_coords, self.ref_good)
+            self.used_points = [self.ref_good,self.tr_good]
+        else:
+            self.missing_pos = True</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration.deploy"><code class="name flex">
+<span>def <span class="ident">deploy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deploy(self):
+    self.registration_data = {}
+    if self.ref_hyb_coords.size &gt;= 2*self.n_neighbors:
+        self.ref_nbrs = self.calculate_NN_overlapping_region(self.ref_hyb_coords)
+        if self.comp_hyb_coords.size &gt;= 2*self.n_neighbors:
+            self.comp_nbrs = self.calculate_NN_overlapping_region(self.comp_hyb_coords)
+            if (self.ref_nbrs != np.nan) and (self.comp_nbrs != np.nan):
+                self.calculate_registration()
+            else:
+                self.logger.info(f&#39;no neighbors identified&#39;)
+                self.missing_pos = True
+        else:
+            self.logger.info(f&#39;comp region \
+                    does not contain enough dots for registration&#39;)
+            self.missing_pos = True
+            
+            # ADJUST WHEN SAVING THE DATA
+            self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+    else:
+        self.logger.info(f&#39;reference region\
+                        does not contain enough dots for registration&#39;)
+        self.missing_pos = True
+        
+    if self.missing_pos:
+        self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+    else:
+        self.registration_data = {&#39;translation_diagonal_mean&#39;:self.translational_diagonal_mean, 
+                                &#39;translation_diagonal_median&#39;: self.translational_diagonal_median, 
+                                &#39;translation_diagonal_std&#39;: self.translation_diagonal_std,
+                                &#39;translation_diagonal_sem&#39;:self.translation_diagonal_sem,
+                                &#39;used_points&#39;: self.used_points,
+                                &#39;model_params&#39;:self.model.params, 
+                                &#39;err1&#39;:self.err1, 
+                                &#39;err2&#39;:self.err2, 
+                                &#39;diagonal_mean&#39;:self.diagonal_mean,
+                                &#39;diagonal_median&#39;:self.translational_diagonal_median,
+                                &#39;diag_std&#39;:self.diag_std, 
+                                &#39;diag_sem&#39;:self.diag_sem,
+                                &#39;transformed_coords&#39;:self.transformed_coords,
+                                &#39;transformed_all_coords&#39;:self.transformed_all_coords,
+                                &#39;missing_pos&#39;:self.missing_pos}</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple"><code class="flex name class">
+<span>class <span class="ident">reference_beads_registration_couple</span></span>
+<span>(</span><span>ref_hyb_coords, comp_hyb_coords, Coords_Padded_Chunks_list, n_neighbors, min_acceptable_distance, min_samples, residual_threshold, max_trials, matching_radius)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>class used to register a couple of rounds. It is used to monitor the outcome
+because it saves a lot of information useful for troubleshooting. Once the
+parameters are well define the corresponding non test function is used in the
+data processing</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class reference_beads_registration_couple():
+
+    &#34;&#34;&#34;
+    class used to register a couple of rounds. It is used to monitor the outcome
+    because it saves a lot of information useful for troubleshooting. Once the
+    parameters are well define the corresponding non test function is used in the
+    data processing
+    &#34;&#34;&#34;
+
+    def __init__(self,ref_hyb_coords, comp_hyb_coords, Coords_Padded_Chunks_list, n_neighbors,
+                min_acceptable_distance, min_samples, residual_threshold, max_trials, matching_radius):
+
+        self.ref_hyb_coords = ref_hyb_coords
+        self.comp_hyb_coords = comp_hyb_coords
+        self.Coords_Padded_Chunks_list = Coords_Padded_Chunks_list
+
+        self.n_neighbors = n_neighbors
+        self.min_acceptable_distance = min_acceptable_distance
+        self.min_samples = min_samples
+        self.residual_threshold = residual_threshold
+        self.max_trials = max_trials
+        self.matching_radius = matching_radius
+
+        self.logger = logging.getLogger(__name__)
+
+    @staticmethod
+    def calculate_min_distances(selected_ref):
+        ref_dist = distance.cdist(selected_ref, selected_ref)
+        ref_dist = np.triu(ref_dist)
+        ref_dist = ref_dist[:-1,:]
+        mref = np.ma.masked_where(ref_dist==0,ref_dist)
+        mref_min = mref.min(axis=1)
+        return np.sort(mref_min.data)
+    
+    @staticmethod
+    # CALCULATE ERROR OVER THE DIAGONAL
+    def errors(transformed_coords, ref_good):
+        diagonals = np.sqrt((ref_good[:,0]- transformed_coords[:,0])**2 + (ref_good[:,1]- transformed_coords[:,1])**2)
+        diagonal_mean = np.mean(diagonals,axis=0)
+        diagonal_median = np.median(diagonals,axis=0)
+        err1 = np.sum((diagonals-diagonal_mean),axis=0)/len(diagonals)
+        err2 = np.sum((diagonals-diagonal_mean)**2,axis=0)/len(diagonals)
+        diag_std = np.std(diagonals)
+        diag_sem = diag_std/len(diagonals)
+        
+        # delta = np.abs(ref_good - transformed_coords)
+        # delta_mean = np.mean(delta,axis=0)
+        # err1 = np.sum((delta-delta_mean),axis=0)/len(transformed_coords)
+        # err2 = np.sum((delta-delta_mean)**2,axis=0)/len(transformed_coords)
+        return err1,err2, diagonal_mean, diagonal_median, diag_std, diag_sem
+
+    def calculate_NN_roi(self,chunk_coords):    
+        r_tl = chunk_coords[0]
+        r_br = chunk_coords[1]
+        c_tl = chunk_coords[2]
+        c_br = chunk_coords[3]
+
+        # Select only the coords in the trimmed region
+        ref_trimmed = self.ref_hyb_coords[((r_tl &lt; self.ref_hyb_coords[:,0]) &amp; (self.ref_hyb_coords[:,0]&lt;r_br)\
+                                      &amp; (c_tl &lt;self.ref_hyb_coords[:,1]) &amp;(self.ref_hyb_coords[:,1]&lt;c_br)),:]
+        tran_trimmed = self.comp_hyb_coords[((r_tl &lt; self.comp_hyb_coords[:,0]) &amp; (self.comp_hyb_coords[:,0]&lt;r_br)\
+                                          &amp; (c_tl &lt;self.comp_hyb_coords[:,1]) &amp;(self.comp_hyb_coords[:,1]&lt;c_br)),:]
+        
+        # Add check if there are dots in the timmed region
+        if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+            nbrs_ref = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(ref_trimmed)
+            nbrs_tr = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(tran_trimmed)
+        else:
+            nbrs_ref = nbrs_tr = np.nan
+            
+        return ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr
+   
+
+    def calculate_NN_overlapping_region(self, coords_overlapping_region):
+        
+        # Add check if there are dots in the timmed region
+        if coords_overlapping_region.size &gt;= 2*self.n_neighbors and coords_overlapping_region.size &gt;= 2*self.n_neighbors:
+            nbrs = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(coords_overlapping_region)
+        else:
+            nbrs = np.nan
+            
+        return nbrs
+
+    
+    def calculate_registration(self):
+        self.monitor = []
+        self.c = []
+        passing_num = 0
+        self.matching_points = False
+        if self.ref_hyb_coords.size and self.comp_hyb_coords.size:
+            for chunk_coords in self.Coords_Padded_Chunks_list:
+                ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr= self.calculate_NN_roi(chunk_coords)
+                #if ref_trimmed.shape[0] &gt;= 2*self.n_neighbors and tran_trimmed.shape[0] &gt;= 2*self.n_neighbors:
+                if ref_trimmed.shape[0] &gt;= 20 and tran_trimmed.shape[0] &gt;= 20: 
+                    self.monitor.append((ref_trimmed,tran_trimmed))
+                    if nbrs_ref != np.nan and nbrs_tr != np.nan:
+                        # create dots id list
+                        trans_dot_id_list = np.arange(tran_trimmed.shape[0])
+                        for tran_dot_id in trans_dot_id_list:
+                            searching=tran_trimmed[tran_dot_id,:]
+                            searching = searching[np.newaxis,:]
+                            dist, idx  = nbrs_tr.kneighbors(searching,n_neighbors=self.n_neighbors)
+                            selected_tran = tran_trimmed[idx[0],:]
+                            tran_dist = self.calculate_min_distances(selected_tran)
+                            for id_r in np.arange(ref_trimmed.shape[0]):
+                                self.searching_r=ref_trimmed[id_r,:]
+                                self.searching_r = self.searching_r[np.newaxis,:]
+                                dist_r, self.idx_r  = nbrs_ref.kneighbors(self.searching_r,n_neighbors=self.n_neighbors)
+                                if self.idx_r[0].shape[0] == idx[0].shape[0]: 
+                                    selected_ref = ref_trimmed[self.idx_r[0],:]
+                                    ref_dist = self.calculate_min_distances(selected_ref)
+                                    if np.all(np.abs(ref_dist - tran_dist)&lt;self.min_acceptable_distance):
+                                        ref = ref_trimmed[self.idx_r[0],:]
+                                        ref_srt = ref[ref[0,:].argsort(),:]
+                                        tran = tran_trimmed[idx[0],:]
+                                        tran_srt = tran[tran[0,:].argsort(),:]
+                                        cpls = np.concatenate((ref_srt,tran_srt),axis=1)
+                                        self.c.append(cpls)
+                                        if passing_num == 0:
+                                            self.matching_points = cpls
+                                            passing_num += 1
+                                        else:
+                                            self.matching_points = np.concatenate((self.matching_points,cpls),axis=0)
+            if isinstance(self.matching_points,np.ndarray):
+                self.matching_points = np.unique(self.matching_points,axis=0)
+                self.ref = self.matching_points[:,0:2]
+                self.tran = self.matching_points[:,2:]
+                if (self.min_samples &lt; self.ref.shape[0]) and (self.min_samples &lt; self.tran.shape[0]):
+                    self.model, self.inliers = ransac((self.tran, self.ref), transform.SimilarityTransform, min_samples=self.min_samples,
+                                    residual_threshold=self.residual_threshold, max_trials=self.max_trials)
+    #                 self.model = transform.estimate_transform(&#39;Affine&#39;,self.tran, self.ref)
+                    self.missing_pos = False
+                else:
+                    self.missing_pos = True 
+            else:
+                self.missing_pos = True 
+        else: 
+            self.missing_pos = True
+        
+        if not self.missing_pos:
+            if self.model:
+                self.tr_good = self.tran[self.inliers]
+                self.ref_good = self.ref[self.inliers]
+                self.transformed_coords = transform.matrix_transform(self.tr_good, self.model.params)
+                self.transformed_all_coords = transform.matrix_transform(self.comp_hyb_coords, self.model.params)
+                self.delta = self.ref_good - self.tr_good
+                self.translation_mean = np.mean(self.delta,axis=0)
+                self.translation_median = np.median(self.delta,axis=0)
+                self.translation_diagonal = np.sqrt((self.ref_good[:,0] - self.tr_good[:,0])**2 + (self.ref_good[:,1] - self.tr_good[:,1])**2)
+                self.translational_diagonal_mean = np.mean(self.translation_diagonal)
+                self.translational_diagonal_median = np.median(self.translation_diagonal)
+                self.translation_diagonal_std = np.std(self.translation_diagonal)
+                self.translation_diagonal_sem = np.std(self.translation_diagonal)/ len(self.translation_diagonal)
+                self.err1,self.err2, self.diagonal_mean, self.diagonal_median, self.diag_std, self.diag_sem = self.errors(self.transformed_coords, self.ref_good)
+                self.used_points = [self.ref_good,self.tr_good]
+            else:
+                self.missing_pos = True
+
+
+    def deploy(self):
+        self.registration_data = {}
+        if self.ref_hyb_coords.size &gt;= 2*self.n_neighbors:
+            self.ref_nbrs = self.calculate_NN_overlapping_region(self.ref_hyb_coords)
+            if self.comp_hyb_coords.size &gt;= 2*self.n_neighbors:
+                self.comp_nbrs = self.calculate_NN_overlapping_region(self.comp_hyb_coords)
+                if (self.ref_nbrs != np.nan) and (self.comp_nbrs != np.nan):
+                    self.calculate_registration()
+                else:
+                    self.logger.info(f&#39;no neighbors identified&#39;)
+                    self.missing_pos = True
+            else:
+                self.logger.info(f&#39;comp region \
+                        does not contain enough dots for registration&#39;)
+                self.missing_pos = True
+                
+                # ADJUST WHEN SAVING THE DATA
+                self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+        else:
+            self.logger.info(f&#39;reference region\
+                            does not contain enough dots for registration&#39;)
+            self.missing_pos = True
+            
+        if self.missing_pos:
+            self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+        else:
+            self.registration_data = {&#39;translation_diagonal_mean&#39;:self.translational_diagonal_mean, 
+                                    &#39;translation_diagonal_median&#39;: self.translational_diagonal_median, 
+                                    &#39;translation_diagonal_std&#39;: self.translation_diagonal_std,
+                                    &#39;translation_diagonal_sem&#39;:self.translation_diagonal_sem,
+                                    &#39;used_points&#39;: self.used_points,
+                                    &#39;model_params&#39;:self.model.params, 
+                                    &#39;err1&#39;:self.err1, 
+                                    &#39;err2&#39;:self.err2, 
+                                    &#39;diagonal_mean&#39;:self.diagonal_mean,
+                                    &#39;diagonal_median&#39;:self.translational_diagonal_median,
+                                    &#39;diag_std&#39;:self.diag_std, 
+                                    &#39;diag_sem&#39;:self.diag_sem,
+                                    &#39;transformed_coords&#39;:self.transformed_coords,
+                                    &#39;transformed_all_coords&#39;:self.transformed_all_coords,
+                                    &#39;missing_pos&#39;:self.missing_pos}</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_min_distances"><code class="name flex">
+<span>def <span class="ident">calculate_min_distances</span></span>(<span>selected_ref)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def calculate_min_distances(selected_ref):
+    ref_dist = distance.cdist(selected_ref, selected_ref)
+    ref_dist = np.triu(ref_dist)
+    ref_dist = ref_dist[:-1,:]
+    mref = np.ma.masked_where(ref_dist==0,ref_dist)
+    mref_min = mref.min(axis=1)
+    return np.sort(mref_min.data)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.errors"><code class="name flex">
+<span>def <span class="ident">errors</span></span>(<span>transformed_coords, ref_good)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+# CALCULATE ERROR OVER THE DIAGONAL
+def errors(transformed_coords, ref_good):
+    diagonals = np.sqrt((ref_good[:,0]- transformed_coords[:,0])**2 + (ref_good[:,1]- transformed_coords[:,1])**2)
+    diagonal_mean = np.mean(diagonals,axis=0)
+    diagonal_median = np.median(diagonals,axis=0)
+    err1 = np.sum((diagonals-diagonal_mean),axis=0)/len(diagonals)
+    err2 = np.sum((diagonals-diagonal_mean)**2,axis=0)/len(diagonals)
+    diag_std = np.std(diagonals)
+    diag_sem = diag_std/len(diagonals)
+    
+    # delta = np.abs(ref_good - transformed_coords)
+    # delta_mean = np.mean(delta,axis=0)
+    # err1 = np.sum((delta-delta_mean),axis=0)/len(transformed_coords)
+    # err2 = np.sum((delta-delta_mean)**2,axis=0)/len(transformed_coords)
+    return err1,err2, diagonal_mean, diagonal_median, diag_std, diag_sem</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_NN_overlapping_region"><code class="name flex">
+<span>def <span class="ident">calculate_NN_overlapping_region</span></span>(<span>self, coords_overlapping_region)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_NN_overlapping_region(self, coords_overlapping_region):
+    
+    # Add check if there are dots in the timmed region
+    if coords_overlapping_region.size &gt;= 2*self.n_neighbors and coords_overlapping_region.size &gt;= 2*self.n_neighbors:
+        nbrs = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(coords_overlapping_region)
+    else:
+        nbrs = np.nan
+        
+    return nbrs</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_NN_roi"><code class="name flex">
+<span>def <span class="ident">calculate_NN_roi</span></span>(<span>self, chunk_coords)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_NN_roi(self,chunk_coords):    
+    r_tl = chunk_coords[0]
+    r_br = chunk_coords[1]
+    c_tl = chunk_coords[2]
+    c_br = chunk_coords[3]
+
+    # Select only the coords in the trimmed region
+    ref_trimmed = self.ref_hyb_coords[((r_tl &lt; self.ref_hyb_coords[:,0]) &amp; (self.ref_hyb_coords[:,0]&lt;r_br)\
+                                  &amp; (c_tl &lt;self.ref_hyb_coords[:,1]) &amp;(self.ref_hyb_coords[:,1]&lt;c_br)),:]
+    tran_trimmed = self.comp_hyb_coords[((r_tl &lt; self.comp_hyb_coords[:,0]) &amp; (self.comp_hyb_coords[:,0]&lt;r_br)\
+                                      &amp; (c_tl &lt;self.comp_hyb_coords[:,1]) &amp;(self.comp_hyb_coords[:,1]&lt;c_br)),:]
+    
+    # Add check if there are dots in the timmed region
+    if ref_trimmed.size &gt;= 2*self.n_neighbors and tran_trimmed.size &gt;= 2*self.n_neighbors:
+        nbrs_ref = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(ref_trimmed)
+        nbrs_tr = NearestNeighbors(n_neighbors=self.n_neighbors, algorithm=&#39;ball_tree&#39;,radius=self.matching_radius).fit(tran_trimmed)
+    else:
+        nbrs_ref = nbrs_tr = np.nan
+        
+    return ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_registration"><code class="name flex">
+<span>def <span class="ident">calculate_registration</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_registration(self):
+    self.monitor = []
+    self.c = []
+    passing_num = 0
+    self.matching_points = False
+    if self.ref_hyb_coords.size and self.comp_hyb_coords.size:
+        for chunk_coords in self.Coords_Padded_Chunks_list:
+            ref_trimmed, tran_trimmed, nbrs_ref, nbrs_tr= self.calculate_NN_roi(chunk_coords)
+            #if ref_trimmed.shape[0] &gt;= 2*self.n_neighbors and tran_trimmed.shape[0] &gt;= 2*self.n_neighbors:
+            if ref_trimmed.shape[0] &gt;= 20 and tran_trimmed.shape[0] &gt;= 20: 
+                self.monitor.append((ref_trimmed,tran_trimmed))
+                if nbrs_ref != np.nan and nbrs_tr != np.nan:
+                    # create dots id list
+                    trans_dot_id_list = np.arange(tran_trimmed.shape[0])
+                    for tran_dot_id in trans_dot_id_list:
+                        searching=tran_trimmed[tran_dot_id,:]
+                        searching = searching[np.newaxis,:]
+                        dist, idx  = nbrs_tr.kneighbors(searching,n_neighbors=self.n_neighbors)
+                        selected_tran = tran_trimmed[idx[0],:]
+                        tran_dist = self.calculate_min_distances(selected_tran)
+                        for id_r in np.arange(ref_trimmed.shape[0]):
+                            self.searching_r=ref_trimmed[id_r,:]
+                            self.searching_r = self.searching_r[np.newaxis,:]
+                            dist_r, self.idx_r  = nbrs_ref.kneighbors(self.searching_r,n_neighbors=self.n_neighbors)
+                            if self.idx_r[0].shape[0] == idx[0].shape[0]: 
+                                selected_ref = ref_trimmed[self.idx_r[0],:]
+                                ref_dist = self.calculate_min_distances(selected_ref)
+                                if np.all(np.abs(ref_dist - tran_dist)&lt;self.min_acceptable_distance):
+                                    ref = ref_trimmed[self.idx_r[0],:]
+                                    ref_srt = ref[ref[0,:].argsort(),:]
+                                    tran = tran_trimmed[idx[0],:]
+                                    tran_srt = tran[tran[0,:].argsort(),:]
+                                    cpls = np.concatenate((ref_srt,tran_srt),axis=1)
+                                    self.c.append(cpls)
+                                    if passing_num == 0:
+                                        self.matching_points = cpls
+                                        passing_num += 1
+                                    else:
+                                        self.matching_points = np.concatenate((self.matching_points,cpls),axis=0)
+        if isinstance(self.matching_points,np.ndarray):
+            self.matching_points = np.unique(self.matching_points,axis=0)
+            self.ref = self.matching_points[:,0:2]
+            self.tran = self.matching_points[:,2:]
+            if (self.min_samples &lt; self.ref.shape[0]) and (self.min_samples &lt; self.tran.shape[0]):
+                self.model, self.inliers = ransac((self.tran, self.ref), transform.SimilarityTransform, min_samples=self.min_samples,
+                                residual_threshold=self.residual_threshold, max_trials=self.max_trials)
+#                 self.model = transform.estimate_transform(&#39;Affine&#39;,self.tran, self.ref)
+                self.missing_pos = False
+            else:
+                self.missing_pos = True 
+        else:
+            self.missing_pos = True 
+    else: 
+        self.missing_pos = True
+    
+    if not self.missing_pos:
+        if self.model:
+            self.tr_good = self.tran[self.inliers]
+            self.ref_good = self.ref[self.inliers]
+            self.transformed_coords = transform.matrix_transform(self.tr_good, self.model.params)
+            self.transformed_all_coords = transform.matrix_transform(self.comp_hyb_coords, self.model.params)
+            self.delta = self.ref_good - self.tr_good
+            self.translation_mean = np.mean(self.delta,axis=0)
+            self.translation_median = np.median(self.delta,axis=0)
+            self.translation_diagonal = np.sqrt((self.ref_good[:,0] - self.tr_good[:,0])**2 + (self.ref_good[:,1] - self.tr_good[:,1])**2)
+            self.translational_diagonal_mean = np.mean(self.translation_diagonal)
+            self.translational_diagonal_median = np.median(self.translation_diagonal)
+            self.translation_diagonal_std = np.std(self.translation_diagonal)
+            self.translation_diagonal_sem = np.std(self.translation_diagonal)/ len(self.translation_diagonal)
+            self.err1,self.err2, self.diagonal_mean, self.diagonal_median, self.diag_std, self.diag_sem = self.errors(self.transformed_coords, self.ref_good)
+            self.used_points = [self.ref_good,self.tr_good]
+        else:
+            self.missing_pos = True</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.deploy"><code class="name flex">
+<span>def <span class="ident">deploy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def deploy(self):
+    self.registration_data = {}
+    if self.ref_hyb_coords.size &gt;= 2*self.n_neighbors:
+        self.ref_nbrs = self.calculate_NN_overlapping_region(self.ref_hyb_coords)
+        if self.comp_hyb_coords.size &gt;= 2*self.n_neighbors:
+            self.comp_nbrs = self.calculate_NN_overlapping_region(self.comp_hyb_coords)
+            if (self.ref_nbrs != np.nan) and (self.comp_nbrs != np.nan):
+                self.calculate_registration()
+            else:
+                self.logger.info(f&#39;no neighbors identified&#39;)
+                self.missing_pos = True
+        else:
+            self.logger.info(f&#39;comp region \
+                    does not contain enough dots for registration&#39;)
+            self.missing_pos = True
+            
+            # ADJUST WHEN SAVING THE DATA
+            self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+    else:
+        self.logger.info(f&#39;reference region\
+                        does not contain enough dots for registration&#39;)
+        self.missing_pos = True
+        
+    if self.missing_pos:
+        self.registration_data = {&#39;missing_pos&#39;:self.missing_pos}
+    else:
+        self.registration_data = {&#39;translation_diagonal_mean&#39;:self.translational_diagonal_mean, 
+                                &#39;translation_diagonal_median&#39;: self.translational_diagonal_median, 
+                                &#39;translation_diagonal_std&#39;: self.translation_diagonal_std,
+                                &#39;translation_diagonal_sem&#39;:self.translation_diagonal_sem,
+                                &#39;used_points&#39;: self.used_points,
+                                &#39;model_params&#39;:self.model.params, 
+                                &#39;err1&#39;:self.err1, 
+                                &#39;err2&#39;:self.err2, 
+                                &#39;diagonal_mean&#39;:self.diagonal_mean,
+                                &#39;diagonal_median&#39;:self.translational_diagonal_median,
+                                &#39;diag_std&#39;:self.diag_std, 
+                                &#39;diag_sem&#39;:self.diag_sem,
+                                &#39;transformed_coords&#39;:self.transformed_coords,
+                                &#39;transformed_all_coords&#39;:self.transformed_all_coords,
+                                &#39;missing_pos&#39;:self.missing_pos}</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration"><code class="flex name class">
+<span>class <span class="ident">triangles_based_registration</span></span>
+<span>(</span><span>counts, experiment_fpath, channel_name, roi_number, fov_name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class used to register the different rounds by searaching and
+matching all possible triangles formed by the dots in the reference
+and translated image. This function run only a registration to the reference
+round</p>
+<p>The calculation of the triangle is based on list processing and may
+be improved in ported to numpy.
+<a href="https://stackoverflow.com/questions/43126580/match-set-of-x-y-points-to-another-set-that-is-scaled-rotated-translated-and">https://stackoverflow.com/questions/43126580/match-set-of-x-y-points-to-another-set-that-is-scaled-rotated-translated-and</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class triangles_based_registration():
+    &#34;&#34;&#34;
+    Class used to register the different rounds by searaching and
+    matching all possible triangles formed by the dots in the reference
+    and translated image. This function run only a registration to the reference
+    round
+    
+    The calculation of the triangle is based on list processing and may 
+    be improved in ported to numpy.
+    https://stackoverflow.com/questions/43126580/match-set-of-x-y-points-to-another-set-that-is-scaled-rotated-translated-and
+
+    &#34;&#34;&#34;
+
+    def __init__(self, counts, experiment_fpath, channel_name, roi_number, fov_name):
+        self.counts = counts
+        self.experiment_fpath = Path(experiment_fpath)
+        self.channel_name = channel_name
+        self.roi_number = roi_number
+        self.fov_name = fov_name
+        
+        self.logger = logging.getLogger(__name__)
+        
+        self.pipeline_config_fpath = self.experiment_fpath / &#39;pipeline_config&#39;
+        self.experiment_config_fpath =  self.pipeline_config_fpath / &#39;experiment.yaml&#39;
+        self.experiment_config = load_pipeline_config_file(self.experiment_config_fpath)
+        
+        searching_key = &#39;*roi_&#39; +str(self.roi_number) + &#39;_&#39; + self.channel_name + &#39;_images_config.yaml&#39;        
+        
+        try:
+            self.image_config_fpath = list(self.pipeline_config_fpath.glob(searching_key))[0]
+        except:
+            self.logger.error(f&#39;the reference beads image_config file is missing {searching_key}&#39;)
+            sys.exit(f&#39;the reference beads image_config file&#39;)
+
+        
+        # Load registration parameters
+        self.image_config = load_pipeline_config_file(self.image_config_fpath)
+        self.registration_parameters = self.image_config[fov_name][&#39;fov_analysis_parameters&#39;][&#39;rounds_registration&#39;]
+        self.chunk_size = self.registration_parameters[&#39;chunk_size&#39;]
+        self.min_dots_chunk = self.registration_parameters[&#39;min_dots_chunk&#39;]
+        self.min_error_triangles = self.registration_parameters[&#39;min_error_triangles&#39;]
+        self.percent_padding = self.registration_parameters[&#39;percent_padding&#39;]
+        self.reference_round = self.registration_parameters[&#39;reference_round&#39;]
+        self.collect_all_chunks = self.registration_parameters[&#39;collect_all_chunks&#39;]
+        self.reference_round_name = &#39;round_&#39; + str(self.reference_round)
+       
+        # The top lef coords are 0,0 because we are using relative coords
+        self.tl_coords = (0,0)
+
+        self.img_dimensions = (self.image_config[fov_name][&#39;rounds&#39;][self.reference_round_name][&#39;shape&#39;][&#39;height&#39;],
+                               self.image_config[fov_name][&#39;rounds&#39;][self.reference_round_name][&#39;shape&#39;][&#39;width&#39;])    
+                    
+
+    @staticmethod
+    def combine_coords(counts, round_num):
+        data_reference = counts.loc[counts[&#39;round_num&#39;] == round_num]
+        r_px = data_reference.r_px_original.to_list()
+        c_px = data_reference.c_px_original.to_list()
+        coords = np.array(list(zip(r_px,c_px)))
+        position_idx = data_reference.index
+        return coords, position_idx
+
+
+    @staticmethod
+    def obj_fun(pars,x,src):
+        tx, ty = pars
+        H = np.array([[1, 0, tx],\
+            [0, 1, ty]])
+        src1 = np.c_[src,np.ones(src.shape[0])]
+        return np.sum( (x - src1.dot(H.T)[:,:2])**2 )
+
+    @staticmethod
+    def apply_transform(pars, src):
+        tx, ty = pars
+        H = np.array([[1, 0, tx],\
+            [0, 1, ty]])
+        src1 = np.c_[src,np.ones(src.shape[0])]
+        return src1.dot(H.T)[:,:2]
+
+    @staticmethod
+    def distance(x1,y1,x2,y2):
+        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2 )
+
+    @staticmethod
+    def list_subtract(list1,list2):
+        return np.absolute(np.array(list1)-np.array(list2))
+
+    def tri_sides(self,set_x, set_x_tri):
+
+        triangles = []
+        for i in range(len(set_x_tri)):
+
+            point1 = set_x_tri[i][0]
+            point2 = set_x_tri[i][1]
+            point3 = set_x_tri[i][2]
+
+            point1x, point1y = set_x[point1][0], set_x[point1][1]
+            point2x, point2y = set_x[point2][0], set_x[point2][1]
+            point3x, point3y = set_x[point3][0], set_x[point3][1] 
+
+            len1 = self.distance(point1x,point1y,point2x,point2y)
+            len2 = self.distance(point1x,point1y,point3x,point3y)
+            len3 = self.distance(point2x,point2y,point3x,point3y)
+
+            # you need to normalize in case the ref and the tran
+            # are warped
+            #min_side = min(len1,len2,len3)
+            #len1/=min_side
+            #len2/=min_side
+            #len3/=min_side
+            t=[len1,len2,len3]
+            t.sort()
+            triangles.append(t)
+
+        return triangles
+
+
+    def identify_matching_coords(self,set_A, set_B, threshold):
+        match_A_pts = []
+        match_B_pts = []
+        set_A_tri = list(itertools.combinations(range(len(set_A)), 3))
+        set_B_tri = list(itertools.combinations(range(len(set_B)), 3))
+        A_triangles = self.tri_sides(set_A, set_A_tri)
+        B_triangles = self.tri_sides(set_B, set_B_tri)
+        sums = []
+        for i in range(len(A_triangles)):
+            for j in range(len(B_triangles)):
+                k = sum(self.list_subtract(A_triangles[i], B_triangles[j]))
+                if k &lt; threshold:
+                    sums.append([i,j,k])
+        # sort by smallest sum
+        sums = sorted(sums, key=operator.itemgetter(2))
+        if len(sums):
+            match_A = set_A_tri[sums[0][0]]
+            match_B = set_B_tri[sums[0][1]]
+            for i in range(3):
+                match_A_pts.append(set_A[match_A[i]])
+                match_B_pts.append(set_B[match_B[i]])
+        return (match_A_pts,match_B_pts)
+
+
+
+    def calculate_chunks(self):
+        self.chunks = chunking(self.img_dimensions,self.chunk_size,
+                          self.registration_parameters[&#39;percent_padding&#39;],self.tl_coords)   
+        self.chunks.block_chunking()
+        self.Coords_Padded_Chunks_list = self.chunks.Coords_Padded_Chunks_list
+        
+    def calculate_dots_chunks(self,coords,chunk_coords):  
+        r_tl = chunk_coords[0]
+        r_br = chunk_coords[1]
+        c_tl = chunk_coords[2]
+        c_br = chunk_coords[3]
+
+        # Select only the coords in the trimmed region
+        coords_in_chunk = coords[((r_tl &lt; coords[:,0]) &amp; (coords[:,0]&lt;r_br)\
+                    &amp; (c_tl &lt;coords[:,1]) &amp;(coords[:,1]&lt;c_br)),: ]
+        return coords_in_chunk
+
+
+    def optimize_chunking(self,ref_coords, tran_coords):       
+        self.enough_dots = False
+        chunk_size = self.chunk_size
+        while chunk_size &lt; min(self.img_dimensions):
+            chunks = chunking(self.img_dimensions, chunk_size, self.percent_padding, self.tl_coords)
+            chunks.block_chunking()
+            Coords_Padded_Chunks_list = chunks.Coords_Padded_Chunks_list
+            ref_max_number_dots = []
+            tran_max_number_dots = []
+            ref_total = []
+            tran_total = []
+            for chunk_coords in Coords_Padded_Chunks_list:
+                ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
+                tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
+                if ref_coords_in_chunk.shape[0] &gt; self.min_dots_chunk and tran_coords_in_chunk.shape[0] &gt; self.min_dots_chunk:
+                        self.enough_dots = True
+                        break
+            if self.enough_dots:
+                break
+            else:
+                self.enough_dots = False
+                chunk_size += 200
+
+        if self.enough_dots:
+            # Collect the ref and tran coords from the chunks with enough dots
+            self.ref_tran_screening_list = []
+            for chunk_coords in Coords_Padded_Chunks_list:
+                ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
+                tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
+                if ref_coords_in_chunk.shape[0] &gt; self.min_dots_chunk and tran_coords_in_chunk.shape[0] &gt; self.min_dots_chunk:
+                    self.ref_tran_screening_list.append((ref_coords_in_chunk,tran_coords_in_chunk,chunk_coords))
+            self.chunk_size = chunk_size
+
+
+    def rounds_to_register(self):
+        # remember that round_num is not pythonic
+        self.rounds_list = list(self.counts[&#39;round_num&#39;].unique())
+        if self.reference_round == False:
+            logger.error(f&#39;missing reference round&#39;)
+            sys.exit(f&#39;missing reference round&#39;)
+        elif self.reference_round &lt;0 or self.reference_round &gt; max(self.rounds_list):
+            logger.error(f&#39;selected reference round {self.reference_round} is out of range&#39;)
+            sys.exit(f&#39;selected reference round {self.reference_round} is out of range&#39;)
+        else:
+            self.rounds_list = list(self.counts[&#39;round_num&#39;].unique()) 
+            self.processing_combinations = []
+            self.rounds_list.remove(self.reference_round)
+            for el in self.rounds_list:
+                self.processing_combinations.append((self.reference_round,el))
+
+    def cpl_registration(self,ref_coords,tran_coords,cpl):
+        self.optimize_chunking(ref_coords, tran_coords)
+        self.completed_registration = False
+        if self.enough_dots:
+            match_ref_pts_all = []
+            match_tran_pts_all = []
+            if self.collect_all_chunks:
+            # Collect all matching dots in all chunked regions with number of dots above threshold
+                for ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords in self.ref_tran_screening_list:
+                        match_ref_pts, match_tran_pts = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
+                        if len(match_ref_pts) and len(match_tran_pts):
+                            match_ref_pts_all.append(match_ref_pts)
+                            match_tran_pts_all.append(match_tran_pts)
+                match_ref_pts_all = [pts for grp in match_ref_pts_all for pts in grp]
+                match_tran_pts_all = [pts for grp in match_tran_pts_all for pts in grp]
+            else:
+                ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords = self.ref_tran_screening_list[0]
+                match_ref_pts_all, match_tran_pts_all = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
+
+            if len(match_ref_pts_all):
+                match_ref_pts_all = np.vstack(match_ref_pts_all)
+                match_tran_pts_all = np.vstack(match_tran_pts_all)
+                minimization_output = minimize(self.obj_fun,[0,0],args=(match_ref_pts_all,match_tran_pts_all), method=&#39;Nelder-Mead&#39;)
+                if minimization_output.success:
+                    self.tran_registered_coords = self.apply_transform(minimization_output.x, tran_coords)
+                    self.transformation_matrix = minimization_output.x
+                    self.completed_registration = True
+                else:
+                    self.logger.info(f&#39;chunk {chunk_coords} of {cpl} failed minimization of distances&#39;)
+            else:
+                self.logger.info(f&#39;chunk {chunk_coords} of {cpl} did not find matching triangles&#39;)
+
+        else:
+            self.logger.info(f&#39;cannot register rounds {cpl} not enough dots&#39;)
+            self.tran_registered_coords = tran_coords
+            self.transformation_matrix = np.empty([1,2])
+            self.transformation_matrix[:] = np.nan
+
+        if not self.completed_registration:
+            self.logger.info(f&#39;was not possible to register {cpl} &#39;)
+            self.tran_registered_coords = tran_coords
+            self.transformation_matrix = np.empty([1,2])
+            self.transformation_matrix[:] = np.nan
+
+
+    def register(self):
+        all_registration_matrix = {}
+        r_px_col_name = &#39;r_px_registered&#39;
+        c_px_col_name = &#39;c_px_registered&#39;
+        self.counts[r_px_col_name] = np.nan
+        self.counts[c_px_col_name] = np.nan
+        self.counts[&#39;r_transformation_registration&#39;] = np.nan
+        self.counts[&#39;c_transformation_registration&#39;] = np.nan
+        self.rounds_to_register()
+        for cpl in self.processing_combinations:
+            ref_round, tran_round = cpl
+            ref_coords, ref_position_idx = self.combine_coords(self.counts,ref_round)
+            tran_coords, tran_position_idx = self.combine_coords(self.counts,tran_round)
+            self.cpl_registration(ref_coords,tran_coords,cpl)
+            all_registration_matrix[cpl] = self.transformation_matrix
+            self.ref_registered_coords = ref_coords
+            self.counts.loc[ref_position_idx, r_px_col_name] = self.ref_registered_coords[:,0]
+            self.counts.loc[ref_position_idx, c_px_col_name] = self.ref_registered_coords[:,1]
+            self.counts.loc[ref_position_idx, &#39;r_transformation_registration&#39;] = np.ones(self.ref_registered_coords.shape[0])
+            self.counts.loc[ref_position_idx, &#39;c_transformation_registration&#39;] = np.ones(self.ref_registered_coords.shape[0])
+            self.counts.loc[tran_position_idx, r_px_col_name] = self.tran_registered_coords[:,0]
+            self.counts.loc[tran_position_idx, c_px_col_name] = self.tran_registered_coords[:,1]
+            all_transf = np.tile(self.transformation_matrix,(self.tran_registered_coords.shape[0],1))
+            self.counts.loc[tran_position_idx, &#39;r_transformation_registration&#39;] = all_transf[:,0]
+            self.counts.loc[tran_position_idx, &#39;c_transformation_registration&#39;] = all_transf[:,1]
+       
+        return self.counts, all_registration_matrix</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.apply_transform"><code class="name flex">
+<span>def <span class="ident">apply_transform</span></span>(<span>pars, src)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def apply_transform(pars, src):
+    tx, ty = pars
+    H = np.array([[1, 0, tx],\
+        [0, 1, ty]])
+    src1 = np.c_[src,np.ones(src.shape[0])]
+    return src1.dot(H.T)[:,:2]</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.combine_coords"><code class="name flex">
+<span>def <span class="ident">combine_coords</span></span>(<span>counts, round_num)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def combine_coords(counts, round_num):
+    data_reference = counts.loc[counts[&#39;round_num&#39;] == round_num]
+    r_px = data_reference.r_px_original.to_list()
+    c_px = data_reference.c_px_original.to_list()
+    coords = np.array(list(zip(r_px,c_px)))
+    position_idx = data_reference.index
+    return coords, position_idx</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.distance"><code class="name flex">
+<span>def <span class="ident">distance</span></span>(<span>x1, y1, x2, y2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def distance(x1,y1,x2,y2):
+    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2 )</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.list_subtract"><code class="name flex">
+<span>def <span class="ident">list_subtract</span></span>(<span>list1, list2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def list_subtract(list1,list2):
+    return np.absolute(np.array(list1)-np.array(list2))</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.obj_fun"><code class="name flex">
+<span>def <span class="ident">obj_fun</span></span>(<span>pars, x, src)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def obj_fun(pars,x,src):
+    tx, ty = pars
+    H = np.array([[1, 0, tx],\
+        [0, 1, ty]])
+    src1 = np.c_[src,np.ones(src.shape[0])]
+    return np.sum( (x - src1.dot(H.T)[:,:2])**2 )</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.calculate_chunks"><code class="name flex">
+<span>def <span class="ident">calculate_chunks</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_chunks(self):
+    self.chunks = chunking(self.img_dimensions,self.chunk_size,
+                      self.registration_parameters[&#39;percent_padding&#39;],self.tl_coords)   
+    self.chunks.block_chunking()
+    self.Coords_Padded_Chunks_list = self.chunks.Coords_Padded_Chunks_list</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.calculate_dots_chunks"><code class="name flex">
+<span>def <span class="ident">calculate_dots_chunks</span></span>(<span>self, coords, chunk_coords)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_dots_chunks(self,coords,chunk_coords):  
+    r_tl = chunk_coords[0]
+    r_br = chunk_coords[1]
+    c_tl = chunk_coords[2]
+    c_br = chunk_coords[3]
+
+    # Select only the coords in the trimmed region
+    coords_in_chunk = coords[((r_tl &lt; coords[:,0]) &amp; (coords[:,0]&lt;r_br)\
+                &amp; (c_tl &lt;coords[:,1]) &amp;(coords[:,1]&lt;c_br)),: ]
+    return coords_in_chunk</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.cpl_registration"><code class="name flex">
+<span>def <span class="ident">cpl_registration</span></span>(<span>self, ref_coords, tran_coords, cpl)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cpl_registration(self,ref_coords,tran_coords,cpl):
+    self.optimize_chunking(ref_coords, tran_coords)
+    self.completed_registration = False
+    if self.enough_dots:
+        match_ref_pts_all = []
+        match_tran_pts_all = []
+        if self.collect_all_chunks:
+        # Collect all matching dots in all chunked regions with number of dots above threshold
+            for ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords in self.ref_tran_screening_list:
+                    match_ref_pts, match_tran_pts = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
+                    if len(match_ref_pts) and len(match_tran_pts):
+                        match_ref_pts_all.append(match_ref_pts)
+                        match_tran_pts_all.append(match_tran_pts)
+            match_ref_pts_all = [pts for grp in match_ref_pts_all for pts in grp]
+            match_tran_pts_all = [pts for grp in match_tran_pts_all for pts in grp]
+        else:
+            ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords = self.ref_tran_screening_list[0]
+            match_ref_pts_all, match_tran_pts_all = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
+
+        if len(match_ref_pts_all):
+            match_ref_pts_all = np.vstack(match_ref_pts_all)
+            match_tran_pts_all = np.vstack(match_tran_pts_all)
+            minimization_output = minimize(self.obj_fun,[0,0],args=(match_ref_pts_all,match_tran_pts_all), method=&#39;Nelder-Mead&#39;)
+            if minimization_output.success:
+                self.tran_registered_coords = self.apply_transform(minimization_output.x, tran_coords)
+                self.transformation_matrix = minimization_output.x
+                self.completed_registration = True
+            else:
+                self.logger.info(f&#39;chunk {chunk_coords} of {cpl} failed minimization of distances&#39;)
+        else:
+            self.logger.info(f&#39;chunk {chunk_coords} of {cpl} did not find matching triangles&#39;)
+
+    else:
+        self.logger.info(f&#39;cannot register rounds {cpl} not enough dots&#39;)
+        self.tran_registered_coords = tran_coords
+        self.transformation_matrix = np.empty([1,2])
+        self.transformation_matrix[:] = np.nan
+
+    if not self.completed_registration:
+        self.logger.info(f&#39;was not possible to register {cpl} &#39;)
+        self.tran_registered_coords = tran_coords
+        self.transformation_matrix = np.empty([1,2])
+        self.transformation_matrix[:] = np.nan</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.identify_matching_coords"><code class="name flex">
+<span>def <span class="ident">identify_matching_coords</span></span>(<span>self, set_A, set_B, threshold)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def identify_matching_coords(self,set_A, set_B, threshold):
+    match_A_pts = []
+    match_B_pts = []
+    set_A_tri = list(itertools.combinations(range(len(set_A)), 3))
+    set_B_tri = list(itertools.combinations(range(len(set_B)), 3))
+    A_triangles = self.tri_sides(set_A, set_A_tri)
+    B_triangles = self.tri_sides(set_B, set_B_tri)
+    sums = []
+    for i in range(len(A_triangles)):
+        for j in range(len(B_triangles)):
+            k = sum(self.list_subtract(A_triangles[i], B_triangles[j]))
+            if k &lt; threshold:
+                sums.append([i,j,k])
+    # sort by smallest sum
+    sums = sorted(sums, key=operator.itemgetter(2))
+    if len(sums):
+        match_A = set_A_tri[sums[0][0]]
+        match_B = set_B_tri[sums[0][1]]
+        for i in range(3):
+            match_A_pts.append(set_A[match_A[i]])
+            match_B_pts.append(set_B[match_B[i]])
+    return (match_A_pts,match_B_pts)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.optimize_chunking"><code class="name flex">
+<span>def <span class="ident">optimize_chunking</span></span>(<span>self, ref_coords, tran_coords)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def optimize_chunking(self,ref_coords, tran_coords):       
+    self.enough_dots = False
+    chunk_size = self.chunk_size
+    while chunk_size &lt; min(self.img_dimensions):
+        chunks = chunking(self.img_dimensions, chunk_size, self.percent_padding, self.tl_coords)
+        chunks.block_chunking()
+        Coords_Padded_Chunks_list = chunks.Coords_Padded_Chunks_list
+        ref_max_number_dots = []
+        tran_max_number_dots = []
+        ref_total = []
+        tran_total = []
+        for chunk_coords in Coords_Padded_Chunks_list:
+            ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
+            tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
+            if ref_coords_in_chunk.shape[0] &gt; self.min_dots_chunk and tran_coords_in_chunk.shape[0] &gt; self.min_dots_chunk:
+                    self.enough_dots = True
+                    break
+        if self.enough_dots:
+            break
+        else:
+            self.enough_dots = False
+            chunk_size += 200
+
+    if self.enough_dots:
+        # Collect the ref and tran coords from the chunks with enough dots
+        self.ref_tran_screening_list = []
+        for chunk_coords in Coords_Padded_Chunks_list:
+            ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
+            tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
+            if ref_coords_in_chunk.shape[0] &gt; self.min_dots_chunk and tran_coords_in_chunk.shape[0] &gt; self.min_dots_chunk:
+                self.ref_tran_screening_list.append((ref_coords_in_chunk,tran_coords_in_chunk,chunk_coords))
+        self.chunk_size = chunk_size</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.register"><code class="name flex">
+<span>def <span class="ident">register</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def register(self):
+    all_registration_matrix = {}
+    r_px_col_name = &#39;r_px_registered&#39;
+    c_px_col_name = &#39;c_px_registered&#39;
+    self.counts[r_px_col_name] = np.nan
+    self.counts[c_px_col_name] = np.nan
+    self.counts[&#39;r_transformation_registration&#39;] = np.nan
+    self.counts[&#39;c_transformation_registration&#39;] = np.nan
+    self.rounds_to_register()
+    for cpl in self.processing_combinations:
+        ref_round, tran_round = cpl
+        ref_coords, ref_position_idx = self.combine_coords(self.counts,ref_round)
+        tran_coords, tran_position_idx = self.combine_coords(self.counts,tran_round)
+        self.cpl_registration(ref_coords,tran_coords,cpl)
+        all_registration_matrix[cpl] = self.transformation_matrix
+        self.ref_registered_coords = ref_coords
+        self.counts.loc[ref_position_idx, r_px_col_name] = self.ref_registered_coords[:,0]
+        self.counts.loc[ref_position_idx, c_px_col_name] = self.ref_registered_coords[:,1]
+        self.counts.loc[ref_position_idx, &#39;r_transformation_registration&#39;] = np.ones(self.ref_registered_coords.shape[0])
+        self.counts.loc[ref_position_idx, &#39;c_transformation_registration&#39;] = np.ones(self.ref_registered_coords.shape[0])
+        self.counts.loc[tran_position_idx, r_px_col_name] = self.tran_registered_coords[:,0]
+        self.counts.loc[tran_position_idx, c_px_col_name] = self.tran_registered_coords[:,1]
+        all_transf = np.tile(self.transformation_matrix,(self.tran_registered_coords.shape[0],1))
+        self.counts.loc[tran_position_idx, &#39;r_transformation_registration&#39;] = all_transf[:,0]
+        self.counts.loc[tran_position_idx, &#39;c_transformation_registration&#39;] = all_transf[:,1]
+   
+    return self.counts, all_registration_matrix</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.rounds_to_register"><code class="name flex">
+<span>def <span class="ident">rounds_to_register</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rounds_to_register(self):
+    # remember that round_num is not pythonic
+    self.rounds_list = list(self.counts[&#39;round_num&#39;].unique())
+    if self.reference_round == False:
+        logger.error(f&#39;missing reference round&#39;)
+        sys.exit(f&#39;missing reference round&#39;)
+    elif self.reference_round &lt;0 or self.reference_round &gt; max(self.rounds_list):
+        logger.error(f&#39;selected reference round {self.reference_round} is out of range&#39;)
+        sys.exit(f&#39;selected reference round {self.reference_round} is out of range&#39;)
+    else:
+        self.rounds_list = list(self.counts[&#39;round_num&#39;].unique()) 
+        self.processing_combinations = []
+        self.rounds_list.remove(self.reference_round)
+        for el in self.rounds_list:
+            self.processing_combinations.append((self.reference_round,el))</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.fovs_registration_barcoded.triangles_based_registration.tri_sides"><code class="name flex">
+<span>def <span class="ident">tri_sides</span></span>(<span>self, set_x, set_x_tri)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tri_sides(self,set_x, set_x_tri):
+
+    triangles = []
+    for i in range(len(set_x_tri)):
+
+        point1 = set_x_tri[i][0]
+        point2 = set_x_tri[i][1]
+        point3 = set_x_tri[i][2]
+
+        point1x, point1y = set_x[point1][0], set_x[point1][1]
+        point2x, point2y = set_x[point2][0], set_x[point2][1]
+        point3x, point3y = set_x[point3][0], set_x[point3][1] 
+
+        len1 = self.distance(point1x,point1y,point2x,point2y)
+        len2 = self.distance(point1x,point1y,point3x,point3y)
+        len3 = self.distance(point2x,point2y,point3x,point3y)
+
+        # you need to normalize in case the ref and the tran
+        # are warped
+        #min_side = min(len1,len2,len3)
+        #len1/=min_side
+        #len2/=min_side
+        #len3/=min_side
+        t=[len1,len2,len3]
+        t.sort()
+        triangles.append(t)
+
+    return triangles</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pysmFISH" href="index.html">pysmFISH</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pysmFISH.fovs_registration_barcoded.create_fake_image" href="#pysmFISH.fovs_registration_barcoded.create_fake_image">create_fake_image</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.determine_overlap_region" href="#pysmFISH.fovs_registration_barcoded.determine_overlap_region">determine_overlap_region</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.fft_registration_beads" href="#pysmFISH.fovs_registration_barcoded.fft_registration_beads">fft_registration_beads</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.registration_fish_hybridization" href="#pysmFISH.fovs_registration_barcoded.registration_fish_hybridization">registration_fish_hybridization</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pysmFISH.fovs_registration_barcoded.chunking" href="#pysmFISH.fovs_registration_barcoded.chunking">chunking</a></code></h4>
+<ul class="">
+<li><code><a title="pysmFISH.fovs_registration_barcoded.chunking.block_chunking" href="#pysmFISH.fovs_registration_barcoded.chunking.block_chunking">block_chunking</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.chunking.block_chunks_calculator" href="#pysmFISH.fovs_registration_barcoded.chunking.block_chunks_calculator">block_chunks_calculator</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration">reference_beads_registration</a></code></h4>
+<ul class="">
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_NN_overlapping_region" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_NN_overlapping_region">calculate_NN_overlapping_region</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_NN_roi" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_NN_roi">calculate_NN_roi</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_min_distances" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_min_distances">calculate_min_distances</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_registration" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration.calculate_registration">calculate_registration</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration.deploy" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration.deploy">deploy</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration.errors" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration.errors">errors</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple">reference_beads_registration_couple</a></code></h4>
+<ul class="">
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_NN_overlapping_region" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_NN_overlapping_region">calculate_NN_overlapping_region</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_NN_roi" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_NN_roi">calculate_NN_roi</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_min_distances" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_min_distances">calculate_min_distances</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_registration" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.calculate_registration">calculate_registration</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.deploy" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.deploy">deploy</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.errors" href="#pysmFISH.fovs_registration_barcoded.reference_beads_registration_couple.errors">errors</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration">triangles_based_registration</a></code></h4>
+<ul class="">
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.apply_transform" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.apply_transform">apply_transform</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.calculate_chunks" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.calculate_chunks">calculate_chunks</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.calculate_dots_chunks" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.calculate_dots_chunks">calculate_dots_chunks</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.combine_coords" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.combine_coords">combine_coords</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.cpl_registration" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.cpl_registration">cpl_registration</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.distance" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.distance">distance</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.identify_matching_coords" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.identify_matching_coords">identify_matching_coords</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.list_subtract" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.list_subtract">list_subtract</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.obj_fun" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.obj_fun">obj_fun</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.optimize_chunking" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.optimize_chunking">optimize_chunking</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.register" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.register">register</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.rounds_to_register" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.rounds_to_register">rounds_to_register</a></code></li>
+<li><code><a title="pysmFISH.fovs_registration_barcoded.triangles_based_registration.tri_sides" href="#pysmFISH.fovs_registration_barcoded.triangles_based_registration.tri_sides">tri_sides</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>
