@@ -132,7 +132,7 @@ if __name__ == '__main__':
         # Order of output from the sorting_grps:
         # fish_grp, fish_selected_parameters, beads_grp, beads_selected_parameters,\
         # staining_grp, staining_selected_parameters
-        sorted_grps = sorting_grps(consolidated_zarr_grp,experiment_info,analysis_parameters)
+        sorted_grps = sorting_grps(consolidated_zarr_grp,experiment_info,analysis_parameters,upstream_tasks=[consolidated_zarr_grp])
         # # --------------------------------------------------
     
         # --------------------------------------------------
