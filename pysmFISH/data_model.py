@@ -259,7 +259,7 @@ def create_shoji_db(experiment_info):
         dots_data_ws.BarcodeReferenceDotID =           shoji.Tensor("string", dims=('dots',))
         dots_data_ws.DotChannel =                      shoji.Tensor("string", dims=('dots',))
         dots_data_ws.GeneID =                          shoji.Tensor("string", dims=('dots',))
-        dots_data_ws.HammingDistanceRawBarcode =       shoji.Tensor("float64", dims=('dots'))
+        dots_data_ws.HammingDistanceRawBarcode =       shoji.Tensor("float64", dims=('dots',))
 
         # add rank-1 tensors for the fitering of the barcodes and genes
 
