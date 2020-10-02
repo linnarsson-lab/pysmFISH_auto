@@ -135,7 +135,7 @@ def nikon_nd2_autoparser(nd2_file_path,parsed_raw_data_fpath):
         # Collect FOV coords
         x_data = np.array(all_metadata.x_data)
         x_data = x_data[:,np.newaxis]
-        y_data = np.array(all_metadata.x_data)
+        y_data = np.array(all_metadata.y_data)
         y_data = y_data[:,np.newaxis]
         z_data = np.array(all_metadata.z_data)
         z_data = z_data[:,np.newaxis]
@@ -272,7 +272,7 @@ def nikon_nd2_autoparser_single_files(nd2_file_path,parsed_raw_data_fpath):
         # Collect FOV coords
         x_data = np.array(all_metadata.x_data)
         x_data = x_data[:,np.newaxis]
-        y_data = np.array(all_metadata.x_data)
+        y_data = np.array(all_metadata.y_data)
         y_data = y_data[:,np.newaxis]
         z_data = np.array(all_metadata.z_data)
         z_data = z_data[:,np.newaxis]
@@ -413,7 +413,7 @@ def nikon_nd2_autoparser_zarr_single_files(nd2_file_path,parsed_raw_data_fpath):
         # Collect FOV coords
         x_data = np.array(all_metadata.x_data)
         x_data = x_data[:,np.newaxis]
-        y_data = np.array(all_metadata.x_data)
+        y_data = np.array(all_metadata.y_data)
         y_data = y_data[:,np.newaxis]
         z_data = np.array(all_metadata.z_data)
         z_data = z_data[:,np.newaxis]
@@ -543,7 +543,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_inf
         # Collect FOV coords
         x_data = np.array(all_metadata.x_data)
         #x_data = x_data[:,np.newaxis]
-        y_data = np.array(all_metadata.x_data)
+        y_data = np.array(all_metadata.y_data)
         #y_data = y_data[:,np.newaxis]
         z_data = np.array(all_metadata.z_data)
         #z_data = z_data[:,np.newaxis]
