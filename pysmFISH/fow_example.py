@@ -109,22 +109,22 @@ if __name__ == '__main__':
         #                     PARSING
         # --------------------------------------------------
         # Get all the .nd2 files to process
-        all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath)
+        all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath,upstream_tasks=[analysis_parameters])
         
         # Run the crosscheck for all the pkl files
         # check_matching_metadata_robofish(all_raw_files)
         # report_input_files_errors(git_repo,experiment_fpath,git_token)
         # # Parse .nd2 files
         tag = 'img_data'
-        parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag)
-        nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-                                    experiment_info=unmapped(experiment_info))
+        parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag,upstream_tasks=[all_raw_files])
+        autoparser = nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+                                    experiment_info=unmapped(experiment_info),upstream_tasks=[parsed_raw_data_fpath])
         
-        parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
-        parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/Users/simone/Documents/local_data_storage/prefect_test/whd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
+       # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
+       # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/Users/simone/Documents/local_data_storage/prefect_test/whd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
         
 
-        consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[ref])        
+        consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[autoparser])        
         
     
         # Sort the type of images according to processing
