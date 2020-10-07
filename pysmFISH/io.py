@@ -250,3 +250,6 @@ def save_dots_data(filtered_img_meta:Tuple):
                     'HammingDistanceRawBarcode' : HammingDistanceRawBarcode
 
                 })  
+
+                del counts_dict
+                del metadata
