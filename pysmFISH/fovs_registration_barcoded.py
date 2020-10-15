@@ -40,7 +40,7 @@ def create_fake_image(img_shape,coords):
     return img
 
 
-@task(name='fft_registration_beads')# ADD LOGGER
+# @task(name='fft_registration_beads')# ADD LOGGER
 def fft_registration_beads(reference_coords:np.ndarray, translated_coords:np.ndarray,
                        img_width: int, img_height:int, fov_num:int,
                        hybridization_num_translated:int):
