@@ -102,6 +102,8 @@ if __name__ == '__main__':
         analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'],upstream_tasks=[ref])
 
 
+       
+
         # SOMEWHERE COLLECT THE INFO OF NUMBER OF HYBRIDIZATION AND FOVS
 
 
@@ -227,8 +229,7 @@ if __name__ == '__main__':
     executor = DaskExecutor(address=cluster.scheduler_address)
     # with raise_on_exception():
 
-
-    flow_state = flow.run(executor=executor)
-
-    flow.visualize(flow_state=flow_state)
-    cluster.close()
+    with raise_on_exception():
+        flow_state = flow.run(executor=executor)
+        flow.visualize(flow_state=flow_state)
+        cluster.close()
