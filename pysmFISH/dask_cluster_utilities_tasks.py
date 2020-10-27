@@ -45,13 +45,17 @@ def local_cluster_setup():
     """
 
     total_ram = virtual_memory()
-    total_ram = total_ram.total
+    total_ram = total_ram.available
     cores = dask.multiprocessing.multiprocessing.cpu_count()-2
 
     # Calculate the total ram to use for each worker
-    worker_memory_limit = 0.9
-    worker_memory = (total_ram*worker_memory_limit)/cores
-    cluster = LocalCluster(n_workers=cores, memory_limit=worker_memory)
+    # worker_memory_limit = 0.9
+    # worker_memory = (total_ram*worker_memory_limit)/cores
+
+    cores = 5
+    worker_memory = 10000000000
+    cluster = LocalCluster(n_workers=cores, threads_per_worker=1, memory_limit=worker_memory)
+
 
     return cluster
 
