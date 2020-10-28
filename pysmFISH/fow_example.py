@@ -102,10 +102,10 @@ if __name__ == '__main__':
         experiment_info = Parameter('experiment_info',default=experiment_info)
 
         # Create the shoji database that will contain the data
-        ref = create_shoji_db(experiment_info)
+        #ref = create_shoji_db(experiment_info)
         # Get the list of raw image groups to preprocess
-        analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'],upstream_tasks=[ref])
-        # analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'])
+        #analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'],upstream_tasks=[ref])
+        analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'])
 
 
        
@@ -117,21 +117,21 @@ if __name__ == '__main__':
         #                     PARSING
         # --------------------------------------------------
         # Get all the .nd2 files to process
-        all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath,upstream_tasks=[analysis_parameters])
+        # all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath,upstream_tasks=[analysis_parameters])
         
         # Run the crosscheck for all the pkl files
         # check_matching_metadata_robofish(all_raw_files)
         # report_input_files_errors(git_repo,experiment_fpath,git_token)
         # # Parse .nd2 files
-        tag = 'img_data'
-        parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag,upstream_tasks=[all_raw_files])
-        autoparser = nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-                                    experiment_info=unmapped(experiment_info))
+        # tag = 'img_data'
+        # parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag,upstream_tasks=[all_raw_files])
+        # autoparser = nikon_nd2_autoparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+        #                             experiment_info=unmapped(experiment_info))
         
-        # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
+        parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
         # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/Users/simone/Documents/local_data_storage/prefect_test/whd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
             
-        # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
+        consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
         # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[autoparser])        
         
     
@@ -140,15 +140,15 @@ if __name__ == '__main__':
         # Order of output from the sorting_grps:
         # fish_grp, fish_selected_parameters, beads_grp, beads_selected_parameters,\
         # staining_grp, staining_selected_parameters
-        # sorted_grps = sorting_grps(consolidated_zarr_grp,experiment_info,analysis_parameters,upstream_tasks=[consolidated_zarr_grp])
+        sorted_grps = sorting_grps(consolidated_zarr_grp,experiment_info,analysis_parameters,upstream_tasks=[consolidated_zarr_grp])
         # # --------------------------------------------------
     
         # --------------------------------------------------
         #         PREPROCESSING AND DOTS CALLING                        
         # --------------------------------------------------
-        # dark_img = load_dark_image(experiment_fpath,upstream_tasks=[sorted_grps[0]])
-        # raw_fish_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[0],
-        #                         parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        dark_img = load_dark_image(experiment_fpath,upstream_tasks=[sorted_grps[0]])
+        raw_fish_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[0],
+                                parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
         
 
         # filtered_fish_images_metadata = preprocessing_dot_raw_image.map(raw_fish_images_meta,
