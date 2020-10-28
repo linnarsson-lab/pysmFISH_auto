@@ -151,11 +151,11 @@ if __name__ == '__main__':
                                 parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
         
 
-        # filtered_fish_images_metadata = preprocessing_dot_raw_image.map(raw_fish_images_meta,
-        #                     dark_img=unmapped(dark_img),
-        #                     FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
-        #                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
-        #                     LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
+        filtered_fish_images_metadata = preprocessing_dot_raw_image.map(raw_fish_images_meta,
+                            dark_img=unmapped(dark_img),
+                            FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
+                            FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
+                            LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
 
         # save_images_metadata.map(filtered_fish_images_metadata)
         
