@@ -147,15 +147,15 @@ if __name__ == '__main__':
         #         PREPROCESSING AND DOTS CALLING                        
         # --------------------------------------------------
         dark_img = load_dark_image(experiment_fpath,upstream_tasks=[sorted_grps[0]])
-        raw_fish_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[0],
-                                parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
+        # raw_fish_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[0],
+        #                         parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
         
 
-        filtered_fish_images_metadata = preprocessing_dot_raw_image.map(raw_fish_images_meta,
-                            dark_img=unmapped(dark_img),
-                            FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
-                            FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
-                            LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
+        # filtered_fish_images_metadata = preprocessing_dot_raw_image.map(raw_fish_images_meta,
+        #                     dark_img=unmapped(dark_img),
+        #                     FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
+        #                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
+        #                     LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
 
         # save_images_metadata.map(filtered_fish_images_metadata)
         
