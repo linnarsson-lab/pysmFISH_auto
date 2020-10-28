@@ -146,7 +146,7 @@ if __name__ == '__main__':
         # --------------------------------------------------
         #         PREPROCESSING AND DOTS CALLING                        
         # --------------------------------------------------
-        # dark_img = load_dark_image(experiment_fpath,upstream_tasks=[sorted_grps[0]])
+        dark_img = load_dark_image(experiment_fpath,upstream_tasks=[sorted_grps[0]])
         # raw_fish_images_meta = load_raw_images.map(zarr_grp_name=sorted_grps[0],
         #                         parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath))
         
