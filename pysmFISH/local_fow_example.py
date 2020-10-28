@@ -234,5 +234,5 @@ if __name__ == '__main__':
 
     with raise_on_exception():
         flow_state = flow.run(executor=executor)
-        flow.visualize(flow_state=flow_state)
+       # flow.visualize(flow_state=flow_state)
         cluster.close()
