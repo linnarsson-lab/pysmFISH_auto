@@ -64,13 +64,13 @@ def single_fish(zarr_grp_name,
                             FlatFieldKernel,FilteringSmallKernel, 
                             LaplacianKernel)
     
-    save_images_metadata(filtered_fish_images_metadata)
+    # save_images_metadata(filtered_fish_images_metadata)
 
-    fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
-                                min_distance,
-                                min_obj_size,
-                                max_obj_size,
-                                num_peaks_per_label)
+    # fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
+    #                             min_distance,
+    #                             min_obj_size,
+    #                             max_obj_size,
+    #                             num_peaks_per_label)
 
 
 # fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images_metadata,
