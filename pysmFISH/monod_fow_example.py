@@ -46,8 +46,7 @@ def selection(parsed_raw_data_fpath):
     beads_grp = all_grps[3:]
     return (fish_grp, beads_grp)
 
-@task(name='preprocessing-images')
-
+@task(name='single-fish-preprocessing-images')
 def single_fish(zarr_grp_name,
                     parsed_raw_data_fpath,
                     experiment_fpath,
