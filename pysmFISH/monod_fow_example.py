@@ -49,7 +49,7 @@ def single_fish(zarr_grp_name,
                     max_obj_size,
                     num_peaks_per_label):
 
-    logger = simple_writing_logger()
+    logger = test_write_logs_to_file('/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/prefect_logs','test')
     # logger = prefect.context.get("logger")
     logger.info('test-logger-inside-task')
     raw_fish_images_meta = load_raw_images(zarr_grp_name,
