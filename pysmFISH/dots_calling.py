@@ -18,7 +18,7 @@ from pysmFISH.utils import load_pipeline_config_file, convert_from_uint16_to_flo
 from prefect import task
 from prefect.engine import signals
 
-from pysmFISH.logger_utils import prefect_logging_setup, test_write_logs_to_file
+from pysmFISH.logger_utils import prefect_logging_setup
 
 
 
@@ -234,8 +234,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
 
     """
 
-    # logger = prefect_logging_setup(f'osmFISH_barcoded_peak_based_detection')
-    logger = test_write_logs_to_file('/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/prefect_logs','dots_calling')
+    logger = prefect_logging_setup(f'osmFISH_barcoded_peak_based_detection')
     img = img_meta[0]
     img_metadata = img_meta[1]
     fov = img_metadata['fov_num']
