@@ -359,7 +359,7 @@ def consolidate_zarr_metadata(parsed_raw_data_fpath:str):
         return consolidated_grp
 
 
-@task(name = 'load-raw-images-and-filtering-attrs')
+# @task(name = 'load-raw-images-and-filtering-attrs')
 def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
     """
     Function used to load a raw image and metadata from the 
