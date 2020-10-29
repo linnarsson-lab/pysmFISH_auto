@@ -67,7 +67,7 @@ def connect_to_shoji_smfish_experiment(experiment_name: str):
                             return dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws
 
 
-@task(name = 'load-preprocessing-parameters')
+# @task(name = 'load-preprocessing-parameters')
 def load_analysis_parameters(experiment_name:str):
     """
     Function to load all the possible parameters that can be

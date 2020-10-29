@@ -10,7 +10,7 @@ from prefect.engine import signals
 from pysmFISH.logger_utils import prefect_logging_setup
 
 
-@task(name='create_shoji_db')
+# @task(name='create_shoji_db')
 def create_shoji_db(experiment_info):
     """
     This function creates the shoji database that will be used to store
