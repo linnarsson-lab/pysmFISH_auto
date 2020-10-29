@@ -14,7 +14,7 @@ from pathlib import Path
 
 from pysmFISH.utils import load_pipeline_config_file, convert_from_uint16_to_float64
 
-
+import prefect
 from prefect import task
 from prefect.engine import signals
 
@@ -234,7 +234,8 @@ def osmFISH_peak_based_detection(img_meta:tuple,
 
     """
 
-    logger = prefect_logging_setup(f'osmFISH_barcoded_peak_based_detection')
+    # logger = prefect_logging_setup(f'osmFISH_barcoded_peak_based_detection')
+    logger = prefect.context.get("dots_calling")
     img = img_meta[0]
     img_metadata = img_meta[1]
     fov = img_metadata['fov_num']
