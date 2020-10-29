@@ -121,7 +121,7 @@ def load_analysis_parameters(experiment_name:str):
     return analysis_parameters
 
 
-@task(name = 'save-img-and-metadata')
+# @task(name = 'save-img-and-metadata')
 def save_images_metadata(img_metadata:Tuple):
     """
     Function used to store the images metadata in the shoji database
@@ -167,7 +167,7 @@ def save_images_metadata(img_metadata:Tuple):
     })
 
 
-@task(name = 'save-dots-identification')
+# @task(name = 'save-dots-identification')
 def save_dots_data(filtered_img_meta:Tuple):
     """
     Function used to store the dots relative data in the shoji database
