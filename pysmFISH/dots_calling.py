@@ -206,7 +206,7 @@ class osmFISH_dots_mapping():
             self.intensity_array = np.nan
 
 
-@task(name='peak-based-detection')
+# @task(name='peak-based-detection')
 def osmFISH_peak_based_detection(img_meta:tuple,
                                         min_distance: np.float64,
                                         min_obj_size: np.uint16,
