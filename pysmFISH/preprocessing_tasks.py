@@ -85,3 +85,16 @@ def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
     img[img<0] = 0 
     
     return (img, img_metadata)
+
+
+@task(name='preprocessing-images')
+def test_preprocessing_large_scale(img_meta:tuple,
+                    experiment_fpath:str,
+                    FlatFieldKernel:np.ndarray,FilteringSmallKernel:np.ndarray, 
+                    LaplacianKernel:np.ndarray):
+
+    dark_img = load_dark_image(experiment_fpath)
+    img_meta = preprocessing_dot_raw_image(img_meta,dark_img,
+                            FlatFieldKernel,FilteringSmallKernel, 
+                            LaplacianKernel)
+    return img_meta
