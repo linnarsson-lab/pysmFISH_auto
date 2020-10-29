@@ -18,7 +18,7 @@ import prefect
 from prefect import task
 from prefect.engine import signals
 
-from pysmFISH.logger_utils import prefect_logging_setup
+from pysmFISH.logger_utils import prefect_logging_setup, simple_writing_logger
 
 
 
@@ -235,7 +235,10 @@ def osmFISH_peak_based_detection(img_meta:tuple,
     """
 
     # logger = prefect_logging_setup(f'osmFISH_barcoded_peak_based_detection')
-    logger = prefect.context.get("dots_calling")
+    #logger = prefect.context.get("dots_calling")
+    logger = logger = simple_writing_logger()
+    logger.info('test test test')
+
     img = img_meta[0]
     img_metadata = img_meta[1]
     fov = img_metadata['fov_num']

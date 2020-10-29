@@ -25,7 +25,7 @@ from pysmFISH.fovs_registration import hybridizations_registration_grps, calcula
 
 from pysmFISH.notifications_tasks import report_input_files_errors
 from pysmFISH.preprocessing_tasks import preprocessing_dot_raw_image, load_dark_image,test_preprocessing_large_scale
-from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup, test_write_logs_to_file
+from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup, test_write_logs_to_file,simple_writing_logger
 
 
 
@@ -49,7 +49,7 @@ def single_fish(zarr_grp_name,
                     max_obj_size,
                     num_peaks_per_label):
 
-    logger = test_write_logs_to_file('/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/prefect_logs','dots_calling')
+    logger = simple_writing_logger()
     raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                 parsed_raw_data_fpath)
     dark_img = load_dark_image(experiment_fpath)

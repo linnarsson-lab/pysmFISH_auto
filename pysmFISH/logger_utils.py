@@ -71,3 +71,11 @@ def test_write_logs_to_file(logs_folder_path:str, log_name:str, log_stdout=True)
     logger.info("logger started.")
     
     return logger
+
+
+def simple_writing_logger():
+    logger = prefect.context.get("logger")
+    file_handler = logging.FileHandler('/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/prefect_logs/my.log')
+    file_handler.setLevel(logging.DEBUG)
+    logger.addHandler(file_handler)
+    return logger
