@@ -271,7 +271,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'SelectedThreshold':thr_array,
                     'DotChannel':channel_array}
             else:
-                logger.info('f fov {fov} does not have counts (mapping)')
+                logger.info(f' fov {fov} does not have counts (mapping)')
                 counts_dict = {
                     'DotsCoordsFOV': np.array([fill_value, fill_value]),
                     'DotID': np.array([fill_value]),
@@ -280,7 +280,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'SelectedThreshold':np.array([fill_value]),
                     'DotChannel':np.array([fill_value])}
     else:
-        logger.info('f fov {fov} does not have counts (thr)')
+        logger.info(f' fov {fov} does not have counts (thr)')
         counts_dict = {
                     'DotsCoordsFOV': np.array([fill_value, fill_value]),
                     'DotID': np.array([fill_value]),
