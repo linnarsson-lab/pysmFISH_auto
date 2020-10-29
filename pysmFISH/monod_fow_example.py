@@ -33,18 +33,10 @@ from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup
 from pathlib import Path
 import zarr
 
-@task
-def test_parallel(x):
-    return 22
+import logging
 
-@task
-def selection(parsed_raw_data_fpath):
-    st = zarr.DirectoryStore(parsed_raw_data_fpath)
-    consolidated_zarr_grp = zarr.consolidate_metadata(st)
-    all_grps = list(consolidated_zarr_grp.keys())
-    fish_grp = all_grps[0:3]
-    beads_grp = all_grps[3:]
-    return (fish_grp, beads_grp)
+
+
 
 @task(name='single-fish-preprocessing-images')
 def single_fish(zarr_grp_name,
@@ -186,7 +178,7 @@ if __name__ == '__main__':
         #                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
         #                     LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
 
-        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:50],
+        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:10],
                     parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
                     experiment_fpath=unmapped(experiment_fpath),
                     FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
