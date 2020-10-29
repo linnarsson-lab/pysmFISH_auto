@@ -66,25 +66,11 @@ def single_fish(zarr_grp_name,
     
     # save_images_metadata(filtered_fish_images_metadata)
 
-    # fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
-    #                             min_distance,
-    #                             min_obj_size,
-    #                             max_obj_size,
-    #                             num_peaks_per_label)
-
-
-# fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images_metadata,
-        #             min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
-        #             min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
-        #             max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
-        #             num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
-
-
-
-
-
-
-
+    fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
+                                min_distance,
+                                min_obj_size,
+                                max_obj_size,
+                                num_peaks_per_label)
 
 
 
@@ -200,7 +186,7 @@ if __name__ == '__main__':
         #                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
         #                     LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
 
-        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:100],
+        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:50],
                     parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
                     experiment_fpath=unmapped(experiment_fpath),
                     FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
