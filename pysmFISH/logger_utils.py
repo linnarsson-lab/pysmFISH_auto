@@ -61,7 +61,6 @@ def test_write_logs_to_file(logs_folder_path:str, log_name:str, log_stdout=True)
     logs_folder_path = Path(logs_folder_path)
     logger = prefect.utilities.logging.get_logger(log_name)
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
-    log_name = 'parsing'
     fname = logs_folder_path / (log_name + '_' + date_tag + '_pysmFISH_analysis.log')
     logger = logging.getLogger(log_name)
     handler = logging.FileHandler(str(fname))
@@ -70,4 +69,5 @@ def test_write_logs_to_file(logs_folder_path:str, log_name:str, log_stdout=True)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.info("logger started.")
+    
     return logger
