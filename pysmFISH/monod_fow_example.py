@@ -56,12 +56,12 @@ def single_fish(zarr_grp_name,
     raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                 parsed_raw_data_fpath)
     dark_img = load_dark_image(experiment_fpath)
-    img_meta = preprocessing_dot_raw_image(raw_fish_images_meta,dark_img,
+    filtered_fish_images_metadata = preprocessing_dot_raw_image(raw_fish_images_meta,dark_img,
                             FlatFieldKernel,FilteringSmallKernel, 
                             LaplacianKernel)
-    return img_meta
-
-
+    
+    save_images_metadata(filtered_fish_images_metadata)
+    
 
 if __name__ == '__main__':
 
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         #                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
         #                     LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
 
-        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0],
+        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:100],
                     parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
                     experiment_fpath=unmapped(experiment_fpath),
                     FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
@@ -257,7 +257,11 @@ if __name__ == '__main__':
     executor = DaskExecutor(address=cluster.scheduler_address)
     # with raise_on_exception():
 
-    with raise_on_exception():
-        flow_state = flow.run(executor=executor)
-        # flow.visualize(flow_state=flow_state)
-        cluster.close()
+    flow_state = flow.run(executor=executor)
+    # flow.visualize(flow_state=flow_state)
+    cluster.close()
+
+    # with raise_on_exception():
+    #     flow_state = flow.run(executor=executor)
+    #     # flow.visualize(flow_state=flow_state)
+    #     cluster.close()
