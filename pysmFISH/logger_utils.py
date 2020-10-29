@@ -3,6 +3,8 @@ Set utils to control logging
 """
 from typing import *
 import logging
+import time
+from pathlib import Path
 from pythonjsonlogger import jsonlogger
 
 import prefect
@@ -53,18 +55,19 @@ def test_logger(log_stdout=True):
 
 
 # Make written output as extra util function
-@task()
-def test_write_logs_to_file(logs_folder_path:str, log_stdout=True):
+# @task()
+
+def test_write_logs_to_file(logs_folder_path:str, log_name:str, log_stdout=True):
     logs_folder_path = Path(logs_folder_path)
-    logger = prefect.utilities.logging.get_logger("parsing")
+    logger = prefect.utilities.logging.get_logger(log_name)
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
     log_name = 'parsing'
-    fname = '/Users/simone/Downloads/' + log_name + '_' + date_tag + '_pysmFISH_analysis.log'
+    fname = '/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/prefect_logs' + log_name + '_' + date_tag + '_pysmFISH_analysis.log'
     logger = logging.getLogger(log_name)
     handler = logging.FileHandler(str(fname))
     format_str = '%(message)%(levelname)%(name)%(asctime)'
     formatter = jsonlogger.JsonFormatter(format_str)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logger.debug("An info message.")
-    logger.warning("A warning message.")
+    logger.info("logger started.")
+    return logger
