@@ -50,6 +50,7 @@ def single_fish(zarr_grp_name,
                     num_peaks_per_label):
 
     logger = simple_writing_logger()
+    logger.info('test')
     raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                 parsed_raw_data_fpath)
     dark_img = load_dark_image(experiment_fpath)
