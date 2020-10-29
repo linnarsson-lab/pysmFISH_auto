@@ -17,7 +17,7 @@ from prefect.engine import signals
 from pysmFISH.logger_utils import prefect_logging_setup
 
 
-@task(name='load-dark-image')
+# @task(name='load-dark-image')
 def load_dark_image(experiment_fpath:str)->np.ndarray:
     """
     Function used to load the dark image  previously created and 
@@ -47,7 +47,7 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
     return dark_img
 
 
-@task(name='preprocessing-raw-fish-images')
+# @task(name='preprocessing-raw-fish-images')
 def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
                             FlatFieldKernel:np.ndarray,FilteringSmallKernel:np.ndarray, 
                             LaplacianKernel:np.ndarray )->np.ndarray:
