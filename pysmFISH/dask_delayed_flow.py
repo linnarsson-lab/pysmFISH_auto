@@ -43,7 +43,7 @@ if __name__ == '__main__':
     config_db_fpath = Path(processing_hd_location.default) / 'config_db'
     processing_env_config = load_processing_env_config_file(config_db_fpath)
 
-    experiment_fpath = check_completed_transfer_to_monod(processing_hd_location.default,flag_file_key)
+    experiment_fpath = check_completed_transfer_to_monod(processing_hd_location,flag_file_key)
     experiment_info = load_experiment_config_file(experiment_fpath)
 
     cluster = start_processing_env(processing_env_config,experiment_info)
