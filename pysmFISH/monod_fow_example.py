@@ -51,7 +51,11 @@ def single_fish(zarr_grp_name,
                     parsed_raw_data_fpath,
                     experiment_fpath,
                     FlatFieldKernel,FilteringSmallKernel, 
-                    LaplacianKernel):
+                    LaplacianKernel,
+                    min_distance,
+                    min_obj_size,
+                    max_obj_size,
+                    num_peaks_per_label):
 
     raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                 parsed_raw_data_fpath)
@@ -61,7 +65,28 @@ def single_fish(zarr_grp_name,
                             LaplacianKernel)
     
     save_images_metadata(filtered_fish_images_metadata)
-    
+
+    fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
+                                min_distance,
+                                min_obj_size,
+                                max_obj_size,
+                                num_peaks_per_label)
+
+
+# fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images_metadata,
+        #             min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
+        #             min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
+        #             max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
+        #             num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
+
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
 
@@ -180,7 +205,11 @@ if __name__ == '__main__':
                     experiment_fpath=unmapped(experiment_fpath),
                     FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
-                    LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
+                    LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']),
+                    min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
+                    min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
+                    max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
+                    num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
 
         # save_images_metadata.map(filtered_fish_images_metadata)
         
