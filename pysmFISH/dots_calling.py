@@ -236,7 +236,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
 
     # logger = prefect_logging_setup(f'osmFISH_barcoded_peak_based_detection')
     #logger = prefect.context.get("dots_calling")
-    logger = prefect.utilities.logging.get_logger('test')
+    logger = prefect.utilities.logging.get_logger('prefect.test')
     logger.info('inside-dots-logger')
 
     img = img_meta[0]
