@@ -182,7 +182,7 @@ if __name__ == '__main__':
         #                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
         #                     LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
 
-        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:10],
+        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:50],
                     parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
                     experiment_fpath=unmapped(experiment_fpath),
                     FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
