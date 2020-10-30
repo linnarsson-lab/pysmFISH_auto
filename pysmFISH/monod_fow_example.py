@@ -67,6 +67,7 @@ def single_fish(zarr_grp_name,
                                 max_obj_size,
                                 num_peaks_per_label)
 
+    save_dots_data(fish_counts)
 
 
 if __name__ == '__main__':
