@@ -660,7 +660,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
     experiment_name = nd2_file_path.parent.parent.stem
     experiment_name = experiment_name.split('_auto')[0]
        
-    info_file = nd2_file_path.parent / (experiment_fpath.stem + '_info.pkl')
+    info_file = nd2_file_path.parent / (experiment_name + '_info.pkl')
     
     info_data = pickle.load(open(info_file, 'rb'))
     hybridization_name = info_data['channels']['Hybridization']
