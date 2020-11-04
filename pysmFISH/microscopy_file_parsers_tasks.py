@@ -619,7 +619,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_inf
         # np.save(fname, fov_coords)
 
 
-# @task(name='nd2_auto_reparser')
+@task(name='nd2_auto_reparser')
 def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info):
     """
     This function is used to reparse the raw data stored in the raw_data folder during
