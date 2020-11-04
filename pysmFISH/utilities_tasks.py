@@ -251,7 +251,7 @@ def load_data_array(input_tuple):
             return img_data_array
 
 
-# @task(name='create_empty_zarr_file')
+@task(name='create_empty_zarr_file')
 def create_empty_zarr_file(experiment_fpath:str,tag:str)-> str:
     """
     Function that create and empty zarr file 
