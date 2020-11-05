@@ -124,8 +124,8 @@ if __name__ == '__main__':
         # Create the shoji database that will contain the data
         ref = create_shoji_db(experiment_info)
         # Get the list of raw image groups to preprocess
-        # analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'],upstream_tasks=[ref])
-        analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'])
+        analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'],upstream_tasks=[ref])
+        # analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'])
 
 
        
@@ -140,20 +140,20 @@ if __name__ == '__main__':
         # all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath,upstream_tasks=[analysis_parameters])
 
         # Reparsing .nd2 files stored in the raw_data subfolder
-        # raw_files_fpath = Parameter('raw_files_fpath',default=(experiment_fpath / 'raw_data'))
-        # all_raw_files = nd2_raw_files_selector(experiment_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
+        raw_files_fpath = Parameter('raw_files_fpath',default=(experiment_fpath / 'raw_data'))
+        all_raw_files = nd2_raw_files_selector(experiment_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
         # # Run the crosscheck for all the pkl files
         # check_matching_metadata_robofish(all_raw_files)
         # report_input_files_errors(git_repo,experiment_fpath,git_token)
         # # Parse .nd2 files
-        # tag = 'img_data'
-        # parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag,upstream_tasks=[all_raw_files])
+        tag = 'img_data'
+        parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag,upstream_tasks=[all_raw_files])
         # autoparser = nikon_nd2_reparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
         #                             experiment_info=unmapped(experiment_info))
         
-        parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20200708_EEL_Mouse_oPool5_auto_img_data.zarr')
+        # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20201014_EEL_Mouse_2420um_auto_img_data.zarr')
              
-        consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
+        # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
         # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[autoparser])        
         
     
@@ -162,7 +162,7 @@ if __name__ == '__main__':
         # Order of output from the sorting_grps:
         # fish_grp, fish_selected_parameters, beads_grp, beads_selected_parameters,\
         # staining_grp, staining_selected_parameters
-        sorted_grps = sorting_grps(consolidated_zarr_grp,experiment_info,analysis_parameters,upstream_tasks=[consolidated_zarr_grp])
+        # sorted_grps = sorting_grps(consolidated_zarr_grp,experiment_info,analysis_parameters,upstream_tasks=[consolidated_zarr_grp])
         # # --------------------------------------------------
     
         # --------------------------------------------------
@@ -184,18 +184,18 @@ if __name__ == '__main__':
         #                     FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
         #                     LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']))
 
-        filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:10],
-                    parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-                    experiment_fpath=unmapped(experiment_fpath),
-                    FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
-                    FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
-                    LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']),
-                    min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
-                    min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
-                    max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
-                    num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
+        # filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:10],
+        #             parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+        #             experiment_fpath=unmapped(experiment_fpath),
+        #             FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
+        #             FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
+        #             LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']),
+        #             min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
+        #             min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
+        #             max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
+        #             num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
 
-        # save_images_metadata.map(filtered_fish_images_metadata)
+        # # save_images_metadata.map(filtered_fish_images_metadata)
         
 
         # fish_counts = osmFISH_peak_based_detection.map(filtered_fish_images_metadata,
