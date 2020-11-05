@@ -59,25 +59,23 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
 
 
 @task(name='nd2_files_selection')
-def nd2_raw_files_selector_general(experiment_fpath: str) -> list:
+def nd2_raw_files_selector_general(folder_fpath: str) -> list:
     """
     Identify the .nd2 files in a folder no need to have the _auto suffix
 
     Args:
-        experiment_fpath: str 
-            Path to the folder to process. It need to contain the '_auto'
-            suffix in order to be process with the automated pipeline
-
+        folder_fpath: str 
+            Path to the folder to process. 
     Returns:
         all_files_to_process: list
             List of PosixPath of the microscopy files to process
         
     """
-    experiment_fpath = Path(experiment_fpath)
+    folder_fpath = Path(folder_fpath)
     logger = prefect.utilities.logging.get_logger("parsing")
     
     searching_key = '*.nd2'
-    all_files_to_process = list(experiment_fpath.glob(searching_key))
+    all_files_to_process = list(folder_fpath.glob(searching_key))
 
     assert all_files_to_process, signals.FAIL('no .nd2 raw files to process')
     
