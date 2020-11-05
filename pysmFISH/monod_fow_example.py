@@ -124,7 +124,7 @@ if __name__ == '__main__':
         # Create the shoji database that will contain the data
         ref = create_shoji_db(experiment_info)
         # Get the list of raw image groups to preprocess
-        analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'],upstream_tasks=[ref])
+        analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_name'],upstream_tasks=[ref])
         # analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_number'])
 
 
