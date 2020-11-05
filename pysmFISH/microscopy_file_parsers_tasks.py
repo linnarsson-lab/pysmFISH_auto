@@ -58,7 +58,7 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
     return all_files_to_process
 
 
-@task(name='nd2_files_selection')
+@task(name='nd2_files_selection_general')
 def nd2_raw_files_selector_general(folder_fpath: str) -> list:
     """
     Identify the .nd2 files in a folder no need to have the _auto suffix
