@@ -59,6 +59,35 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
     return all_files_to_process
 
 
+@task(name='nd2_files_selection')
+def nd2_raw_files_selector_general(experiment_fpath: str) -> list:
+    """
+    Identify the .nd2 files in a folder
+
+    Args:
+        experiment_fpath: str 
+            Path to the folder to process. It need to contain the '_auto'
+            suffix in order to be process with the automated pipeline
+
+    Returns:
+        all_files_to_process: list
+            List of PosixPath of the microscopy files to process
+        
+    """
+
+    logger = prefect.utilities.logging.get_logger("parsing")
+    
+    assert '_auto' in experiment_fpath.stem, signals.FAIL('no _auto in the experiment name')
+
+    experiment_fpath = Path(experiment_fpath)
+    searching_key = '*.nd2'
+    all_files_to_process = list(experiment_fpath.glob(searching_key))
+
+    assert all_files_to_process, signals.FAIL('no .nd2 raw files to process')
+    
+    logger.debug(f'Number of files to process {len(all_files_to_process)}.')
+    return all_files_to_process
+
 
 @task(name='nd2_autoparser')
 def nikon_nd2_autoparser(nd2_file_path,parsed_raw_data_fpath):

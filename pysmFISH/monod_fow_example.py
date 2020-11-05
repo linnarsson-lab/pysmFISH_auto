@@ -12,7 +12,7 @@ from pysmFISH.dask_cluster_utilities_tasks import start_processing_env, local_cl
 from pysmFISH.configuration_files_tasks import load_processing_env_config_file, load_experiment_config_file
 from pysmFISH.data_model import create_shoji_db
 
-from pysmFISH.microscopy_file_parsers_tasks import nd2_raw_files_selector, nikon_nd2_autoparser, nikon_nd2_autoparser_single_files, nikon_nd2_autoparser_zarr, nikon_nd2_autoparser_zarr_single_files,nikon_nd2_reparser_zarr
+from pysmFISH.microscopy_file_parsers_tasks import nd2_raw_files_selector,nd2_raw_files_selector_general, nikon_nd2_autoparser, nikon_nd2_autoparser_single_files, nikon_nd2_autoparser_zarr, nikon_nd2_autoparser_zarr_single_files,nikon_nd2_reparser_zarr
 from pysmFISH.qc_tasks import check_matching_metadata_robofish
 from pysmFISH.utilities_tasks import check_completed_transfer_to_monod, sort_data_folder, create_empty_zarr_file
 from pysmFISH.utilities_tasks import create_folder_structure, collect_extra_files,load_data_array,consolidate_zarr_metadata,sorting_grps,load_raw_images, sorting_grps_fov
@@ -141,7 +141,9 @@ if __name__ == '__main__':
 
         # Reparsing .nd2 files stored in the raw_data subfolder
         raw_files_fpath = Parameter('raw_files_fpath',default=(experiment_fpath / 'raw_data'))
-        all_raw_files = nd2_raw_files_selector(experiment_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
+        # all_raw_files = nd2_raw_files_selector(experiment_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
+        all_raw_files = nd2_raw_files_selector_general(experiment_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
+        
         # # Run the crosscheck for all the pkl files
         # check_matching_metadata_robofish(all_raw_files)
         # report_input_files_errors(git_repo,experiment_fpath,git_token)
