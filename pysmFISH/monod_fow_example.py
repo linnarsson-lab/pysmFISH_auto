@@ -142,7 +142,7 @@ if __name__ == '__main__':
         # Reparsing .nd2 files stored in the raw_data subfolder
         raw_files_fpath = Parameter('raw_files_fpath',default=(experiment_fpath / 'raw_data'))
         # all_raw_files = nd2_raw_files_selector(experiment_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
-        all_raw_files = nd2_raw_files_selector_general(experiment_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
+        all_raw_files = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
         
         # # Run the crosscheck for all the pkl files
         # check_matching_metadata_robofish(all_raw_files)
