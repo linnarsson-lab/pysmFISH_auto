@@ -271,11 +271,11 @@ if __name__ == '__main__':
     executor = DaskExecutor(address=cluster.scheduler_address)
     # with raise_on_exception():
 
-    flow_state = flow.run(executor=executor)
-    flow.visualize(flow_state=flow_state)
-    cluster.close()
+    # flow_state = flow.run(executor=executor)
+    # flow.visualize(flow_state=flow_state)
+    # cluster.close()
 
-    # with raise_on_exception():
-    #     flow_state = flow.run(executor=executor)
-    #     # flow.visualize(flow_state=flow_state)
-    #     cluster.close()
+    with raise_on_exception():
+        flow_state = flow.run(executor=executor)
+        flow.visualize(flow_state=flow_state)
+    cluster.close()
