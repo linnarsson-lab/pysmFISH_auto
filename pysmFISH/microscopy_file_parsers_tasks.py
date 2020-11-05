@@ -46,10 +46,9 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
     """
 
     logger = prefect.utilities.logging.get_logger("parsing")
-    
+    experiment_fpath = Path(experiment_fpath)
     assert '_auto' in experiment_fpath.stem, signals.FAIL('no _auto in the experiment name')
 
-    experiment_fpath = Path(experiment_fpath)
     searching_key = '*Count*.nd2'
     all_files_to_process = list(experiment_fpath.glob(searching_key))
 
@@ -62,7 +61,7 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
 @task(name='nd2_files_selection')
 def nd2_raw_files_selector_general(experiment_fpath: str) -> list:
     """
-    Identify the .nd2 files in a folder
+    Identify the .nd2 files in a folder no need to have the _auto suffix
 
     Args:
         experiment_fpath: str 
@@ -74,12 +73,9 @@ def nd2_raw_files_selector_general(experiment_fpath: str) -> list:
             List of PosixPath of the microscopy files to process
         
     """
-
+    experiment_fpath = Path(experiment_fpath)
     logger = prefect.utilities.logging.get_logger("parsing")
     
-    assert '_auto' in experiment_fpath.stem, signals.FAIL('no _auto in the experiment name')
-
-    experiment_fpath = Path(experiment_fpath)
     searching_key = '*.nd2'
     all_files_to_process = list(experiment_fpath.glob(searching_key))
 
