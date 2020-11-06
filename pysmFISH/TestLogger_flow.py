@@ -72,5 +72,5 @@ if __name__ == '__main__':
         flow.register(project_name="test")
         flow.run_agent()
         # flow_state = flow.run(executor=executor)
-        c.create_flow_run(flow_id='capozzo',executor=executor)
+        c.create_flow_run(flow_id="<flow id>",executor=executor)
     cluster.close()
