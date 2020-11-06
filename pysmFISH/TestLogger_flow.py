@@ -20,6 +20,12 @@ def slowmo(x):
     time.sleep(5)
     logger.info(f'done sleep')
 
+@task(name='testing-logger-context',log_stdout=True)
+def tarca(x):
+    logger = prefect.context.get("logger")
+    logger.info(f'start sleep')
+    time.sleep(5)
+    logger.info(f'done sleep')
 
 
 
@@ -46,7 +52,7 @@ if __name__ == '__main__':
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_logging") as flow:
 
-        out_task = slowmo.map(a)
+        out_task = tarca.map(a)
 
 
     executor = DaskExecutor(address=cluster.scheduler_address)
