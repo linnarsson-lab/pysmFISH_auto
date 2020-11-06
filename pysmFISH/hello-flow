@@ -7,5 +7,5 @@ def hello_task():
     logger.info("Hello, Cloud!")
 
 flow = Flow("hello-flow", tasks=[hello_task])
-flow.register(project_name="Hello, World!")
+flow.register(project_name="test")
 flow.run_agent()
