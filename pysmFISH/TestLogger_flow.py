@@ -22,9 +22,9 @@ def setup_logger():
     logger = prefect.context.get("logger")
     file_handler = logging.FileHandler(str(fname),'a')
     file_handler.setLevel(logging.DEBUG)
-    # format_str = '%(message)%(levelname)%(name)%(asctime)'
-    # formatter = jsonlogger.JsonFormatter(format_str)
-    # file_handler.setFormatter(formatter)
+    format_str = '%(message)%(levelname)%(name)%(asctime)'
+    formatter = jsonlogger.JsonFormatter(format_str)
+    file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     return logger
 
