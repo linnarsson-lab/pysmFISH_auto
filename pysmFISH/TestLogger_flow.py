@@ -69,7 +69,7 @@ if __name__ == '__main__':
     with Flow("test_logging") as flow:
 
         out_task = wlog.map(a)
-
+        out_task = wlog.map(a)
 
     executor = DaskExecutor(address=cluster.scheduler_address)
     
