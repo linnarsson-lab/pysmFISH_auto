@@ -1,5 +1,5 @@
 import prefect
-from prefect import task, Flow, Parameter, flatten, unmapped, 
+from prefect import task, Flow, Parameter, flatten, unmapped
 from prefect.engine.executors import DaskExecutor
 from prefect.utilities.debug import raise_on_exception
 from prefect.utilities.logging import get_logger
