@@ -2,7 +2,7 @@ import prefect
 from prefect import task, Flow, Parameter, flatten, unmapped
 from prefect.engine.executors import DaskExecutor
 from prefect.utilities.debug import raise_on_exception
-from prefect.utilities import logging
+from prefect.utilities.logging import get_logger
 from datetime import timedelta, datetime
 from prefect.schedules import IntervalSchedule
 
@@ -10,6 +10,7 @@ from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup, te
 from pysmFISH.dask_cluster_utilities_tasks import start_processing_env, local_cluster_setup
 from pysmFISH.configuration_files_tasks import load_processing_env_config_file, load_experiment_config_file
 
+import logging
 import time
 from pathlib import Path
 
@@ -43,9 +44,6 @@ def wlog(x):
     logger.info(f'start sleep')
     time.sleep(5)
     logger.info(f'done sleep')
-
-
-
 
 
 
