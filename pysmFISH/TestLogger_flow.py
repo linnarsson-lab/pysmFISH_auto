@@ -28,6 +28,24 @@ def tarca(x):
     logger.info(f'done sleep')
 
 
+def setup_logger():
+    logger = prefect.context.get("logger")
+    file_handler = logging.FileHandler('/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/prefect_logs/my.log','w+')
+    file_handler.setLevel(logging.DEBUG)
+    format_str = '%(message)%(levelname)%(name)%(asctime)'
+    logger.addHandler(file_handler)
+    return logger
+
+
+@task(name='testing-logger-writing-logs')
+def wlog(x):
+    logger = setup_logger()
+    logger.info(f'start sleep')
+    time.sleep(5)
+    logger.info(f'done sleep')
+
+
+
 
 
 
@@ -52,7 +70,7 @@ if __name__ == '__main__':
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_logging") as flow:
 
-        out_task = tarca.map(a)
+        out_task = wlog.map(a)
 
 
     executor = DaskExecutor(address=cluster.scheduler_address)
