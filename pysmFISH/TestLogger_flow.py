@@ -34,7 +34,7 @@ def tarca(x):
 def setup_logger():
     fname = '/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/prefect_logs/my.log'
     logger = prefect.context.get("logger")
-    file_handler = logging.FileHandler(str(fname),'w+')
+    file_handler = logging.FileHandler(str(fname),'a')
     file_handler.setLevel(logging.DEBUG)
     format_str = '%(message)%(levelname)%(name)%(asctime)'
     formatter = jsonlogger.JsonFormatter(format_str)
