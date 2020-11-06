@@ -6,6 +6,8 @@ from prefect.utilities.logging import get_logger
 from datetime import timedelta, datetime
 from prefect.schedules import IntervalSchedule
 
+from pythonjsonlogger import jsonlogger
+
 from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup, test_write_logs_to_file,simple_writing_logger
 from pysmFISH.dask_cluster_utilities_tasks import start_processing_env, local_cluster_setup
 from pysmFISH.configuration_files_tasks import load_processing_env_config_file, load_experiment_config_file
@@ -30,10 +32,13 @@ def tarca(x):
 
 
 def setup_logger():
+    fname = '/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/prefect_logs/my.log'
     logger = prefect.context.get("logger")
-    file_handler = logging.FileHandler('/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/prefect_logs/my.log','w+')
+    file_handler = logging.FileHandler(str(fname),'w+')
     file_handler.setLevel(logging.DEBUG)
     format_str = '%(message)%(levelname)%(name)%(asctime)'
+    formatter = jsonlogger.JsonFormatter(format_str)
+    file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     return logger
 
