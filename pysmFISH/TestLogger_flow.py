@@ -1,4 +1,3 @@
-from
 import prefect
 from prefect import task, Flow, Parameter, flatten, unmapped
 from prefect.engine.executors import DaskExecutor
