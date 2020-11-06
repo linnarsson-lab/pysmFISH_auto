@@ -15,6 +15,8 @@ from pysmFISH.configuration_files_tasks import load_processing_env_config_file, 
 import logging
 import time
 from pathlib import Path
+from prefect import Client
+
 
 
 def setup_logger():
@@ -63,7 +65,12 @@ if __name__ == '__main__':
 
     executor = DaskExecutor(address=cluster.scheduler_address)
     
+    c = Client()
+    c.create_flow_run(flow_id="tupilazzo")
 
     with raise_on_exception():
-        flow_state = flow.run(executor=executor)
+        flow.register(project_name="test")
+        flow.run_agent()
+        # flow_state = flow.run(executor=executor)
+        c.create_flow_run(flow_id='capozzo',executor=executor)
     cluster.close()
