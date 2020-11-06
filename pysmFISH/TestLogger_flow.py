@@ -1,5 +1,5 @@
 import prefect
-from prefect import task, Flow, Parameter, flatten, unmapped
+from prefect import task, Flow, Parameter, flatten, unmapped, 
 from prefect.engine.executors import DaskExecutor
 from prefect.utilities.debug import raise_on_exception
 from prefect.utilities.logging import get_logger
@@ -16,6 +16,8 @@ import logging
 import time
 from pathlib import Path
 from prefect import Client
+from prefect.utilities.debug import is_serializable
+from prefect.engine import signals
 
 
 
@@ -65,6 +67,7 @@ if __name__ == '__main__':
 
     executor = DaskExecutor(address=cluster.scheduler_address)
     
+    assert is_serializable(flow), signals.FAIL('flow not serializable')  
     # c = Client()
     # c.create_flow_run(flow_id="<flow id>")
 
