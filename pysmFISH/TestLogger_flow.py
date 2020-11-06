@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 
 
-def setup_logger(fname):
+def setup_logger():
     fname = '/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/prefect_logs/my.log'
     logger = prefect.context.get("logger")
     file_handler = logging.FileHandler(str(fname),'a')
