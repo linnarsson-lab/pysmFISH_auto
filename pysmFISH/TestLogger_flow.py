@@ -29,7 +29,7 @@ def setup_logger():
     return logger
 
 
-@task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}")
+@task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
 def wlog(x):
     logger = setup_logger()
     logger.info(f'start sleep')
@@ -59,7 +59,6 @@ if __name__ == '__main__':
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("test_logging") as flow:
 
-        out_task = wlog.map(a)
         out_task = wlog.map(a)
 
     executor = DaskExecutor(address=cluster.scheduler_address)
