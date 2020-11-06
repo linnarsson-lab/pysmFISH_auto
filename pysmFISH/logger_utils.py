@@ -18,7 +18,7 @@ def setup_extra_loggers():
     Function to format and add extra logs for  monitoring
     the different steps of the pipeline
     """
-    extra_logs_list = ['parsing','preprocessing']
+    extra_logs_list = ['parsing','preprocessing','test']
     prefect.config.logging.extra_loggers = extra_logs_list
 
 
@@ -76,7 +76,7 @@ def test_write_logs_to_file(logs_folder_path:str, log_name:str, log_stdout=True)
 
 def simple_writing_logger():
     logger = prefect.context.get("logger")
-    file_handler = logging.FileHandler('/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/prefect_logs/my.log')
+    file_handler = logging.FileHandler('/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/prefect_logs/my.log')
     file_handler.setLevel(logging.DEBUG)
     logger.addHandler(file_handler)
     return logger

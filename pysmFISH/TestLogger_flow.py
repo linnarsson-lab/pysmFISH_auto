@@ -13,12 +13,17 @@ from pysmFISH.configuration_files_tasks import load_processing_env_config_file, 
 import time
 from pathlib import Path
 
-@task(name='testing-logger')
+@task(name='testing-logger',log_stdout=True)
 def slowmo(x):
     logger = logging.get_logger()
     logger.info(f'start sleep')
-    time.sleep(30)
+    time.sleep(5)
     logger.info(f'done sleep')
+
+
+
+
+
 
 experiment_fpath = Path('/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto')
 a = range(10)
@@ -39,7 +44,7 @@ if __name__ == '__main__':
     cluster = start_processing_env(processing_env_config,experiment_info)
 
     # with Flow("test_running",schedule=schedule) as flow:
-    with Flow("test_running") as flow:
+    with Flow("test_logging") as flow:
 
         out_task = slowmo.map(a)
 
