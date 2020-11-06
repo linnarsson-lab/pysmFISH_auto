@@ -1,3 +1,4 @@
+from
 import prefect
 from prefect import task, Flow, Parameter, flatten, unmapped
 from prefect.engine.executors import DaskExecutor
@@ -16,22 +17,8 @@ import logging
 import time
 from pathlib import Path
 
-@task(name='testing-logger',log_stdout=True)
-def slowmo(x):
-    logger = logging.get_logger()
-    logger.info(f'start sleep')
-    time.sleep(5)
-    logger.info(f'done sleep')
 
-@task(name='testing-logger-context',log_stdout=True)
-def tarca(x):
-    logger = prefect.context.get("logger")
-    logger.info(f'start sleep')
-    time.sleep(5)
-    logger.info(f'done sleep')
-
-
-def setup_logger():
+def setup_logger(fname):
     fname = '/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/prefect_logs/my.log'
     logger = prefect.context.get("logger")
     file_handler = logging.FileHandler(str(fname),'a')
@@ -43,9 +30,7 @@ def setup_logger():
     return logger
 
 
-
-
-@task(name='testing-logger-writing-logs')
+@task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}")
 def wlog(x):
     logger = setup_logger()
     logger.info(f'start sleep')

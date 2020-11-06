@@ -12,6 +12,40 @@ from prefect import task
 from prefect.utilities.logging import get_logger
 
 
+
+def setup_logger(log_fpath:str):
+    """
+    Logger setup for writing logs output to files on monod
+    This logs works when activated under @task decorator.
+    In order to get the output from all mapped task make sure
+    to set 'a' in the file handler.
+
+    Args:
+    -----
+        log_fpath:str
+            fpath to the log file
+    
+    Returns:
+    --------
+        logger: prefect logger
+            logger to use in the specific task set
+
+    """
+    logger = prefect.context.get("logger")
+    file_handler = logging.FileHandler(str(log_fpath),'a')
+    file_handler.setLevel(logging.DEBUG)
+    format_str = '%(message)%(levelname)%(name)%(asctime)'
+    formatter = jsonlogger.JsonFormatter(format_str)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    return logger
+
+
+
+
+
+
+
 @task(name='setup_extra_loggers')
 def setup_extra_loggers():
     """
