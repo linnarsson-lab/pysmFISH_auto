@@ -61,7 +61,7 @@ executor = DaskExecutor(address=cluster.scheduler_address)
 
 with Flow("thello-flow") as flow:
     out_task = wlog.map(a)
-    flow.register(project_name="test")
-    flow.run_agent()
 
+flow.register(project_name="test")
+flow.run_agent()
 flow_state = flow.run(executor=executor)
