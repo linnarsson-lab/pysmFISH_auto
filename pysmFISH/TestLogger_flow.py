@@ -29,7 +29,7 @@ def setup_logger():
     return logger
 
 
-@task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
+@task(name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
 def wlog(x):
     logger = setup_logger()
     logger.info(f'start sleep')
