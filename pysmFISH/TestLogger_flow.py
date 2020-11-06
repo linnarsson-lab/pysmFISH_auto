@@ -65,12 +65,12 @@ if __name__ == '__main__':
 
     executor = DaskExecutor(address=cluster.scheduler_address)
     
-    c = Client()
-    c.create_flow_run(flow_id="<flow id>")
+    # c = Client()
+    # c.create_flow_run(flow_id="<flow id>")
 
     with raise_on_exception():
-        flow.register(project_name="test")
-        flow.run_agent()
-        # flow_state = flow.run(executor=executor)
-        c.create_flow_run(flow_id="<flow id>",executor=executor)
+        # flow.register(project_name="test")
+        # flow.run_agent()
+        flow_state = flow.run(executor=executor)
+        # c.create_flow_run(flow_id="<flow id>",executor=executor)
     cluster.close()
