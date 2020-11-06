@@ -140,17 +140,17 @@ if __name__ == '__main__':
         # all_raw_files = nd2_raw_files_selector(experiment_fpath=experiment_fpath,upstream_tasks=[analysis_parameters])
 
         # Reparsing .nd2 files stored in the raw_data subfolder
-        raw_files_fpath = Parameter('raw_files_fpath',default=(experiment_fpath.default / 'raw_data'))
-        # all_raw_files = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath,upstream_tasks=[analysis_parameters])
-        # 
+        raw_files_fpath = Parameter('raw_files_fpath',default=(experiment_fpath.default / 'raw_data'),upstream_tasks=[analysis_parameters])
+        all_raw_files = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath,upstream_tasks=[raw_files_fpath])
+        
         # # Run the crosscheck for all the pkl files
         # check_matching_metadata_robofish(all_raw_files)
         # report_input_files_errors(git_repo,experiment_fpath,git_token)
         # # Parse .nd2 files
-        # tag = 'img_data'
-        # parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag,upstream_tasks=[all_raw_files])
-        # # autoparser = nikon_nd2_reparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-        #                             experiment_info=unmapped(experiment_info))
+        tag = 'img_data'
+        parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath,tag,upstream_tasks=[all_raw_files])
+        autoparser = nikon_nd2_reparser_zarr.map(nd2_file_path=all_raw_files,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+                                    experiment_info=unmapped(experiment_info))
         
         # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20200708_EEL_Mouse_oPool5_auto/LBEXP20201014_EEL_Mouse_2420um_auto_img_data.zarr')
              
@@ -277,5 +277,5 @@ if __name__ == '__main__':
 
     with raise_on_exception():
         flow_state = flow.run(executor=executor)
-        flow.visualize(flow_state=flow_state)
+        # flow.visualize(flow_state=flow_state)
     cluster.close()
