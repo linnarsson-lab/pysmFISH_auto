@@ -37,8 +37,7 @@ def setup_logger():
     file_handler = logging.FileHandler(str(fname),'w+')
     file_handler.setLevel(logging.DEBUG)
     format_str = '%(message)%(levelname)%(name)%(asctime)'
-    # formatter = jsonlogger.JsonFormatter(format_str)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s: %(message)s')
+    formatter = jsonlogger.JsonFormatter(format_str)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     return logger
