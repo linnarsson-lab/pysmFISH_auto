@@ -44,7 +44,7 @@ def hello_task():
     logger.info("Hello, Cloud!")
 
 a = range(10)
-
+experiment_fpath = Path('/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto')
 flag_file_key = Parameter('flag_file_key', default='transfer_to_monod_completed.txt')
 processing_hd_location = Parameter('processing_hd_location',default='/wsfish/smfish_ssd')
 # processing_hd_location = Parameter('processing_hd_location',default='/Users/simone/Documents/local_data_storage/prefect_test/whd')
