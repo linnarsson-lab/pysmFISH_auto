@@ -86,7 +86,7 @@ def create_shoji_db(experiment_info):
         experiment_properties_ws.ChamberExp =                    shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Chamber_EXP'],dtype=object)) 
         experiment_properties_ws.Chemistry =                     shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Chemistry'],dtype=object)) 
         experiment_properties_ws.CodebookName =                  shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Codebook'],dtype=object)) 
-        experiment_properties_ws.ProbeSetName =                  shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Probes'],dtype=object)) 
+        experiment_properties_ws.ProbeSetName =                  shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Probe_FASTA_name'],dtype=object)) 
         experiment_properties_ws.ExperimentType =                shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Experiment_type'],dtype=object))
         experiment_properties_ws.ExperimentName =                shoji.Tensor("string",dims=(),inits=np.array(experiment_info['EXP_name'],dtype=object))
         experiment_properties_ws.Machine =                       shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Machine'],dtype=object))
