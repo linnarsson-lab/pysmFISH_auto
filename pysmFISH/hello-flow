@@ -11,6 +11,9 @@ from pythonjsonlogger import jsonlogger
 from pysmFISH.logger_utils import setup_extra_loggers, prefect_logging_setup, test_write_logs_to_file,simple_writing_logger
 from pysmFISH.dask_cluster_utilities_tasks import start_processing_env, local_cluster_setup
 from pysmFISH.configuration_files_tasks import load_processing_env_config_file, load_experiment_config_file
+from pysmFISH.io import load_analysis_parameters
+
+from pysmFISH.data_model import create_shoji_db
 
 import logging
 import time
@@ -60,6 +63,14 @@ experiment_info = load_experiment_config_file(experiment_fpath)
 executor = DaskExecutor(address=cluster.scheduler_address)
 
 with Flow("thello-flow") as flow:
+    
+    experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
+    experiment_info = Parameter('experiment_info',default=experiment_info)
+
+    # Create the shoji database that will contain the data
+    ref = create_shoji_db(experiment_info)
+    # Get the list of raw image groups to preprocess
+    analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_name'],upstream_tasks=[ref])
     out_task = wlog.map(a)
 
 flow.register(project_name="test")
