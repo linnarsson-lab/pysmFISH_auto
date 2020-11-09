@@ -62,7 +62,7 @@ experiment_info = load_experiment_config_file(experiment_fpath)
 cluster = start_processing_env(processing_env_config,experiment_info)
 
 experiment_info = load_experiment_config_file(experiment_fpath)
-# executor = DaskExecutor(address=cluster.scheduler_address)
+executor = DaskExecutor(address=cluster.scheduler_address)
 
 with Flow("thello-flow") as flow:
     
@@ -90,7 +90,7 @@ with Flow("thello-flow") as flow:
 
     # out_task = wlog.map(a)
 
-flow.environment.executor = DaskExecutor(address=cluster.scheduler_address)
+flow.environment.executor = executor
 flow.register(project_name="test")
 # flow.run_agent()
-# flow_state = flow.run(executor=executor)
+flow_state = flow.run(executor=executor)
