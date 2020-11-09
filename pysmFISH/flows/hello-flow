@@ -92,6 +92,6 @@ with Flow("thello-flow") as flow:
 
 flow.environment.executor = executor
 flow.register(project_name="test")
-flow_state = flow.run(executor=executor)
+# flow_state = flow.run(executor=executor)
 flow.run_agent()
 
