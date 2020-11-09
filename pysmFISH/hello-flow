@@ -75,7 +75,7 @@ with Flow("thello-flow") as flow:
     analysis_parameters = load_analysis_parameters(experiment_name=experiment_info['EXP_name'],upstream_tasks=[ref])
     
     # Reparsing .nd2 files stored in the raw_data subfolder
-    raw_files_fpath = Parameter('raw_files_fpath',default=(experiment_fpath.default / 'raw_data'))
+    raw_files_fpath = Parameter('raw_files_fpath',default=str(experiment_fpath.default / 'raw_data'))
     all_raw_files = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath,upstream_tasks=[raw_files_fpath])
     
     # # Run the crosscheck for all the pkl files
