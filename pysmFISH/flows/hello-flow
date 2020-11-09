@@ -92,7 +92,7 @@ with Flow("thello-flow") as flow:
     # out_task = wlog.map(a)
 
 
-execution_env = LocalEnvironment(executor=executor)
+# execution_env = LocalEnvironment(executor=executor)
 flow.environment.executor = executor
 flow.register(project_name="test")
 # flow_state = flow.run(executor=executor)
