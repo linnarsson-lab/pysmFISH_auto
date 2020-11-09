@@ -5,6 +5,7 @@ from prefect.utilities.debug import raise_on_exception
 from prefect.utilities.logging import get_logger
 from datetime import timedelta, datetime
 from prefect.schedules import IntervalSchedule
+from prefect.environments.execution.local import LocalEnvironment
 
 from pythonjsonlogger import jsonlogger
 
@@ -90,6 +91,8 @@ with Flow("thello-flow") as flow:
 
     # out_task = wlog.map(a)
 
+
+execution_env = LocalEnvironment(executor=executor)
 flow.environment.executor = executor
 flow.register(project_name="test")
 # flow_state = flow.run(executor=executor)
