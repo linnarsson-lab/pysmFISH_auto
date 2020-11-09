@@ -90,7 +90,7 @@ with Flow("thello-flow") as flow:
 
     # out_task = wlog.map(a)
 
-flow.environment = DaskExecutor(address=cluster.scheduler_address)
+flow.environment.executor = DaskExecutor(address=cluster.scheduler_address)
 flow.register(project_name="test")
 # flow.run_agent()
 # flow_state = flow.run(executor=executor)
