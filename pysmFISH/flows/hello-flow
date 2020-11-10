@@ -64,6 +64,7 @@ cluster = start_processing_env(processing_env_config,experiment_info)
 
 experiment_info = load_experiment_config_file(experiment_fpath)
 executor = DaskExecutor(address=cluster.scheduler_address)
+print(cluster.scheduler_address)
 
 with Flow("thello-flow",environment=LocalEnvironment(executor=executor)) as flow:
     
