@@ -8,7 +8,7 @@ from prefect.schedules import IntervalSchedule
 from prefect.environments import RemoteDaskEnvironment,LocalEnvironment
 
 from pysmFISH.dask_cluster_utilities_tasks import start_processing_env, local_cluster_setup
-from pysmFISH.utilities_tasks import consolidate_zarr_metadata, sorting_grps
+from pysmFISH.utilities_tasks import consolidate_zarr_metadata, sorting_grps, open_consolidated_metadata
 from pysmFISH.configuration_files_tasks import load_processing_env_config_file, load_experiment_config_file
 from pysmFISH.io import load_analysis_parameters
 from pysmFISH.prefect_tasks import single_fish_filter_count,single_beads_filter_count
@@ -72,7 +72,10 @@ with Flow("thello-flow",environment=LocalEnvironment(DaskExecutor(address='tcp:/
     # Code to use when testing without parsing
     parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/LBEXP20201014_EEL_Mouse_2420um_auto_img_data.zarr')
              
-    consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
+    # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
+    
+    # Code to use when testing and the metadata are already consolidated
+    consolidated_zarr_grp = open_consolidated_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
     
     # When integrated with parsing
     # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[autoparser])        

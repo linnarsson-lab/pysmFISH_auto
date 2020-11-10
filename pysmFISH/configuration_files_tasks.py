@@ -106,7 +106,6 @@ def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
         analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_min_obj_size'] = 50
         analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_selem'] = 3 
 
-    
         analysis_config['fish_signal']['preprocessing']['small-beads-registration']['flat_field_kernel'] = (2,100,100)
         analysis_config['fish_signal']['preprocessing']['small-beads-registration']['filtering_small_kernel'] = (1,8,8)
         analysis_config['fish_signal']['preprocessing']['small-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)

@@ -359,6 +359,21 @@ def consolidate_zarr_metadata(parsed_raw_data_fpath:str):
         return consolidated_grp
 
 
+@task(name = 'open-consolidated-metadata')
+def open_consolidated_metadata(parsed_raw_data_fpath:str):
+    logger = prefect_logging_setup(f'consolidate-metadata')
+    
+    try:
+        store = zarr.DirectoryStore(parsed_raw_data_fpath)
+    except:
+        logger.error(f'the metadata are not consolidated')
+        signals.FAIL(f'the metadata are not consolidated')
+    else:
+        consolidated_grp = zarr.open_consolidated(store)
+        return consolidated_grp
+
+
+
 # @task(name = 'load-raw-images-and-filtering-attrs')
 def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
     """
