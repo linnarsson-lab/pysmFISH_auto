@@ -75,7 +75,7 @@ with Flow("thello-flow",environment=LocalEnvironment(DaskExecutor(address='tcp:/
     # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
     
     # Code to use when testing and the metadata are already consolidated
-    consolidated_zarr_grp = open_consolidated_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
+    consolidated_zarr_grp = open_consolidated_metadata(parsed_raw_data_fpath,upstream_tasks=[parsed_raw_data_fpath])
     
     # When integrated with parsing
     # consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[autoparser])        
