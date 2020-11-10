@@ -70,7 +70,7 @@ with Flow("thello-flow",environment=LocalEnvironment(DaskExecutor(address='tcp:/
     #                             experiment_info=unmapped(experiment_info))
     
     # Code to use when testing without parsing
-    parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto_img_data.zarr')
+    parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto/LBEXP20201014_EEL_Mouse_2420um_auto_img_data.zarr')
              
     consolidated_zarr_grp = consolidate_zarr_metadata(parsed_raw_data_fpath,upstream_tasks=[analysis_parameters])
     
