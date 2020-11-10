@@ -97,8 +97,8 @@ with Flow("thello-flow",environment=LocalEnvironment(executor=executor)) as flow
 #flow.environment = RemoteDaskEnvironment(cluster.scheduler_address)
 flow.register(project_name="test")
 # flow_state = flow.run(executor=executor)
-from prefect.agent.local.agent import LocalAgent
-agent = LocalAgent(name='peppino')
-agent.start()
+# from prefect.agent.local.agent import LocalAgent
+# agent = LocalAgent(name='peppino')
+# agent.start()
 # flow.run_agent()
 
