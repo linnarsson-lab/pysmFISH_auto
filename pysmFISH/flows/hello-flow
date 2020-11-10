@@ -5,7 +5,7 @@ from prefect.utilities.debug import raise_on_exception
 from prefect.utilities.logging import get_logger
 from datetime import timedelta, datetime
 from prefect.schedules import IntervalSchedule
-from prefect.environments import RemoteDaskEnvironment 
+from prefect.environments import RemoteDaskEnvironment,LocalEnvironment
 
 from pythonjsonlogger import jsonlogger
 
@@ -63,9 +63,9 @@ experiment_info = load_experiment_config_file(experiment_fpath)
 cluster = start_processing_env(processing_env_config,experiment_info)
 
 experiment_info = load_experiment_config_file(experiment_fpath)
-# executor = DaskExecutor(address=cluster.scheduler_address)
+executor = DaskExecutor(address=cluster.scheduler_address)
 
-with Flow("thello-flow") as flow:
+with Flow("thello-flow",environment=LocalEnvironment(executor=executor)) as flow:
     
     experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
     experiment_info = Parameter('experiment_info',default=experiment_info)
@@ -93,7 +93,7 @@ with Flow("thello-flow") as flow:
 
 
 # execution_env = LocalEnvironment(executor=executor)
-flow.environment = RemoteDaskEnvironment(cluster.scheduler_address)
+#flow.environment = RemoteDaskEnvironment(cluster.scheduler_address)
 flow.register(project_name="test")
 # flow_state = flow.run(executor=executor)
 flow.run_agent()
