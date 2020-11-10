@@ -1,6 +1,7 @@
 from pathlib import Path
 
 # prefect related imports
+import prefect
 from prefect import task
 from prefect.engine import signals
 
@@ -26,7 +27,8 @@ def single_fish_filter_count(zarr_grp_name,
                     max_obj_size,
                     num_peaks_per_label):
 
-    logger = setup_logger_prefect_UI()
+    logger = prefect.context.get("logger")
+    # logger = setup_logger_prefect_UI()
     try:
         raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
