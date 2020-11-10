@@ -63,10 +63,11 @@ experiment_info = load_experiment_config_file(experiment_fpath)
 cluster = start_processing_env(processing_env_config,experiment_info)
 
 experiment_info = load_experiment_config_file(experiment_fpath)
-executor = DaskExecutor(address=cluster.scheduler_address)
-print(cluster.scheduler_address)
+# executor = DaskExecutor(address=cluster.scheduler_address)
+# print(cluster.scheduler_address)
 
-with Flow("thello-flow",environment=LocalEnvironment(executor=executor)) as flow:
+# with Flow("thello-flow",environment=LocalEnvironment(executor=executor)) as flow:
+with Flow("thello-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:18938'))) as flow:
     
     experiment_fpath = Parameter('experiment_fpath',default=experiment_fpath)
     experiment_info = Parameter('experiment_info',default=experiment_info)
