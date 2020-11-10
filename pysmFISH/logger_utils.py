@@ -13,7 +13,7 @@ from prefect.utilities.logging import get_logger
 
 
 
-def setup_logger(log_fpath:str):
+def setup_logger_writing(log_fpath:str):
     """
     Logger setup for writing logs output to files on monod
     This logs works when activated under @task decorator.
@@ -41,7 +41,19 @@ def setup_logger(log_fpath:str):
     return logger
 
 
+def setup_logger_prefect_UI():
+    """
+    Logger setup for writing output on prefect logging environment
 
+    
+    Returns:
+    --------
+        logger: prefect logger
+            logger to use in the specific task set
+
+    """
+    logger = prefect.context.get("logger")
+    return logger
 
 
 
