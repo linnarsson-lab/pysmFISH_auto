@@ -21,7 +21,6 @@ def wlog(x):
     time.sleep(20)
     logger.info(f'done sleep')
 
-
 a = list(range(10))
 with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:18938'))) as flow:
     # logger = prefect.utilities.logging.get_logger()
