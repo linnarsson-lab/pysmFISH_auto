@@ -21,10 +21,6 @@ from prefect.engine import signals
 from prefect.utilities.logging import get_logger
 
 
-from pysmFISH.logger_utils import prefect_logging_setup, simple_writing_logger
-
-
-
 class osmFISH_dots_thr_selection():
 
     '''
