@@ -18,7 +18,7 @@ from pysmFISH.utils import load_pipeline_config_file, convert_from_uint16_to_flo
 
 from prefect import task
 from prefect.engine import signals
-from prefect.utilities.logging import get_logger
+from pysmFISH.logger_utils import prefect_logging_setup
 
 
 class osmFISH_dots_thr_selection():
@@ -235,7 +235,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
 
     
     
-    logger = get_logger('logging osmFISH_peak_based_detection')
+    logger = prefect_logging_setup('test')
 
     img = img_meta[0]
     img_metadata = img_meta[1]
