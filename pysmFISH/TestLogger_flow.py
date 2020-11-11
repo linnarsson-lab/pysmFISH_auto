@@ -22,12 +22,14 @@ from prefect.environments import RemoteDaskEnvironment,LocalEnvironment
 
 from pysmFISH.logger_utils import setup_extra_loggers,prefect_logging_setup
 import logging
+
 @task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
 def wlog(x):
     logger = prefect.context.get("logger")
+    logger.debug('la culara')
     # logger = prefect_logging_setup('test')
     logger.info(f'start sleep')
-    time.sleep(5)
+    time.sleep(20)
     logger.info(f'done sleep')
 
 if __name__ == '__main__':
