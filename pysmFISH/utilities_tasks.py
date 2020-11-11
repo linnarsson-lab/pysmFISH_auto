@@ -393,7 +393,7 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
     st = zarr.DirectoryStore(parsed_raw_data_fpath)
     root = zarr.group(store=st,overwrite=False)
 
-    metadata = root[zarr_grp_name].attrs
+    metadata = root.attrs
     img = root[zarr_grp_name][metadata['fov_name']][...]
     return (img, dict(metadata))
 
