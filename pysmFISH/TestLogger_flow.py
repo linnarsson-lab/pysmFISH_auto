@@ -32,14 +32,13 @@ def wlog(x):
     time.sleep(20)
     logger.info(f'done sleep')
 
-if __name__ == '__main__':
 
-    a = list(range(10))
-    # with Flow("test_running",schedule=schedule) as flow:
-    with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:18938'))) as flow:
-        logger = prefect.utilities.logging.get_logger()
-        logger.info('this log is generated in the flow')
-        out_task = wlog.map(a)
-        logger.info('done')
+a = list(range(10))
+# with Flow("test_running",schedule=schedule) as flow:
+with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:18938'))) as flow:
+    logger = prefect.utilities.logging.get_logger()
+    logger.info('this log is generated in the flow')
+    out_task = wlog.map(a)
+    logger.info('done')
 
-    flow.register(project_name="test")
+flow.register(project_name="test")
