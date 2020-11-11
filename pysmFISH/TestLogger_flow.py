@@ -31,7 +31,8 @@ def wlog(x):
 
 if __name__ == '__main__':
 
-    
+    logger = prefect.utilities.logging.get_logger()
+    logger.info('this log is generated out of the flow')
     a = list(range(10))
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:18938'))) as flow:
