@@ -23,7 +23,7 @@ from prefect.environments import RemoteDaskEnvironment,LocalEnvironment
 from pysmFISH.logger_utils import setup_extra_loggers,prefect_logging_setup
 import logging
 
-@task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
+@task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname",log_stdout=True)
 def wlog(x):
     logger = prefect.context.get("logger")
     logger.debug('la culara')
@@ -40,5 +40,6 @@ if __name__ == '__main__':
         logger = prefect.utilities.logging.get_logger()
         logger.info('this log is generated in the flow')
         out_task = wlog.map(a)
+        logger.info('done')
 
     flow.register(project_name="test")
