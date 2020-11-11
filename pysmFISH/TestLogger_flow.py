@@ -38,6 +38,6 @@ if __name__ == '__main__':
         logger = prefect.utilities.logging.get_logger()
         logger.info('this log is generated in the flow')
         c = setup_extra_loggers()
-        out_task = wlog.map(a,upsream_tasks=[c])
+        out_task = wlog.map(a,upstream_tasks=[c])
 
     flow.register(project_name="test")
