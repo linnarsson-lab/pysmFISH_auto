@@ -5,16 +5,17 @@ from prefect.environments import LocalEnvironment
 
 import time
 
-def chiappa():
+def inner():
     logger = prefect.utilities.logging.get_logger()
-    logger.info('cane')
+    logger.info('i am the inner function')
+    time.sleep(10)
 
 @task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
 def wlog(x):
     from prefect import context
     logger = context.get("logger")
-    logger.debug('la culara')
-    chiappa()
+    logger.debug('i am the task')
+    inner()
     # logger = prefect_logging_setup('test')
     logger.info(f'start sleep')
     time.sleep(20)
