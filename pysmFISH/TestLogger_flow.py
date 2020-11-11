@@ -24,19 +24,19 @@ from pysmFISH.logger_utils import setup_extra_loggers,prefect_logging_setup
 
 @task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
 def wlog(x):
-    # logger = prefect.context.get("logger")
-    logger = prefect_logging_setup('test')
+    logger = prefect.context.get("logger")
+    # logger = prefect_logging_setup('test')
     logger.info(f'start sleep')
     time.sleep(5)
     logger.info(f'done sleep')
 
 if __name__ == '__main__':
 
-    logger = prefect.utilities.logging.get_logger()
+    # logger = prefect.utilities.logging.get_logger()
     a = list(range(10))
     # with Flow("test_running",schedule=schedule) as flow:
     with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:18938'))) as flow:
-        logger.info('this log is generated in the flow')
+        # logger.info('this log is generated in the flow')
         c = setup_extra_loggers()
         out_task = wlog.map(a)
 
