@@ -1,6 +1,7 @@
 from typing import *
 import numpy as np
 import argparse
+from toolz.itertoolz import get
 import zarr
 import re
 import sys
@@ -14,9 +15,11 @@ from pathlib import Path
 
 from pysmFISH.utils import load_pipeline_config_file, convert_from_uint16_to_float64
 
-import prefect
+
 from prefect import task
 from prefect.engine import signals
+from prefect.utilities.logging import get_logger
+
 
 from pysmFISH.logger_utils import prefect_logging_setup, simple_writing_logger
 
@@ -236,7 +239,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
 
     
     
-    
+    logger = get_logger('logging osmFISH_peak_based_detection')
 
     img = img_meta[0]
     img_metadata = img_meta[1]
