@@ -12,8 +12,8 @@ from prefect.environments import RemoteDaskEnvironment,LocalEnvironment
 
 @task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
 def wlog(x):
-    
-    logger = prefect.context.get("logger")
+    from prefect import context
+    logger = context.get("logger")
     logger.debug('la culara')
     # logger = prefect_logging_setup('test')
     logger.info(f'start sleep')
