@@ -4,7 +4,6 @@ from prefect.engine.executors import DaskExecutor
 from prefect.utilities.debug import raise_on_exception
 from datetime import timedelta, datetime
 from prefect.schedules import IntervalSchedule
-from prefect import context
 
 from pythonjsonlogger import jsonlogger
 
@@ -26,7 +25,7 @@ import logging
 @task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
 def wlog(x):
     
-    logger = context.get("logger")
+    logger = prefect.context.get("logger")
     logger.debug('la culara')
     # logger = prefect_logging_setup('test')
     logger.info(f'start sleep')
