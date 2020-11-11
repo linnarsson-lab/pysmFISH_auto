@@ -31,7 +31,7 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
 
     """
 
-    logger = get_logger('load-dark-images')
+    logger = get_logger()
 
     search = '*dark_img.npy'
     dark_img_folder = Path(experiment_fpath) / 'extra_processing_data'
@@ -70,7 +70,7 @@ def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
             Kernel used to enhance the dots signal
 
     """
-    logger = get_logger('processing-dot-raw-images')
+    logger = get_logger()
     img = img_meta[0]
     img_metadata = img_meta[1]
     img = convert_from_uint16_to_float64(img)
