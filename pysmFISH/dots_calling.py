@@ -234,14 +234,15 @@ def osmFISH_peak_based_detection(img_meta:tuple,
 
     """
 
-    # logger = prefect_logging_setup(f'osmFISH_barcoded_peak_based_detection')
-    #logger = prefect.context.get("dots_calling")
-    logger = prefect.utilities.logging.get_logger('test')
-    logger.info('inside-dots-logger')
+    
+    
+    
 
     img = img_meta[0]
     img_metadata = img_meta[1]
     fov = img_metadata['fov_num']
+    
+    logger.info(f'logging osmFISH_peak_based_detection fov {fov}')
     hybridization_num = img_metadata['hybridization_num']
 
     counting_parameters_dict = {

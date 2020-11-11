@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pysmFISH.utils import convert_from_uint16_to_float64
 
-
+import prefect
 from prefect import task
 from prefect.engine import signals
 
@@ -30,7 +30,7 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
 
     """
 
-    logger = prefect_logging_setup('load-dark-image')
+    logger = prefect.utilities.logging.get_logger()
 
     search = '*dark_img.npy'
     dark_img_folder = Path(experiment_fpath) / 'extra_processing_data'
@@ -42,9 +42,10 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
         logger.error(f'cannot load the dark image file')
         err = signals.FAIL(f'cannot load the dark image file')
         raise err
-    
-    dark_img = convert_from_uint16_to_float64(dark_img)
-    return dark_img
+    else:
+        logger.info(f'loaded {dark_img_fpath[0].stem} dark image')
+        dark_img = convert_from_uint16_to_float64(dark_img)
+        return dark_img
 
 
 # @task(name='preprocessing-raw-fish-images')
@@ -68,7 +69,7 @@ def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
             Kernel used to enhance the dots signal
 
     """
-    logger = prefect_logging_setup('preprocessing-raw-fish-images')
+    logger = prefect.utilities.logging.get_logger()
     img = img_meta[0]
     img_metadata = img_meta[1]
     img = convert_from_uint16_to_float64(img)

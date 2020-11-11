@@ -9,7 +9,7 @@ import shoji
 import numpy as np
 from pathlib import Path
 
-
+import prefect
 from prefect import task
 from prefect.engine import signals
 
@@ -133,7 +133,7 @@ def save_images_metadata(img_metadata:Tuple):
             parsing or acquisition of the images
     """
 
-    logger = prefect_logging_setup(f'save-images-metadata')
+    logger = prefect.utilities.logging.get_logger('save-image-metadata')
     metadata = img_metadata[1]
     experiment_name = metadata['experiment_name']
     img = convert_to_uint16(img_metadata[0])
@@ -144,27 +144,30 @@ def save_images_metadata(img_metadata:Tuple):
                           metadata['img_width']),np.uint16)
     
     
-    
-    dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws = connect_to_shoji_smfish_experiment(experiment_name)
-    
-    
-    images_properties_ws.fov.append({
-        'GroupName': np.array([metadata['grp_name']],dtype=np.object).reshape(1,1,1),
-        'FovName' : np.array([metadata['fov_name']],dtype=np.object),
-        'FovNumber' : np.array([metadata['fov_num']],dtype=np.uint16),
-        'AcquistionChannel' : np.array([metadata['channel']],dtype=np.object),
-        'TargetName' : np.array([metadata['target_name']],dtype=np.object).reshape(1,1,1),
-        'ImageShape' : np.array(img_shape,dtype=np.uint16).reshape(1,1,1,2),
-        'PixelMicrons' : np.array([metadata['pixel_microns']],dtype=np.float64).reshape(1,1,1),
-        'HybridizationNumber' : np.array([metadata['hybridization_num']],dtype=np.uint8),
-        'PreprocessedImage': img[None][None][None],
-        'FovCoords': np.array(fov_acquisition_coords,dtype=np.float64).reshape(1,1,1,3),
-        'RegistrationShift' : np.array([0,0],dtype=np.float64).reshape(1,1,1,2),
-        'RegistrationError' : np.array([0],dtype=np.float64).reshape(1,1,1),
-        'StitchingShift' : np.array([0,0],dtype=np.float64).reshape(1,1,1,2),
-        'StitchingError' : np.array([0],dtype=np.float64).reshape(1,1,1),
-        'FieldsOfView': np.array([metadata['fields_of_view']],dtype=np.uint16)
-    })
+    try:
+        dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws = connect_to_shoji_smfish_experiment(experiment_name)
+    except:
+        logger.error(f'cannot connect to shoji db')
+        signals.FAIL(f'cannot connect to shoji db')
+
+    else:
+        images_properties_ws.fov.append({
+            'GroupName': np.array([metadata['grp_name']],dtype=np.object).reshape(1,1,1),
+            'FovName' : np.array([metadata['fov_name']],dtype=np.object),
+            'FovNumber' : np.array([metadata['fov_num']],dtype=np.uint16),
+            'AcquistionChannel' : np.array([metadata['channel']],dtype=np.object),
+            'TargetName' : np.array([metadata['target_name']],dtype=np.object).reshape(1,1,1),
+            'ImageShape' : np.array(img_shape,dtype=np.uint16).reshape(1,1,1,2),
+            'PixelMicrons' : np.array([metadata['pixel_microns']],dtype=np.float64).reshape(1,1,1),
+            'HybridizationNumber' : np.array([metadata['hybridization_num']],dtype=np.uint8),
+            'PreprocessedImage': img[None][None][None],
+            'FovCoords': np.array(fov_acquisition_coords,dtype=np.float64).reshape(1,1,1,3),
+            'RegistrationShift' : np.array([0,0],dtype=np.float64).reshape(1,1,1,2),
+            'RegistrationError' : np.array([0],dtype=np.float64).reshape(1,1,1),
+            'StitchingShift' : np.array([0,0],dtype=np.float64).reshape(1,1,1,2),
+            'StitchingError' : np.array([0],dtype=np.float64).reshape(1,1,1),
+            'FieldsOfView': np.array([metadata['fields_of_view']],dtype=np.uint16)
+        })
 
 
 # @task(name = 'save-dots-identification')
