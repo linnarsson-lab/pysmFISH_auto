@@ -22,7 +22,7 @@ from prefect.environments import RemoteDaskEnvironment,LocalEnvironment
 from pysmFISH.logger_utils import setup_extra_loggers,prefect_logging_setup
 import logging
 
-@task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname",log_stdout=True)
+@task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
 def wlog(x):
     from prefect import context
     logger = context.get("logger")
