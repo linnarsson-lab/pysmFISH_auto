@@ -29,3 +29,4 @@ with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp:
     # logger.info('done')
 
 flow.register(project_name="test")
+flow.run_agent()
