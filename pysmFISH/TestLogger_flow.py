@@ -6,9 +6,6 @@ from prefect.environments import LocalEnvironment
 from logger_utils import function_logger
 import time
 
-import sys
-sys.path.append('/home/simone/tmp_code/pysmFISH_auto/pysmFISH')
-
 def inner():
     logger = function_logger()
     logger.info('i am the inner function--new logger')
@@ -33,4 +30,4 @@ with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp:
     # logger.info('done')
 
 flow.register(project_name="test")
-# flow.run_agent()
+flow.run_agent()
