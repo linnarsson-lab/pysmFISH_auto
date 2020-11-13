@@ -1,8 +1,8 @@
 {
-    "python.dataScience.jupyterServerURI": "local",
-    "python.pythonPath": "/opt/miniconda3/envs/messing_around_auto/bin/python",
+    "python.pythonPath": "/home/simone/miniconda3/envs/prefect_dev/bin/python",
     "telemetry.enableTelemetry": false,
     "python.linting.mypyEnabled": true,
     "python.linting.enabled": true,
-    "python.linting.pylintEnabled": false
+    "python.linting.pylintEnabled": false,
+    "jupyter.jupyterServerType": "local"
 }

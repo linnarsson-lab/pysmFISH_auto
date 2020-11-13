@@ -12,6 +12,16 @@ from prefect import task
 from prefect.utilities.logging import get_logger
 
 
+def function_logger():
+    """
+    Logger setup to use in order to have prefect catch
+    logs from non task functions. By changing this function
+    you can change the logger used by the different functions
+    """
+
+    logger = prefect.utilities.logging.get_logger()
+    return logger
+
 
 def setup_logger_writing(log_fpath:str):
     """
