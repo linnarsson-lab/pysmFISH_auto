@@ -3,11 +3,12 @@ from prefect import task, Flow, Parameter, flatten, unmapped
 from prefect.engine.executors import DaskExecutor
 from prefect.environments import LocalEnvironment
 
+from pysmFISH.logger_utils import function_logger
 import time
 
 def inner():
-    logger = prefect.utilities.logging.get_logger()
-    logger.info('i am the inner function')
+    logger = function_logger()
+    logger.info('i am the inner function--new logger')
     time.sleep(10)
 
 @task(task_run_name=lambda **kwargs: f"testing-logger-writing-logs-{kwargs['x']}-suiname")
