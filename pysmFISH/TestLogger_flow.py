@@ -7,7 +7,7 @@ from logger_utils import function_logger
 import time
 
 import sys
-sys.path.append('/home/simone/tmp_code/pysmFISH_auto')
+sys.path.append('/home/simone/tmp_code/pysmFISH_auto/pysmFISH')
 
 def inner():
     logger = function_logger()
