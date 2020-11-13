@@ -3,7 +3,7 @@ from prefect import task, Flow, Parameter, flatten, unmapped
 from prefect.engine.executors import DaskExecutor
 from prefect.environments import LocalEnvironment
 
-from pysmFISH.logger_utils import function_logger
+from logger_utils import function_logger
 import time
 
 def inner():
