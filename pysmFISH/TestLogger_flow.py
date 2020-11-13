@@ -4,7 +4,6 @@ from prefect.engine.executors import DaskExecutor
 from prefect.environments import LocalEnvironment
 
 from logger_utils import function_logger
-
 import time
 
 def inner():

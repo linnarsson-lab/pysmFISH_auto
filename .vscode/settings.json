@@ -4,5 +4,6 @@
     "python.linting.mypyEnabled": true,
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
-    "jupyter.jupyterServerType": "local"
+    "jupyter.jupyterServerType": "local",
+    "python.languageServer": "Pylance"
 }
