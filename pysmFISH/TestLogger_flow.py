@@ -23,7 +23,7 @@ def wlog(x):
     logger.info(f'done sleep')
 
 a = list(range(10))
-with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:7203'))) as flow:
+with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:32833'))) as flow:
     # logger = prefect.utilities.logging.get_logger()
     # logger.info('this log is generated in the flow')
     out_task = wlog.map(a)
