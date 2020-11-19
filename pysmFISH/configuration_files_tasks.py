@@ -8,6 +8,7 @@ from pathlib import Path
 from collections import OrderedDict
 
 from prefect import task
+from prefect import Task
 from prefect.engine import signals
 
 from pysmFISH.logger_utils import prefect_logging_setup
@@ -311,27 +312,67 @@ def load_analysis_config_file(expxeriment_fpath:str):
         return analysis_config
 
 
-def load_transferring_config(config_db_fpath:str)->Dict:
+# def load_transferring_config(config_db_fpath:str)->Dict:
+#     """
+#     Function used to load the parameters used for transfering
+#     the data from the storage to the processing HD
+
+#     Args:
+#         config_db_fpath; str
+#             path to the folder containing the data_transfer_config.yaml
+#     """
+    
+#     logger = prefect_logging_setup(f'load-transfer-config')
+#     config_db_fpath = Path(config_db_fpath)
+
+#     transfer_config_fpath = config_db_fpath / 'data_transfer_config.yaml'
+#     try:
+#          transfer_config = OrderedDict(yaml.safe_load(open(transfer_config_fpath, 'rb')))
+#     except (FileExistsError,NameError,FileNotFoundError) as e:
+#         logger.debug(f'{transfer_config_fpath} missing')
+#         signals.FAIL(f'{transfer_config_fpath} missing')
+#     else:
+#         return  transfer_config
+
+class load_transferring_config(Task):
     """
-    Function used to load the parameters used for transfering
+    Class used to load the parameters required for transfering
     the data from the storage to the processing HD
 
     Args:
         config_db_fpath; str
             path to the folder containing the data_transfer_config.yaml
     """
-    
-    logger = prefect_logging_setup(f'load-transfer-config')
-    config_db_fpath = Path(config_db_fpath)
+    def run(self, config_db_fpath:str)->Dict:
+        """
+        Function used to load the parameters used for transfering
+        the data from the storage to the processing HD
 
-    transfer_config_fpath = config_db_fpath / 'data_transfer_config.yaml'
-    try:
-         transfer_config = OrderedDict(yaml.safe_load(open(transfer_config_fpath, 'rb')))
-    except (FileExistsError,NameError,FileNotFoundError) as e:
-        logger.debug(f'{transfer_config_fpath} missing')
-        signals.FAIL(f'{transfer_config_fpath} missing')
-    else:
-        return  transfer_config
+        Args:
+        -----
+            config_db_fpath; str
+                path to the folder containing the data_transfer_config.yaml
+
+        Returns:
+        --------
+            transfer_config: Dict
+                dictionary with all the info necessary for transferring the data
+
+        """
+        
+        config_db_fpath = Path(config_db_fpath)
+
+        transfer_config_fpath = config_db_fpath / 'data_transfer_config.yaml'
+        try:
+            transfer_config = OrderedDict(yaml.safe_load(open(transfer_config_fpath, 'rb')))
+        except (FileExistsError,NameError,FileNotFoundError) as e:
+            self.logger.error(f'{transfer_config_fpath} missing')
+            signals.FAIL(f'{transfer_config_fpath} missing')
+        else:
+            return  transfer_config
+
+
+
 
 # @task(name='load_experiments_info_file')
 def load_experiment_config_file(experiment_fpath:str):

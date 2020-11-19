@@ -9,6 +9,8 @@ import numpy as np
 from pathlib import Path
 from collections import OrderedDict
 
+import prefect
+from prefect import Task
 from prefect import task
 from prefect.engine import signals
 
@@ -18,6 +20,202 @@ from pysmFISH.logger_utils import prefect_logging_setup
 # to avoid reference for nested structures
 # https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml (comment)
 yaml.SafeDumper.ignore_aliases = lambda *args : True
+
+class free_space(Task):
+    """
+    A task used to determine if there is enough space in the
+    HD where the experiment will be processed
+
+    Args:
+    -----
+        hd_path:str
+            pathway of the target HD where the processing will be run
+        min_free_space:int
+            minimum space required for processing in Gb (ex: 1000)
+    
+    """
+    def run(self, hd_path:str, min_free_space:int):
+        """
+        Function used to determine if there is enough free space in the
+        HD where the experiment will be processed
+
+        The hard coded minimum current space is 
+
+        Args:
+        -----
+            hd_path:str
+                pathway of the target HD where the processing will be run
+            min_free_space:int
+                minimum space required for processing in Gb (ex: 1000)
+        
+        Returns:
+        --------
+            True/False: bool
+                True if there is enough free space for running the experiment
+        """
+        total, used, free = shutil.disk_usage(hd_path)
+        free_space_giga = free // (2**30)
+        if free_space_giga <= min_free_space:
+            self.logger.info(f'Free space in the HD: {free_space_giga} Gb data cannot be transferred,\
+                            not enough space on the HD')
+            skip_signal = signals.FAIL("Not enogh space in the processing hd")
+            skip_signal.flag = True
+            skip_signal.value = None
+            raise skip_signal
+        else:
+            self.logger.info(f'Free space in the HD: {free_space_giga} Gb data can be transferred')
+            return True
+
+class check_ready_experiments(Task):
+    """
+    class to scan the folder where the data are transferred from the machines.
+    It looks for files that are generated upon transfer completion (flag_file).
+    To keep thing simple and not overload the system only one of the flag_files
+    identified in the scanning of the folder will be processed.
+    
+    NB: In order to process only the experiments designed for the pipeline 
+    the folder name finish with auto ExpName_auto
+
+    Args: 
+    path_tmp_storage_server: str
+        path where the data are transferred from the microscopes
+    flag_file_key: str
+        string that define the flag_files. The flag key should not have _auto_
+        in the name.
+
+    Returns:
+        experiment_path: str
+            experiment path in the tmp folder
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def run(self, path_tmp_storage_server:str, flag_file_key:str):
+        path_tmp_storage_server = Path(path_tmp_storage_server)
+        flag_file_key_general = '*_auto_' + flag_file_key
+        flag_file_key = '_' + flag_file_key
+        flagged_files_list = list(path_tmp_storage_server.glob(flag_file_key_general))
+        
+        if flagged_files_list:
+            flagged_file_path = flagged_files_list[0]
+            experiment_name = (flagged_file_path.name).split(flag_file_key)[0]
+            os.remove(flagged_file_path)
+            self.logger.info(f'{experiment_name} ready to be processed')
+            return str(flagged_file_path.parent / experiment_name)
+        else:
+            self.logger.error(f'No new experiments to be processed')
+            skip_signal = signals.FAIL(f"No new experiments to be processed")
+            skip_signal.flag = True
+            skip_signal.value = None
+            raise skip_signal
+
+
+
+class transfer_data(Task):
+    """
+    Class used to move files to another location
+
+    Args:
+        path_source_location: str
+            path to the data to be moved
+        path_destination: str
+            path to the destination of the transfer
+        flag_file_key: str
+        string that define the flag_files. The flag key should not have _auto_
+        in the name.
+    """
+
+    def run(self, path_source_location:str,path_destination:str, flag_file_key:str):
+        """
+        Function used to transfer the files to another location
+
+        Args:
+            path_source_location: str
+                path to the data to be moved
+            path_destination: str
+                path to the destination of the transfer
+            flag_file_key: str
+            string that define the flag_files. The flag key should not have _auto_
+            in the name.
+        """
+
+        path_source_location = Path(path_source_location)
+        path_destination = Path(path_destination)
+
+        try:
+            os.stat(path_source_location)
+        except:
+            self.logger.error(f' The {path_source_location} directory is missing')
+            fail_signal = signals.FAIL('The source directory is missing')
+            fail_signal.flag = True
+            fail_signal.value = None
+            raise fail_signal
+        else:
+            try:
+                os.stat(path_destination)
+            except:
+                self.logger.info(f' The {path_destination} directory is missing')
+                fail_signal = signals.FAIL('The destination directory is missing')
+                fail_signal.flag = True
+                fail_signal.value = None
+                raise fail_signal
+            else:
+                shutil.move(path_source_location.as_posix(),path_destination.as_posix())
+                tag_file_name = path_destination / (path_source_location.stem + '_' + flag_file_key)
+                open(tag_file_name,'w').close()
+                self.logger.info(f'data moved from {path_source_location} to {path_destination}')
+
+
+@task(name='create_folder_structure')
+def create_folder_structure(experiment_fpath:str):
+    """
+    Function used to create the folder structure where to sort the files
+    generated by the machines and the saving the data created during the
+    processing. It creates the backbone structure common to all analysis
+
+    original_robofish_logs: contains all the original robofish logs.
+	extra_files: contains the extra files acquired during imaging.
+	extra_processing_data: contains extra files used in the analysis 
+												like the dark images for flat field correction.
+    pipeline_config: contains all the configuration files.
+    raw_data: contains the renamed .nd2 files and the corresponding 
+						pickle configuration files. It is the directory that is 
+						backed up on the server.
+	output_figures: contains the reports and visualizations
+    notebooks: will contain potential notebooks used for processing the data
+    probes: will contains the fasta file with the probes used in the experiment
+    tmp: save temporary data
+    
+
+    Args:
+        experiment_fpath: str
+            folder path of the experiment
+    """
+    logger = prefect_logging_setup('created_raw_tmp_dir')
+    experiment_fpath = Path(experiment_fpath)
+    folders_list = ['raw_data',
+                    'original_robofish_logs',
+                    'extra_processing_data',
+                    'extra_files',
+                    'pipeline_config',
+                    'output_figures',
+                    'notebooks',
+                    'probes',
+                    'tmp']
+    for folder_name in folders_list:
+        try:
+            os.stat(experiment_fpath / folder_name )
+            logger.info(f'{folder_name} already exist')
+        except FileNotFoundError:
+            os.mkdir(experiment_fpath / folder_name)
+            os.chmod(experiment_fpath / folder_name,0o777)
+
+
+
+
+
+
+
 
 
 # @task(name='check_completed_transfer_to_monod')
@@ -114,52 +312,49 @@ def move_data(path_source_location:str,path_destination:str, flag_file_key:str):
 
 
 
+# @task(name='create_folder_structure')
+# def create_folder_structure(experiment_fpath:str):
+#     """
+#     Function used to create the folder structure where to sort the files
+#     generated by the machines and the saving the data created during the
+#     processing. It creates the backbone structure common to all analysis
 
-
-
-@task(name='create_folder_structure')
-def create_folder_structure(experiment_fpath:str):
-    """
-    Function used to create the folder structure where to sort the files
-    generated by the machines and the saving the data created during the
-    processing. It creates the backbone structure common to all analysis
-
-    original_robofish_logs: contains all the original robofish logs.
-	extra_files: contains the extra files acquired during imaging.
-	extra_processing_data: contains extra files used in the analysis 
-												like the dark images for flat field correction.
-    pipeline_config: contains all the configuration files.
-    raw_data: contains the renamed .nd2 files and the corresponding 
-						pickle configuration files. It is the directory that is 
-						backed up on the server.
-	output_figures: contains the reports and visualizations
-    notebooks: will contain potential notebooks used for processing the data
-    probes: will contains the fasta file with the probes used in the experiment
-    tmp: save temporary data
+#     original_robofish_logs: contains all the original robofish logs.
+# 	extra_files: contains the extra files acquired during imaging.
+# 	extra_processing_data: contains extra files used in the analysis 
+# 												like the dark images for flat field correction.
+#     pipeline_config: contains all the configuration files.
+#     raw_data: contains the renamed .nd2 files and the corresponding 
+# 						pickle configuration files. It is the directory that is 
+# 						backed up on the server.
+# 	output_figures: contains the reports and visualizations
+#     notebooks: will contain potential notebooks used for processing the data
+#     probes: will contains the fasta file with the probes used in the experiment
+#     tmp: save temporary data
     
 
-    Args:
-        experiment_fpath: str
-            folder path of the experiment
-    """
-    logger = prefect_logging_setup('created_raw_tmp_dir')
-    experiment_fpath = Path(experiment_fpath)
-    folders_list = ['raw_data',
-                    'original_robofish_logs',
-                    'extra_processing_data',
-                    'extra_files',
-                    'pipeline_config',
-                    'output_figures',
-                    'notebooks',
-                    'probes',
-                    'tmp']
-    for folder_name in folders_list:
-        try:
-            os.stat(experiment_fpath / folder_name )
-            logger.info(f'{folder_name} already exist')
-        except FileNotFoundError:
-            os.mkdir(experiment_fpath / folder_name)
-            os.chmod(experiment_fpath / folder_name,0o777)
+#     Args:
+#         experiment_fpath: str
+#             folder path of the experiment
+#     """
+#     logger = prefect_logging_setup('created_raw_tmp_dir')
+#     experiment_fpath = Path(experiment_fpath)
+#     folders_list = ['raw_data',
+#                     'original_robofish_logs',
+#                     'extra_processing_data',
+#                     'extra_files',
+#                     'pipeline_config',
+#                     'output_figures',
+#                     'notebooks',
+#                     'probes',
+#                     'tmp']
+#     for folder_name in folders_list:
+#         try:
+#             os.stat(experiment_fpath / folder_name )
+#             logger.info(f'{folder_name} already exist')
+#         except FileNotFoundError:
+#             os.mkdir(experiment_fpath / folder_name)
+#             os.chmod(experiment_fpath / folder_name,0o777)
 
 
 @task(name='upload-extra-files')

@@ -25,11 +25,32 @@ def wlog(x):
     logger.info(f'done sleep')
 
 
+# Slow execution
 class AddTask(Task):
+    
+    @staticmethod
+    def logger_def():
+        logger = prefect.utilities.logging.get_logger()
+        return logger
+    
     def run(self, x):
-        self.x = x
+        self.logger.info('general logger')
         time.sleep(20)
-        
+
+
+# # Fast execution
+# class AddTask(Task):
+    
+#     @staticmethod
+#     def logger_def():
+#         logger = prefect.utilities.logging.get_logger()
+#         return logger
+    
+#     def run(self, x):
+#         logger = logger_def()
+#         logger.info('general logger')
+#         time.sleep(20)
+
 
 a = list(range(10))
 with Flow("logging-flow",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:32833')),
