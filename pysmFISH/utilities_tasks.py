@@ -96,6 +96,9 @@ class check_ready_experiments(Task):
         flag_file_key = '_' + flag_file_key
         flagged_files_list = list(path_tmp_storage_server.glob(flag_file_key_general))
         
+        self.logger.debug(f'HD path {path_tmp_storage_server}')
+        self.logger.debug(f'list experiments {flagged_files_list}')
+
         if flagged_files_list:
             flagged_file_path = flagged_files_list[0]
             experiment_name = (flagged_file_path.name).split(flag_file_key)[0]
@@ -103,12 +106,8 @@ class check_ready_experiments(Task):
             self.logger.info(f'{experiment_name} ready to be processed')
             return str(flagged_file_path.parent / experiment_name)
         else:
-            self.logger.error(f'{path_tmp_storage_server}')
-            self.logger.error(f'{flagged_files_list}')
             self.logger.error(f'No new experiments to be processed')
             skip_signal = signals.FAIL(f"No new experiments to be processed")
-            skip_signal.flag = True
-            skip_signal.value = None
             raise skip_signal
 
 
