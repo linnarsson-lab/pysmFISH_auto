@@ -7,7 +7,7 @@ from prefect.environments.storage import Local
 import os
 
 from pathlib import Path
-from pysmFISH.utilities_tasks import
+from pysmFISH.utilities_tasks import create_folder_structure_viv
 
 
 # class create_folder_structure(Task):
@@ -83,7 +83,7 @@ with Flow("subclassed",environment=LocalEnvironment(DaskExecutor(address='tcp://
             storage=Local(directory='/home/simone/tmp_code/flows')) as flow:
 
     experiment_fpath = Parameter('experiment_fpath',default = '/wsfish/smfish_ssd/test')
-    create_folders = create_folder_structure()
+    create_folders = create_folder_structure_viv()
     folders = create_folders(experiment_fpath)
 
 flow.register(project_name="test")
