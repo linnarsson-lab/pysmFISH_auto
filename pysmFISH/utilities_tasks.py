@@ -339,23 +339,33 @@ class sort_data_into_folders(Task):
         experiment_fpath = Path(experiment_fpath)
 
         # Move the robofish generated logs
-        robofish_logs = experiment_fpath.glob('*.log')
-        for log in robofish_logs:
-            shutil.move(log.as_posix(), (experiment_fpath / 'original_robofish_logs').as_posix())
-            self.logger.debug(f'moved {log.stem} into original_robofish_logs')
+        robofish_logs = list(experiment_fpath.glob('*.log'))
+        if len(robofish_logs):
+            for log in robofish_logs:
+                shutil.move(log.as_posix(), (experiment_fpath / 'original_robofish_logs').as_posix())
+                self.logger.debug(f'moved {log.stem} into original_robofish_logs')
+        else:
+            self.logger.debug(f'there are no original robofish logs in the experiment folder')
+
 
         # Move the crosses images
-        crosses_files = experiment_fpath.glob('*_cross.nd2')
-        for cross in crosses_files:
-            shutil.move(cross.as_posix(), (experiment_fpath / 'extra_files').as_posix())
-            self.logger.debug(f'moved {cross.stem} into extra_files')
-
+        crosses_files = list(experiment_fpath.glob('*_cross.nd2'))
+        if len(crosses_files):
+            for cross in crosses_files:
+                shutil.move(cross.as_posix(), (experiment_fpath / 'extra_files').as_posix())
+                self.logger.debug(f'moved {cross.stem} into extra_files')
+        else:
+            self.logger.debug(f'there are no crosses images in the experiment folders')
+        
         # Move the coords files
-        coords_files = experiment_fpath.glob('*.xml')
-        for coord in coords_files:
-            shutil.move(coord.as_posix(), (experiment_fpath / 'extra_files').as_posix())
-            self.logger.debug(f'moved {coord.stem} into extra_files')
-
+        coords_files = list(experiment_fpath.glob('*.xml'))
+        if len(coords_files):
+            for coord in coords_files:
+                shutil.move(coord.as_posix(), (experiment_fpath / 'extra_files').as_posix())
+                self.logger.debug(f'moved {coord.stem} into extra_files')
+        else:
+            self.logger.debug(f'there are no coords files in the experiment folders')
+        
         # Move the fresh nuclei file for eel
         if 'eel' in experiment_info['Experiment_type']:
             nuclei_files = list(experiment_fpath.glob('*ChannelEuropium_Cy3*'))
@@ -370,15 +380,16 @@ class sort_data_into_folders(Task):
                 for nuclei in nuclei_files:
                     shutil.move(nuclei.as_posix(), (experiment_fpath / 'fresh_nuclei').as_posix())
                     self.logger.debug(f'moved {nuclei.stem} into fresh nuclei')
-
+            else:
+                self.logger.debug(f'The experiment does not have images of fresh nuclei')
+            
             large_views = list(experiment_fpath.glob('*ChannelDAPI*'))
             if len(large_views):
                 for large_view in large_views:
                     shutil.move(large_view.as_posix(), (experiment_fpath / 'extra_files').as_posix())
                     self.logger.debug(f'moved {large_view.stem} into extra_files')
-
             else:
-                logger.debug(f'The experiment do not have images of fresh nuclei')
+                self.logger.debug(f'The experiment does not have large view images of fresh nuclei')
 
 
 
