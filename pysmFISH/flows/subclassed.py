@@ -79,7 +79,7 @@ from pysmFISH.utilities_tasks import create_folder_structure_viv
 
 
 # subclassed task
-with Flow("subclassed",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:32833')),
+with Flow("subclassed",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:9234')),
             storage=Local(directory='/home/simone/tmp_code/flows')) as flow:
 
     experiment_fpath = Parameter('experiment_fpath',default = '/wsfish/smfish_ssd/test')

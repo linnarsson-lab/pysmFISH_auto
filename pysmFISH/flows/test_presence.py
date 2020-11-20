@@ -6,7 +6,8 @@ experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201014_EEL_Mouse_2420um_auto'
 
 processing_env_config = load_processing_env_config_file(config_db_fpath)
 
-experiment_info = load_experiment_config_file(experiment_fpath)
+experiment_info_loader = load_experiment_config_file()
+experiment_info = experiment_info_loader.run(experiment_fpath)
 
 # QC for experiment info if contains all the info
 

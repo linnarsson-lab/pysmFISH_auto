@@ -305,7 +305,7 @@ def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
         signals.FAIL(f'cannot save the analysis_config_file')
 
 
-# @task(name='load-processing-env-config')
+# # @task(name='load-processing-env-config')
 # def load_processing_env_config_file(experiment_fpath:str):
 #     logger = prefect_logging_setup('load-processing-env-config')
 #     experiment_fpath = Path(experiment_fpath)
@@ -326,32 +326,33 @@ def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
 #         return processing_env_config
 
 
-# def load_processing_env_config_file(config_db_fpath:str):
-#     """
-#     Function used to load the parameters used for setting up 
-#     the processing cluster
+def load_processing_env_config_file(config_db_fpath:str):
+    """
+    Function used to load the parameters used for setting up 
+    the processing cluster
 
-#     Args:
-#         config_db_fpath; str
-#             path to the folder containing the data_transfer_config.yaml
-#     """
-#     logger = prefect_logging_setup('load-processing-env-config')
-#     config_db_fpath = Path(config_db_fpath)
-#     processing_env_config_fpath = config_db_fpath / 'processing_env_config.yaml'
-#     try:
-#         processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
-#     except (FileExistsError,NameError,FileNotFoundError) as e:
-#         logger.debug(f'{processing_env_config_fpath} missing')
-#         try:
-#             create_processing_env_config_file(experiment_fpath)
-#         except:
-#             logger.error('cannot create the processing config file')
-#             signals.FAIL('cannot create the processing config file')
-#         else:
-#             processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
-#             return processing_env_config
-#     else:
-#         return processing_env_config
+    Args:
+        config_db_fpath; str
+            path to the folder containing the data_transfer_config.yaml
+    """
+    # logger = prefect_logging_setup('load-processing-env-config')
+    config_db_fpath = Path(config_db_fpath)
+    processing_env_config_fpath = config_db_fpath / 'processing_env_config.yaml'
+    try:
+        processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
+    except (FileExistsError,NameError,FileNotFoundError) as e:
+        # logger.debug(f'{processing_env_config_fpath} missing')
+        try:
+            create_processing_env_config_file(experiment_fpath)
+        except:
+            # logger.error('cannot create the processing config file')
+            # signals.FAIL('cannot create the processing config file')
+            print('cane')
+        else:
+            processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
+            return processing_env_config
+    else:
+        return processing_env_config
 
 
 
