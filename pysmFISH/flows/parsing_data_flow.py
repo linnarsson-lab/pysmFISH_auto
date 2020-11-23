@@ -12,7 +12,8 @@ from pysmFISH.utilities_tasks import create_empty_zarr_file
 
 from prefect.utilities.debug import raise_on_exception
 
-with Flow("parsing",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:9234')),
+
+with Flow("parsing",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:12270')),
             storage=Local(directory='/home/simone/tmp_code/flows')) as flow:
    
     experiment_fpath = Parameter('experiment_fpath', default = '/wsfish/smfish_ssd/AMEXP20201110_EEL_HumanH1930001V1C_auto')
@@ -33,7 +34,7 @@ with Flow("parsing",environment=LocalEnvironment(DaskExecutor(address='tcp://193
 
 
     # Parse all the nd2 files
-    autoparser = nikon_nd2_autoparser_zarr(task_run_name=lambda **kwargs: f"parsing-{kwargs['all_raw_nd2']}")
+    autoparser = nikon_nd2_autoparser_zarr(task_run_name=lambda **kwargs: f"parsing-{kwargs['nd2_file_path']}")
     parsed_data = autoparser.map(nd2_file_path=all_raw_nd2,parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
                                     experiment_info=unmapped(experiment_info))
     parsed_data.set_upstream([parsed_raw_data_fpath,all_raw_nd2])
