@@ -82,6 +82,10 @@ def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
     img /= background
     img = nd.gaussian_laplace(img,LaplacianKernel)
     if np.all(img < 0):
+        # This line was included to flip the peaks in the laplacian processing
+        # I need to find the logic why it is not necessary anymore
+        # The selection for np.all is not correct but I just want to keep it and see if
+        # it works before remove it...find conditions when it will break
         logger.debug(f'image values are negative after laplacian. Values flipped')
         img = -img
     img[img<0] = 0
