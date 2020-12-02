@@ -82,6 +82,7 @@ def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
     img /= background
     img = nd.gaussian_laplace(img,LaplacianKernel)
     if np.all(img < 0):
+        logger.debug(f'image was negative after laplacian, flipped values')
         img = -img
     img[img<0] = 0
     img = (img - np.mean(img)) / np.std(img)
