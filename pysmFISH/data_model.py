@@ -5,14 +5,8 @@ import numpy as np
 from pathlib import Path
 
 import prefect
-from prefect import task
 from prefect import Task
 from prefect.engine import signals
-
-from pysmFISH.logger_utils import prefect_logging_setup
-
-import logging
-
 
 class shoji_db_fish(Task):
     """
