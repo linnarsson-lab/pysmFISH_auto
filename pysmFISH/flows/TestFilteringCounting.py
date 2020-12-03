@@ -18,7 +18,7 @@ from pysmFISH.utilities_tasks import open_consolidated_metadata
 from prefect.utilities.debug import raise_on_exception
 
 
-with Flow("filtering-counting",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:13443')),
+with Flow("filtering-counting",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:28407')),
             storage=Local(directory='/home/simone/tmp_code/flows')) as flow:
    
     experiment_fpath = Parameter('experiment_fpath', default = '/wsfish/smfish_ssd/AMEXP20201110_EEL_HumanH1930001V1C_auto')
