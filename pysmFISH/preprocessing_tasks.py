@@ -17,7 +17,6 @@ from prefect.utilities.logging import get_logger
 
 from pysmFISH.logger_utils import prefect_logging_setup
 
-
 # @task(name='load-dark-image')
 def load_dark_image(experiment_fpath:str)->np.ndarray:
     """
@@ -91,7 +90,7 @@ def preprocessing_dot_raw_image(img_meta:tuple,dark_img:np.ndarray,
     img[img<0] = 0
     img = (img - np.mean(img)) / np.std(img)
     img[img<0] = 0 
-    logger.info(f'max {img.max()}')
+    logger.debug(f'max {img.max()}')
     
     return (img, img_metadata)
 
