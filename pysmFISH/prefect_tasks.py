@@ -112,43 +112,53 @@ class single_fish_filter_count(Task):
                 signals.FAIL(f'cannot load dark reference fish image')
             else:
                 self.logger.info('loaded dark reference image')
-                try:
-                    filtered_fish_images_metadata = preprocessing_dot_raw_image(raw_fish_images_meta,dark_img,
-                                            FlatFieldKernel,FilteringSmallKernel, 
-                                            LaplacianKernel)
-                except:
-                    self.logger.error(f'cannot filter fish image {zarr_grp_name}')
-                    signals.FAIL(f'cannot filter fish image {zarr_grp_name}')
+    
+                filtered_fish_images_metadata = preprocessing_dot_raw_image(raw_fish_images_meta,dark_img,
+                                        FlatFieldKernel,FilteringSmallKernel, 
+                                        LaplacianKernel)
 
-                else:
-                    self.logger.info(f'filtered fish image {zarr_grp_name}')
-                    try:
-                        save_images_metadata(filtered_fish_images_metadata)
-                    except:
-                        self.logger.error(f'cannot save fish image {zarr_grp_name}')
-                        signals.FAIL(f'cannot save fish image {zarr_grp_name}')
-                
-                    else:
-                        self.logger.info(f'saved filtered fish image {zarr_grp_name}')
-                        try:
-                            fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
+                save_images_metadata(filtered_fish_images_metadata)
+
+                fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
                                                         min_distance,
                                                         min_obj_size,
                                                         max_obj_size,
                                                         num_peaks_per_label)
-                        except:
-                            self.logger.error(f'cannot count dots in fish image {zarr_grp_name}')
-                            signals.FAIL(f'cannot count dots in fish image {zarr_grp_name}')
+                save_dots_data(fish_counts)
 
-                        else:
-                            self.logger.info(f'counted dots in fish image {zarr_grp_name}')
-                            try:
-                                save_dots_data(fish_counts)
-                            except:
-                                self.logger.error(f'cannot save the counts of fish image {zarr_grp_name}')
-                                signals.FAIL(f'cannot save the counts of fish image {zarr_grp_name}')
-                            else:
-                                self.logger.info(f'completed preprocessing and counting fish image {zarr_grp_name}')
+                # except:
+                #     self.logger.error(f'cannot filter fish image {zarr_grp_name}')
+                #     signals.FAIL(f'cannot filter fish image {zarr_grp_name}')
+
+                # else:
+                #     self.logger.info(f'filtered fish image {zarr_grp_name}')
+                #     try:
+                #         save_images_metadata(filtered_fish_images_metadata)
+                #     except:
+                #         self.logger.error(f'cannot save fish image {zarr_grp_name}')
+                #         signals.FAIL(f'cannot save fish image {zarr_grp_name}')
+                
+                #     else:
+                #         self.logger.info(f'saved filtered fish image {zarr_grp_name}')
+                #         try:
+                #             fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
+                #                                         min_distance,
+                #                                         min_obj_size,
+                #                                         max_obj_size,
+                #                                         num_peaks_per_label)
+                #         except:
+                #             self.logger.error(f'cannot count dots in fish image {zarr_grp_name}')
+                #             signals.FAIL(f'cannot count dots in fish image {zarr_grp_name}')
+
+                #         else:
+                #             self.logger.info(f'counted dots in fish image {zarr_grp_name}')
+                #             try:
+                #                 save_dots_data(fish_counts)
+                #             except:
+                #                 self.logger.error(f'cannot save the counts of fish image {zarr_grp_name}')
+                #                 signals.FAIL(f'cannot save the counts of fish image {zarr_grp_name}')
+                #             else:
+                #                 self.logger.info(f'completed preprocessing and counting fish image {zarr_grp_name}')
 
 
 @task(task_run_name=lambda **kwargs: f"beads-preprocessing-{kwargs['zarr_grp_name']}")
@@ -182,36 +192,46 @@ def single_beads_filter_count(zarr_grp_name,
                 filtered_beads_images_metadata = preprocessing_dot_raw_image(raw_beads_images_meta,dark_img,
                                         FlatFieldKernel,FilteringSmallKernel, 
                                         LaplacianKernel)
-            except:
-                  logger.error(f'cannot filter beads image {zarr_grp_name}')
-                  signals.FAIL(f'cannot filter beads image {zarr_grp_name}')
 
-            else:
-                logger.info(f'filtered beads image {zarr_grp_name}')
-                try:
-                    save_images_metadata(filtered_beads_images_metadata)
-                except:
-                    logger.error(f'cannot save beads image {zarr_grp_name}')
-                    signals.FAIL(f'cannot save beads image {zarr_grp_name}')
-            
-                else:
-                    logger.info(f'saved filtered beads image {zarr_grp_name}')
-                    try:
-                        beads_counts = osmFISH_peak_based_detection(filtered_beads_images_metadata,
+                save_images_metadata(filtered_beads_images_metadata)
+
+                beads_counts = osmFISH_peak_based_detection(filtered_beads_images_metadata,
                                                     min_distance,
                                                     min_obj_size,
                                                     max_obj_size,
                                                     num_peaks_per_label)
-                    except:
-                        logger.error(f'cannot count dots in beads image {zarr_grp_name}')
-                        signals.FAIL(f'cannot count dots in beads image {zarr_grp_name}')
+                save_dots_data(beads_counts)
 
-                    else:
-                        logger.info(f'counted dots in beads image {zarr_grp_name}')
-                        try:
-                            save_dots_data(beads_counts)
-                        except:
-                            logger.error(f'cannot save the counts of beads image {zarr_grp_name}')
-                            signals.FAIL(f'cannot save the counts of beads image {zarr_grp_name}')
-                        else:
-                            logger.info(f'completed preprocessing and counting beads image {zarr_grp_name}')
+            # except:
+            #       logger.error(f'cannot filter beads image {zarr_grp_name}')
+            #       signals.FAIL(f'cannot filter beads image {zarr_grp_name}')
+
+            # else:
+            #     logger.info(f'filtered beads image {zarr_grp_name}')
+            #     try:
+            #         save_images_metadata(filtered_beads_images_metadata)
+            #     except:
+            #         logger.error(f'cannot save beads image {zarr_grp_name}')
+            #         signals.FAIL(f'cannot save beads image {zarr_grp_name}')
+            
+            #     else:
+            #         logger.info(f'saved filtered beads image {zarr_grp_name}')
+            #         try:
+            #             beads_counts = osmFISH_peak_based_detection(filtered_beads_images_metadata,
+            #                                         min_distance,
+            #                                         min_obj_size,
+            #                                         max_obj_size,
+            #                                         num_peaks_per_label)
+            #         except:
+            #             logger.error(f'cannot count dots in beads image {zarr_grp_name}')
+            #             signals.FAIL(f'cannot count dots in beads image {zarr_grp_name}')
+
+            #         else:
+            #             logger.info(f'counted dots in beads image {zarr_grp_name}')
+            #             try:
+            #                 save_dots_data(beads_counts)
+            #             except:
+            #                 logger.error(f'cannot save the counts of beads image {zarr_grp_name}')
+            #                 signals.FAIL(f'cannot save the counts of beads image {zarr_grp_name}')
+            #             else:
+            #                 logger.info(f'completed preprocessing and counting beads image {zarr_grp_name}')
