@@ -7,5 +7,5 @@
     "jupyter.jupyterServerType": "local",
     "python.languageServer": "Pylance",
     "python.analysis.completeFunctionParens": true,
-    "terminal.integrated.inheritEnv" : false
+    "terminal.integrated.inheritEnv" : true
 }

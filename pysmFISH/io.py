@@ -123,7 +123,7 @@ class load_analysis_parameters(Task):
         analysis_parameters['small-beads']['PreprocessingBeadsRegistrationFilteringSmallKernel'] = analysis_parameters_ws[:].PreprocessingSmallBeadsRegistrationFilteringSmallKernel
         analysis_parameters['small-beads']['PreprocessingBeadsRegistrationFilteringLaplacianKernel'] = analysis_parameters_ws[:].PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel 
         analysis_parameters['small-beads']['CountingBeadsRegistrationMinObjDistance'] = analysis_parameters_ws[:].CountingSmallBeadsRegistrationMinObjDistance
-        analysis_parameters['small-beads']['CountingBeadsRegistratiohMinObjSize'] = analysis_parameters_ws[:].CountingSmallBeadsRegistrationMinObjSize
+        analysis_parameters['small-beads']['CountingBeadsRegistrationMinObjSize'] = analysis_parameters_ws[:].CountingSmallBeadsRegistrationMinObjSize
         analysis_parameters['small-beads']['CountingBeadsRegistrationMaxObjSize'] = analysis_parameters_ws[:].CountingSmallBeadsRegistrationMaxObjSize
         analysis_parameters['small-beads']['CountingBeadsRegistrationNumPeaksPerLabel'] = analysis_parameters_ws[:].CountingSmallBeadsRegistrationNumPeaksPerLabel 
         

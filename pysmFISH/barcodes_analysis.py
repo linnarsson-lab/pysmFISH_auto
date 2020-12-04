@@ -6,6 +6,20 @@ from sklearn.neighbors import NearestNeighbors
 from pynndescent import NNDescent
 
 
+class convert_xlsx_barcode():
+    """
+    Class use to conver handy .xlsx with barcodes.
+    The .xlsx files must have the follwing columns:
+
+    Count|Code|N|CORE/EXTENDED|DYE|TAIL1|TAIL2|TAIL3|TAIL4|TAIL5|TAIL6|Gene
+
+
+
+    """
+    def __init__(self, xlsx_barcode_fpath, barcode_name):
+        
+        self.xlsx_barcode_fpath = Path(xlsx_barcode_fpath)
+
 class extract_barcodes():
     """
     Class used to extract the barcodes from the registered

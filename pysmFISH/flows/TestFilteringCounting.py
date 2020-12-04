@@ -11,6 +11,7 @@ from pysmFISH.io import load_analysis_parameters
 from pysmFISH.utilities_tasks import consolidate_zarr_metadata
 from pysmFISH.utilities_tasks import sorting_grps
 from pysmFISH.prefect_tasks import single_fish_filter_count
+from pysmFISH.prefect_tasks import single_beads_filter_count
 
 
 from pysmFISH.utilities_tasks import open_consolidated_metadata
@@ -18,7 +19,7 @@ from pysmFISH.utilities_tasks import open_consolidated_metadata
 from prefect.utilities.debug import raise_on_exception
 
 
-with Flow("filtering-counting",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:28407')),
+with Flow("filtering-counting",environment=LocalEnvironment(DaskExecutor(address='tcp://193.10.16.58:5810')),
             storage=Local(directory='/home/simone/tmp_code/flows')) as flow:
    
     experiment_fpath = Parameter('experiment_fpath', default = '/wsfish/smfish_ssd/AMEXP20201110_EEL_HumanH1930001V1C_auto')
@@ -52,31 +53,31 @@ with Flow("filtering-counting",environment=LocalEnvironment(DaskExecutor(address
 
 
     # PORT
-    fish_counter = single_fish_filter_count(task_run_name=lambda **kwargs: f"parsing-{kwargs['zarr_grp_name']}")
-    filtered_fish_images_metadata = fish_counter.map(zarr_grp_name=sorted_grps[0][0:10],
+    # fish_counter = single_fish_filter_count(task_run_name=lambda **kwargs: f"filtering-counting-{kwargs['zarr_grp_name']}")
+    # filtered_fish_images_metadata = fish_counter.map(zarr_grp_name=sorted_grps[0],
+    #                         parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+    #                         FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
+    #                         FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
+    #                         LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']),
+    #                         min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
+    #                         min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
+    #                         max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
+    #                         num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
+
+
+    beads_counter = single_beads_filter_count(task_run_name=lambda **kwargs: f"filtering-counting-{kwargs['zarr_grp_name']}")
+    filtered_beads_images_metadata = beads_counter.map(zarr_grp_name=sorted_grps[2][0:5],
                             parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-                            FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
-                            FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
-                            LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']),
-                            min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
-                            min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
-                            max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
-                            num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
+                            FlatFieldKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFlatFieldKernel']),
+                            FilteringSmallKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringSmallKernel']),
+                            LaplacianKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringLaplacianKernel']),
+                            min_distance=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjDistance']),
+                            min_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjSize']),
+                            max_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMaxObjSize']),
+                            num_peaks_per_label=unmapped(sorted_grps[3]['CountingBeadsRegistrationNumPeaksPerLabel']))
 
-    
-    # filtered_fish_images_metadata = single_fish.map(zarr_grp_name=sorted_grps[0][0:10],
-    #             parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-    #             experiment_fpath=unmapped(experiment_fpath),
-    #             FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
-    #             FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
-    #             LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']),
-    #             min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
-    #             min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
-    #             max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
-    #             num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
+    # Add processing for staining images
 
-    # PORT
-    # save_images_metadata.map(filtered_fish_images_metadata)
 
 # with raise_on_exception():
 #     flow.run()
