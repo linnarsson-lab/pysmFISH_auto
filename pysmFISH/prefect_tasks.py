@@ -22,6 +22,7 @@ from pysmFISH.logger_utils import setup_logger_prefect_UI
 # testing import
 from pathlib import Path
 
+import pickle
 
 
 class single_fish_filter_count(Task):
@@ -116,15 +117,20 @@ class single_fish_filter_count(Task):
                 filtered_fish_images_metadata = preprocessing_dot_raw_image(raw_fish_images_meta,dark_img,
                                         FlatFieldKernel,FilteringSmallKernel, 
                                         LaplacianKernel)
-
-                save_images_metadata(filtered_fish_images_metadata)
+                
+                fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_fish_filtered.pkl')
+                pickle.dump(filtered_fish_images_metadata,open(fname,'wb'))
+                # save_images_metadata(filtered_fish_images_metadata)
 
                 fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
                                                         min_distance,
                                                         min_obj_size,
                                                         max_obj_size,
                                                         num_peaks_per_label)
-                save_dots_data(fish_counts)
+                # save_dots_data(fish_counts)
+                fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_fish_dots.pkl')
+                pickle.dump(fish_counts,open(fname,'wb'))
+
 
                 # except:
                 #     self.logger.error(f'cannot filter fish image {zarr_grp_name}')
@@ -251,14 +257,19 @@ class single_beads_filter_count(Task):
                                         FlatFieldKernel,FilteringSmallKernel, 
                                         LaplacianKernel)
 
-                save_images_metadata(filtered_beads_images_metadata)
+                # save_images_metadata(filtered_beads_images_metadata)
+
+                fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_beads_filtered.pkl')
+                pickle.dump(filtered_beads_images_metadata,open(fname,'wb'))
 
                 beads_counts = osmFISH_peak_based_detection(filtered_beads_images_metadata,
                                                     min_distance,
                                                     min_obj_size,
                                                     max_obj_size,
                                                     num_peaks_per_label)
-                save_dots_data(beads_counts)
+                # save_dots_data(beads_counts)
+                fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_beads_dots.pkl')
+                pickle.dump(beads_counts,open(fname,'wb'))
 
                 # except:
                 #       logger.error(f'cannot filter beads image {zarr_grp_name}')
