@@ -82,8 +82,8 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict):
         experiment_type = experiment_info['Experiment_type']
         cluster_config_parameters = processing_env_config[processing_engine][experiment_type]
         cluster = htcondor_cluster_setup(cluster_config_parameters)
-        cluster.scale(jobs=150)
-        # cluster.adapt(minimum_jobs=32)
+        # cluster.scale(jobs=50)
+        cluster.adapt(minimum_jobs=32)
         return cluster
     elif processing_engine == 'local':
         cluster = local_cluster_setup()
@@ -91,7 +91,7 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict):
     else:
         # logger.error(f'the processing engine is not defined check the name')
         # signals.FAIL(f'the processing engine is not defined check the name')
-        print('cabe')
+        print('cane')
 
 
 def start_transfering_env(processing_hd_location:str):

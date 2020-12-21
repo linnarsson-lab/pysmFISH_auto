@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/home/simone/miniconda3/envs/prefect_dev/bin/python",
+    "python.pythonPath": "/home/simone/mini/envs/pysmFISH_auto-env/bin/python",
     "telemetry.enableTelemetry": false,
     "python.linting.mypyEnabled": true,
     "python.linting.enabled": true,

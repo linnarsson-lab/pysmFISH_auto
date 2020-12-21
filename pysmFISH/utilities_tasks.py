@@ -542,7 +542,6 @@ class sorting_grps(Task):
 
         staining_selected_parameters = analysis_parameters['staining']
         staining_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
-
         return fish_grp, fish_selected_parameters, beads_grp, beads_selected_parameters, staining_grp, staining_selected_parameters
 
 
