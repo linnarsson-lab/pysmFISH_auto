@@ -43,7 +43,7 @@ class osmFISH_dots_thr_selection():
         self.min_peaks = min_peaks
 
         if self.min_peaks == False:
-            self.min_peaks = 3
+            self.min_peaks = 20
         
         self.min_distance = self.parameters_dict['min_distance']
         
@@ -55,15 +55,16 @@ class osmFISH_dots_thr_selection():
 
     def counting_graph(self):
 
+        binning = 100
         # Define the range of thr to be tested
         if self.min_int and self.max_int:
-            self.thr_array = np.linspace(self.min_int,self.max_int,num=100)
+            self.thr_array = np.linspace(self.min_int,self.max_int,num=binning)
         elif self.min_int:
-            self.thr_array = np.linspace(self.min_int,self.img.max(),num=100)
+            self.thr_array = np.linspace(self.min_int,self.img.max(),num=binning)
         elif self.max_int:
-            self.thr_array = np.linspace(self.img.min(),self.max_int,num=100)
+            self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.max_int,num=binning)
         else:
-            self.thr_array = np.linspace(self.img.min(),self.img.max(),num=100)
+            self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.img.max(),num=binning)
     
         # Calculate the number of peaks for each threshold. In this calculation
         # the size of the objects is not considered

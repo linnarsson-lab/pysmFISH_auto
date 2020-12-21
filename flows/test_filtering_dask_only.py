@@ -21,23 +21,23 @@ cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath
 # consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
 
 grp_name = 'fish'
-sorted_images_list = ['LBEXP20201207_EEL_HE_test2_Hybridization06_Cy5_fov_312',
-                        'LBEXP20201207_EEL_HE_test2_Hybridization06_Cy5_fov_310',
-                        'LBEXP20201207_EEL_HE_test2_Hybridization06_Cy5_fov_309',
-                        'LBEXP20201207_EEL_HE_test2_Hybridization06_Cy5_fov_200'    
-                    ]
 
 sorted_images_list = list(Path(parsed_raw_data_fpath).glob('*Cy5*'))
 sorted_images_list = [el.stem for el in sorted_images_list]
+
+# sorted_images_list = ['LBEXP20201207_EEL_HE_test2_Hybridization08_Cy5_fov_88',
+#                     'LBEXP20201207_EEL_HE_test2_Hybridization08_Cy5_fov_10',
+#                     'LBEXP20201207_EEL_HE_test2_Hybridization08_Cy5_fov_21'
+# ]
 
 
 processing_parameters =  {}
 processing_parameters['PreprocessingFishFlatFieldKernel'] = (100,100) 
 processing_parameters['PreprocessingFishFilteringSmallKernel'] = (8,8)
-processing_parameters['PreprocessingFishFilteringLaplacianKernel'] = (1,1)
+processing_parameters['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
 processing_parameters['CountingFishMinObjDistance'] = 2
 processing_parameters['CountingFishMinObjSize'] = 2
-processing_parameters['CountingFishMaxObjSize'] = 20
+processing_parameters['CountingFishMaxObjSize'] = 200
 processing_parameters['CountingFishNumPeaksPerLabel'] = 1
 
 filtering_counting_runner(cluster,
@@ -47,3 +47,5 @@ filtering_counting_runner(cluster,
                             sorted_images_list,
                             processing_parameters)
 
+
+cluster.close()

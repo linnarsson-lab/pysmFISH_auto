@@ -10,6 +10,7 @@ import numpy as np
 import scipy.ndimage as nd
 from skimage import filters
 from pathlib import Path
+from dask.distributed import Client
 
 # pysmFISH imports
 from pysmFISH.io import load_raw_images
@@ -116,33 +117,37 @@ def single_fish_filter_count_standard(
             img = convert_from_uint16_to_float64(img)
             img -= dark_img
             img = np.amax(img, axis=0)
-            background = filters.gaussian(img,FlatFieldKernel,preserve_range=True)
-            img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=True)
-            img[img<0] = 0
+            background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+            img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+            # img[img<0] = 0
             img /= background
             img = nd.gaussian_laplace(img,LaplacianKernel)
-            if np.all(img < 0):
-                # This line was included to flip the peaks in the laplacian processing
-                # I need to find the logic why it is not necessary anymore
-                # The selection for np.all is not correct but I just want to keep it and see if
-                # it works before remove it...find conditions when it will break
-                logger.debug(f'image values are negative after laplacian. Values flipped')
-                img = -img
-            img[img<0] = 0
+            # if np.all(img < 0):
+            #     # This line was included to flip the peaks in the laplacian processing
+            #     # I need to find the logic why it is not necessary anymore
+            #     # The selection for np.all is not correct but I just want to keep it and see if
+            #     # it works before remove it...find conditions when it will break
+            #     logger.debug(f'image values are negative after laplacian. Values flipped')
+            #     img = -img
+            # img[img<0] = 0
+            img = -img
+            # img[img<0] = 0
+
             img = (img - np.mean(img)) / np.std(img)
             img[img<0] = 0 
         
-            filtered_fish_images_metadata = (img, img_metadata)
-            fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_filtered.pkl')
-            pickle.dump(filtered_fish_images_metadata,open(fname,'wb'))
-            
             
 
-            fish_counts = osmFISH_peak_based_detection(filtered_fish_images_metadata,
+            fish_counts = osmFISH_peak_based_detection((img, img_metadata),
                                                     min_distance,
                                                     min_obj_size,
                                                     max_obj_size,
                                                     num_peaks_per_label)
+            
+          
+            fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_filtered.pkl')
+            pickle.dump((img, img_metadata),open(fname,'wb'))
+            
             # save_dots_data(fish_counts)
             fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_dots.pkl')
             pickle.dump(fish_counts,open(fname,'wb'))
@@ -197,9 +202,8 @@ def filtering_counting_runner(cluster,
     elif grp_name == 'staining':
         pass
 
-    all_futures = []
-    for processing_file in sorted_images_list:
-        future = dask.delayed(running_function)(processing_file,
+    client = Client(cluster)
+    L = client.map(running_function,sorted_images_list,
                                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
                                                 FlatFieldKernel=FlatFieldKernel,
                                                 FilteringSmallKernel=FilteringSmallKernel, 
@@ -208,6 +212,19 @@ def filtering_counting_runner(cluster,
                                                 min_obj_size=min_obj_size,
                                                 max_obj_size=max_obj_size,
                                                 num_peaks_per_label=num_peaks_per_label)
-        all_futures.append(future)
+    _ = client.gather(L)
+
+    # all_futures = []
+    # for processing_file in sorted_images_list:
+    #     future = dask.delayed(running_function)(processing_file,
+    #                                             parsed_raw_data_fpath=parsed_raw_data_fpath,
+    #                                             FlatFieldKernel=FlatFieldKernel,
+    #                                             FilteringSmallKernel=FilteringSmallKernel, 
+    #                                             LaplacianKernel=LaplacianKernel,
+    #                                             min_distance=min_distance,
+    #                                             min_obj_size=min_obj_size,
+    #                                             max_obj_size=max_obj_size,
+    #                                             num_peaks_per_label=num_peaks_per_label)
+    #     all_futures.append(future)
     
-    _ = dask.compute(*all_futures)
+    # _ = dask.compute(*all_futures)
