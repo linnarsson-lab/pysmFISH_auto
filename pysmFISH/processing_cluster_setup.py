@@ -1,16 +1,14 @@
 from typing import *
 import yaml
 import dask
+import sys
 from dask_jobqueue.htcondor import HTCondorCluster
 from dask.distributed import Client, LocalCluster
 from psutil import virtual_memory
 from pathlib import Path
 
-import prefect  
-from prefect import task
-from prefect.engine import signals
 
-from pysmFISH.logger_utils import prefect_logging_setup
+from pysmFISH.logger_utils import selected_logger
 
 def htcondor_cluster_setup(htcondor_cluster_setup: dict):
 
@@ -30,11 +28,17 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
 
     """
 
+    logger = selected_logger()
     cores = htcondor_cluster_setup['cores']
     memory = htcondor_cluster_setup['memory']
     disk = htcondor_cluster_setup['disk']
     local_directory = htcondor_cluster_setup['local_directory']
-    cluster = HTCondorCluster(cores=cores, memory=memory, disk=disk,local_directory=local_directory,death_timeout=2400)
+    log_directory = htcondor_cluster_setup['experiment_fpath'] + '/logs/'
+    cluster = HTCondorCluster(cores=cores, memory=memory, 
+                        disk=disk,local_directory=local_directory,
+                        log_directory=log_directory,
+                        death_timeout=5000)
+    logger.info(f'created cluster with {cores} cores and {memory} memory')
     return cluster
 
 def local_cluster_setup():
@@ -60,7 +64,7 @@ def local_cluster_setup():
     return cluster
 
 
-def start_processing_env(processing_env_config:Dict,experiment_info:Dict):
+def start_processing_env(processing_env_config:Dict,experiment_info:Dict,experiment_fpath:str):
     """
     Function to start the processing env. In the current setup
     is set up to run on the local computer or in a HPC cluster 
@@ -71,27 +75,31 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict):
             Dict with the parameters for starting the cluster
         experiment_info: Dict
             dictionary with all the info describing the experiment
+        experiment_fpath: str
+            path to the experiment to process
     Return:
         cluster: dask-cluster-obj
                 cluster responsible for the data processing
 
     """
-    # logger = prefect.utilities.logging.get_logger("start_processing_env")
+    logger = selected_logger()
     processing_engine = processing_env_config['processing_engine']
     if processing_engine == 'htcondor':
         experiment_type = experiment_info['Experiment_type']
         cluster_config_parameters = processing_env_config[processing_engine][experiment_type]
+        cluster_config_parameters['experiment_fpath'] = experiment_fpath
         cluster = htcondor_cluster_setup(cluster_config_parameters)
         # cluster.scale(jobs=50)
-        cluster.adapt(minimum_jobs=32)
+        minimum_jobs = 32
+        cluster.adapt(minimum_jobs=minimum_jobs)
+        logger.info(f'adaptive dask cluster with {minimum_jobs} minimum jobs')
         return cluster
     elif processing_engine == 'local':
         cluster = local_cluster_setup()
         return cluster
     else:
-        # logger.error(f'the processing engine is not defined check the name')
-        # signals.FAIL(f'the processing engine is not defined check the name')
-        print('cane')
+        logger.error(f'the processing engine is not defined check the name')
+        sys.exit(f'the processing engine is not defined check the name')
 
 
 def start_transfering_env(processing_hd_location:str):
@@ -108,7 +116,7 @@ def start_transfering_env(processing_hd_location:str):
 
     """
 
-    logger = prefect.utilities.logging.get_logger("start_transfering_env")
+    logger = selected_logger()
 
     processing_hd_location = Path(processing_hd_location)
     transfer_env_config_fpath = processing_hd_location / 'config_db' / 'data_transfer_config.yaml'
@@ -129,21 +137,4 @@ def start_transfering_env(processing_hd_location:str):
             return cluster
         else:
             logger.error(f'the processing engine is not defined check the name')
-            signals.FAIL(f'the processing engine is not defined check the name')
-
-
-# if __name__ == "__main__":
-#     experiment_fpath = '/Users/simone/Documents/local_data_storage/prefect_test/exp_pre_auto'
-#     experiment_info = {'processing_engine': 'local',
-#                         'Experiment_type': 'eel-barcoded'}
-
-#     processing_env_config = {}
-#     processing_env_config['htcondor'] = {}
-#     processing_env_config['htcondor']['smfish-serial'] = {}
-#     processing_env_config['htcondor']['smfish-serial']['cores'] = 1
-#     processing_env_config['htcondor']['smfish-serial']['memory'] = '10GB'
-#     processing_env_config['htcondor']['smfish-serial']['disk'] = '0.1GB'
-#     processing_env_config['htcondor']['smfish-serial']['local_directory'] = '/tmp'
-#     cluster = start_processing_env(experiment_fpath,experiment_info)
-#     a = 22
-#     print(a)
+            sys.exit(f'the processing engine is not defined check the name')

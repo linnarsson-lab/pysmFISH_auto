@@ -5,6 +5,7 @@ that will contain all the analysis outputs
 
 from typing import *
 import os
+import zarr
 import shoji
 import numpy as np
 from pathlib import Path
@@ -14,8 +15,85 @@ from prefect import task
 from prefect import Task
 from prefect.engine import signals
 
-from pysmFISH.logger_utils import prefect_logging_setup
+from pysmFISH.logger_utils import selected_logger
 from pysmFISH.utils import convert_to_uint16
+
+
+
+def create_empty_zarr_file(experiment_fpath:str,tag:str)-> str:
+
+    """
+    Function that create and empty zarr file 
+
+    Args:
+        experiment_fpath: str
+            location of the folder to be processed
+        tag: str
+            tag to add to the file name
+    Return:
+        empty_fpath: str
+            path of the created file
+
+    """
+    
+    experiment_fpath = Path(experiment_fpath)
+    experiment_name = experiment_fpath.stem
+    zarr_fpath = experiment_fpath / (experiment_name + '_' + tag + '.zarr')
+    
+    store = zarr.DirectoryStore(zarr_fpath,'w')
+    grp = zarr.group(store=store)
+    return zarr_fpath
+
+
+def consolidate_zarr_metadata(parsed_raw_data_fpath):
+    """
+    Function to consolidate all the zarr metadata in one unique
+    json file for eady indexing and searching
+
+    Args:
+        parsed_raw_data_fpath: str
+            path to the file with all the parsed images
+    
+    Returns:
+        consolidated_grp: zarr group
+            zarr groups instance with the consolidated metadata
+    """
+
+    logger = selected_logger()
+    try:
+        store = zarr.DirectoryStore(parsed_raw_data_fpath)
+        consolidated_grp = zarr.consolidate_metadata(store)
+    except:
+        logger.error(f'cannot consolidate metadata of the parsed zarr file')
+        sys.exit(f'cannot consolidate metadata of the parsed zarr file')
+    else:
+        return consolidated_grp
+
+
+def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
+    """
+    Function used to load a raw image and metadata from the 
+    parsed raw file and the attrs for the filtering
+        parsed_raw_data_fpath: str
+            fpath to zarr store containing the parsed raw images
+        zarr_grp_name: str
+            fpath to the group to process. The group contain the raw images and the 
+            corresponding metadata
+
+            grp = experiment_name_channel_fov_X
+                dataset = raw_data_fov_X
+
+    """
+    logger = selected_logger()
+    st = zarr.DirectoryStore(parsed_raw_data_fpath)
+    root = zarr.group(store=st,overwrite=False)
+
+    metadata = root[zarr_grp_name].attrs
+    img = root[zarr_grp_name][metadata['fov_name']][...]
+    return (img, dict(metadata))
+
+
+
 
 
 def connect_to_shoji_smfish_experiment(experiment_name: str):
