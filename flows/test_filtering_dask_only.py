@@ -22,7 +22,7 @@ cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath
 
 grp_name = 'fish'
 
-sorted_images_list = list(Path(parsed_raw_data_fpath).glob('*Cy5*'))
+sorted_images_list = list(Path(parsed_raw_data_fpath).glob('*Europium*'))
 sorted_images_list = [el.stem for el in sorted_images_list]
 
 # sorted_images_list = ['LBEXP20201207_EEL_HE_test2_Hybridization08_Cy5_fov_88',
