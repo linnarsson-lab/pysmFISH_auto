@@ -1,7 +1,7 @@
 import prefect
-from prefect import task, Flow, Parameter, flatten, unmapped
+from prefect import task, Flow, Parameter, flatten, unmapped, Task
 from prefect.executors import DaskExecutor
-from prefect.run_configs import LocalRun
+from prefect.run_configs import LocalRun, UniversalRun
 
 # from pysmFISH.configuration_files_tasks import load_experiment_config_file
 # from pysmFISH.data_model import shoji_db_fish
@@ -15,16 +15,51 @@ from prefect.run_configs import LocalRun
 
 from prefect.utilities.debug import raise_on_exception
 
+from random import randrange
 import time
 
 @task
 def test_parallel(a):
-    time.sleep(20)
+    time.sleep(10)
+
+class topo(Task):
+    def run(self,a):
+        return (a + 1)
+
+@task
+def ssmf(z):
+    return sum(z)
+
+
+@task
+def random_num(stop):
+    number = 45
+    print(f"Your number is {number}")
+    return number
+
+@task
+def sum_numbers(numbers):
+    print(sum(numbers))
+
+# with Flow("parallel-execution",run_config= LocalRun(), executor = DaskExecutor(address="193.10.16.58:24631")) as flow:
+#     stop = Parameter("stop")
+
+#     number_1 = random_num(stop)
+#     number_2 = random_num(stop)
+#     number_3 = random_num(stop)
+
+#     sum_numbers = sum_numbers(numbers=[number_1, number_2, number_3])
+
+
+
+
 
 # adapt_kwargs={"minimum": 50}
 # address='tcp://193.10.16.58:18049',
-with Flow("filtering-counting",run_config=LocalRun(), executor = DaskExecutor(address='tcp://193.10.16.58:3111')) as flow:
-   
+with Flow("scheduled-run",run_config=LocalRun(), 
+    executor = DaskExecutor(address='tcp://193.10.16.58:11450',debug=True)) as flow:
+
+# adapt_kwargs={"minimum": 50, "maximum": 150, "processes":False, "threads_per_worker":1}
     # experiment_fpath = Parameter('experiment_fpath', default = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2')
     # parsed_raw_data_fpath = Parameter('parsed_raw_data_fpath',default='/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/AMEXP20201110_EEL_HumanH1930001V1C_auto_img_data.zarr')
      
@@ -55,9 +90,9 @@ with Flow("filtering-counting",run_config=LocalRun(), executor = DaskExecutor(ad
     # sorted_grps.set_upstream(consolidated_zarr_grp)
 
     # test_parallel.map(sorted_grps[0][0:5000])
-
-    all_data = Parameter('all_data',default = list(range(10)))
-    mapped = test_parallel.map(all_data,upstream_tasks =[all_data])
+    all_data = Parameter('all_data',default = list(range(10000)))
+    out = test_parallel.map(a=all_data)
+    # output2 = test_parallel.map([1,2,3,4,5],upstream_tasks=[output])
     #PORT
     # fish_counter = single_fish_filter_count(task_run_name=lambda **kwargs: f"filtering-counting-{kwargs['zarr_grp_name']}")
     # filtered_fish_images_metadata = fish_counter.map(zarr_grp_name=sorted_grps[0],
@@ -88,6 +123,6 @@ with Flow("filtering-counting",run_config=LocalRun(), executor = DaskExecutor(ad
 # with raise_on_exception():
 #     flow.run()
 
-
+# assert flow.reference_tasks() == {pr}
 flow.register(project_name="test")
 # flow.run_agent()
