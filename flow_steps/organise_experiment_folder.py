@@ -26,10 +26,7 @@ def organise_experiment_folder_standard(processing_hd_location:str, flag_file_ke
     folders = create_folder_structure(experiment_fpath)
 
     # Organize the dark_images, codebooks and probes
-    # Temporary approach, will be replaced by shoji
-    # org_files = organise_files_tmp()
-    # organisation = org_files(experiment_fpath,experiment_info)
-    # organisation.set_upstream(folders)
+    # org_files = organise_files_tmp(experiment_fpath,experiment_info)
 
     sorted_data = sort_data_into_folders(experiment_fpath,experiment_info)
 
