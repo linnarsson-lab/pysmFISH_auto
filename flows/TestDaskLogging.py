@@ -17,7 +17,7 @@ def logger_test():
 def test_parallel(a):
     logger = logger_test()
     logger.info(f'rattolomeo baisizzi')
-    time.sleep(30)
+    time.sleep(10)
     logger.info(f'processing ended')
 
 
