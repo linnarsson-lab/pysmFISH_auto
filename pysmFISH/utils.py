@@ -16,10 +16,6 @@ from pathlib import Path
 yaml.SafeDumper.ignore_aliases = lambda *args : True
 
 
-# to avoid reference for nested structures
-# https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml (comment)
-yaml.SafeDumper.ignore_aliases = lambda *args : True
-
 def convert_to_uint16_full_float64_range(image):
     # Clip the values above 1
     image = image / np.finfo(np.float64).max
