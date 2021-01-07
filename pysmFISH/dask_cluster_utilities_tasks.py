@@ -34,7 +34,7 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
     memory = htcondor_cluster_setup['memory']
     disk = htcondor_cluster_setup['disk']
     local_directory = htcondor_cluster_setup['local_directory']
-    cluster = HTCondorCluster(cores=cores, memory=memory, disk=disk,local_directory=local_directory,death_timeout=2400)
+    cluster = HTCondorCluster(cores=cores, memory=memory, disk=disk,local_directory=local_directory,death_timeout=10000)
     return cluster
 
 def local_cluster_setup():
