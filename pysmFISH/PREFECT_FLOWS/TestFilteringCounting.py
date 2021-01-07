@@ -25,7 +25,7 @@ def chunking(data_list):
 
 @task
 def submap(data_list):
-    pass()
+    pass
 
 with Flow("test_filt_count",run_config=LocalRun(), 
     executor = DaskExecutor(address='tcp://193.10.16.58:19547',debug=True)) as flow:
@@ -61,32 +61,32 @@ with Flow("test_filt_count",run_config=LocalRun(),
 
     
     #PORT
-    fish_chunks = chunking(sorted_grps[0],upstream_tasks=[sorted_grps])
+    # fish_chunks = chunking(sorted_grps[0],upstream_tasks=[sorted_grps])
 
     # for chunk in fish_chunks:
-    #     fish_counter = single_fish_filter_count(task_run_name=lambda **kwargs: f"filtering-counting-{kwargs['zarr_grp_name']}")
-    #     filtered_fish_images_metadata = fish_counter.map(zarr_grp_name=chunk,
-    #                             parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-    #                             FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
-    #                             FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
-    #                             LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']),
-    #                             min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
-    #                             min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
-    #                             max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
-    #                             num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
+    fish_counter = single_fish_filter_count(task_run_name=lambda **kwargs: f"filtering-counting-{kwargs['zarr_grp_name']}")
+    filtered_fish_images_metadata = fish_counter.map(zarr_grp_name=sorted_grps[0],
+                            parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+                            FlatFieldKernel=unmapped(sorted_grps[1]['PreprocessingFishFlatFieldKernel']),
+                            FilteringSmallKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringSmallKernel']),
+                            LaplacianKernel=unmapped(sorted_grps[1]['PreprocessingFishFilteringLaplacianKernel']),
+                            min_distance=unmapped(sorted_grps[1]['CountingFishMinObjDistance']),
+                            min_obj_size=unmapped(sorted_grps[1]['CountingFishMinObjSize']),
+                            max_obj_size=unmapped(sorted_grps[1]['CountingFishMaxObjSize']),
+                            num_peaks_per_label=unmapped(sorted_grps[1]['CountingFishNumPeaksPerLabel']))
 
 
-    # beads_counter = single_beads_filter_count(task_run_name=lambda **kwargs: f"filtering-counting-{kwargs['zarr_grp_name']}")
-    # filtered_beads_images_metadata = beads_counter.map(zarr_grp_name=sorted_grps[2],
-    #                         parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
-    #                         FlatFieldKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFlatFieldKernel']),
-    #                         FilteringSmallKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringSmallKernel']),
-    #                         LaplacianKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringLaplacianKernel']),
-    #                         min_distance=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjDistance']),
-    #                         min_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjSize']),
-    #                         max_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMaxObjSize']),
-    #                         num_peaks_per_label=unmapped(sorted_grps[3]['CountingBeadsRegistrationNumPeaksPerLabel']))
-
+    beads_counter = single_beads_filter_count(task_run_name=lambda **kwargs: f"filtering-counting-{kwargs['zarr_grp_name']}")
+    filtered_beads_images_metadata = beads_counter.map(zarr_grp_name=sorted_grps[2],
+                            parsed_raw_data_fpath=unmapped(parsed_raw_data_fpath),
+                            FlatFieldKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFlatFieldKernel']),
+                            FilteringSmallKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringSmallKernel']),
+                            LaplacianKernel=unmapped(sorted_grps[3]['PreprocessingBeadsRegistrationFilteringLaplacianKernel']),
+                            min_distance=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjDistance']),
+                            min_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMinObjSize']),
+                            max_obj_size=unmapped(sorted_grps[3]['CountingBeadsRegistrationMaxObjSize']),
+                            num_peaks_per_label=unmapped(sorted_grps[3]['CountingBeadsRegistrationNumPeaksPerLabel']))
+    filtered_beads_images_metadata.set_upstream(filtered_fish_images_metadata)
     # Add processing for staining images
 
 
