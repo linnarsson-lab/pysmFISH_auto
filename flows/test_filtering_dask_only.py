@@ -41,7 +41,7 @@ start = time.time()
 all_futures = []
 # Filtering smFISH
 fish_futures = client.map(single_fish_filter_count_standard,
-                            sorted_grps['fish'][0][0:100],
+                            sorted_grps['fish'][0],
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=sorted_grps['fish'][1])
 all_futures.append(fish_futures) 
@@ -49,7 +49,7 @@ all_futures.append(fish_futures)
 
 # Filtering beads
 beads_futures = client.map(single_fish_filter_count_standard,
-                            sorted_grps['beads'][0][0:100],
+                            sorted_grps['beads'][0],
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=sorted_grps['fish'][1])
 all_futures.append(beads_futures) 
