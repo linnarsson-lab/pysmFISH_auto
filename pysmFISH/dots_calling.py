@@ -264,13 +264,17 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                 fov_array = np.repeat(fov,total_dots)
                 thr_array = np.repeat(counts.selected_thr,total_dots)
                 channel_array = np.repeat(img_metadata['channel'],total_dots)
+                hybridization_num_array = np.repeat(img_metadata['channel'],total_dots)
+                target_name_array = np.repeat(img_metadata['target_name'],total_dots)
                 counts_dict = {
                     'DotsCoordsFOV': dots.selected_peaks,
                     'DotID': dot_id_array,
                     'FovNumber': fov_array,
                     'DotIntensity': dots.intensity_array,
                     'SelectedThreshold':thr_array,
-                    'DotChannel':channel_array}
+                    'DotChannel':channel_array,
+                    'HybridizationNum': hybridization_num_array,
+                    'TargetName': target_name_array}
             else:
                 logger.info(f' fov {fov} does not have counts (mapping)')
                 counts_dict = {
@@ -279,7 +283,9 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'FovNumber': np.array(fov),
                     'DotIntensity': np.array([fill_value]),
                     'SelectedThreshold':np.array([fill_value]),
-                    'DotChannel':np.array([fill_value])}
+                    'DotChannel':np.array([fill_value]),
+                    'HybridizationNum': np.array([img_metadata['channel']]),
+                    'TargetName': np.array([img_metadata['target_name']])}
     else:
         logger.info(f' fov {fov} does not have counts (thr)')
         counts_dict = {
@@ -288,6 +294,8 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'FovNumber': np.array(fov),
                     'DotIntensity': np.array([fill_value]),
                     'SelectedThreshold':np.array([fill_value]),
-                    'DotChannel':np.array([fill_value])}
+                    'DotChannel':np.array([fill_value]),
+                    'HybridizationNum': np.array([img_metadata['channel']]),
+                    'TargetName': np.array([img_metadata['target_name']])}
     
     return (counts_dict, img_metadata)
