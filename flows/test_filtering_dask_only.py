@@ -36,14 +36,14 @@ print(f'start filtering')
 all_futures = []
 # Filtering smFISH
 fish_futures = client.map(single_fish_filter_count_standard,
-                            sorted_images_list=sorted_grps['fish'][0][0:10],
+                            sorted_grps['fish'][0][0:10],
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=sorted_grps['fish'][1])
 all_futures.append(fish_futures) 
 
 # Filtering beads
 beads_futures = client.map(single_fish_filter_count_standard,
-                            sorted_images_list=sorted_grps['beads'][0][0:10],
+                            sorted_grps['beads'][0][0:10],
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=sorted_grps['fish'][3])
 all_futures.append(beads_futures) 
