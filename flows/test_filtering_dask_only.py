@@ -33,16 +33,22 @@ client = Client(cluster)
 
 
 print(f'start filtering')
-# Filtering
 all_futures = []
-for grp_name, grp_data in sorted_grps.items():
-    if grp_name in ['fish', 'beads']:
-        future = client.map(single_fish_filter_count_standard,
-                            sorted_images_list=grp_data[0][0:10],
+# Filtering smFISH
+fish_futures = client.map(single_fish_filter_count_standard,
+                            sorted_images_list=sorted_grps[0][0:10],
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=grp_data[1])
-    all_futures.append(future)
+                            processing_parameters=sorted_grps[1])
+all_futures.append(fish_futures) 
 
+# Filtering beads
+beads_futures = client.map(single_fish_filter_count_standard,
+                            sorted_images_list=sorted_grps[2][0:10],
+                            parsed_raw_data_fpath = parsed_raw_data_fpath,
+                            processing_parameters=sorted_grps[3])
+all_futures.append(beads_futures) 
+
+all_futures = [ft for grp_ft in all_futures for ft in grp_ft]
 
 _ = client.gather(all_futures)
 cluster.close()
