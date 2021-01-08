@@ -70,6 +70,18 @@ def consolidate_zarr_metadata(parsed_raw_data_fpath):
         return consolidated_grp
 
 
+def open_consolidated_metadata(parsed_raw_data_fpath:str):
+    logger = selected_logger()
+    
+    try:
+        store = zarr.DirectoryStore(parsed_raw_data_fpath)
+    except:
+        logger.error(f'the metadata are not consolidated')
+    else:
+        consolidated_grp = zarr.open_consolidated(store)
+        return consolidated_grp
+
+
 def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
     """
     Function used to load a raw image and metadata from the 
