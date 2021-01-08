@@ -8,7 +8,7 @@ from pysmFISH.configuration_files import create_specific_analysis_config_file
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_processing_env_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
-from pysmFISH.io import consolidate_zarr_metadata
+from pysmFISH.io import consolidate_zarr_metadata, open_consolidated_metadata
 from pysmFISH.utils import sorting_grps
 
 
@@ -22,7 +22,8 @@ experiment_info = load_experiment_config_file(experiment_fpath)
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
 analysis_parameters = load_analysis_config_file(experiment_fpath)
 
-consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+#consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 
