@@ -1,6 +1,7 @@
 from pathlib import Path
+from dask.distributed import Client
 
-from flow_steps.filtering_counting import filtering_counting_runner
+from flow_steps.filtering_counting import filtering_counting_runner,single_fish_filter_count_standard
 from flow_steps.filtering_counting import single_fish_filter_count_standard
 from flow_steps.create_processing_cluster import create_processing_cluster
 
@@ -28,18 +29,22 @@ sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameter
 
 
 cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
+client = Client(cluster)
 
+
+print(f'start filtering')
 # Filtering
+all_futures = []
 for grp_name, grp_data in sorted_grps.items():
     if grp_name in ['fish', 'beads']:
-        filtering_counting_runner(cluster,
-                            single_fish_filter_count_standard,
-                            parsed_raw_data_fpath,
-                            grp_name,
+        future = client.map(single_fish_filter_count_standard,
                             sorted_images_list=grp_data[0][0:10],
+                            parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=grp_data[1])
+    all_futures.append(future)
 
 
+_ = client.gather(all_futures)
 cluster.close()
 
 # Registration
