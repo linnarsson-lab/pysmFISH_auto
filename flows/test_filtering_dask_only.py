@@ -1,3 +1,5 @@
+import time
+
 from pathlib import Path
 from dask.distributed import Client
 
@@ -27,12 +29,15 @@ analysis_parameters = load_analysis_config_file(experiment_fpath)
 consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
-
+start = time.time()
 cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
 client = Client(cluster)
 
+print(f'cluster starting {time.time()-start}')
+
 
 print(f'start filtering')
+start = time.time()
 all_futures = []
 # Filtering smFISH
 fish_futures = client.map(single_fish_filter_count_standard,
@@ -52,10 +57,15 @@ all_futures.append(beads_futures)
 
 all_futures = [ft for grp_ft in all_futures for ft in grp_ft]
 
+print(f'future created {time.time()-start}')
+
 print(f'total number of futures to process {len(all_futures)}')
 
-
+start = time.time()
 _ = client.gather(all_futures)
+
+print(f'future gathered {time.time()-start}')
+
 cluster.close()
 
 print(f'processing completed')
