@@ -45,7 +45,7 @@ all_futures.append(fish_futures)
 beads_futures = client.map(single_fish_filter_count_standard,
                             sorted_grps['beads'][0][0:10],
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['fish'][3])
+                            processing_parameters=sorted_grps['fish'][1])
 all_futures.append(beads_futures) 
 
 all_futures = [ft for grp_ft in all_futures for ft in grp_ft]
