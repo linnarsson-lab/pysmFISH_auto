@@ -241,6 +241,8 @@ def osmFISH_peak_based_detection(img_meta:tuple,
     img = img_meta[0]
     img_metadata = img_meta[1]
     fov = img_metadata['fov_num']
+    hybridization = img_metadata['hybridization_num']
+    target_name = img_metadata['target_name']
     
     logger.info(f'logging osmFISH_peak_based_detection fov {fov}')
     hybridization_num = img_metadata['hybridization_num']
@@ -264,7 +266,11 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                 fov_array = np.repeat(fov,total_dots)
                 thr_array = np.repeat(counts.selected_thr,total_dots)
                 channel_array = np.repeat(img_metadata['channel'],total_dots)
+<<<<<<< Updated upstream
                 hybridization_num_array = np.repeat(img_metadata['channel'],total_dots)
+=======
+                hybridization_array = np.repeat(img_metadata['hybridization_num'],total_dots)
+>>>>>>> Stashed changes
                 target_name_array = np.repeat(img_metadata['target_name'],total_dots)
                 counts_dict = {
                     'DotsCoordsFOV': dots.selected_peaks,
@@ -273,8 +279,13 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'DotIntensity': dots.intensity_array,
                     'SelectedThreshold':thr_array,
                     'DotChannel':channel_array,
+<<<<<<< Updated upstream
                     'HybridizationNum': hybridization_num_array,
                     'TargetName': target_name_array}
+=======
+                    'hybridization_num':hybridization_array,
+                    'target_name':target_name_array}
+>>>>>>> Stashed changes
             else:
                 logger.info(f' fov {fov} does not have counts (mapping)')
                 counts_dict = {
@@ -284,8 +295,13 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'DotIntensity': np.array([fill_value]),
                     'SelectedThreshold':np.array([fill_value]),
                     'DotChannel':np.array([fill_value]),
+<<<<<<< Updated upstream
                     'HybridizationNum': np.array([img_metadata['channel']]),
                     'TargetName': np.array([img_metadata['target_name']])}
+=======
+                    'hybridization_num':hybridization,
+                    'target_name': target_name}
+>>>>>>> Stashed changes
     else:
         logger.info(f' fov {fov} does not have counts (thr)')
         counts_dict = {
@@ -295,7 +311,12 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'DotIntensity': np.array([fill_value]),
                     'SelectedThreshold':np.array([fill_value]),
                     'DotChannel':np.array([fill_value]),
+<<<<<<< Updated upstream
                     'HybridizationNum': np.array([img_metadata['channel']]),
                     'TargetName': np.array([img_metadata['target_name']])}
+=======
+                    'hybridization_num':hybridization,
+                    'target_name': target_name}
+>>>>>>> Stashed changes
     
     return (counts_dict, img_metadata)

@@ -4,6 +4,7 @@ create configuration files needed to run the pipeline
 """
 from typing import *
 import yaml
+import sys
 from pathlib import Path
 from collections import OrderedDict
 
@@ -58,6 +59,8 @@ def create_processing_env_config_file(experiment_fpath:str):
             yaml.safe_dump(dict(processing_env_config), new_config,default_flow_style=False,sort_keys=False)
 
 
+
+
 def create_general_analysis_config_file(experiment_fpath:str):
     """
     This function creates a basic standard configuration files with the parameters used for running
@@ -70,216 +73,205 @@ def create_general_analysis_config_file(experiment_fpath:str):
 
     """
     
-    logger = function_logger()
+    logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     analysis_config_fpath = experiment_fpath.parent / 'config_db' / 'analysis_config.yaml'
-    analysis_config = OrderedDict()
+    analysis_parameters = OrderedDict()
 
-    # ------------------------------------------
-    analysis_config['ROBOFISH1'] = {}
-    analysis_config['ROBOFISH1']['fish_signal'] = {}
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing'] = {}
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['fish'] = {}
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['small-beads-registration'] = {}
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['large-beads-registration'] = {}
-
-    analysis_config['ROBOFISH1']['fish_signal']['rounds_registration'] = {}
-    analysis_config['ROBOFISH1']['fish_signal']['rounds_registration']['reference_hybridization'] = 1
-
-    analysis_config['ROBOFISH1']['fish_signal']['counting'] = {}
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['fish'] = {}
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['small-beads-registration'] = {}
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['large-beads-registration'] = {}
-
-    analysis_config['ROBOFISH1']['fish_signal']['barcodes_extraction'] = {}
-
-    analysis_config['ROBOFISH1']['staining'] = {}
-    analysis_config['ROBOFISH1']['staining']['preprocessing'] = {}
-
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['fish']['flat_field_kernel'] = (2,100,100)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['fish']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['fish']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['fish']['large_obj_removal_percentile'] = 99
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['fish']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['fish']['large_obj_removal_selem'] = 3 
-
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['small-beads-registration']['flat_field_kernel'] = (2,100,100)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['small-beads-registration']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['small-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_percentile'] = 99
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_selem'] = 3 
+    analysis_parameters['eel-barcoded'] = {}
     
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['large-beads-registration']['flat_field_kernel'] = (2,100,100)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['large-beads-registration']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['large-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_percentile'] = 99
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['ROBOFISH1']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_selem'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH1'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['staining'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-nuclei'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['BarcodesExtractionResolution'] = 3         
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['RegistrationReferenceHybridization'] = 1
 
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['fish']['min_distance'] = 2
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['fish']['min_obj_size'] = 2
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['fish']['max_obj_size'] = 200
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['fish']['num_peaks_per_label'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['small-beads-registration']['min_distance'] = 2
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['small-beads-registration']['min_obj_size'] = 2
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['small-beads-registration']['max_obj_size'] = 200
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['small-beads-registration']['num_peaks_per_label'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['large-beads-registration']['min_distance'] = 2
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['large-beads-registration']['min_obj_size'] = 2
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['large-beads-registration']['max_obj_size'] = 200
-    analysis_config['ROBOFISH1']['fish_signal']['counting']['large-beads-registration']['num_peaks_per_label'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['large-beads']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH1']['fish_signal']['barcodes_extraction']['pxl_hood_size'] = 3
-
-    analysis_config['ROBOFISH1']['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
-
-    analysis_config['ROBOFISH1']['fresh_nuclei'] = {}
-    analysis_config['ROBOFISH1']['fresh_nuclei']['preprocessing'] = {}
-    analysis_config['ROBOFISH1']['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
-
-    # ------------------------------------------
-    analysis_config['ROBOFISH2'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['staining']['PreprocessingStainingFlatFieldKernel'] = (2,100, 100)
     
-    analysis_config['ROBOFISH2']['fish_signal'] = {}
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing'] = {}
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['fish'] = {}
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['small-beads-registration'] = {}
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['large-beads-registration'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
 
-    analysis_config['ROBOFISH2']['fish_signal']['rounds_registration'] = {}
-    analysis_config['ROBOFISH2']['fish_signal']['rounds_registration']['reference_hybridization'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH2'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['staining'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-nuclei'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['BarcodesExtractionResolution'] = 3         
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['RegistrationReferenceHybridization'] = 1
 
-    analysis_config['ROBOFISH2']['fish_signal']['counting'] = {}
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['fish'] = {}
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['small-beads-registration'] = {}
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['large-beads-registration'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH2']['fish_signal']['barcodes_extraction'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH2']['staining'] = {}
-    analysis_config['ROBOFISH2']['staining']['preprocessing'] = {}
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['large-beads']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['fish']['flat_field_kernel'] = (2,100,100)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['fish']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['fish']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['fish']['large_obj_removal_percentile'] = 99
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['fish']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['fish']['large_obj_removal_selem'] = 3 
-
-
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['small-beads-registration']['flat_field_kernel'] = (2,100,100)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['small-beads-registration']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['small-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_percentile'] = 99
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_selem'] = 3 
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['staining']['PreprocessingStainingFlatFieldKernel'] = (2,100,100)
     
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['large-beads-registration']['flat_field_kernel'] = (2,100,100)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['large-beads-registration']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['large-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_percentile'] = 99
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['ROBOFISH2']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_selem'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
 
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['fish']['min_distance'] = 2
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['fish']['min_obj_size'] = 2
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['fish']['max_obj_size'] = 200
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['fish']['num_peaks_per_label'] = 1
 
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['small-beads-registration']['min_distance'] = 2
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['small-beads-registration']['min_obj_size'] = 2
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['small-beads-registration']['max_obj_size'] = 200
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['small-beads-registration']['num_peaks_per_label'] = 1
+    analysis_parameters['eel-barcoded']['NOT_DEFINED'] = {}
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish'] = {}
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads'] = {}
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads'] = {}
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['staining'] = {}
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-nuclei'] = {}
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['BarcodesExtractionResolution'] = 3         
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['RegistrationReferenceHybridization'] = 1
 
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['large-beads-registration']['min_distance'] = 2
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['large-beads-registration']['min_obj_size'] = 2
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['large-beads-registration']['max_obj_size'] = 200
-    analysis_config['ROBOFISH2']['fish_signal']['counting']['large-beads-registration']['num_peaks_per_label'] = 1
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH2']['fish_signal']['barcodes_extraction']['pxl_hood_size'] = 3
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH2']['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['PreprocessingFishFilteringSmallKernel'] = (8,8)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['PreprocessingFishFilteringLaplacianKernel'] = (0.5,0.5)
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['CountingFishMaxObjSize'] = 200
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['large-beads']['LargeObjRemovalSelem'] = 3
 
-    analysis_config['ROBOFISH2']['fresh_nuclei'] = {}
-    analysis_config['ROBOFISH2']['fresh_nuclei']['preprocessing'] = {}
-    analysis_config['ROBOFISH2']['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
-
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['staining']['PreprocessingStainingFlatFieldKernel'] = (2,100,100)
     
-    # ------------------------------------------
-    analysis_config['NOT_DEFINED'] = {}
-    
-    analysis_config['NOT_DEFINED']['fish_signal'] = {}
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing'] = {}
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['fish'] = {}
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['small-beads-registration'] = {}
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['large-beads-registration'] = {}
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
 
-    analysis_config['NOT_DEFINED']['fish_signal']['rounds_registration'] = {}
-    analysis_config['NOT_DEFINED']['fish_signal']['rounds_registration']['reference_hybridization'] = 1
-
-    analysis_config['NOT_DEFINED']['fish_signal']['counting'] = {}
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['fish'] = {}
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['small-beads-registration'] = {}
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['large-beads-registration'] = {}
-
-    analysis_config['NOT_DEFINED']['fish_signal']['barcodes_extraction'] = {}
-
-    analysis_config['NOT_DEFINED']['staining'] = {}
-    analysis_config['NOT_DEFINED']['staining']['preprocessing'] = {}
-
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['fish']['flat_field_kernel'] = (2,100,100)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['fish']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['fish']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['fish']['large_obj_removal_percentile'] = 99
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['fish']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['fish']['large_obj_removal_selem'] = 3 
-
-
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['small-beads-registration']['flat_field_kernel'] = (2,100,100)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['small-beads-registration']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['small-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_percentile'] = 99
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_selem'] = 3 
-    
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['large-beads-registration']['flat_field_kernel'] = (2,100,100)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['large-beads-registration']['filtering_small_kernel'] = (1,8,8)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['large-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_percentile'] = 99
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_min_obj_size'] = 50
-    analysis_config['NOT_DEFINED']['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_selem'] = 3
-
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['fish']['min_distance'] = 2
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['fish']['min_obj_size'] = 2
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['fish']['max_obj_size'] = 200
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['fish']['num_peaks_per_label'] = 1
-
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['small-beads-registration']['min_distance'] = 2
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['small-beads-registration']['min_obj_size'] = 2
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['small-beads-registration']['max_obj_size'] = 200
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['small-beads-registration']['num_peaks_per_label'] = 1
-
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['large-beads-registration']['min_distance'] = 2
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['large-beads-registration']['min_obj_size'] = 2
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['large-beads-registration']['max_obj_size'] = 200
-    analysis_config['NOT_DEFINED']['fish_signal']['counting']['large-beads-registration']['num_peaks_per_label'] = 1
-
-    analysis_config['NOT_DEFINED']['fish_signal']['barcodes_extraction']['pxl_hood_size'] = 3
-
-    analysis_config['NOT_DEFINED']['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
-
-    analysis_config['NOT_DEFINED']['fresh_nuclei'] = {}
-    analysis_config['NOT_DEFINED']['fresh_nuclei']['preprocessing'] = {}
-    analysis_config['NOT_DEFINED']['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
     try:
         with open(analysis_config_fpath, 'w') as new_config:
-                yaml.safe_dump(dict(analysis_config), new_config,default_flow_style=False,sort_keys=False)
+                yaml.safe_dump(dict(analysis_parameters), new_config,default_flow_style=False,sort_keys=False)
     except:
         logger.error(f'cannot save the analysis_config_file')
 
+
+def create_specific_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
+    """
+    Select the analysis parameters according to the processing machine. If the
+    machine is not defined in the experiment_info dictionary a generic processing set up is defined
+
+    Args:
+        experiment_fpath: str
+            path to the experiment that will be processed
+
+        experiment_info: dict
+            dictionary containing all the info generated by robofish
+    """
+
+    logger = selected_logger()
+    experiment_fpath = Path(experiment_fpath)
+    general_analysis_config_fpath = experiment_fpath.parent / 'config_db' / 'analysis_config.yaml'
+    analysis_config_fpath = experiment_fpath / 'pipeline_config' / 'analysis_config.yaml'
+    analysis_config = OrderedDict()
+
+    general_analysis_config = yaml.safe_load(open(general_analysis_config_fpath, 'rb'))
+
+    try:
+        machine = experiment_info['Machine']
+    except NameError:
+        machine = 'NOT_DEFINED'
+
+    try:
+        experiment_type = experiment_info['Experiment_type']
+        analysis_config = general_analysis_config[experiment_type][machine]
+    except:
+        logger.error(f'Unidentified experiment type in the config.yaml file')
+    else:
+        try:
+            with open(analysis_config_fpath, 'w') as new_config:
+                yaml.safe_dump(dict(analysis_config), new_config,default_flow_style=False,sort_keys=False)
+        except:
+            logger.error(f'cannot save the analysis_config_file')
 
 
 def load_experiment_config_file(experiment_fpath:str):
@@ -315,220 +307,6 @@ def load_experiment_config_file(experiment_fpath:str):
             sys.exit(f'Experiment info file has the wrong name in {experiment_fpath}')
 
 
-@task(name='create_analysis_config_file')
-def create_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
-    """
-    This function creates a basic standard configuration files with the parameters used for running
-    analysis
-    The selection of the paramenters is dependent of the machine used for image acquisition. If the
-    machine is not defined in the experiment_info dictionary a generic processing set up is defined
-
-    Args:
-        experiment_fpath: str
-            path to the experiment that will be processed
-
-        experiment_info: dict
-            dictionary containing all the info generated by robofish
-    """
-    logger = prefect_logging_setup('create-analasys-config-file')
-    analysis_config_fpath = experiment_fpath / 'pipeline_config' / 'analysis_config.yaml'
-    analysis_config = OrderedDict()
-
-    try:
-        machine = experiment_info['Machine']
-    except NameError:
-        machine = 'NOT_DEFINED'
-    
-    analysis_config['fish_signal'] = {}
-    analysis_config['fish_signal']['preprocessing'] = {}
-    analysis_config['fish_signal']['preprocessing']['fish'] = {}
-    analysis_config['fish_signal']['preprocessing']['small-beads-registration'] = {}
-    analysis_config['fish_signal']['preprocessing']['large-beads-registration'] = {}
-
-    analysis_config['fish_signal']['rounds_registration'] = {}
-    analysis_config['fish_signal']['rounds_registration']['reference_hybridization'] = 1
-
-    analysis_config['fish_signal']['counting'] = {}
-    analysis_config['fish_signal']['counting']['fish'] = {}
-    analysis_config['fish_signal']['counting']['small-beads-registration'] = {}
-    analysis_config['fish_signal']['counting']['large-beads-registration'] = {}
-
-    analysis_config['fish_signal']['barcodes_extraction'] = {}
-
-    analysis_config['staining'] = {}
-    analysis_config['staining']['preprocessing'] = {}
-
-    if machine == 'ROBOFISH1':
-
-        analysis_config['fish_signal']['preprocessing']['fish']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['fish']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['fish']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_selem'] = 3 
-
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_selem'] = 3 
-        
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_selem'] = 3
-
-        analysis_config['fish_signal']['counting']['fish']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['fish']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['fish']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['fish']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['counting']['small-beads-registration']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['small-beads-registration']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['small-beads-registration']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['small-beads-registration']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['counting']['large-beads-registration']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['large-beads-registration']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['large-beads-registration']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['large-beads-registration']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['barcodes_extraction']['pxl_hood_size'] = 3
-
-        analysis_config['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
-
-        if 'barcoded' in experiment_info['Experiment_type']:
-            analysis_config['fresh_nuclei'] = {}
-            analysis_config['fresh_nuclei']['preprocessing'] = {}
-            analysis_config['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
-
-    elif machine == 'ROBOFISH2':
-
-        analysis_config['fish_signal']['preprocessing']['fish']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['fish']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['fish']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_selem'] = 3 
-
-    
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_selem'] = 3 
-        
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_selem'] = 3
-
-        analysis_config['fish_signal']['counting']['fish']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['fish']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['fish']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['fish']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['counting']['small-beads-registration']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['small-beads-registration']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['small-beads-registration']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['small-beads-registration']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['counting']['large-beads-registration']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['large-beads-registration']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['large-beads-registration']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['large-beads-registration']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['barcodes_extraction']['pxl_hood_size'] = 3
-
-        analysis_config['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
-
-        if 'barcoded' in experiment_info['Experiment_type']:
-            analysis_config['fresh_nuclei'] = {}
-            analysis_config['fresh_nuclei']['preprocessing'] = {}
-            analysis_config['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
-
-    elif machine == 'NOT_DEFINED':
-
-        analysis_config['fish_signal']['preprocessing']['fish']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['fish']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['fish']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['fish']['large_obj_removal_selem'] = 3 
-
-    
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['small-beads-registration']['large_obj_removal_selem'] = 3 
-        
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['flat_field_kernel'] = (2,100,100)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['filtering_small_kernel'] = (1,8,8)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_percentile'] = 99
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_min_obj_size'] = 50
-        analysis_config['fish_signal']['preprocessing']['large-beads-registration']['large_obj_removal_selem'] = 3
-
-        analysis_config['fish_signal']['counting']['fish']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['fish']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['fish']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['fish']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['counting']['small-beads-registration']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['small-beads-registration']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['small-beads-registration']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['small-beads-registration']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['counting']['large-beads-registration']['min_distance'] = 2
-        analysis_config['fish_signal']['counting']['large-beads-registration']['min_obj_size'] = 2
-        analysis_config['fish_signal']['counting']['large-beads-registration']['max_obj_size'] = 200
-        analysis_config['fish_signal']['counting']['large-beads-registration']['num_peaks_per_label'] = 1
-
-        analysis_config['fish_signal']['barcodes_extraction']['pxl_hood_size'] = 3
-
-        analysis_config['staining']['preprocessing']['flat_field_kernel'] = (2,100,100)
-
-        if 'barcoded' in experiment_info['Experiment_type']:
-            analysis_config['fresh_nuclei'] = {}
-            analysis_config['fresh_nuclei']['preprocessing'] = {}
-            analysis_config['fresh_nuclei']['preprocessing']['large_kernel_size'] = (5,50,50)
-    try:
-        with open(analysis_config_fpath, 'w') as new_config:
-                yaml.safe_dump(dict(analysis_config), new_config,default_flow_style=False,sort_keys=False)
-    except:
-        logger.error(f'cannot save the analysis_config_file')
-        signals.FAIL(f'cannot save the analysis_config_file')
-
-
-# # @task(name='load-processing-env-config')
-# def load_processing_env_config_file(experiment_fpath:str):
-#     logger = prefect_logging_setup('load-processing-env-config')
-#     experiment_fpath = Path(experiment_fpath)
-#     processing_env_config_fpath = experiment_fpath / 'pipeline_config' / 'processing_env_config.yaml'
-#     try:
-#         processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
-#     except (FileExistsError,NameError,FileNotFoundError) as e:
-#         logger.debug(f'{processing_env_config_fpath} missing')
-#         try:
-#             create_processing_env_config_file(experiment_fpath)
-#         except:
-#             logger.error('cannot create the processing config file')
-#             signals.FAIL('cannot create the processing config file')
-#         else:
-#             processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
-#             return processing_env_config
-#     else:
-#         return processing_env_config
-
-
 def load_processing_env_config_file(config_db_fpath:str):
     """
     Function used to load the parameters used for setting up 
@@ -558,10 +336,8 @@ def load_processing_env_config_file(config_db_fpath:str):
         return processing_env_config
 
 
-
-@task(name='load-analysis-config')
-def load_analysis_config_file(expxeriment_fpath:str):
-    logger = prefect_logging_setup('load-analysis-config')
+def load_analysis_config_file(experiment_fpath:str):
+    logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     analysis_config_fpath = experiment_fpath / 'pipeline_config' / 'analysis_config.yaml'
     try:

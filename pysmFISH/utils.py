@@ -279,7 +279,7 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
         beads_selected_parameters  = analysis_parameters['small-beads']
         beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
     elif experiment_info['Stitching_type'] == 'large-beads':
-        beads_selected_parameters  = analysis_parameters['small-beads']
+        beads_selected_parameters  = analysis_parameters['large-beads']
         beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
     elif experiment_info['Stitching_type'] == 'both-beads':
         beads_selected_parameters  = analysis_parameters['small-beads']

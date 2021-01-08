@@ -91,7 +91,8 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict,experim
         cluster = htcondor_cluster_setup(cluster_config_parameters)
         # cluster.scale(jobs=50)
         minimum_jobs = 32
-        cluster.adapt(minimum_jobs=minimum_jobs)
+        maximum_jobs = 200
+        cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
         logger.info(f'adaptive dask cluster with {minimum_jobs} minimum jobs')
         return cluster
     elif processing_engine == 'local':
