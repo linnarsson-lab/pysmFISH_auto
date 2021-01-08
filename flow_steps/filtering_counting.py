@@ -54,14 +54,7 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
 def single_fish_filter_count_standard(
         zarr_grp_name,
         parsed_raw_data_fpath,
-        FlatFieldKernel,
-        FilteringSmallKernel, 
-        LaplacianKernel,
-        min_distance,
-        min_obj_size,
-        max_obj_size,
-        num_peaks_per_label):
-
+        processing_parameters):
 
     """
     Function to:
@@ -74,27 +67,23 @@ def single_fish_filter_count_standard(
             group representing the image to process
         parsed_raw_data_fpath: str
             path to the zarr file containing the parsed images
-        FlatFieldKernel: np.ndarray
-            size of the kernel use to remove the backgroun (ex. [10,10])
-        FilteringSmallKernel: np.ndarray
-            size of the kernel use to smooth the dots (ex. [8,8])
-        LaplacianKernel: np.ndarray
-            size of the kernel use enhance dots signal (ex. [1,1])
-        min_distance: int
-            minimum distance between two dots
-        min_obj_size: int
-            minimum size of a dot
-        max_obj_size: int
-            max size of a dot or a cluster of dots (depending on num_peaks_per_label)
-        num_peaks_per_label
-            max number of peaks called in a masked object
-    
+        processing_parameters: dict
+            dictionary with the parameters used to process the images
     """
 
     logger = selected_logger()
+    
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
     experiment_fpath = parsed_raw_data_fpath.parent
-    
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
+    LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
+    min_distance=processing_parameters['CountingFishMinObjDistance']
+    min_obj_size=processing_parameters['CountingFishMinObjSize']
+    max_obj_size=processing_parameters['CountingFishMaxObjSize']
+    num_peaks_per_label=processing_parameters['CountingFishNumPeaksPerLabel']
+
+
     try:
         raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
