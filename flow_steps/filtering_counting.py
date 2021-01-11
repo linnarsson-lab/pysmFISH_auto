@@ -139,11 +139,11 @@ def single_fish_filter_count_standard(
             
             # save_dots_data(fish_counts)
             fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_dots.pkl')
-            pickle.dump(fish_counts,open(fname,'wb'))
+            pickle.dump((fish_counts,img_metadata),open(fname,'wb'))
 
 
 
-def filtering_counting_runner(cluster,
+def filtering_counting_runner(client,
                             running_function,
                             parsed_raw_data_fpath,
                             grp_name,
@@ -155,7 +155,7 @@ def filtering_counting_runner(cluster,
     and counting defined
     
     Args:
-        cluster: dask-obj 
+        client: dask-client
             cluster used to run the processing
         running_function: python-obj
             filtering and couning function used to process the data
