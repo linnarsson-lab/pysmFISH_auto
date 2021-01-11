@@ -57,35 +57,41 @@ print(f'start filtering')
 
 # all_futures = [ft for grp_ft in all_futures for ft in grp_ft]
 
+try:
 
-start = time.time()
-# Staing has different processing fun
-all_futures = []
-for grp, grp_data in sorted_grps.items():
-    if grp in ['fish','beads']:
-        for el in grp_data[0]:
-            future = client.submit(single_fish_filter_count_standard,
-                            el,
-                            parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['fish'][1])
-            all_futures.append(future)
+    start = time.time()
+    # Staing has different processing fun
+    all_futures = []
+    for grp, grp_data in sorted_grps.items():
+        if grp in ['fish','beads']:
+            for el in grp_data[0]:
+                future = client.submit(single_fish_filter_count_standard,
+                                el,
+                                parsed_raw_data_fpath = parsed_raw_data_fpath,
+                                processing_parameters=sorted_grps['fish'][1])
+                all_futures.append(future)
 
-print(f'future created {time.time()-start}')
+    print(f'future created {time.time()-start}')
 
-print(f'total number of futures to process {len(all_futures)}')
+    print(f'total number of futures to process {len(all_futures)}')
 
-start = time.time()
-_ = client.gather(all_futures)
+    start = time.time()
+    _ = client.gather(all_futures)
 
-print(f'future gathered {time.time()-start}')
+    print(f'future gathered {time.time()-start}')
+    cluster.close()
 
-cluster.close()
+except OSError:
+    print(f' ERROR IN RECONNECTING TO THE CLUSTER')
+    cluster.close()
 
 print(f'processing completed')
 
 # Registration
-reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
-
+# reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
+# registration_channel =
+# barcode_length = 
+# stitching_type = 
 
 
 
