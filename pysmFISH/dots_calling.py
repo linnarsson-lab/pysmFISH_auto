@@ -292,7 +292,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'dot_intensity_not': np.array([self.fill_value]),
                     'selected_thr':np.array([self.fill_value]),
                     'DotChannel':np.array([img_metadata['channel']]),
-                    'TargetName': np.array([img_metadata['target_name']]))
+                    'TargetName': np.array([img_metadata['target_name']])
                     }
     else:
         logger.info(f' fov {fov} does not have counts (thr)')
@@ -306,7 +306,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'dot_intensity_not': np.array([self.fill_value]),
                     'selected_thr':np.array([self.fill_value]),
                     'DotChannel':np.array([img_metadata['channel']]),
-                    'TargetName': np.array([img_metadata['target_name']]))
+                    'TargetName': np.array([img_metadata['target_name']])
                     }
     
     return (counts_dict, img_metadata)
