@@ -14,8 +14,8 @@ from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.io import consolidate_zarr_metadata, open_consolidated_metadata
 from pysmFISH.utils import sorting_grps
 
-from pysmFISH.fov_registration import create_hybridizations_registration_grps
-from pysmFISH.fovs_registration import calculate_shift_hybridization_fov
+# from pysmFISH.fovs_registration import create_hybridizations_registration_grps
+# from pysmFISH.fovs_registration import calculate_shift_hybridization_fov
 
 
 experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
