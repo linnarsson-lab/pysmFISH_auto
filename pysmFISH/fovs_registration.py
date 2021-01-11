@@ -33,10 +33,34 @@ import prefect
 from prefect import task
 from prefect.engine import signals
 
-from pysmFISH.logger_utils import prefect_logging_setup
+from pysmFISH.logger_utils import prefect_logging_setup, selected_logger
 from pysmFISH.io import connect_to_shoji_smfish_experiment
 
+def create_hybridizations_registration_grps(tmp_fpath:str,registration_channel:str, fovs:List):
+    """
+    Function to create groups of files that need to be registered together
+    Args:
+        tmp_fpath: str
+            Path to the tmp directory where the files with the counts are saved
+        registration_channel : str
+            Name of the channel used for registration of the fovs
+        fovs: List
+            List of the keys used for grouping
+    Returns:
+        all_grps: List
+            List of list containing the file names grouped by fov
+    """
+    logger = selected_logger()
+    tmp_fpath = Path(tmp_fpath)
+    registration_files = list(tmp_fpath.glob(registration_channel))
 
+    all_grps = []
+    for fov in fovs:
+        search_key = registration_channel + '_fov_' + str(fov) + '_dots.pkl'
+        grp = list(tmp_fpath.glob(search_key))
+        logger.debug(f'fov {fov} for registration on {registration_channel} has {len(grp)} counts files')
+        all_grps.append(grp)
+        return all_grps
 
 def create_fake_image(img_shape,coords):
     gaussian_sigma = 5
