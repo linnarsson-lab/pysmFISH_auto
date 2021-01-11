@@ -287,11 +287,11 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'c_px_original': np.array([self.fill_value]),
                     'dot_id': np.array([self.fill_value]),
                     'fov_num': np.array(self.fov),
-                    'round_num': np.array([img_metadata['hybridization_num']),
+                    'round_num': np.array([img_metadata['hybridization_num']]),
                     'dot_intensity_norm': np.array([self.fill_value]),
                     'dot_intensity_not': np.array([self.fill_value]),
                     'selected_thr':np.array([self.fill_value]),
-                    'DotChannel':np.array([img_metadata['channel']],
+                    'DotChannel':np.array([img_metadata['channel']]),
                     'TargetName': np.array([img_metadata['target_name']]))
                     }
     else:
@@ -301,11 +301,11 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'c_px_original': np.array([self.fill_value]),
                     'dot_id': np.array([self.fill_value]),
                     'fov_num': np.array(self.fov),
-                    'round_num': np.array([img_metadata['hybridization_num']),
+                    'round_num': np.array([img_metadata['hybridization_num']]),
                     'dot_intensity_norm': np.array([self.fill_value]),
                     'dot_intensity_not': np.array([self.fill_value]),
                     'selected_thr':np.array([self.fill_value]),
-                    'DotChannel':np.array([img_metadata['channel']],
+                    'DotChannel':np.array([img_metadata['channel']]),
                     'TargetName': np.array([img_metadata['target_name']]))
                     }
     
