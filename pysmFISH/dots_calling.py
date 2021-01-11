@@ -269,35 +269,44 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                 hybridization_num_array = np.repeat(img_metadata['hybridization_num'],total_dots)
                 target_name_array = np.repeat(img_metadata['target_name'],total_dots)
                 counts_dict = {
-                    'DotsCoordsFOV': dots.selected_peaks,
-                    'DotID': dot_id_array,
-                    'FovNumber': fov_array,
-                    'DotIntensity': dots.intensity_array,
-                    'SelectedThreshold':thr_array,
+                    'r_px_original': dots.selected_peaks[:,0],
+                    'c_px_original': dots.selected_peaks[:,1],
+                    'dot_id': dot_id_array,
+                    'fov_num': fov_array,
+                    'round_num': hybridization_num_array,
+                    'dot_intensity_norm': dots.intensity_array,
+                    'dot_intensity_not': intensity_array_non_normalized,
+                    'selected_thr':thr_array,
                     'DotChannel':channel_array,
-                    'HybridizationNum': hybridization_num_array,
                     'TargetName': target_name_array}
+
             else:
                 logger.info(f' fov {fov} does not have counts (mapping)')
                 counts_dict = {
-                    'DotsCoordsFOV': np.array([fill_value, fill_value]),
-                    'DotID': np.array([fill_value]),
-                    'FovNumber': np.array(fov),
-                    'DotIntensity': np.array([fill_value]),
-                    'SelectedThreshold':np.array([fill_value]),
-                    'DotChannel':np.array([fill_value]),
-                    'HybridizationNum': np.array([img_metadata['hybridization_num']]),
-                    'TargetName': np.array([img_metadata['target_name']])}
+                    'r_px_original': np.array([self.fill_value]),
+                    'c_px_original': np.array([self.fill_value]),
+                    'dot_id': np.array([self.fill_value]),
+                    'fov_num': np.array(self.fov),
+                    'round_num': np.array([img_metadata['hybridization_num']),
+                    'dot_intensity_norm': np.array([self.fill_value]),
+                    'dot_intensity_not': np.array([self.fill_value]),
+                    'selected_thr':np.array([self.fill_value]),
+                    'DotChannel':np.array([img_metadata['channel']],
+                    'TargetName': np.array([img_metadata['target_name']]))
+                    }
     else:
         logger.info(f' fov {fov} does not have counts (thr)')
         counts_dict = {
-                    'DotsCoordsFOV': np.array([fill_value, fill_value]),
-                    'DotID': np.array([fill_value]),
-                    'FovNumber': np.array(fov),
-                    'DotIntensity': np.array([fill_value]),
-                    'SelectedThreshold':np.array([fill_value]),
-                    'DotChannel':np.array([fill_value]),
-                    'HybridizationNum': np.array([img_metadata['hybridization_num']]),
-                    'TargetName': np.array([img_metadata['target_name']])}
+                    'r_px_original': np.array([self.fill_value]),
+                    'c_px_original': np.array([self.fill_value]),
+                    'dot_id': np.array([self.fill_value]),
+                    'fov_num': np.array(self.fov),
+                    'round_num': np.array([img_metadata['hybridization_num']),
+                    'dot_intensity_norm': np.array([self.fill_value]),
+                    'dot_intensity_not': np.array([self.fill_value]),
+                    'selected_thr':np.array([self.fill_value]),
+                    'DotChannel':np.array([img_metadata['channel']],
+                    'TargetName': np.array([img_metadata['target_name']]))
+                    }
     
     return (counts_dict, img_metadata)
