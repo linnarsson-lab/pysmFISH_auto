@@ -61,9 +61,9 @@ print(f'start filtering')
 start = time.time()
 # Staing has different processing fun
 all_futures = []
-for grp, grp_data in sorted_grps:
+for grp, grp_data in sorted_grps.items():
     if grp in ['fish','beads']:
-        for el in gro:
+        for el in grp_data[0]:
             future = Client.submit(single_fish_filter_count_standard,
                             el,
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
