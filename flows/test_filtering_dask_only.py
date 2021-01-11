@@ -14,6 +14,9 @@ from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.io import consolidate_zarr_metadata, open_consolidated_metadata
 from pysmFISH.utils import sorting_grps
 
+from pysmFISH.fov_registration import create_hybridizations_registration_grps
+from pysmFISH.fovs_registration import calculate_shift_hybridization_fov
+
 
 experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
 processing_env_config_fpath = '/wsfish/smfish_ssd/config_db'
@@ -79,6 +82,22 @@ try:
     _ = client.gather(all_futures)
 
     print(f'future gathered {time.time()-start}')
+
+    start = time.time()
+    print(f'starting registration')
+    # Registration fovs
+    # registration_channel = experiment_config['StitchingChannel']
+    registration_channel = 'Europium' # must be corrected in the config file
+    fovs = consolidated_grp[[list(consolidated_grp.keys()][2]]['fields_of_view']
+    all_grps = create_hybridizations_registration_grps(experiment_fpath,registration_channel, fovs)
+    
+    all_futures = client.map(calculate_shift_hybridization_fov, all_grps,
+                            analysis_parameters = analysis_parameters)
+
+    _ = client.gather(all_futures)
+
+    print(f'future for registration gathered {time.time()-start}')
+
     cluster.close()
 
 except OSError:
@@ -88,7 +107,6 @@ except OSError:
 print(f'processing completed')
 
 # Registration
-# reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
 # registration_channel =
 # barcode_length = 
 # stitching_type = 
