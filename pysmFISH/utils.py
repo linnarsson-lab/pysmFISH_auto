@@ -91,9 +91,18 @@ def create_folder_structure(experiment_fpath:str):
                     'probes',
                     'tmp',
                     'logs']
+    subfolders_tmp = ['raw_counts','filtered_images','registered_counts']
     for folder_name in folders_list:
         try:
             os.stat(experiment_fpath / folder_name )
+            logger.info(f'{folder_name} already exist')
+        except FileNotFoundError:
+            os.mkdir(experiment_fpath / folder_name)
+            os.chmod(experiment_fpath / folder_name,0o777)
+    
+    for folder_name in subfolders_tmp:
+        try:
+            os.stat(experiment_fpath / 'tmp' / folder_name )
             logger.info(f'{folder_name} already exist')
         except FileNotFoundError:
             os.mkdir(experiment_fpath / folder_name)
@@ -306,7 +315,12 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
 
 
 
-
+def create_dir(dir_path):
+    try:
+        os.stat(dir_path)
+    except:
+        os.mkdir(dir_path)
+        os.chmod(dir_path,0o777)
 
 
 
@@ -388,13 +402,6 @@ def load_running_analysis_config_file(experiment_fpath):
         running_analysis_config_fpath = running_analysis_config_fpath[0]
         running_analysis_config = load_pipeline_config_file(running_analysis_config_fpath)
         return running_analysis_config
-
-def create_dir(dir_path):
-    try:
-        os.stat(dir_path)
-    except:
-        os.mkdir(dir_path)
-        os.chmod(dir_path,0o777)
 
 
 
