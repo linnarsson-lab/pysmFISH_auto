@@ -69,7 +69,6 @@ def create_fake_image(img_shape,coords):
     img = filters.gaussian(img,sigma=gaussian_sigma)
     return img
 
-
 # @task(name='fft_registration_beads')# ADD LOGGER
 def fft_registration_beads(reference_coords:np.ndarray, translated_coords:np.ndarray,
                        img_shape: np.ndarray, fov_num:int,
@@ -102,7 +101,8 @@ def fft_registration_beads(reference_coords:np.ndarray, translated_coords:np.nda
 
 
 
-def identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coords,pxl):
+
+def identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coords,registration_tollerance_pxl):
     # put in the wrapping function
     #if (ref_dots_coords_fov.shape[0] >0) and (tran_registered_coords.shape[0] >0):
             
@@ -114,143 +114,262 @@ def identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coord
     dists, indices = nn.kneighbors(tran_registered_coords, return_distance=True)
 
     # select only the nn that are below pxl distance
-    idx_selected_coords_compare = np.where(dists <= pxl)[0]
+    idx_selected_coords_compare = np.where(dists <= registration_tollerance_pxl)[0]
 
     number_matching_dots = idx_selected_coords_compare.shape[0]
     
     return number_matching_dots
 
 
+def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:dict,reference_hybridization:int):
+    """
+    Function used to run the registration of a single fov
+    through all hybridization. The registration is done using the dots
+    coords determined in each image
 
+    Args:
+        processing_files: List
+            list of the files with the counts to register
+        analysis_parameters: Dict
+            dict that contains the settings for the analysis 
+    """
+    
+    logger = selected_logger()
+    
+    reference_hybridization_str = 'Hybridization_' + str(0) + str(reference_hybridization)
+    fov = (processing_files[0].stem).splt('_')[-2]
+    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
 
-@task(name='create-combinations-registration-fov')
-def hybridizations_registration_grps(experiment_info):
+    save_fpath = processing_files[0].parent.parent / 'registered_counts'
 
-    logger = prefect_logging_setup("create-combination-registration-fov")
-
-    experiment_name = experiment_info['EXP_number']
-    reference_hybridization_number = 1
-    reference_fov = 355
-   
-    dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws = connect_to_shoji_smfish_experiment(experiment_name)
-
-    stitching_channel = experiment_properties_ws[:].StitchingChannel
-    fields_of_view = images_properties_ws.FieldsOfView[(images_properties_ws.FovNumber == reference_fov) &
-                                                (images_properties_ws.AcquistionChannel == stitching_channel) &
-                                                (images_properties_ws.HybridizationNumber == reference_hybridization_number)]
-
-
-    fields_of_view = fields_of_view.reshape(fields_of_view.shape[1],)
-    
-    fields_of_view = [355,73,122]
-    
-    number_hybridizations = np.unique( images_properties_ws.HybridizationNumber[(images_properties_ws.AcquistionChannel == stitching_channel) & 
-                                                                            (images_properties_ws.FovNumber == reference_fov)])
-    
-    # I will keep registration also for the reference hyb with itself to avoid extra function to rewrite the coords of
-    # unprocessed hyb
-    # number_hybridizations = number_hybridizations[number_hybridizations > reference_hybridization_number]
-    
-    processing_combinations = list(itertools.product([stitching_channel],fields_of_view,[reference_hybridization_number],number_hybridizations))
-    
-    return processing_combinations
-
-
-@task(name='calculate-shift-fov')
-def calculate_shift_hybridization_fov(processing_combination,experiment_info):
-    logger = prefect_logging_setup("calculate-shift-fov")
-    # Add try exect for determine if the ws are there
-    experiment_name = experiment_info['EXP_number']
-    
-    dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws = connect_to_shoji_smfish_experiment(experiment_name)
-    
-    img_shape = images_properties_ws.ImageShape[(images_properties_ws.AcquistionChannel == processing_combination[0]) & 
-                                            (images_properties_ws.FovNumber == processing_combination[1]) & 
-                                            (images_properties_ws.HybridizationNumber == processing_combination[2])]
-    img_shape = img_shape.reshape(2,)
-    
-
-    ref_dots_coords_fov = dots_ws.DotCoordsFOV[(dots_ws.FovNumber == processing_combination[1]) &
-                                (dots_ws.DotChannel == processing_combination[0]) &
-                                (dots_ws.HybridizationNumber == processing_combination[2])]
-    ref_dots_coords_fov = ref_dots_coords_fov.reshape(ref_dots_coords_fov.shape[0],2)
-    
-
-    tran_dots_coords_fov = dots_ws.DotCoordsFOV[(dots_ws.FovNumber == processing_combination[1]) &
-                                    (dots_ws.DotChannel == processing_combination[0]) &
-                                    (dots_ws.HybridizationNumber == processing_combination[3])]
-    tran_dots_coords_fov = tran_dots_coords_fov.reshape(tran_dots_coords_fov.shape[0],2)
-    
-    tran_registered_coords, shift, error, fov_num, hybridization_num_translated = \
-                            fft_registration_beads(ref_dots_coords_fov, tran_dots_coords_fov,
-                        img_shape=img_shape, fov_num=processing_combination[1],
-                        hybridization_num_translated=processing_combination[3])
-    
-    
-    # Write out the registration shift on shoji
-    shift = shift.reshape(1,1,1,2)
-    stitching_channel = experiment_properties_ws[:].StitchingChannel
-    images_properties_ws.RegistrationShift[(images_properties_ws.FovNumber == processing_combination[1]) & 
-                (images_properties_ws.HybridizationNumber == processing_combination[3]) &
-                (images_properties_ws.AcquistionChannel == stitching_channel)] = shift
-    
-    # Translate the coords of all the dots for all channels and save data in shoji
-    dots_ws.DotsCoordsRegisteredFOV[(dots_ws.FovNumber == processing_combination[1]) &
-            (dots_ws.HybridizationNumber == processing_combination[3])] =  dots_ws.DotCoordsFOV[(dots_ws.FovNumber == processing_combination[1]) &
-            (dots_ws.HybridizationNumber == processing_combination[3])] + shift
-
-
-    # Calculate error shift and write it out on shoji
-    if (ref_dots_coords_fov.shape[0] >0) and (tran_registered_coords.shape[0] >0):
-        pxl = analysis_parameters_ws.BarcodesExtractionResolution[:]
-        number_matching_dots = identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coords,pxl)
-        number_matching_dots = np.array(number_matching_dots, dtype=np.float64).reshape(1,1,1)
-        all_errors = images_properties_ws.RegistrationError[(images_properties_ws.FovNumber == processing_combination[1]) & 
-                (images_properties_ws.HybridizationNumber == processing_combination[3])] 
-        number_matching_dots =np.repeat(number_matching_dots,all_errors.shape[0]).reshape(all_errors.shape[0],1,1)
-        images_properties_ws.RegistrationError[(images_properties_ws.FovNumber == processing_combination[1]) & 
-                (images_properties_ws.HybridizationNumber == processing_combination[3])] = number_matching_dots
+    # Load reference hybridization data
+    try:
+        ref_fpath = [fpath for fpath in processing_files if reference_hybridization_str in fpath.as_posix()][0]
+    except:
+        logger.error(f'missing reference hyb file for fov {fov}')
     else:
-        all_errors = images_properties_ws.RegistrationError[(images_properties_ws.FovNumber == processing_combination[1]) & 
-                (images_properties_ws.HybridizationNumber == processing_combination[3])] 
-        number_matching_dots =np.repeat(0,all_errors.shape[0]).reshape(all_errors.shape[0],1,1)
-        images_properties_ws.RegistrationError[(images_properties_ws.FovNumber == processing_combination[1]) & 
-                (images_properties_ws.HybridizationNumber == processing_combination[3])] = number_matching_dots
+        files_no_ref = processing_files.remove(ref_fpath)
+        fish_counts,img_metadata = pickle.load(open(ref_fpath, 'rb'))
+    except:
+        logger.error(f'cannot open the reference hyb file for fov {fov}')
+    else:
+        img_width = img_metadata['img_width']
+        img_height = img_metadata['img_height']
 
+        # Create output for pandas dataframe
+        ref_counts_df = pd.DataFrame(fish_counts)
+        output = pd.DataFrame(columns = fish_counts_df.columns)
+        columns.append(['r_px_registered', 'r_px_registered','r_shift_px','c_shift_px',
+                        'min_number_matching_dots_registration','reference_hyb',
+                        'experiment_type','experiment_name','pxl_um','stitching_type',
+                        'fov_acquisition_coords_x', 'fov_acquisition_coords_y', 'fov_acquisition_coords_z'])
+        output = pd.append([output,fish_counts_df],axis=0,ignore_index=True)
 
-@task(name='registration-fish-round')
-def registration_fish_hybridization(reference_coords:np.ndarray,shift:np.ndarray,
-                                    fov_num:int, hybridization_num_translated:int):
-    """
-    Function for the registration of the fish counts using
-    the shift calculated by aligning the registration channel
-
-    Parameters:
-    -----------
-
-    all_rounds_shifts: dict
-        dictionary containing the round number as key and 
-        shift as item
-    counts: pandas dataframe
-        pandas dataframe containing the fish counting 
-        output
-
-    """
-    logger = prefect.utilities.logging.get_logger("registration_fish")
-
-    if len(reference_coords):
-        if np.any(np.isnan(shift)):
-            registered_coords = reference_coords
-            logger.info(f'registration of {fov_num} of hybridization {hybridization_num_translated} failed')
+        if np.any(np.isnan(ref_coords)):
+            logger.error(f'There are no dots in there reference hyb for fov {fov} ')
+            min_number_matching_dots_registration = 0
+            ref_counts_df = pd.DataFrame(fish_counts)
+            for fpath in files_no_ref:
+                try:
+                    tran_counts, tran_img_metadata = pickle.load(open(ref_fpath, 'rb'))
+                except:
+                    logger.error(f'cannot open {fpath.stem} file for fov {fov}'
+                else:
+                    output = pd.append([output,pd.DataFrame(tran_counts),axis=0,ignore_index=True)
+            
+            output['r_px_registered'] = output['r_px_original']
+            output['c_px_registered'] = output['c_px_original']
+            output['r_shift_px'] = np.nan
+            output['c_shift_px'] = np.nan
+            output['min_number_matching_dots_registration'] = min_number_matching_dots_registration
+            
         else:
-            registered_coords = reference_coords + shift
-    else:
-        logger.info(f'no counts in fov {fov_num} of hybridization {hybridization_num_translated}')
-        registered_coords=np.array([np.nan,np.nan])
+
+            img_shape = (img_width, img_height)
+            ref_coords = ref_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+            img_ref = create_fake_image(img_dimensions,ref_coords)
     
-    return registered_coords, shift
+            min_number_matching_dots_registration = 1000
+            output['r_px_registered'] = output['r_px_original']
+            output['c_px_registered'] = output['c_px_original']
+            output['r_shift_px'] = 0
+            output['c_shift_px'] = 0
+            output['min_number_matching_dots_registration'] = min_number_matching_dots_registration
+
+             for fpath in files_no_ref:
+                try:
+                    tran_counts, tran_img_metadata = pickle.load(open(ref_fpath, 'rb'))
+                except:
+                    logger.error(f'cannot open {fpath.stem} file for fov {fov}'
+                    tran_counts_df = pd.DataFrame(columns = fish_counts_df.columns)
+                    tran_counts_df['r_px_registered'] = output['r_px_original']
+                    tran_counts_df['c_px_registered'] = output['c_px_original']
+                    tran_counts_df['r_shift_px'] = np.nan
+                    tran_counts_df['c_shift_px'] = np.nan
+                    tran_counts_df['min_number_matching_dots_registration'] = min_number_matching_dots_registration
+                else:
+                    tran_counts_df = pd.DataFrame(tran_counts)
+                    output = pd.append([output,tran_counts_df,axis=0,ignore_index=True)
+                    tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+                    img_tran = create_fake_image(img_shape,tran_coords)
+                    shift, error, diffphase = register_translation(img_ref, img_tran)
+                    registered_tran_coords = tran_coords + shift
+                    min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
+                                                                            registered_tran_coords,
+                                                                            registration_tollerance_pxl)
+                    
+                    tran_counts_df['r_px_registered'] = registered_tran_coords[:,0]
+                    tran_counts_df['c_px_registered'] = registered_tran_coords[:,1]
+                    tran_counts_df['r_shift_px'] = shift[0]
+                    tran_counts_df['c_shift_px'] = shift[1]
+                    tran_counts_df['min_number_matching_dots_registration'] = min_num_matching_dots
+
+                    output = pd.append([output,tran_counts_df],axis=0,ignore_index=True)
+
+        # Save the dataframe
+        
+        output['reference_hyb'] = reference_hybridization
+        output['experiment_type'] = img_metadata['experiment_type']
+        output['experiment_name'] = img_metadata['experiment_name']
+        output['pxl_um'] = img_metadata['pxl_um']
+        output['stitching_type'] = img_metadata['stitching_type']
+        output['fov_acquisition_coords_x'] = img_metadata['fov_acquisition_coords_x']
+        output['fov_acquisition_coords_y'] = img_metadata['fov_acquisition_coords_y']
+        output['fov_acquisition_coords_z'] = img_metadata['fov_acquisition_coords_z']
+        
+
+        fname = save_fpath / (img_metadata['experiment_name'] + '_' + img_metadata['channels'] + '_registered_fov' + fov + '.parquet')
 
 
+
+# @task(name='create-combinations-registration-fov')
+# def hybridizations_registration_grps(experiment_info):
+
+#     logger = prefect_logging_setup("create-combination-registration-fov")
+
+#     experiment_name = experiment_info['EXP_number']
+#     reference_hybridization_number = 1
+#     reference_fov = 355
+   
+#     dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws = connect_to_shoji_smfish_experiment(experiment_name)
+
+#     stitching_channel = experiment_properties_ws[:].StitchingChannel
+#     fields_of_view = images_properties_ws.FieldsOfView[(images_properties_ws.FovNumber == reference_fov) &
+#                                                 (images_properties_ws.AcquistionChannel == stitching_channel) &
+#                                                 (images_properties_ws.HybridizationNumber == reference_hybridization_number)]
+
+
+#     fields_of_view = fields_of_view.reshape(fields_of_view.shape[1],)
+    
+#     fields_of_view = [355,73,122]
+    
+#     number_hybridizations = np.unique( images_properties_ws.HybridizationNumber[(images_properties_ws.AcquistionChannel == stitching_channel) & 
+#                                                                             (images_properties_ws.FovNumber == reference_fov)])
+    
+#     # I will keep registration also for the reference hyb with itself to avoid extra function to rewrite the coords of
+#     # unprocessed hyb
+#     # number_hybridizations = number_hybridizations[number_hybridizations > reference_hybridization_number]
+    
+#     processing_combinations = list(itertools.product([stitching_channel],fields_of_view,[reference_hybridization_number],number_hybridizations))
+    
+#     return processing_combinations
+
+
+# @task(name='calculate-shift-fov')
+# def calculate_shift_hybridization_fov(processing_combination,experiment_info):
+#     logger = prefect_logging_setup("calculate-shift-fov")
+#     # Add try exect for determine if the ws are there
+#     experiment_name = experiment_info['EXP_number']
+    
+#     dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws = connect_to_shoji_smfish_experiment(experiment_name)
+    
+#     img_shape = images_properties_ws.ImageShape[(images_properties_ws.AcquistionChannel == processing_combination[0]) & 
+#                                             (images_properties_ws.FovNumber == processing_combination[1]) & 
+#                                             (images_properties_ws.HybridizationNumber == processing_combination[2])]
+#     img_shape = img_shape.reshape(2,)
+    
+
+#     ref_dots_coords_fov = dots_ws.DotCoordsFOV[(dots_ws.FovNumber == processing_combination[1]) &
+#                                 (dots_ws.DotChannel == processing_combination[0]) &
+#                                 (dots_ws.HybridizationNumber == processing_combination[2])]
+#     ref_dots_coords_fov = ref_dots_coords_fov.reshape(ref_dots_coords_fov.shape[0],2)
+    
+
+#     tran_dots_coords_fov = dots_ws.DotCoordsFOV[(dots_ws.FovNumber == processing_combination[1]) &
+#                                     (dots_ws.DotChannel == processing_combination[0]) &
+#                                     (dots_ws.HybridizationNumber == processing_combination[3])]
+#     tran_dots_coords_fov = tran_dots_coords_fov.reshape(tran_dots_coords_fov.shape[0],2)
+    
+#     tran_registered_coords, shift, error, fov_num, hybridization_num_translated = \
+#                             fft_registration_beads(ref_dots_coords_fov, tran_dots_coords_fov,
+#                         img_shape=img_shape, fov_num=processing_combination[1],
+#                         hybridization_num_translated=processing_combination[3])
+    
+    
+#     # Write out the registration shift on shoji
+#     shift = shift.reshape(1,1,1,2)
+#     stitching_channel = experiment_properties_ws[:].StitchingChannel
+#     images_properties_ws.RegistrationShift[(images_properties_ws.FovNumber == processing_combination[1]) & 
+#                 (images_properties_ws.HybridizationNumber == processing_combination[3]) &
+#                 (images_properties_ws.AcquistionChannel == stitching_channel)] = shift
+    
+#     # Translate the coords of all the dots for all channels and save data in shoji
+#     dots_ws.DotsCoordsRegisteredFOV[(dots_ws.FovNumber == processing_combination[1]) &
+#             (dots_ws.HybridizationNumber == processing_combination[3])] =  dots_ws.DotCoordsFOV[(dots_ws.FovNumber == processing_combination[1]) &
+#             (dots_ws.HybridizationNumber == processing_combination[3])] + shift
+
+
+#     # Calculate error shift and write it out on shoji
+#     if (ref_dots_coords_fov.shape[0] >0) and (tran_registered_coords.shape[0] >0):
+#         pxl = analysis_parameters_ws.BarcodesExtractionResolution[:]
+#         number_matching_dots = identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coords,pxl)
+#         number_matching_dots = np.array(number_matching_dots, dtype=np.float64).reshape(1,1,1)
+#         all_errors = images_properties_ws.RegistrationError[(images_properties_ws.FovNumber == processing_combination[1]) & 
+#                 (images_properties_ws.HybridizationNumber == processing_combination[3])] 
+#         number_matching_dots =np.repeat(number_matching_dots,all_errors.shape[0]).reshape(all_errors.shape[0],1,1)
+#         images_properties_ws.RegistrationError[(images_properties_ws.FovNumber == processing_combination[1]) & 
+#                 (images_properties_ws.HybridizationNumber == processing_combination[3])] = number_matching_dots
+#     else:
+#         all_errors = images_properties_ws.RegistrationError[(images_properties_ws.FovNumber == processing_combination[1]) & 
+#                 (images_properties_ws.HybridizationNumber == processing_combination[3])] 
+#         number_matching_dots =np.repeat(0,all_errors.shape[0]).reshape(all_errors.shape[0],1,1)
+#         images_properties_ws.RegistrationError[(images_properties_ws.FovNumber == processing_combination[1]) & 
+#                 (images_properties_ws.HybridizationNumber == processing_combination[3])] = number_matching_dots
+
+
+
+
+# @task(name='registration-fish-round')
+# def registration_fish_hybridization(reference_coords:np.ndarray,shift:np.ndarray,
+#                                     fov_num:int, hybridization_num_translated:int):
+#     """
+#     Function for the registration of the fish counts using
+#     the shift calculated by aligning the registration channel
+
+#     Parameters:
+#     -----------
+
+#     all_rounds_shifts: dict
+#         dictionary containing the round number as key and 
+#         shift as item
+#     counts: pandas dataframe
+#         pandas dataframe containing the fish counting 
+#         output
+
+#     """
+#     logger = prefect.utilities.logging.get_logger("registration_fish")
+
+#     if len(reference_coords):
+#         if np.any(np.isnan(shift)):
+#             registered_coords = reference_coords
+#             logger.info(f'registration of {fov_num} of hybridization {hybridization_num_translated} failed')
+#         else:
+#             registered_coords = reference_coords + shift
+#     else:
+#         logger.info(f'no counts in fov {fov_num} of hybridization {hybridization_num_translated}')
+#         registered_coords=np.array([np.nan,np.nan])
+    
+#     return registered_coords, shift
 
 
 
