@@ -282,26 +282,26 @@ def osmFISH_peak_based_detection(img_meta:tuple,
             else:
                 logger.info(f' fov {fov} does not have counts (mapping)')
                 counts_dict = {
-                    'r_px_original': np.array([self.fill_value]),
-                    'c_px_original': np.array([self.fill_value]),
-                    'dot_id': np.array([self.fill_value]),
-                    'fov_num': np.array(self.fov),
+                    'r_px_original': np.array([fill_value]),
+                    'c_px_original': np.array([fill_value]),
+                    'dot_id': np.array([fill_value]),
+                    'fov_num': np.array(fov),
                     'round_num': np.array([img_metadata['hybridization_num']]),
-                    'dot_intensity': np.array([self.fill_value]),
-                    'selected_thr':np.array([self.fill_value]),
+                    'dot_intensity': np.array([fill_value]),
+                    'selected_thr':np.array([fill_value]),
                     'dot_channel':np.array([img_metadata['channel']]),
                     'target_name': np.array([img_metadata['target_name']])
                     }
     else:
         logger.info(f' fov {fov} does not have counts (thr)')
         counts_dict = {
-                    'r_px_original': np.array([self.fill_value]),
-                    'c_px_original': np.array([self.fill_value]),
-                    'dot_id': np.array([self.fill_value]),
-                    'fov_num': np.array(self.fov),
+                    'r_px_original': np.array([fill_value]),
+                    'c_px_original': np.array([fill_value]),
+                    'dot_id': np.array([fill_value]),
+                    'fov_num': np.array(fov),
                     'round_num': np.array([img_metadata['hybridization_num']]),
-                    'dot_intensity': np.array([self.fill_value]),
-                    'selected_thr':np.array([self.fill_value]),
+                    'dot_intensity': np.array([fill_value]),
+                    'selected_thr':np.array([fill_value]),
                     'dot_channel':np.array([img_metadata['channel']]),
                     'target_name': np.array([img_metadata['target_name']])
                     }
