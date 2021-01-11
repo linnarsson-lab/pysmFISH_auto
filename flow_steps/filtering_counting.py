@@ -140,7 +140,7 @@ def single_fish_filter_count_standard(
             
             # save_dots_data(fish_counts)
             fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
-            pickle.dump((fish_counts,open(fname,'wb'))
+            pickle.dump(fish_counts,open(fname,'wb'))
 
 
 
