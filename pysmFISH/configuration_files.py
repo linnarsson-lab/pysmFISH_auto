@@ -88,7 +88,8 @@ def create_general_analysis_config_file(experiment_fpath:str):
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-nuclei'] = {}
     analysis_parameters['eel-barcoded']['ROBOFISH1']['BarcodesExtractionResolution'] = 3         
     analysis_parameters['eel-barcoded']['ROBOFISH1']['RegistrationReferenceHybridization'] = 1
-    analysis_parameters['eel-barcoded']['ROBOFISH1']['RegistrationTollerancePxl'] = 3 
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['RegistrationTollerancePxl'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['RegistrationMinMatching'] = 5
 
 
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['PreprocessingFishFlatFieldKernel'] = (100,100)
@@ -140,6 +141,7 @@ def create_general_analysis_config_file(experiment_fpath:str):
     analysis_parameters['eel-barcoded']['ROBOFISH2']['BarcodesExtractionResolution'] = 3         
     analysis_parameters['eel-barcoded']['ROBOFISH2']['RegistrationReferenceHybridization'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH2']['RegistrationTollerancePxl'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['RegistrationMinMatching'] = 5
 
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['PreprocessingFishFlatFieldKernel'] = (100,100)
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['PreprocessingFishFilteringSmallKernel'] = (8,8)
@@ -191,6 +193,7 @@ def create_general_analysis_config_file(experiment_fpath:str):
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['BarcodesExtractionResolution'] = 3         
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['RegistrationReferenceHybridization'] = 1
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['RegistrationTollerancePxl'] = 3
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['RegistrationMinMatching'] = 5
 
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['PreprocessingFishFlatFieldKernel'] = (100,100)
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['PreprocessingFishFilteringSmallKernel'] = (8,8)
