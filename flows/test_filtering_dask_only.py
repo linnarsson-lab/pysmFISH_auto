@@ -83,20 +83,20 @@ try:
 
     print(f'future gathered {time.time()-start}')
 
-    start = time.time()
-    print(f'starting registration')
-    # Registration fovs
-    # registration_channel = experiment_config['StitchingChannel']
-    registration_channel = 'Europium' # must be corrected in the config file
-    fovs = consolidated_grp[[list(consolidated_grp.keys()][2]]['fields_of_view']
-    all_grps = create_hybridizations_registration_grps(experiment_fpath,registration_channel, fovs)
+    # start = time.time()
+    # print(f'starting registration')
+    # # Registration fovs
+    # # registration_channel = experiment_config['StitchingChannel']
+    # registration_channel = 'Europium' # must be corrected in the config file
+    # fovs = consolidated_grp[[list(consolidated_grp.keys()][2]]['fields_of_view']
+    # all_grps = create_hybridizations_registration_grps(experiment_fpath,registration_channel, fovs)
     
-    all_futures = client.map(calculate_shift_hybridization_fov, all_grps,
-                            analysis_parameters = analysis_parameters)
+    # all_futures = client.map(calculate_shift_hybridization_fov, all_grps,
+    #                         analysis_parameters = analysis_parameters)
 
-    _ = client.gather(all_futures)
+    # _ = client.gather(all_futures)
 
-    print(f'future for registration gathered {time.time()-start}')
+    # print(f'future for registration gathered {time.time()-start}')
 
     cluster.close()
 
