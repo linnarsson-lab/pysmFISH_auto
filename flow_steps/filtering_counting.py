@@ -17,6 +17,7 @@ from pysmFISH.io import load_raw_images
 from pysmFISH.dots_calling import osmFISH_peak_based_detection
 from pysmFISH.utils import convert_from_uint16_to_float64
 
+
 from pysmFISH.logger_utils import selected_logger
 
 
@@ -134,12 +135,12 @@ def single_fish_filter_count_standard(
                                                     num_peaks_per_label)
             
           
-            fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_filtered.pkl')
+            fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
             pickle.dump((img, img_metadata),open(fname,'wb'))
             
             # save_dots_data(fish_counts)
-            fname = experiment_fpath / 'tmp' / (zarr_grp_name + '_dots.pkl')
-            pickle.dump((fish_counts,img_metadata),open(fname,'wb'))
+            fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+            pickle.dump((fish_counts,open(fname,'wb'))
 
 
 
