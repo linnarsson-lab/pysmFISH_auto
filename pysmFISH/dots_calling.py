@@ -276,8 +276,8 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'round_num': hybridization_num_array,
                     'dot_intensity': dots.intensity_array,
                     'selected_thr':thr_array,
-                    'DotChannel':channel_array,
-                    'TargetName': target_name_array}
+                    'dot_channel':channel_array,
+                    'target_name': target_name_array}
 
             else:
                 logger.info(f' fov {fov} does not have counts (mapping)')
@@ -289,8 +289,8 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'round_num': np.array([img_metadata['hybridization_num']]),
                     'dot_intensity': np.array([self.fill_value]),
                     'selected_thr':np.array([self.fill_value]),
-                    'DotChannel':np.array([img_metadata['channel']]),
-                    'TargetName': np.array([img_metadata['target_name']])
+                    'dot_channel':np.array([img_metadata['channel']]),
+                    'target_name': np.array([img_metadata['target_name']])
                     }
     else:
         logger.info(f' fov {fov} does not have counts (thr)')
@@ -302,8 +302,8 @@ def osmFISH_peak_based_detection(img_meta:tuple,
                     'round_num': np.array([img_metadata['hybridization_num']]),
                     'dot_intensity': np.array([self.fill_value]),
                     'selected_thr':np.array([self.fill_value]),
-                    'DotChannel':np.array([img_metadata['channel']]),
-                    'TargetName': np.array([img_metadata['target_name']])
+                    'dot_channel':np.array([img_metadata['channel']]),
+                    'target_name': np.array([img_metadata['target_name']])
                     }
     
     return (counts_dict, img_metadata)
