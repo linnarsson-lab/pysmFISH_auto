@@ -37,25 +37,38 @@ print(f'cluster starting {time.time()-start}')
 
 
 print(f'start filtering')
+# start = time.time()
+# all_futures = []
+# # Filtering smFISH
+# fish_futures = client.map(single_fish_filter_count_standard,
+#                             sorted_grps['fish'][0],
+#                             parsed_raw_data_fpath = parsed_raw_data_fpath,
+#                             processing_parameters=sorted_grps['fish'][1])
+# all_futures.append(fish_futures) 
+# # _ = client.gather(all_futures)
+
+# # Filtering beads
+# beads_futures = client.map(single_fish_filter_count_standard,
+#                             sorted_grps['beads'][0],
+#                             parsed_raw_data_fpath = parsed_raw_data_fpath,
+#                             processing_parameters=sorted_grps['fish'][1])
+# all_futures.append(beads_futures) 
+# # _ = client.gather(all_futures)
+
+# all_futures = [ft for grp_ft in all_futures for ft in grp_ft]
+
+
 start = time.time()
+# Staing has different processing fun
 all_futures = []
-# Filtering smFISH
-fish_futures = client.map(single_fish_filter_count_standard,
-                            sorted_grps['fish'][0],
+for grp, grp_data in sorted_grps:
+    if grp in ['fish','beads']:
+        for el in gro:
+            future = Client.submit(single_fish_filter_count_standard,
+                            el,
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=sorted_grps['fish'][1])
-all_futures.append(fish_futures) 
-# _ = client.gather(all_futures)
-
-# Filtering beads
-beads_futures = client.map(single_fish_filter_count_standard,
-                            sorted_grps['beads'][0],
-                            parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['fish'][1])
-all_futures.append(beads_futures) 
-# _ = client.gather(all_futures)
-
-all_futures = [ft for grp_ft in all_futures for ft in grp_ft]
+            all_futures.append(future)
 
 print(f'future created {time.time()-start}')
 
