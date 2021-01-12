@@ -141,7 +141,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
     logger = selected_logger()
     
     reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
-    reference_hybridization_str = 'Hybridization' + str(0) + str(reference_hybridization)
+    reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
     fov = (processing_files[0].stem).split('_')[-2]
     registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
 
@@ -176,16 +176,15 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
 
             if np.any(np.isnan(ref_coords)):
                 logger.error(f'There are no dots in there reference hyb for fov {fov} ')
-                min_number_matching_dots_registration = 0
-                ref_counts_df = pd.DataFrame(fish_counts)
                 for fpath in processing_files:
-                    round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
-                    all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                     try:
                         tran_counts, tran_img_metadata = pickle.load(open(ref_fpath, 'rb'))
                     except:
                         logger.error(f'cannot open {fpath.stem} file for fov {fov}')
                     else:
+                        min_number_matching_dots_registration = 0
+                        round_num = tran_counts['round_num'][0]
+                        all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                         output = pd.concat([output,pd.DataFrame(tran_counts)],axis=0,ignore_index=True)
                         output['r_px_registered'] = output['r_px_original']
                         output['c_px_registered'] = output['c_px_original']
@@ -206,10 +205,10 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                 output['min_number_matching_dots_registration'] = min_number_matching_dots_registration
 
                 for fpath in processing_files:
-                    round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                     try:
-                        tran_counts, tran_img_metadata = pickle.load(open(ref_fpath, 'rb'))
+                        tran_counts, tran_img_metadata = pickle.load(open(fpath, 'rb'))
                     except:
+                        round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                         all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                         logger.error(f'cannot open {fpath.stem} file for fov {fov}')
                         tran_counts_df = pd.DataFrame(tran_counts)
@@ -218,25 +217,35 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                         tran_counts_df['r_shift_px'] = np.nan
                         tran_counts_df['c_shift_px'] = np.nan
                         tran_counts_df['min_number_matching_dots_registration'] = min_number_matching_dots_registration
+                        output = pd.concat([output,tran_counts_df],axis=0,ignore_index=True)
                     else:
+                        round_num = tran_counts['round_num'][0]
                         tran_counts_df = pd.DataFrame(tran_counts)
-                        output = pd.concat([output,tran_counts_df],axis=0,ignore_index=True)
                         tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
-                        img_tran = create_fake_image(img_shape,tran_coords)
-                        shift, error, diffphase = register_translation(img_ref, img_tran)
-                        all_rounds_shifts[round_num] = shift
-                        registered_tran_coords = tran_coords + shift
-                        min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
-                                                                                registered_tran_coords,
-                                                                                registration_tollerance_pxl)
-                        
-                        tran_counts_df['r_px_registered'] = registered_tran_coords[:,0]
-                        tran_counts_df['c_px_registered'] = registered_tran_coords[:,1]
-                        tran_counts_df['r_shift_px'] = shift[0]
-                        tran_counts_df['c_shift_px'] = shift[1]
-                        tran_counts_df['min_number_matching_dots_registration'] = min_num_matching_dots
+                        if np.any(np.isnan(tran_coords)):
+                            tran_counts_df['r_px_registered'] = output['r_px_original']
+                            tran_counts_df['c_px_registered'] = output['c_px_original']
+                            tran_counts_df['r_shift_px'] = np.nan
+                            tran_counts_df['c_shift_px'] = np.nan
+                            tran_counts_df['min_number_matching_dots_registration'] = min_number_matching_dots_registration
+                            all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+                            output = pd.concat([output,tran_counts_df],axis=0,ignore_index=True)
+                        else:
+                            img_tran = create_fake_image(img_shape,tran_coords)
+                            shift, error, diffphase = register_translation(img_ref, img_tran)
+                            all_rounds_shifts[round_num] = shift
+                            registered_tran_coords = tran_coords + shift
+                            min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
+                                                                                    registered_tran_coords,
+                                                                                    registration_tollerance_pxl)
+                            
+                            tran_counts_df['r_px_registered'] = registered_tran_coords[:,0]
+                            tran_counts_df['c_px_registered'] = registered_tran_coords[:,1]
+                            tran_counts_df['r_shift_px'] = shift[0]
+                            tran_counts_df['c_shift_px'] = shift[1]
+                            tran_counts_df['min_number_matching_dots_registration'] = min_num_matching_dots
 
-                        output = pd.concat([output,tran_counts_df],axis=0,ignore_index=True)
+                            output = pd.concat([output,tran_counts_df],axis=0,ignore_index=True)
 
             # Save the dataframe
             
@@ -250,22 +259,77 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
             output['fov_acquisition_coords_z'] = img_metadata['fov_acquisition_coords_z']
             
 
-            fname = save_fpath / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov' + fov + '.parquet')
-            output.to_parquet(fname,index=False)
-            # return output, all_rounds_shifts
+            # fname = save_fpath / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov_' + fov + '.parquet')
+            # output.to_parquet(fname,index=False)
+            return output, all_rounds_shifts
 
 
 
-# def register_fish(processing_files:List,analysis_parameters:Dict,
-#                         registered_dots_dict:Dict,all_rounds_shifts):
+def register_fish(processing_files:List,analysis_parameters:Dict,
+                        registered_reference_channel_df,all_rounds_shifts):
 
-#     logger = selected_logger()
-#     for fpath in processing_files:
-#         try:
-#             data = pickle.loads(open(processing_files,'rb'))
-#         except:
+    logger = selected_logger()
+    reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
+    registered_fish_df = pd.DataFrame(columns = registered_reference_channel_df.columns)
+    columns = list(registered_reference_channel_df.columns)
+    columns.append(['r_px_registered', 'r_px_registered','r_shift_px','c_shift_px',
+                            'min_number_matching_dots_registration','reference_hyb',
+                            'experiment_type','experiment_name','pxl_um','stitching_type',
+                            'fov_acquisition_coords_x', 'fov_acquisition_coords_y', 'fov_acquisition_coords_z'])
+
+    min_number_matching_dots_registration = 1000
+
+    for fpath in processing_files:
+        try:
+            fish_counts, img_metadata = pickle.load(open(fpath,'rb'))
+        except:
+            logger.error(f'cannot open the processing files')
+            pass
+        else:
+            round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
+            fish_counts_df = pd.DataFrame(fish_counts)
             
-        
+            subset_df = registered_reference_channel_df.loc[registered_reference_channel_df['round_num'] == round_num, :]
+            subset_df = subset_df.reset_index()
+
+            if round_num == reference_hybridization:
+                fish_counts_df['r_px_registered'] = fish_counts['r_px_original']
+                fish_counts_df['c_px_registered'] = fish_counts['c_px_original']
+                fish_counts_df['r_shift_px'] = 0
+                fish_counts_df['c_shift_px'] = 0
+                fish_counts_df['min_number_matching_dots_registration'] = min_number_matching_dots_registration  
+
+                fish_counts_df['reference_hyb'] = reference_hybridization
+                fish_counts_df['experiment_type'] = subset_df.loc[0,'experiment_type']
+                fish_counts_df['experiment_name'] = subset_df.loc[0,'experiment_name']
+                fish_counts_df['pxl_um'] = subset_df.loc[0,'pxl_um']
+                fish_counts_df['stitching_type'] = subset_df.loc[0,'stitching_type']
+                fish_counts_df['fov_acquisition_coords_x'] = subset_df.loc[0,'fov_acquisition_coords_x']
+                fish_counts_df['fov_acquisition_coords_y'] = subset_df.loc[0,'fov_acquisition_coords_y']
+                fish_counts_df['fov_acquisition_coords_z'] = subset_df.loc[0,'fov_acquisition_coords_z']
+            else:
+                shift = all_rounds_shifts[round_num]
+                fish_counts_df['r_px_registered'] = fish_counts['r_px_original'] + shift[0]
+                fish_counts_df['c_px_registered'] = fish_counts['c_px_original'] + shift[1]
+                fish_counts_df['r_shift_px'] = shift[0]
+                fish_counts_df['c_shift_px'] = shift[1]
+
+                fish_counts_df['reference_hyb'] = reference_hybridization
+                fish_counts_df['min_number_matching_dots_registration'] = subset_df.loc[0,'min_number_matching_dots_registration'] 
+                fish_counts_df['experiment_type'] = subset_df.loc[0,'experiment_type']
+                fish_counts_df['experiment_name'] = subset_df.loc[0,'experiment_name']
+                fish_counts_df['pxl_um'] = subset_df.loc[0,'pxl_um']
+                fish_counts_df['stitching_type'] = subset_df.loc[0,'stitching_type']
+                fish_counts_df['fov_acquisition_coords_x'] = subset_df.loc[0,'fov_acquisition_coords_x']
+                fish_counts_df['fov_acquisition_coords_y'] = subset_df.loc[0,'fov_acquisition_coords_y']
+                fish_counts_df['fov_acquisition_coords_z'] = subset_df.loc[0,'fov_acquisition_coords_z']
+
+            registered_fish_df = pd.concat([registered_fish_df,fish_counts_df])
+    fname = processing_files[0].parent.parent / 'registered_counts' / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov_' + str(img_metadata['fov_num']) + '.parquet')
+    registered_fish_df.to_parquet(fname,index=False)
+    return registered_fish_df
+
+
 #         counts_df = data[0]
 
 

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import logging
 from sklearn.neighbors import NearestNeighbors
-from pynndescent import NNDescent
+# from pynndescent import NNDescent
 
 from pysmFISH.logger_utils import selected_logger
 
@@ -22,14 +22,6 @@ class convert_xlsx_barcode():
         
         self.xlsx_barcode_fpath = Path(xlsx_barcode_fpath)
 
-
-def make_codebook_array(codebook_df,column_name):
-    codebook_array = np.zeros((len(codebook_df[column_name]),codebook_df[column_name][0].shape[0]))
-    for idx, el in enumerate(codebook_df[column_name]):
-        row = codebook_df[column_name][idx]
-        row = row[np.newaxis,:]
-        codebook_array[idx,:] = row
-    return codebook_array
 
 
 class extract_barcodes_NN():
@@ -105,6 +97,15 @@ class extract_barcodes_NN():
     
         return compare_df, barcoded_df
 
+    @staticmethod
+    def make_codebook_array(codebook_df,column_name):
+        codebook_array = np.zeros((len(codebook_df[column_name]),codebook_df[column_name][0].shape[0]))
+        for idx, el in enumerate(codebook_df[column_name]):
+            row = codebook_df[column_name][idx]
+            row = row[np.newaxis,:]
+            codebook_array[idx,:] = row
+        return codebook_array
+
 
     def run_extraction(self):
 
@@ -120,41 +121,48 @@ class extract_barcodes_NN():
             self.barcoded_fov_df['raw_barcodes'] = negative_barcode.tostring()
             self.barcoded_fov_df['gene'] = 'bad_registration'
             self.barcoded_fov_df['hamming_distance'] = np.nan
-        
-        else:
+            self.barcoded_fov_df['barcode_reference_dot_id'] = np.nan
 
+        else:
+            
             # barcode_length = len(self.counts['round_num'].unique())
             rounds = np.arange(1,self.barcode_length+1)
-        
-            # Check that counts not NaN
-            if not self.counts['r_px_original'].isnull().all():
 
-                # remove points with np.NAN
-                self.counts = self.counts.dropna()
-                for round_num in rounds:
-                    compare_df, barcoded_df = self.barcode_nn(self.counts, round_num, self.barcodes_extraction_resolution)
-                    self.barcoded_fov_df = self.barcoded_fov_df.append(barcoded_df, ignore_index=True)
-                    self.counts = compare_df
+            codebook_array = make_codebook_array(codebook_df,'Code')
+            nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
+            nn_sklearn.fit(codebook_array)
 
-                self.counts['barcode_reference_dot_id'] = self.counts.dot_id
-                self.barcoded_fov_df = self.barcoded_fov_df.append(self.counts, ignore_index=True)
-                self.barcoded_fov_df['barcodes_extraction_resolution'] = self.barcodes_extraction_resolution
-                self.grpd = self.barcoded_fov_df.groupby('barcode_reference_dot_id')
-                # self.all_barcodes = {}
-                for name, group in self.grpd:
-                    rounds_num = group.round_num.values
-                    dot_ids = group.dot_id.values
-                    rounds_num = rounds_num.astype(int)
-                    barcode = np.zeros([self.barcode_length],dtype=np.int8)
-                    barcode[(rounds_num-1)] += 1
-                    # barcode_st = ''
-                    # barcode_st = barcode_st.join([",".join(item) for item in barcode.astype(str)])
-                    # self.all_barcodes[name] = {}
-                    # self.all_barcodes[name]['dot_ids'] = dot_ids
-                    # self.all_barcodes[name]['barcode'] = barcode
-                    # self.all_barcodes[name]['barcode_str'] = barcode_st
-                    self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'raw_barcodes'] = barcode.tostring()
 
+
+            # remove points with np.NAN
+            self.counts = self.counts.dropna()
+            for round_num in rounds:
+                compare_df, barcoded_df = self.barcode_nn(self.counts, round_num, self.barcodes_extraction_resolution)
+                self.barcoded_fov_df = self.barcoded_fov_df.append(barcoded_df, ignore_index=True)
+                self.counts = compare_df
+
+            self.counts['barcode_reference_dot_id'] = self.counts.dot_id
+            self.barcoded_fov_df = self.barcoded_fov_df.append(self.counts, ignore_index=True)
+            self.barcoded_fov_df['barcodes_extraction_resolution'] = self.barcodes_extraction_resolution
+            self.grpd = self.barcoded_fov_df.groupby('barcode_reference_dot_id')
+            # self.all_barcodes = {}
+            for name, group in self.grpd:
+                rounds_num = group.round_num.values
+                dot_ids = group.dot_id.values
+                rounds_num = rounds_num.astype(int)
+                barcode = np.zeros([self.barcode_length],dtype=np.int8)
+                barcode[(rounds_num-1)] += 1
+
+                dists_arr, index_arr = nn_sklearn.kneighbors(barcode, return_distance=True)
+                gene=codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'gene'].tolist()
+                # barcode_st = ''
+                # barcode_st = barcode_st.join([",".join(item) for item in barcode.astype(str)])
+                # self.all_barcodes[name] = {}
+                # self.all_barcodes[name]['dot_ids'] = dot_ids
+                # self.all_barcodes[name]['barcode'] = barcode
+                # self.all_barcodes[name]['barcode_str'] = barcode_st
+                self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'raw_barcodes'] = barcode.tostring()
+                self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'gene'] = barcode.tostring()
 
 
 #     codebook_barcode_array_df = convert_str_codebook(codebook_df,'Code')
@@ -311,124 +319,124 @@ class extract_barcodes():
 
 
 
-class extract_barcodes_NN_descend():
-    """
-    Class used to extract the barcodes from the registered
-    counts using nearest neighbour
+# class extract_barcodes_NN_descend():
+#     """
+#     Class used to extract the barcodes from the registered
+#     counts using nearest neighbour
 
-    Parameters:
-    -----------
-    counts: pandas dataframe
-        contains all the counts for a fov
-    pxl: int
-        size of the hood to search for positive
-        barcodes
+#     Parameters:
+#     -----------
+#     counts: pandas dataframe
+#         contains all the counts for a fov
+#     pxl: int
+#         size of the hood to search for positive
+#         barcodes
 
-    NB: If a round is missing everything get processed
-        but the missing rounds get 0 in the barcode
-    """
+#     NB: If a round is missing everything get processed
+#         but the missing rounds get 0 in the barcode
+#     """
 
-    def __init__(self, counts, pxl:int,total_rounds:int):
-        self.counts = counts
-        self.pxl = pxl
-        self.total_rounds = total_rounds
+#     def __init__(self, counts, pxl:int,total_rounds:int):
+#         self.counts = counts
+#         self.pxl = pxl
+#         self.total_rounds = total_rounds
 
-        #self.logger = logging.getLogger(__name__)
+#         #self.logger = logging.getLogger(__name__)
 
         
-    @staticmethod
-    def barcode_nn(counts_df, ref_round_number, pxl):
-        column_names = list(counts_df.columns.values)
-        column_names = column_names.append('barcode_reference_dot_id')
-        barcoded_df = pd.DataFrame(columns=column_names)
+#     @staticmethod
+#     def barcode_nn(counts_df, ref_round_number, pxl):
+#         column_names = list(counts_df.columns.values)
+#         column_names = column_names.append('barcode_reference_dot_id')
+#         barcoded_df = pd.DataFrame(columns=column_names)
 
-        reference_array = counts_df.loc[counts_df.round_num == ref_round_number, ['r_px_registered','c_px_registered']].to_numpy()
-        reference_round_df = counts_df.loc[counts_df.round_num == ref_round_number,:].reset_index(drop=True)
-        # Step one (all dots not in round 1)
-        coords_compare = counts_df.loc[counts_df.round_num != ref_round_number, ['r_px_registered','c_px_registered']].to_numpy()
-        compare_df = counts_df.loc[counts_df.round_num != ref_round_number,:].reset_index(drop=True)
+#         reference_array = counts_df.loc[counts_df.round_num == ref_round_number, ['r_px_registered','c_px_registered']].to_numpy()
+#         reference_round_df = counts_df.loc[counts_df.round_num == ref_round_number,:].reset_index(drop=True)
+#         # Step one (all dots not in round 1)
+#         coords_compare = counts_df.loc[counts_df.round_num != ref_round_number, ['r_px_registered','c_px_registered']].to_numpy()
+#         compare_df = counts_df.loc[counts_df.round_num != ref_round_number,:].reset_index(drop=True)
 
-        if (reference_array.shape[0] >0) and (coords_compare.shape[0] >0):
-            # initialize network
+#         if (reference_array.shape[0] >0) and (coords_compare.shape[0] >0):
+#             # initialize network
     
-            index = NNDescent(reference_array,metric='euclidean',n_neighbors=1)        
-            # Get the nn
-            indices, dists = index.query(coords_compare,k=1)
-            # select only the nn that are below pxl distance
-            idx_selected_coords_compare = np.where(dists <= pxl)[0]
+#             index = NNDescent(reference_array,metric='euclidean',n_neighbors=1)        
+#             # Get the nn
+#             indices, dists = index.query(coords_compare,k=1)
+#             # select only the nn that are below pxl distance
+#             idx_selected_coords_compare = np.where(dists <= pxl)[0]
 
-            compare_selected_df = compare_df.loc[idx_selected_coords_compare,:]
-            compare_selected_df['barcode_reference_dot_id'] = np.nan
+#             compare_selected_df = compare_df.loc[idx_selected_coords_compare,:]
+#             compare_selected_df['barcode_reference_dot_id'] = np.nan
 
-            for idx in idx_selected_coords_compare:
-                ref_idx = indices[idx]
-                compare_selected_df.loc[idx,'barcode_reference_dot_id'] = reference_round_df.loc[ref_idx,'dot_id'].values[0]
+#             for idx in idx_selected_coords_compare:
+#                 ref_idx = indices[idx]
+#                 compare_selected_df.loc[idx,'barcode_reference_dot_id'] = reference_round_df.loc[ref_idx,'dot_id'].values[0]
 
-            reference_round_df['barcode_reference_dot_id'] = reference_round_df.dot_id
+#             reference_round_df['barcode_reference_dot_id'] = reference_round_df.dot_id
 
-            barcoded_df = barcoded_df.append([compare_selected_df, reference_round_df], ignore_index=True)
+#             barcoded_df = barcoded_df.append([compare_selected_df, reference_round_df], ignore_index=True)
 
-            compare_df = compare_df.drop(compare_selected_df.index)
-            compare_df = compare_df.reset_index(drop=True)
+#             compare_df = compare_df.drop(compare_selected_df.index)
+#             compare_df = compare_df.reset_index(drop=True)
     
-        return compare_df, barcoded_df
+#         return compare_df, barcoded_df
 
 
-    def run_extraction(self):
+#     def run_extraction(self):
 
-        # count all barcodes
-        columns_names = ['r_px_original', 'c_px_original', 'dot_id', 'fov_num',
-        'round_num', 'dot_intensity_norm', 'dot_intensity_not',
-        'selected_thr', 'channel', 'r_shift', 'c_shift', 'r_px_registered',
-        'c_px_registered', 'pixel_microns', 'pxl_hood_size', 'barcode_reference_dot_id']
+#         # count all barcodes
+#         columns_names = ['r_px_original', 'c_px_original', 'dot_id', 'fov_num',
+#         'round_num', 'dot_intensity_norm', 'dot_intensity_not',
+#         'selected_thr', 'channel', 'r_shift', 'c_shift', 'r_px_registered',
+#         'c_px_registered', 'pixel_microns', 'pxl_hood_size', 'barcode_reference_dot_id']
 
-        self.barcoded_fov_df = pd.DataFrame(columns=columns_names)
+#         self.barcoded_fov_df = pd.DataFrame(columns=columns_names)
         
-        rounds = np.arange(1,self.total_rounds+1)
+#         rounds = np.arange(1,self.total_rounds+1)
         
-         # Check that counts not NaN
-        if not self.counts['r_px_original'].isnull().all():
+#          # Check that counts not NaN
+#         if not self.counts['r_px_original'].isnull().all():
 
-            # remove points with np.NAN
-            self.counts = self.counts.dropna()
-            for round_num in np.arange(1,self.total_rounds):
-                compare_df, barcoded_df = self.barcode_nn(self.counts, round_num, self.pxl)
-                self.barcoded_fov_df = self.barcoded_fov_df.append(barcoded_df, ignore_index=True)
-                self.counts = compare_df
+#             # remove points with np.NAN
+#             self.counts = self.counts.dropna()
+#             for round_num in np.arange(1,self.total_rounds):
+#                 compare_df, barcoded_df = self.barcode_nn(self.counts, round_num, self.pxl)
+#                 self.barcoded_fov_df = self.barcoded_fov_df.append(barcoded_df, ignore_index=True)
+#                 self.counts = compare_df
 
-            self.counts['barcode_reference_dot_id'] = self.counts.dot_id
-            self.barcoded_fov_df = self.barcoded_fov_df.append(self.counts, ignore_index=True)
-            self.barcoded_fov_df['pxl_hood_size'] = self.pxl
-            self.grpd = self.barcoded_fov_df.groupby('barcode_reference_dot_id')
-            self.all_barcodes = {}
-            for name, group in self.grpd:
-                rounds_num = group.round_num.values
-                dot_ids = group.dot_id.values
-                rounds_num = rounds_num.astype(int)
-                barcode = np.zeros([1,self.total_rounds],dtype=int)
-                barcode[:,(rounds_num-1)] += 1
-                barcode_st = ''
-                barcode_st = barcode_st.join([",".join(item) for item in barcode.astype(str)])
-                self.all_barcodes[name] = {}
-                self.all_barcodes[name]['dot_ids'] = dot_ids
-                self.all_barcodes[name]['barcode'] = barcode
-                self.all_barcodes[name]['barcode_str'] = barcode_st
-        else:
-            self.all_barcodes[name] = {}
-
-
-def convert_str_codebook(codebook_df,column_name):
-    codebook_df[column_name] = codebook_df[column_name].map(lambda x: np.frombuffer(x, np.int8))
-    return codebook_df
+#             self.counts['barcode_reference_dot_id'] = self.counts.dot_id
+#             self.barcoded_fov_df = self.barcoded_fov_df.append(self.counts, ignore_index=True)
+#             self.barcoded_fov_df['pxl_hood_size'] = self.pxl
+#             self.grpd = self.barcoded_fov_df.groupby('barcode_reference_dot_id')
+#             self.all_barcodes = {}
+#             for name, group in self.grpd:
+#                 rounds_num = group.round_num.values
+#                 dot_ids = group.dot_id.values
+#                 rounds_num = rounds_num.astype(int)
+#                 barcode = np.zeros([1,self.total_rounds],dtype=int)
+#                 barcode[:,(rounds_num-1)] += 1
+#                 barcode_st = ''
+#                 barcode_st = barcode_st.join([",".join(item) for item in barcode.astype(str)])
+#                 self.all_barcodes[name] = {}
+#                 self.all_barcodes[name]['dot_ids'] = dot_ids
+#                 self.all_barcodes[name]['barcode'] = barcode
+#                 self.all_barcodes[name]['barcode_str'] = barcode_st
+#         else:
+#             self.all_barcodes[name] = {}
 
 
-def make_codebook_array(codebook_df,column_name):
-    codebook_array = np.zeros((len(codebook_df[column_name]),codebook_df[column_name][0].shape[0]))
-    for idx, el in enumerate(codebook_df[column_name]):
-        row = codebook_df[column_name][idx]
-        row = row[np.newaxis,:]
-        codebook_array[idx,:] = row
-    return codebook_array
+# def convert_str_codebook(codebook_df,column_name):
+#     codebook_df[column_name] = codebook_df[column_name].map(lambda x: np.frombuffer(x, np.int8))
+#     return codebook_df
+
+
+# def make_codebook_array(codebook_df,column_name):
+#     codebook_array = np.zeros((len(codebook_df[column_name]),codebook_df[column_name][0].shape[0]))
+#     for idx, el in enumerate(codebook_df[column_name]):
+#         row = codebook_df[column_name][idx]
+#         row = row[np.newaxis,:]
+#         codebook_array[idx,:] = row
+#     return codebook_array
 
 # def nn_decoding_barcodes(counts_df, codebook_df):
 
