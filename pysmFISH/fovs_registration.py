@@ -36,30 +36,35 @@ from prefect.engine import signals
 from pysmFISH.logger_utils import prefect_logging_setup, selected_logger
 from pysmFISH.io import connect_to_shoji_smfish_experiment
 
-def create_hybridizations_registration_grps(tmp_fpath:str,registration_channel:str, fovs:List):
+def create_hybridizations_registration_grps(experiment_fpath:str,registration_channel:str, fovs:List):
     """
     Function to create groups of files that need to be registered together
     Args:
-        tmp_fpath: str
-            Path to the tmp directory where the files with the counts are saved
+        experiment_fpath: str
+            Path to the exp directory 
         registration_channel : str
             Name of the channel used for registration of the fovs
         fovs: List
             List of the keys used for grouping
     Returns:
         all_grps: List
-            List of list containing the file names grouped by fov
+            List of tuples containing the file names of reference
+            channel and fish grouped by fov
     """
     logger = selected_logger()
-    tmp_fpath = Path(tmp_fpath)
+    tmp_fpath = Path(experiment_fpath) / 'tmp' / 'raw_counts'
+    all_files = set(tmp_fpath.glob('*'))
     registration_files = list(tmp_fpath.glob(registration_channel))
+    fish_files = all_files.difference(registration_files)
 
     all_grps = []
     for fov in fovs:
-        search_key = registration_channel + '_fov_' + str(fov) + '_dots.pkl'
-        grp = list(tmp_fpath.glob(search_key))
+        search_key_reg = '*' + registration_channel + '_fov_' + str(fov) + '_dots.pkl'
+        search_key_fish =  '*_fov_' + str(fov) + '_dots.pkl'
+        grp_reg = list(registration_files.glob(search_key_reg))
+        grp_fish = list(fish_files.glob(search_key_fish))
         logger.debug(f'fov {fov} for registration on {registration_channel} has {len(grp)} counts files')
-        all_grps.append(grp)
+        all_grps.append((grp_reg, grp_fish))
         return all_grps
 
 def create_fake_image(img_shape,coords):
@@ -100,8 +105,6 @@ def fft_registration_beads(reference_coords:np.ndarray, translated_coords:np.nda
     return tran_registered_coords, shift, error, fov_num, hybridization_num_translated 
 
 
-
-
 def identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coords,registration_tollerance_pxl):
     # put in the wrapping function
     #if (ref_dots_coords_fov.shape[0] >0) and (tran_registered_coords.shape[0] >0):
@@ -121,7 +124,7 @@ def identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coord
     return number_matching_dots
 
 
-def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:dict,reference_hybridization:int):
+def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:dict):
     """
     Function used to run the registration of a single fov
     through all hybridization. The registration is done using the dots
@@ -136,12 +139,14 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
     
     logger = selected_logger()
     
+    reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
     reference_hybridization_str = 'Hybridization_' + str(0) + str(reference_hybridization)
     fov = (processing_files[0].stem).splt('_')[-2]
     registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
 
     save_fpath = processing_files[0].parent.parent / 'registered_counts'
 
+    all_rounds_shifts = {}
     # Load reference hybridization data
     try:
         ref_fpath = [fpath for fpath in processing_files if reference_hybridization_str in fpath.as_posix()][0]
@@ -170,6 +175,8 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
             min_number_matching_dots_registration = 0
             ref_counts_df = pd.DataFrame(fish_counts)
             for fpath in files_no_ref:
+                round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
+                all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                 try:
                     tran_counts, tran_img_metadata = pickle.load(open(ref_fpath, 'rb'))
                 except:
@@ -197,9 +204,11 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
             output['min_number_matching_dots_registration'] = min_number_matching_dots_registration
 
              for fpath in files_no_ref:
+                round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                 try:
                     tran_counts, tran_img_metadata = pickle.load(open(ref_fpath, 'rb'))
                 except:
+                    all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                     logger.error(f'cannot open {fpath.stem} file for fov {fov}'
                     tran_counts_df = pd.DataFrame(columns = fish_counts_df.columns)
                     tran_counts_df['r_px_registered'] = output['r_px_original']
@@ -213,6 +222,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                     tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
                     img_tran = create_fake_image(img_shape,tran_coords)
                     shift, error, diffphase = register_translation(img_ref, img_tran)
+                    all_rounds_shifts[round_num] = shift
                     registered_tran_coords = tran_coords + shift
                     min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
                                                                             registered_tran_coords,
@@ -239,6 +249,55 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
         
 
         fname = save_fpath / (img_metadata['experiment_name'] + '_' + img_metadata['channels'] + '_registered_fov' + fov + '.parquet')
+        return output, all_rounds_shifts
+
+
+
+def register_fish(processing_files:List,analysis_parameters:Dict,
+                        registered_dots_dict:Dict,all_rounds_shifts):
+
+    logger = selected_logger()
+    for fpath in processing_files:
+        try:
+            data = pickle.loads(open(processing_files,'rb'))
+        except:
+            
+        
+        counts_df = data[0]
+
+
+
+
+# def registration_fish_hybridization(reference_coords:np.ndarray,shift:np.ndarray,
+#                                     fov_num:int, hybridization_num_translated:int):
+#     """
+#     Function for the registration of the fish counts using
+#     the shift calculated by aligning the registration channel
+
+#     Parameters:
+#     -----------
+
+#     all_rounds_shifts: dict
+#         dictionary containing the round number as key and 
+#         shift as item
+#     counts: pandas dataframe
+#         pandas dataframe containing the fish counting 
+#         output
+
+#     """
+#     logger = prefect.utilities.logging.get_logger("registration_fish")
+
+#     if len(reference_coords):
+#         if np.any(np.isnan(shift)):
+#             registered_coords = reference_coords
+#             logger.info(f'registration of {fov_num} of hybridization {hybridization_num_translated} failed')
+#         else:
+#             registered_coords = reference_coords + shift
+#     else:
+#         logger.info(f'no counts in fov {fov_num} of hybridization {hybridization_num_translated}')
+#         registered_coords=np.array([np.nan,np.nan])
+    
+#     return registered_coords, shift
 
 
 
