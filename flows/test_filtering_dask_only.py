@@ -14,8 +14,8 @@ from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.io import consolidate_zarr_metadata, open_consolidated_metadata
 from pysmFISH.utils import sorting_grps
 
-# from pysmFISH.fovs_registration import create_hybridizations_registration_grps
-# from pysmFISH.fovs_registration import calculate_shift_hybridization_fov
+from pysmFISH.fovs_registration import create_registration_grps
+from pysmFISH.registration_barcode_processing import registration_barcode_detection_basic
 
 
 experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
@@ -62,41 +62,45 @@ print(f'start filtering')
 
 try:
 
-    start = time.time()
-    # Staing has different processing fun
-    all_futures = []
-    for grp, grp_data in sorted_grps.items():
-        if grp in ['fish','beads']:
-            for el in grp_data[0]:
-                future = client.submit(single_fish_filter_count_standard,
-                                el,
-                                parsed_raw_data_fpath = parsed_raw_data_fpath,
-                                processing_parameters=sorted_grps['fish'][1])
-                all_futures.append(future)
+    # start = time.time()
+    # # Staing has different processing fun
+    # all_futures = []
+    # for grp, grp_data in sorted_grps.items():
+    #     if grp in ['fish','beads']:
+    #         for el in grp_data[0]:
+    #             future = client.submit(single_fish_filter_count_standard,
+    #                             el,
+    #                             parsed_raw_data_fpath = parsed_raw_data_fpath,
+    #                             processing_parameters=sorted_grps['fish'][1])
+    #             all_futures.append(future)
 
-    print(f'future created {time.time()-start}')
+    # print(f'future created {time.time()-start}')
 
-    print(f'total number of futures to process {len(all_futures)}')
-
-    start = time.time()
-    _ = client.gather(all_futures)
-
-    print(f'future gathered {time.time()-start}')
+    # print(f'total number of futures to process {len(all_futures)}')
 
     # start = time.time()
-    # print(f'starting registration')
-    # # Registration fovs
-    # # registration_channel = experiment_config['StitchingChannel']
-    # registration_channel = 'Europium' # must be corrected in the config file
-    # fovs = consolidated_grp[[list(consolidated_grp.keys()][2]]['fields_of_view']
-    # all_grps = create_hybridizations_registration_grps(experiment_fpath,registration_channel, fovs)
-    
-    # all_futures = client.map(calculate_shift_hybridization_fov, all_grps,
-    #                         analysis_parameters = analysis_parameters)
-
     # _ = client.gather(all_futures)
 
-    # print(f'future for registration gathered {time.time()-start}')
+    # print(f'future gathered {time.time()-start}')
+
+    start = time.time()
+    print(f'starting registration')
+    # Registration fovs
+    # registration_channel = experiment_config['StitchingChannel']
+    registration_channel = 'Europium' # must be corrected in the config file
+    key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+    fovs = consolidated_grp[key].attrs['fields_of_view']
+    all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
+    
+
+    all_futures = client.map(registration_barcode_detection_basic, all_grps,
+                            analysis_parameters = analysis_parameters,
+                            experiment_config = experiment_config,
+                            experiment_fpath = experiment_fpath)
+
+    _ = client.gather(all_futures)
+
+    print(f'future for registration gathered {time.time()-start}')
 
     cluster.close()
 
