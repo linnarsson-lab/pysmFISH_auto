@@ -1,5 +1,6 @@
 from typing import *
 import logging
+import shutil
 import yaml
 import sys
 import os
@@ -11,6 +12,72 @@ from skimage import img_as_float64
 from pathlib import Path
 
 from pysmFISH.logger_utils import selected_logger
+
+def free_space(hd_path:str, min_free_space:int):
+    """
+    Function used to determine if there is enough space in the
+    HD where the experiment will be processed
+
+    Args:
+    -----
+        hd_path:str
+            pathway of the target HD where the processing will be run
+        min_free_space:int
+            minimum space required for processing in Gb (ex: 1000)
+        
+    Returns:
+    --------
+        True/False: bool
+            True if there is enough free space for running the experiment
+    """
+        logger = selected_logger()
+        total, used, free = shutil.disk_usage(hd_path)
+        free_space_giga = free // (2**30)
+        if free_space_giga <= min_free_space:
+            logger.info(f'Free space in the HD: {free_space_giga} Gb data cannot be transferred,\
+                            not enough space on the HD')
+            return False
+        else:
+            logger.info(f'Free space in the HD: {free_space_giga} Gb data can be transferred')
+            return True
+
+
+
+
+def transfer_data(path_source_location:str,path_destination:str, flag_file_key:str):
+    """
+    Function used to transfer the files to another location
+
+    Args:
+        path_source_location: str
+            path to the data to be moved
+        path_destination: str
+            path to the destination of the transfer
+        flag_file_key: str
+        string that define the flag_files. The flag key should not have _auto_
+        in the name.
+    """
+    logger = selected_logger()
+    path_source_location = Path(path_source_location)
+    path_destination = Path(path_destination)
+
+    try:
+        os.stat(path_source_location)
+    except:
+        logger.error(f' The {path_source_location} directory is missing')
+        sys.exit(f' The {path_source_location} directory is missing')
+    else:
+        try:
+            os.stat(path_destination)
+        except:
+            logger.info(f' The {path_destination} directory is missing')
+            sys.exit(f' The {path_destination} directory is missing')
+        else:
+            shutil.move(path_source_location.as_posix(),path_destination.as_posix())
+            tag_file_name = path_destination / (path_source_location.stem + '_' + flag_file_key)
+            open(tag_file_name,'w').close()
+            logger.info(f'data moved from {path_source_location} to {path_destination}')
+
 
 def check_ready_experiments(path_tmp_storage_server:str, flag_file_key:str):
     """
