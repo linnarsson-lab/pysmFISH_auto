@@ -26,10 +26,10 @@ def create_processing_cluster(processing_env_config_fpath:str,experiment_fpath:s
     logger = selected_logger()
 
     try:
-        processing_env_config = load_processing_env_config_file(processing_env_config_fpath)
+        processing_env_config = load_processing_env_config_file(experiment_fpath)
     except:
-        logger.error(f'error loading {processing_env_config_fpath}')
-        sys.exit(f'error loading {processing_env_config_fpath}')
+        logger.error(f'error loading processing env config')
+        sys.exit(f'error loading processing env config')
     else:
         try:
             experiment_info = load_experiment_config_file(experiment_fpath)
