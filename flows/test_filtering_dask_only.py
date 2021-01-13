@@ -21,9 +21,9 @@ from pysmFISH.fovs_registration import create_registration_grps
 from flow_steps.registration_barcode_processing import registration_barcode_detection_basic
 
 
-experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
-processing_env_config_fpath = '/wsfish/smfish_ssd/config_db'
-parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
+experiment_fpath = '/Users/simone.codeluppi/Github_code/data_analysis_jlabs_sc/test_pipeline_auto_dask_only/data/LBEXP20201207_EEL_HE_test2'
+processing_env_config_fpath = '/Users/simone.codeluppi/Github_code/data_analysis_jlabs_sc/test_pipeline_auto_dask_only/data//config_db'
+parsed_raw_data_fpath = '/Users/simone.codeluppi/Github_code/data_analysis_jlabs_sc/test_pipeline_auto_dask_only/data/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
 
 processing_env_config = load_processing_env_config_file(processing_env_config_fpath)
 experiment_info = load_experiment_config_file(experiment_fpath)
@@ -63,7 +63,7 @@ print(f'start filtering')
 
 # all_futures = [ft for grp_ft in all_futures for ft in grp_ft]
 
-try:
+# try:
 
     # start = time.time()
     # # Staing has different processing fun
@@ -86,28 +86,28 @@ try:
 
     # print(f'future gathered {time.time()-start}')
 
-    start = time.time()
-    print(f'starting registration')
-    # Registration fovs
-    # registration_channel = experiment_config['StitchingChannel']
-    registration_channel = 'Europium' # must be corrected in the config file
-    key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-    fovs = consolidated_grp[key].attrs['fields_of_view']
-    codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
-    all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
-    
+start = time.time()
+print(f'starting registration')
+# Registration fovs
+# registration_channel = experiment_config['StitchingChannel']
+registration_channel = 'Europium' # must be corrected in the config file
+key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+fovs = consolidated_grp[key].attrs['fields_of_view']
+codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
+all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
-    # all_futures = client.map(registration_barcode_detection_basic, all_grps,
-    #                         analysis_parameters = analysis_parameters,
-    #                         experiment_info = experiment_info,
-    #                         experiment_fpath = experiment_fpath,
-    #                         codebook = codebook)
 
-    data = registration_barcode_detection_basic(all_grps[0],
-                            analysis_parameters = analysis_parameters,
-                            experiment_info = experiment_info,
-                            experiment_fpath = experiment_fpath,
-                            codebook = codebook)
+# all_futures = client.map(registration_barcode_detection_basic, all_grps,
+#                         analysis_parameters = analysis_parameters,
+#                         experiment_info = experiment_info,
+#                         experiment_fpath = experiment_fpath,
+#                         codebook = codebook)
+
+data = registration_barcode_detection_basic(all_grps[0],
+                        analysis_parameters = analysis_parameters,
+                        experiment_info = experiment_info,
+                        experiment_fpath = experiment_fpath,
+                        codebook = codebook)
 
     # data = client.gather(all_futures)
 
@@ -115,9 +115,9 @@ try:
 
     # cluster.close()
 
-except OSError:
-    print(f' ERROR IN RECONNECTING TO THE CLUSTER')
-    cluster.close()
+# except OSError:
+#     print(f' ERROR IN RECONNECTING TO THE CLUSTER')
+    # cluster.close()
 
 print(f'processing completed')
 

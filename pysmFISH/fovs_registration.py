@@ -325,8 +325,8 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
                 fish_counts_df['fov_acquisition_coords_z'] = subset_df.loc[0,'fov_acquisition_coords_z']
 
             registered_fish_df = pd.concat([registered_fish_df,fish_counts_df])
-    fname = processing_files[0].parent.parent / 'registered_counts' / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov_' + str(img_metadata['fov_num']) + '.parquet')
-    registered_fish_df.to_parquet(fname,index=False)
+    # fname = processing_files[0].parent.parent / 'registered_counts' / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov_' + str(img_metadata['fov_num']) + '.parquet')
+    # registered_fish_df.to_parquet(fname,index=False)
     return registered_fish_df
 
 
