@@ -21,11 +21,11 @@ from pysmFISH.fovs_registration import create_registration_grps
 from flow_steps.registration_barcode_processing import registration_barcode_detection_basic
 
 
-experiment_fpath = '/Users/simone.codeluppi/Github_code/data_analysis_jlabs_sc/test_pipeline_auto_dask_only/data/LBEXP20201207_EEL_HE_test2'
-processing_env_config_fpath = '/Users/simone.codeluppi/Github_code/data_analysis_jlabs_sc/test_pipeline_auto_dask_only/data//config_db'
-parsed_raw_data_fpath = '/Users/simone.codeluppi/Github_code/data_analysis_jlabs_sc/test_pipeline_auto_dask_only/data/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
+experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
+processing_env_config_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/config_db'
+parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
 
-processing_env_config = load_processing_env_config_file(processing_env_config_fpath)
+processing_env_config = load_processing_env_config_file(experiment_fpath)
 experiment_info = load_experiment_config_file(experiment_fpath)
 
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
@@ -36,8 +36,8 @@ consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 start = time.time()
-# cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
-# client = Client(cluster)
+cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
+client = Client(cluster)
 
 print(f'cluster starting {time.time()-start}')
 
@@ -87,7 +87,7 @@ print(f'start filtering')
     # print(f'future gathered {time.time()-start}')
 
 start = time.time()
-print(f'starting registration')
+print(f'starting registration-barcode-processing')
 # Registration fovs
 # registration_channel = experiment_config['StitchingChannel']
 registration_channel = 'Europium' # must be corrected in the config file
@@ -97,23 +97,23 @@ codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_ext
 all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
 
-# all_futures = client.map(registration_barcode_detection_basic, all_grps,
-#                         analysis_parameters = analysis_parameters,
-#                         experiment_info = experiment_info,
-#                         experiment_fpath = experiment_fpath,
-#                         codebook = codebook)
-
-data = registration_barcode_detection_basic(all_grps[0],
+all_futures = client.map(registration_barcode_detection_basic, all_grps,
                         analysis_parameters = analysis_parameters,
                         experiment_info = experiment_info,
                         experiment_fpath = experiment_fpath,
                         codebook = codebook)
 
-    # data = client.gather(all_futures)
+# data = registration_barcode_detection_basic(all_grps[0],
+#                         analysis_parameters = analysis_parameters,
+#                         experiment_info = experiment_info,
+#                         experiment_fpath = experiment_fpath,
+#                         codebook = codebook)
 
-    # print(f'future for registration gathered {time.time()-start}')
+data = client.gather(all_futures)
 
-    # cluster.close()
+print(f'future for registration-barcode processing gathered {time.time()-start}')
+
+cluster.close()
 
 # except OSError:
 #     print(f' ERROR IN RECONNECTING TO THE CLUSTER')
