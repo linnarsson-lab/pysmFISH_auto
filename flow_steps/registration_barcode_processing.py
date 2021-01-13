@@ -2,6 +2,7 @@ from pathlib import Path
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov
 from pysmFISH.fovs_registration import register_fish
 from pysmFISH.barcodes_analysis import extract_barcodes_NN
+from pysmFISH.stitching import stitch_using_microscope_fov_coords
 
 def registration_barcode_detection_basic(processing_grps,
                                         analysis_parameters,
@@ -21,6 +22,9 @@ def registration_barcode_detection_basic(processing_grps,
                                                 experiment_info,
                                                 codebook)
     process_barcodes.run_extraction()
+
+    stitched_df = stitch_using_microscope_fov_coords(process_barcodes.barcoded_fov_df,experiment_info)
+
 
     channel = process_barcodes.barcoded_fov_df.loc[0,'dot_channel']
     experiment_name = process_barcodes.barcoded_fov_df.loc[0,'experiment_name']
