@@ -30,16 +30,16 @@ def free_space(hd_path:str, min_free_space:int):
         True/False: bool
             True if there is enough free space for running the experiment
     """
-        logger = selected_logger()
-        total, used, free = shutil.disk_usage(hd_path)
-        free_space_giga = free // (2**30)
-        if free_space_giga <= min_free_space:
-            logger.info(f'Free space in the HD: {free_space_giga} Gb data cannot be transferred,\
-                            not enough space on the HD')
-            return False
-        else:
-            logger.info(f'Free space in the HD: {free_space_giga} Gb data can be transferred')
-            return True
+    logger = selected_logger()
+    total, used, free = shutil.disk_usage(hd_path)
+    free_space_giga = free // (2**30)
+    if free_space_giga <= min_free_space:
+        logger.info(f'Free space in the HD: {free_space_giga} Gb data cannot be transferred,\
+                        not enough space on the HD')
+        return False
+    else:
+        logger.info(f'Free space in the HD: {free_space_giga} Gb data can be transferred')
+        return True
 
 
 
