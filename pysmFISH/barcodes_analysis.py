@@ -203,19 +203,10 @@ class extract_barcodes_NN():
 
                 if hd == 0:
                     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'0Hdistance_genes'] = gene
-                else:
-                    self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'0Hdistance_genes'] = np.nan
-                
-                if hd < hd_2:
+                elif hd < hd_2:
                     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below2Hdistance_genes'] = gene
-                else:
-                    self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below2Hdistance_genes'] = np.nan
-                
-                if hd < hd_3:
+                elif hd < hd_3:
                     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below3Hdistance_genes'] = gene
-                else:
-                    self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below3Hdistance_genes'] = np.nan
-
 # ---------------------------------------------------
 
 
