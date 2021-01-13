@@ -415,6 +415,34 @@ class r_c_chunking():
 
 
 
+def stitch_using_microscope_fov_coords(counts_df, experiment_info):
+    """
+    This function create a stitched image using the coords of the
+    tiles defined during the acquisition by the microscope
+    
+    Args:
+        counts_df: pd.DataFrame
+            dataframe containing the dots counts
+        experiment_info: dict
+            dictionary with the image acquisition parameters
+    Returns:
+        counts_df: pd.DataFrame
+            dataframe containing the dots counts with two
+            extra columns containing the stitched coords
+        
+    """
+    if experiment_info['Machine'] == 'ROBOFISH2':
+        counts_df['r_px_microscope_sstitched'] = decoded_df['r_px_registered'] + counts_df['fov_acquisition_coords_y'] / counts_df['px_um']
+        counts_df['c_px_microscope_stitched'] = decoded_df['c_px_mregistered'] - counts_df['fov_acquisition_coords_x'] / counts_df['px_um']
+    elif experiment_info['Machine'] == 'ROBOFISH1':
+        pass
+    elif experiment_info['Machine'] == 'NOT_DEFINED':
+        counts_df['r_px_microscope_sstitched'] = decoded_df['r_px_registered'] + counts_df['fov_acquisition_coords_y'] / counts_df['px_um']
+        counts_df['c_px_microscope_stitched'] = decoded_df['c_px_mregistered'] + counts_df['fov_acquisition_coords_x'] / counts_df['px_um']
+    return counts_df
+
+
+
 class triangles_based_dots_stitching():
     """
     Class used to register the different rounds by searaching and
