@@ -6,7 +6,7 @@ that will contain all the analysis outputs
 from typing import *
 import os
 import zarr
-# import shoji
+import shoji
 import numpy as np
 from pathlib import Path
 
@@ -108,54 +108,54 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
 
 
 
-# def connect_to_shoji_smfish_experiment(experiment_name: str):
+def connect_to_shoji_smfish_experiment(experiment_name: str):
     
-#     logger = prefect_logging_setup(f'connect to shoji')
-#     try:
-#             db = shoji.connect()
-#     except:
-#         logger.error(f'Cannot connect to shoji DB')
-#         err = signals.FAIL(f'Cannot connect to shoji DB')
-#         raise err
-#     else:
-#         try:
-#             ws = db.FISH[experiment_name]
-#         except:
-#             logger.error(f'experiment workspace missing')
-#             err = signals.FAIL(f'experiment workspace missing')
-#             raise err
-#         else:
-#             try:
-#                 dots_ws = ws.dots_data
-#             except:
-#                 logger.error(f'dots_data workspace missing')
-#                 err = signals.FAIL(f'dots_data workspace missing')
-#                 raise err
+    logger = prefect_logging_setup(f'connect to shoji')
+    try:
+            db = shoji.connect()
+    except:
+        logger.error(f'Cannot connect to shoji DB')
+        err = signals.FAIL(f'Cannot connect to shoji DB')
+        raise err
+    else:
+        try:
+            ws = db.FISH[experiment_name]
+        except:
+            logger.error(f'experiment workspace missing')
+            err = signals.FAIL(f'experiment workspace missing')
+            raise err
+        else:
+            try:
+                dots_ws = ws.dots_data
+            except:
+                logger.error(f'dots_data workspace missing')
+                err = signals.FAIL(f'dots_data workspace missing')
+                raise err
 
-#             else:
-#                 try:
-#                     images_properties_ws = ws.images_properties
-#                 except:
-#                     logger.error(f'images_properties_ws workspace missing')
-#                     err = signals.FAIL(f'images_properties_ws workspace missing')
-#                     raise err
-#                 else:
-#                     try:
-#                         experiment_properties_ws = ws.experiment_properties
-#                     except:
-#                         logger.error(f'experiment_properties_ws workspace missing')
-#                         err = signals.FAIL(f'experiment_properties_ws workspace missing')
-#                         raise err
-#                     else:
-#                         try:
-#                             analysis_parameters_ws = ws.analysis_parameters
-#                         except:
-#                             logger.error(f'analysis_parameters_ws workspace missing')
-#                             err = signals.FAIL(f'analysis_parameters_ws workspace missing')
-#                             raise err
+            else:
+                try:
+                    images_properties_ws = ws.images_properties
+                except:
+                    logger.error(f'images_properties_ws workspace missing')
+                    err = signals.FAIL(f'images_properties_ws workspace missing')
+                    raise err
+                else:
+                    try:
+                        experiment_properties_ws = ws.experiment_properties
+                    except:
+                        logger.error(f'experiment_properties_ws workspace missing')
+                        err = signals.FAIL(f'experiment_properties_ws workspace missing')
+                        raise err
+                    else:
+                        try:
+                            analysis_parameters_ws = ws.analysis_parameters
+                        except:
+                            logger.error(f'analysis_parameters_ws workspace missing')
+                            err = signals.FAIL(f'analysis_parameters_ws workspace missing')
+                            raise err
                         
-#                         else:
-#                             return dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws
+                        else:
+                            return dots_ws, images_properties_ws, experiment_properties_ws, analysis_parameters_ws
 
 
 # class load_analysis_parameters(Task):
