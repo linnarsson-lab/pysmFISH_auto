@@ -97,11 +97,11 @@ codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_ext
 all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
 
-all_futures = client.map(registration_barcode_detection_basic, all_grps,
-                        analysis_parameters = analysis_parameters,
-                        experiment_info = experiment_info,
-                        experiment_fpath = experiment_fpath,
-                        codebook = codebook)
+# all_futures = client.map(registration_barcode_detection_basic, all_grps,
+#                         analysis_parameters = analysis_parameters,
+#                         experiment_info = experiment_info,
+#                         experiment_fpath = experiment_fpath,
+#                         codebook = codebook)
 
 # data = registration_barcode_detection_basic(all_grps[0],
 #                         analysis_parameters = analysis_parameters,
@@ -109,9 +109,20 @@ all_futures = client.map(registration_barcode_detection_basic, all_grps,
 #                         experiment_fpath = experiment_fpath,
 #                         codebook = codebook)
 
-data = client.gather(all_futures)
+# data = client.gather(all_futures)
+
+from dask import dataframe as dd
+def test(client,experiment_fpath):
+    all_counts_folder = Path(experiment_fpath) / 'tmp' / 'registered_counts' 
+    search_key = '*decoded*'
+    all_counts_dd = dd.read_parquet(all_counts_folder / search_key)
+    all_error = all_counts_dd['min_number_matching_dots_registration'].compute()
+    return all_error
 
 print(f'future for registration-barcode processing gathered {time.time()-start}')
+
+all_error = test(client,experiment_fpath)
+
 
 cluster.close()
 
