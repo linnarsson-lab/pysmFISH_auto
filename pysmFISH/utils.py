@@ -13,33 +13,33 @@ from pathlib import Path
 
 from pysmFISH.logger_utils import selected_logger
 
-# def free_space(hd_path:str, min_free_space:int):
-#     """
-#     Function used to determine if there is enough space in the
-#     HD where the experiment will be processed
+def free_space(hd_path:str, min_free_space:int):
+    """
+    Function used to determine if there is enough space in the
+    HD where the experiment will be processed
 
-#     Args:
-#     -----
-#         hd_path:str
-#             pathway of the target HD where the processing will be run
-#         min_free_space:int
-#             minimum space required for processing in Gb (ex: 1000)
+    Args:
+    -----
+        hd_path:str
+            pathway of the target HD where the processing will be run
+        min_free_space:int
+            minimum space required for processing in Gb (ex: 1000)
         
-#     Returns:
-#     --------
-#         True/False: bool
-#             True if there is enough free space for running the experiment
-#     """
-#     logger = selected_logger()
-#     total, used, free = shutil.disk_usage(hd_path)
-#     free_space_giga = free // (2**30)
-#     if free_space_giga <= min_free_space:
-#         logger.info(f'Free space in the HD: {free_space_giga} Gb data cannot be transferred,\
-#                         not enough space on the HD')
-#         return False
-#     else:
-#         logger.info(f'Free space in the HD: {free_space_giga} Gb data can be transferred')
-#         return True
+    Returns:
+    --------
+        True/False: bool
+            True if there is enough free space for running the experiment
+    """
+    logger = selected_logger()
+    total, used, free = shutil.disk_usage(hd_path)
+    free_space_giga = free // (2**30)
+    if free_space_giga <= min_free_space:
+        logger.info(f'Free space in the HD: {free_space_giga} Gb data cannot be transferred,\
+                        not enough space on the HD')
+        return False
+    else:
+        logger.info(f'Free space in the HD: {free_space_giga} Gb data can be transferred')
+        return True
 
 
 
