@@ -352,6 +352,10 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
         
         tag_name = experiment_name + '_' + hybridization_name + '_' + channel
     
+        # Save the fov_coords
+        fname = experiment_fpath / 'tmp' / 'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
+        np.save(fname, fov_coords)
+
 
         # Save the file as zarr
         store = zarr.DirectoryStore(parsed_raw_data_fpath)

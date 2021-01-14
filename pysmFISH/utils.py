@@ -158,7 +158,7 @@ def create_folder_structure(experiment_fpath:str):
                     'probes',
                     'tmp',
                     'logs']
-    subfolders_tmp = ['raw_counts','filtered_images','registered_counts']
+    subfolders_tmp = ['raw_counts','filtered_images','registered_counts','microscope_tiles_coords']
     for folder_name in folders_list:
         try:
             os.stat(experiment_fpath / folder_name )
