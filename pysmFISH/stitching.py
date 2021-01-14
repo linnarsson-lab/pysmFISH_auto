@@ -432,13 +432,13 @@ def stitch_using_microscope_fov_coords(counts_df, experiment_info):
         
     """
     if experiment_info['Machine'] == 'ROBOFISH2':
-        counts_df['r_px_microscope_sstitched'] = counts_df['r_px_registered'] + counts_df['fov_acquisition_coords_y'] / counts_df['pxl_um']
-        counts_df['c_px_microscope_stitched'] = counts_df['c_px_mregistered'] - counts_df['fov_acquisition_coords_x'] / counts_df['pxl_um']
+        counts_df['r_px_microscope_stitched'] = counts_df['r_px_registered'] + counts_df['fov_acquisition_coords_y'] / counts_df['pxl_um']
+        counts_df['c_px_microscope_stitched'] = counts_df['c_px_registered'] - counts_df['fov_acquisition_coords_x'] / counts_df['pxl_um']
     elif experiment_info['Machine'] == 'ROBOFISH1':
         pass
     elif experiment_info['Machine'] == 'NOT_DEFINED':
-        counts_df['r_px_microscope_sstitched'] = counts_df['r_px_registered'] + counts_df['fov_acquisition_coords_y'] / counts_df['pxl_um']
-        counts_df['c_px_microscope_stitched'] = counts_df['c_px_mregistered'] + counts_df['fov_acquisition_coords_x'] / counts_df['pxl_um']
+        counts_df['r_px_microscope_stitched'] = counts_df['r_px_registered'] + counts_df['fov_acquisition_coords_y'] / counts_df['pxl_um']
+        counts_df['c_px_microscope_stitched'] = counts_df['c_px_registered'] + counts_df['fov_acquisition_coords_x'] / counts_df['pxl_um']
     return counts_df
 
 
