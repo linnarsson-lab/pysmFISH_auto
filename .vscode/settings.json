@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/home/simone/mini/envs/pysmFISH_auto-env/bin/python",
+    "python.pythonPath": "/Users/simone.codeluppi/opt/miniconda3/envs/pysmFISH_auto-env/bin/python",
     "telemetry.enableTelemetry": false,
     "python.linting.mypyEnabled": true,
     "python.linting.enabled": true,
