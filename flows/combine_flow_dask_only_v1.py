@@ -83,8 +83,8 @@ print(f'reparsing completed in {(time.time()-start)/60} min')
 # IMAGE PREPROCESSING AND DOTS COUNTING
 start = time.time()
 print(f'start preprocessing and dots counting')
-# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
+consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+# consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 
