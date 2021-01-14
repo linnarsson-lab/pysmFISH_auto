@@ -342,13 +342,13 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
         
         # Collect FOV coords
         x_data = np.array(all_metadata.x_data)
-        #x_data = x_data[:,np.newaxis]
+        x_data = x_data[:,np.newaxis]
         y_data = np.array(all_metadata.y_data)
-        #y_data = y_data[:,np.newaxis]
+        y_data = y_data[:,np.newaxis]
         z_data = np.array(all_metadata.z_data)
-        #z_data = z_data[:,np.newaxis]
-        #all_coords = np.hstack((z_data,x_data,y_data))
-        #fov_coords = all_coords[0::len(z_levels),:]
+        z_data = z_data[:,np.newaxis]
+        all_coords = np.hstack((z_data,x_data,y_data))
+        fov_coords = all_coords[0::len(z_levels),:]
         
         tag_name = experiment_name + '_' + hybridization_name + '_' + channel
     
@@ -388,9 +388,9 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
             dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']
             dgrp.attrs['hybridization_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
-            dgrp.attrs['fov_acquisition_coords_x'] = x_data[fov]
-            dgrp.attrs['fov_acquisition_coords_y'] = y_data[fov]
-            dgrp.attrs['fov_acquisition_coords_z'] = z_data[fov]
+            dgrp.attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
+            dgrp.attrs['fov_acquisition_coords_y'] = fov_coords[fov,2]
+            dgrp.attrs['fov_acquisition_coords_z'] = fov_coords[fov,0]
 
 
             if info_data['StitchingChannel'] == channel:
