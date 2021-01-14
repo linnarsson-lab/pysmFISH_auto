@@ -170,7 +170,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
             columns = list(ref_counts_df.columns)
             columns.append(['r_px_registered', 'r_px_registered','r_shift_px','c_shift_px',
                             'min_number_matching_dots_registration','reference_hyb',
-                            'experiment_type','experiment_name','pxl_um','stitching_type',
+                            'experiment_type','experiment_name','pxl_um','stitching_type', 'img_width_px','img_height_px',
                             'fov_acquisition_coords_x', 'fov_acquisition_coords_y', 'fov_acquisition_coords_z'])
             output = pd.concat([output,ref_counts_df],axis=0,ignore_index=True)
 
@@ -254,6 +254,8 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
             output['experiment_name'] = img_metadata['experiment_name']
             output['pxl_um'] = img_metadata['pixel_microns']
             output['stitching_type'] = img_metadata['stitching_type']
+            output['img_width_px'] = img_metadata['img_width']
+            output['img_height_px'] = img_metadata['img_height']
             output['fov_acquisition_coords_x'] = img_metadata['fov_acquisition_coords_x']
             output['fov_acquisition_coords_y'] = img_metadata['fov_acquisition_coords_y']
             output['fov_acquisition_coords_z'] = img_metadata['fov_acquisition_coords_z']
