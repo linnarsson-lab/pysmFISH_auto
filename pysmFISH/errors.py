@@ -4,7 +4,6 @@ class Registration_errors():
     possible errors in the registration
 
     """
-
     def __init__(self):
 
         # The registration file has no counts
@@ -22,5 +21,5 @@ class Registration_errors():
         # Fish channel doesn't have counts
         self.cannot_load_file_fish_channel = -5
 
-
-
+        # Fish channel doesn't have counts
+        self.registration_below_extraction_resolution = -6

@@ -39,12 +39,13 @@ start = time.time()
 cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
 client = Client(cluster)
 
-print(f'cluster starting {time.time()-start}')
+# print(f'cluster starting {time.time()-start}')
 
 
-print(f'start filtering')
+# print(f'start filtering')
 # start = time.time()
 # all_futures = []
+
 # # Filtering smFISH
 # fish_futures = client.map(single_fish_filter_count_standard,
 #                             sorted_grps['fish'][0],
@@ -65,43 +66,43 @@ print(f'start filtering')
 
 # try:
 
-start = time.time()
+# start = time.time()
 # Staing has different processing fun
-all_futures = []
-for grp, grp_data in sorted_grps.items():
-    if grp in ['fish','beads']:
-        for el in grp_data[0]:
-            future = client.submit(single_fish_filter_count_standard,
-                            el,
-                            parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['fish'][1])
-            all_futures.append(future)
+# all_futures = []
+# for grp, grp_data in sorted_grps.items():
+#     if grp in ['fish','beads']:
+#         for el in grp_data[0]:
+#             future = client.submit(single_fish_filter_count_standard,
+#                             el,
+#                             parsed_raw_data_fpath = parsed_raw_data_fpath,
+#                             processing_parameters=sorted_grps['fish'][1])
+#             all_futures.append(future)
 
-print(f'future created {time.time()-start}')
+# print(f'future created {time.time()-start}')
 
-print(f'total number of futures to process {len(all_futures)}')
+# print(f'total number of futures to process {len(all_futures)}')
 
-start = time.time()
-_ = client.gather(all_futures)
+# start = time.time()
+# _ = client.gather(all_futures)
 
-print(f'future gathered {time.time()-start}')
+# print(f'future gathered {time.time()-start}')
 
-start = time.time()
-print(f'starting registration-barcode-processing')
+# start = time.time()
+# print(f'starting registration-barcode-processing')
 # Registration fovs
-# registration_channel = experiment_config['StitchingChannel']
-# registration_channel = 'Europium' # must be corrected in the config file
-# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-# fovs = consolidated_grp[key].attrs['fields_of_view']
-# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
-# all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
+registration_channel = experiment_info['StitchingChannel']
+registration_channel = 'Europium' # must be corrected in the config file
+key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+fovs = consolidated_grp[key].attrs['fields_of_view']
+codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
+all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
 
-# all_futures = client.map(registration_barcode_detection_basic, all_grps,
-#                         analysis_parameters = analysis_parameters,
-#                         experiment_info = experiment_info,
-#                         experiment_fpath = experiment_fpath,
-#                         codebook = codebook)
+all_futures = client.map(registration_barcode_detection_basic, all_grps,
+                        analysis_parameters = analysis_parameters,
+                        experiment_info = experiment_info,
+                        experiment_fpath = experiment_fpath,
+                        codebook = codebook)
 
 # data = registration_barcode_detection_basic(all_grps[0],
 #                         analysis_parameters = analysis_parameters,
@@ -109,10 +110,10 @@ print(f'starting registration-barcode-processing')
 #                         experiment_fpath = experiment_fpath,
 #                         codebook = codebook)
 
-# data = client.gather(all_futures)
+data = client.gather(all_futures)
 
 
-# print(f'future for registration-barcode processing gathered {time.time()-start}')
+print(f'future for registration-barcode processing gathered {time.time()-start}')
 
 
 cluster.close()

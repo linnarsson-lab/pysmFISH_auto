@@ -6,6 +6,8 @@ from sklearn.neighbors import NearestNeighbors
 # from pynndescent import NNDescent
 
 from pysmFISH.logger_utils import selected_logger
+from pysmFISH.data_models import Output_models
+from pysmFISH.errors import Registration_errors
 
 
 class convert_xlsx_barcode():
@@ -47,13 +49,17 @@ class extract_barcodes_NN():
     
     """
 
-    def __init__(self, counts, analysis_parameters:Dict,experiment_config:Dict,codebook_df):
+    def __init__(self, counts, analysis_parameters:Dict,experiment_config:Dict,codebook_df,status:str):
         
         self.barcodes_extraction_resolution = analysis_parameters['BarcodesExtractionResolution']
         self.barcode_length = experiment_config['Barcode_length']
         self.counts = counts
         self.logger = selected_logger()
         self.codebook_df = codebook_df
+        self.status = status
+        self.registration_errors = Registration_errors()
+
+
 
         
     @staticmethod
@@ -116,102 +122,95 @@ class extract_barcodes_NN():
 
     def run_extraction(self):
 
-        # count all barcodes
-        columns_names = list(self.counts.columns) + ['barcodes_extraction_resolution', 'barcode_reference_dot_id',
-                        'raw_barcodes','all_Hdistance_genes','0Hdistance_genes','below2Hdistance_genes',
-                        'below3Hdistance_genes','number_positive_bits','hamming_distance']
-        
-        self.barcoded_fov_df = pd.DataFrame(columns=columns_names)
+        data_models = Output_models()
+        fov = self.counts.loc[0,'fov_num']
+        self.barcoded_fov_df = data_models.barcode_analysis_df
+        self.barcoded_fov_df.attrs = self.counts.attrs
 
-        if (min(self.counts.loc[:,'min_number_matching_dots_registration']) < self.barcodes_extraction_resolution):
-            fov = self.counts.loc[0,'fov_num']
-            self.logger.debug(f'the {fov} has too little dots for registration')
-            self.barcoded_fov_df = pd.append([self.barcoded_fov_df, self.counts],axis=0,ignore_index=True)
-            negative_barcode = np.zeros(self.barcode_length,dtype=np.int8)
-            self.barcoded_fov_df['raw_barcodes'] = negative_barcode.tostring()
-            self.barcoded_fov_df['all_Hdistance_genes'] = 'bad_registration'
-            self.barcoded_fov_df['0Hdistance_genes'] = 'bad_registration'
-            self.barcoded_fov_df['below2Hdistance_genes'] = 'bad_registration'
-            self.barcoded_fov_df['below3Hdistance_genes'] = 'bad_registration'
-            self.barcoded_fov_df['measured_hamming_distance'] = np.nan
-            self.barcoded_fov_df['barcode_reference_dot_id'] = np.nan
-            self.barcoded_fov_df['number_positive_bits'] = 0
-            self.barcoded_fov_df['hamming_distance'] = 1
+        if self.status == 'FAILED':
+            error = counts_df['min_number_matching_dots_registration'].values[0]
+            self.barcoded_fov_df = self.barcoded_fov_df.append({'min_number_matching_dots_registration':error,
+                                                           'fov_num':fov },ignore_index=True)
+        elif self.status == 'SUCCESS':
 
-        else:
-            hd_2 = 2 / self.barcode_length
-            hd_3 = 3 / self.barcode_length
-            # barcode_length = len(self.counts['round_num'].unique())
-            rounds = np.arange(1,self.barcode_length+1)
-            self.codebook_df = self.convert_str_codebook(self.codebook_df,'Code')
-            codebook_array = self.make_codebook_array(self.codebook_df,'Code')
-            nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
-            nn_sklearn.fit(codebook_array)
+            if (min(self.counts.loc[:,'min_number_matching_dots_registration']) < self.barcodes_extraction_resolution):
+                self.barcoded_fov_df = self.barcoded_fov_df.append({'min_number_matching_dots_registration':registration_errors.registration_below_extraction_resolution, 
+                                            'fov_num':fov},ignore_index=True)
+                self.status = 'FAILED'
+            else:
+                hd_2 = 2 / self.barcode_length
+                hd_3 = 3 / self.barcode_length
+                # barcode_length = len(self.counts['round_num'].unique())
+                rounds = np.arange(1,self.barcode_length+1)
+                self.codebook_df = self.convert_str_codebook(self.codebook_df,'Code')
+                codebook_array = self.make_codebook_array(self.codebook_df,'Code')
+                nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
+                nn_sklearn.fit(codebook_array)
 
-            # remove points with np.NAN
-            self.counts = self.counts.dropna()
-            for round_num in rounds:
-                compare_df, barcoded_df = self.barcode_nn(self.counts, round_num, self.barcodes_extraction_resolution)
-                self.barcoded_fov_df = self.barcoded_fov_df.append(barcoded_df, ignore_index=True)
-                self.counts = compare_df
+                # remove points with np.NAN
+                self.counts = self.counts.dropna()
+                for round_num in rounds:
+                    compare_df, barcoded_df = self.barcode_nn(self.counts, round_num, self.barcodes_extraction_resolution)
+                    self.barcoded_fov_df = self.barcoded_fov_df.append(barcoded_df, ignore_index=True)
+                    self.counts = compare_df
 
-            self.counts['barcode_reference_dot_id'] = self.counts.dot_id
-            self.barcoded_fov_df = self.barcoded_fov_df.append(self.counts, ignore_index=True)
-            self.barcoded_fov_df['barcodes_extraction_resolution'] = self.barcodes_extraction_resolution
-            self.grpd = self.barcoded_fov_df.groupby('barcode_reference_dot_id')
-            # self.all_barcodes = {}
-            # for name, group in self.grpd:
-            #     rounds_num = group.round_num.values
-            #     dot_ids = group.dot_id.values
-            #     rounds_num = rounds_num.astype(int)
-            #     barcode = np.zeros([self.barcode_length],dtype=np.int8)
-            #     barcode[(rounds_num-1)] += 1
+                self.counts['barcode_reference_dot_id'] = self.counts.dot_id
+                self.barcoded_fov_df = self.barcoded_fov_df.append(self.counts, ignore_index=True)
+                self.barcoded_fov_df['barcodes_extraction_resolution'] = self.barcodes_extraction_resolution
+                self.grpd = self.barcoded_fov_df.groupby('barcode_reference_dot_id')
+                # self.all_barcodes = {}
+                # for name, group in self.grpd:
+                #     rounds_num = group.round_num.values
+                #     dot_ids = group.dot_id.values
+                #     rounds_num = rounds_num.astype(int)
+                #     barcode = np.zeros([self.barcode_length],dtype=np.int8)
+                #     barcode[(rounds_num-1)] += 1
 
-            #     dists_arr, index_arr = nn_sklearn.kneighbors(barcode.reshape(1, -1), return_distance=True)
-            #     gene=self.codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()[0]
-            #     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'raw_barcodes'] = barcode.tostring()
-            #     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'all_Hdistance_genes'] = gene
-            #     if dists_arr[0][0] == 0:
-            #         self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'0Hdistance_genes'] = gene
-            #     elif dists_arr[0][0] < hd_2:
-            #         self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below2Hdistance_genes'] = gene
-            #     elif dists_arr[0][0] < hd_3:
-            #         self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below3Hdistance_genes'] = gene
+                #     dists_arr, index_arr = nn_sklearn.kneighbors(barcode.reshape(1, -1), return_distance=True)
+                #     gene=self.codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()[0]
+                #     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'raw_barcodes'] = barcode.tostring()
+                #     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'all_Hdistance_genes'] = gene
+                #     if dists_arr[0][0] == 0:
+                #         self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'0Hdistance_genes'] = gene
+                #     elif dists_arr[0][0] < hd_2:
+                #         self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below2Hdistance_genes'] = gene
+                #     elif dists_arr[0][0] < hd_3:
+                #         self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below3Hdistance_genes'] = gene
 
 
-            barcode_reference_dot_id_list = []
-            num_unique_dots = np.unique(self.barcoded_fov_df.loc[:,'barcode_reference_dot_id']).shape[0]
-            
-            # There are no dots is the df
-            if num_unique_dots > 0:
-            
-                all_barcodes = np.zeros([num_unique_dots,self.barcode_length])
-                for idx, (name, group) in enumerate(self.grpd):
-                    barcode_reference_dot_id_list.append(name)
-                    barcode = np.zeros([self.barcode_length],dtype=np.int8)
-                    rounds_num = group.round_num.values
-                    rounds_num = rounds_num.astype(int)
-                    barcode[(rounds_num-1)] += 1
-                    all_barcodes[idx,:] = barcode
+                barcode_reference_dot_id_list = []
+                num_unique_dots = np.unique(self.barcoded_fov_df.loc[:,'barcode_reference_dot_id']).shape[0]
+                
+                # There are no dots is the df
+                if num_unique_dots > 0:
+                
+                    all_barcodes = np.zeros([num_unique_dots,self.barcode_length])
+                    for idx, (name, group) in enumerate(self.grpd):
+                        barcode_reference_dot_id_list.append(name)
+                        barcode = np.zeros([self.barcode_length],dtype=np.int8)
+                        rounds_num = group.round_num.values
+                        rounds_num = rounds_num.astype(int)
+                        barcode[(rounds_num-1)] += 1
+                        all_barcodes[idx,:] = barcode
 
-                dists_arr, index_arr = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
-                genes=self.codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()
-                for idx,name in enumerate(barcode_reference_dot_id_list):
-                    barcode = all_barcodes[idx,:]
-                    gene = genes[idx]
-                    hd = dists_arr[idx][0]
-                    self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'raw_barcodes'] = barcode.tostring()
-                    self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'all_Hdistance_genes'] = gene
-                    self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'number_positive_bits'] = barcode.sum()
-                    self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'hamming_distance'] = hd
+                    dists_arr, index_arr = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
+                    genes=self.codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()
+                    for idx,name in enumerate(barcode_reference_dot_id_list):
+                        barcode = all_barcodes[idx,:]
+                        gene = genes[idx]
+                        hd = dists_arr[idx][0]
+                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'raw_barcodes'] = barcode.tostring()
+                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'all_Hdistance_genes'] = gene
+                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'number_positive_bits'] = barcode.sum()
+                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'hamming_distance'] = hd
 
-                    if hd == 0:
-                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'0Hdistance_genes'] = gene
-                    elif hd < hd_2:
-                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below2Hdistance_genes'] = gene
-                    elif hd < hd_3:
-                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below3Hdistance_genes'] = gene
-# ---------------------------------------------------
+                        if hd == 0:
+                            self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'0Hdistance_genes'] = gene
+                        elif hd < hd_2:
+                            self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below2Hdistance_genes'] = gene
+                        elif hd < hd_3:
+                            self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below3Hdistance_genes'] = gene
+    # ---------------------------------------------------
 
 
 
