@@ -79,52 +79,52 @@ print(f'reparsing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 
-# ----------------------------------------------------------------
-# IMAGE PREPROCESSING AND DOTS COUNTING
-start = time.time()
-print(f'start preprocessing and dots counting')
-consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-# consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
-sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
+# # ----------------------------------------------------------------
+# # IMAGE PREPROCESSING AND DOTS COUNTING
+# start = time.time()
+# print(f'start preprocessing and dots counting')
+# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+# # consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
+# sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 
-# Staining has different processing fun
-all_futures = []
-for grp, grp_data in sorted_grps.items():
-    if grp in ['fish','beads']:
-        for el in grp_data[0]:
-            future = client.submit(single_fish_filter_count_standard,
-                            el,
-                            parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['fish'][1])
-            all_futures.append(future)
+# # Staining has different processing fun
+# all_futures = []
+# for grp, grp_data in sorted_grps.items():
+#     if grp in ['fish','beads']:
+#         for el in grp_data[0]:
+#             future = client.submit(single_fish_filter_count_standard,
+#                             el,
+#                             parsed_raw_data_fpath = parsed_raw_data_fpath,
+#                             processing_parameters=sorted_grps['fish'][1])
+#             all_futures.append(future)
 
-start = time.time()
-_ = client.gather(all_futures)
-print(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
-
-
-# ----------------------------------------------------------------
-# REGISTRATION AND BARCODE PROCESSING
-start = time.time()
-
-registration_channel = 'Europium' # must be corrected in the config file
-key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-fovs = consolidated_grp[key].attrs['fields_of_view']
-codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
-all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
+# start = time.time()
+# _ = client.gather(all_futures)
+# print(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 
-all_futures = client.map(registration_barcode_detection_basic, all_grps,
-                        analysis_parameters = analysis_parameters,
-                        experiment_info = experiment_info,
-                        experiment_fpath = experiment_fpath,
-                        codebook = codebook)
-_ = client.gather(all_futures)
+# # ----------------------------------------------------------------
+# # REGISTRATION AND BARCODE PROCESSING
+# start = time.time()
 
-print(f'registration and barcode processing completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
+# registration_channel = 'Europium' # must be corrected in the config file
+# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+# fovs = consolidated_grp[key].attrs['fields_of_view']
+# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
+# all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
+
+
+# all_futures = client.map(registration_barcode_detection_basic, all_grps,
+#                         analysis_parameters = analysis_parameters,
+#                         experiment_info = experiment_info,
+#                         experiment_fpath = experiment_fpath,
+#                         codebook = codebook)
+# _ = client.gather(all_futures)
+
+# print(f'registration and barcode processing completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 print(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')
 

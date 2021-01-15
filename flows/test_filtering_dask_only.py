@@ -31,7 +31,7 @@ experiment_info = load_experiment_config_file(experiment_fpath)
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
 analysis_parameters = load_analysis_config_file(experiment_fpath)
 
-#consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
 consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
@@ -65,36 +65,36 @@ print(f'start filtering')
 
 # try:
 
-    # start = time.time()
-    # # Staing has different processing fun
-    # all_futures = []
-    # for grp, grp_data in sorted_grps.items():
-    #     if grp in ['fish','beads']:
-    #         for el in grp_data[0]:
-    #             future = client.submit(single_fish_filter_count_standard,
-    #                             el,
-    #                             parsed_raw_data_fpath = parsed_raw_data_fpath,
-    #                             processing_parameters=sorted_grps['fish'][1])
-    #             all_futures.append(future)
+start = time.time()
+# Staing has different processing fun
+all_futures = []
+for grp, grp_data in sorted_grps.items():
+    if grp in ['fish','beads']:
+        for el in grp_data[0]:
+            future = client.submit(single_fish_filter_count_standard,
+                            el,
+                            parsed_raw_data_fpath = parsed_raw_data_fpath,
+                            processing_parameters=sorted_grps['fish'][1])
+            all_futures.append(future)
 
-    # print(f'future created {time.time()-start}')
+print(f'future created {time.time()-start}')
 
-    # print(f'total number of futures to process {len(all_futures)}')
+print(f'total number of futures to process {len(all_futures)}')
 
-    # start = time.time()
-    # _ = client.gather(all_futures)
+start = time.time()
+_ = client.gather(all_futures)
 
-    # print(f'future gathered {time.time()-start}')
+print(f'future gathered {time.time()-start}')
 
 start = time.time()
 print(f'starting registration-barcode-processing')
 # Registration fovs
 # registration_channel = experiment_config['StitchingChannel']
-registration_channel = 'Europium' # must be corrected in the config file
-key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-fovs = consolidated_grp[key].attrs['fields_of_view']
-codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
-all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
+# registration_channel = 'Europium' # must be corrected in the config file
+# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+# fovs = consolidated_grp[key].attrs['fields_of_view']
+# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
+# all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
 
 # all_futures = client.map(registration_barcode_detection_basic, all_grps,
@@ -111,17 +111,8 @@ all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
 # data = client.gather(all_futures)
 
-from dask import dataframe as dd
-def test(client,experiment_fpath):
-    all_counts_folder = Path(experiment_fpath) / 'tmp' / 'registered_counts' 
-    search_key = '*decoded*'
-    all_counts_dd = dd.read_parquet(all_counts_folder / search_key)
-    all_error = all_counts_dd['min_number_matching_dots_registration'].compute()
-    return all_error
 
-print(f'future for registration-barcode processing gathered {time.time()-start}')
-
-all_error = test(client,experiment_fpath)
+# print(f'future for registration-barcode processing gathered {time.time()-start}')
 
 
 cluster.close()

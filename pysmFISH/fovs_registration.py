@@ -176,6 +176,15 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
 
             if np.any(np.isnan(ref_coords)):
                 logger.error(f'There are no dots in there reference hyb for fov {fov} ')
+                min_number_matching_dots_registration = 0
+                round_num = fish_counts['round_num'][0]
+                all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+                output = pd.concat([output,pd.DataFrame(fish_counts)],axis=0,ignore_index=True)
+                output['r_px_registered'] = output['r_px_original']
+                output['c_px_registered'] = output['c_px_original']
+                output['r_shift_px'] = np.nan
+                output['c_shift_px'] = np.nan
+                output['min_number_matching_dots_registration'] = min_number_matching_dots_registration
                 for fpath in processing_files:
                     try:
                         tran_counts, tran_img_metadata = pickle.load(open(ref_fpath, 'rb'))
@@ -208,21 +217,13 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                     try:
                         tran_counts, tran_img_metadata = pickle.load(open(fpath, 'rb'))
                     except:
-                        round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
-                        all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                         logger.error(f'cannot open {fpath.stem} file for fov {fov}')
-                        tran_counts_df = pd.DataFrame(tran_counts)
-                        tran_counts_df['r_px_registered'] = output['r_px_original']
-                        tran_counts_df['c_px_registered'] = output['c_px_original']
-                        tran_counts_df['r_shift_px'] = np.nan
-                        tran_counts_df['c_shift_px'] = np.nan
-                        tran_counts_df['min_number_matching_dots_registration'] = min_number_matching_dots_registration
-                        output = pd.concat([output,tran_counts_df],axis=0,ignore_index=True)
                     else:
                         round_num = tran_counts['round_num'][0]
                         tran_counts_df = pd.DataFrame(tran_counts)
                         tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
                         if np.any(np.isnan(tran_coords)):
+                            min_number_matching_dots_registration = 0
                             tran_counts_df['r_px_registered'] = output['r_px_original']
                             tran_counts_df['c_px_registered'] = output['c_px_original']
                             tran_counts_df['r_shift_px'] = np.nan
@@ -261,8 +262,8 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
             output['fov_acquisition_coords_z'] = img_metadata['fov_acquisition_coords_z']
             
 
-            # fname = save_fpath / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov_' + fov + '.parquet')
-            # output.to_parquet(fname,index=False)
+            fname = save_fpath / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov_' + fov + '.parquet')
+            output.to_parquet(fname,index=False)
             return output, all_rounds_shifts
 
 
@@ -327,8 +328,8 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
                 fish_counts_df['fov_acquisition_coords_z'] = subset_df.loc[0,'fov_acquisition_coords_z']
 
             registered_fish_df = pd.concat([registered_fish_df,fish_counts_df])
-    # fname = processing_files[0].parent.parent / 'registered_counts' / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov_' + str(img_metadata['fov_num']) + '.parquet')
-    # registered_fish_df.to_parquet(fname,index=False)
+    fname = processing_files[0].parent.parent / 'registered_counts' / (img_metadata['experiment_name'] + '_' + img_metadata['channel'] + '_registered_fov_' + str(img_metadata['fov_num']) + '.parquet')
+    registered_fish_df.to_parquet(fname,index=False)
     return registered_fish_df
 
 
