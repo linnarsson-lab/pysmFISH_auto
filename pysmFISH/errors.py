@@ -10,7 +10,7 @@ class Registration_errors():
         self.missing_counts_reg_channel = -1
 
         # The registration file with the counts is missing
-        self.missing_counts_file_reg_channel = -2
+        self.missing_file_reg_channel = -2
 
         # The file with the counts cannot be loaded
         self.cannot_load_file_reg_channel = -3

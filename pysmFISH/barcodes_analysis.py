@@ -49,13 +49,14 @@ class extract_barcodes_NN():
     
     """
 
-    def __init__(self, counts, analysis_parameters:Dict,experiment_config:Dict,codebook_df,status:str):
+    def __init__(self, counts, analysis_parameters:Dict,experiment_config:Dict,codebook_df,file_tags,status:str):
         
         self.barcodes_extraction_resolution = analysis_parameters['BarcodesExtractionResolution']
         self.barcode_length = experiment_config['Barcode_length']
         self.counts = counts
         self.logger = selected_logger()
         self.codebook_df = codebook_df
+        self.file_tags = file_tags
         self.status = status
         self.registration_errors = Registration_errors()
 
@@ -123,19 +124,20 @@ class extract_barcodes_NN():
     def run_extraction(self):
 
         data_models = Output_models()
-        fov = self.counts.loc[0,'fov_num']
+        fov = self.file_tags['fov']
+        channel = self.file_tags['channel']
         self.barcoded_fov_df = data_models.barcode_analysis_df
         self.barcoded_fov_df.attrs = self.counts.attrs
 
         if self.status == 'FAILED':
-            error = counts_df['min_number_matching_dots_registration'].values[0]
+            error = self.counts['min_number_matching_dots_registration'].values[0]
             self.barcoded_fov_df = self.barcoded_fov_df.append({'min_number_matching_dots_registration':error,
-                                                           'fov_num':fov },ignore_index=True)
+                                                           'fov_num':fov,'dot_channel':channel },ignore_index=True)
         elif self.status == 'SUCCESS':
 
             if (min(self.counts.loc[:,'min_number_matching_dots_registration']) < self.barcodes_extraction_resolution):
                 self.barcoded_fov_df = self.barcoded_fov_df.append({'min_number_matching_dots_registration':registration_errors.registration_below_extraction_resolution, 
-                                            'fov_num':fov},ignore_index=True)
+                                            'fov_num':fov,'dot_channel':channel},ignore_index=True)
                 self.status = 'FAILED'
             else:
                 hd_2 = 2 / self.barcode_length
@@ -184,7 +186,7 @@ class extract_barcodes_NN():
                 # There are no dots is the df
                 if num_unique_dots > 0:
                 
-                    all_barcodes = np.zeros([num_unique_dots,self.barcode_length])
+                    all_barcodes = np.zeros([num_unique_dots,self.barcode_length],dtype=np.int8)
                     for idx, (name, group) in enumerate(self.grpd):
                         barcode_reference_dot_id_list.append(name)
                         barcode = np.zeros([self.barcode_length],dtype=np.int8)
@@ -199,18 +201,39 @@ class extract_barcodes_NN():
                         barcode = all_barcodes[idx,:]
                         gene = genes[idx]
                         hd = dists_arr[idx][0]
-                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'raw_barcodes'] = barcode.tostring()
-                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'all_Hdistance_genes'] = gene
-                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'number_positive_bits'] = barcode.sum()
-                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'hamming_distance'] = hd
 
+                        cols = ['raw_barcodes','all_Hdistance_genes','number_positive_bits','hamming_distance'] # will add last column depending on hd
+                        writing_data = [barcode.tostring(),gene,barcode.sum(),hd]
                         if hd == 0:
-                            self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'0Hdistance_genes'] = gene
+                            cols = cols + ['zeroHdistance_genes']
+                            writing_data = writing_data + [gene]
                         elif hd < hd_2:
-                            self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below2Hdistance_genes'] = gene
+                            cols = cols + ['below2Hdistance_genes']
+                            writing_data = writing_data + [gene]
                         elif hd < hd_3:
-                            self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below3Hdistance_genes'] = gene
-    # ---------------------------------------------------
+                            cols = cols + ['below3Hdistance_genes']
+                            writing_data = writing_data + [gene]
+
+                        self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,cols] = writing_data
+
+
+                        # self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'raw_barcodes'] = barcode.tostring()
+                        # self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'all_Hdistance_genes'] = gene
+                        # self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'number_positive_bits'] = barcode.sum()
+                        # self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'hamming_distance'] = hd
+
+                        # if hd == 0:
+                        #     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'0Hdistance_genes'] = gene
+                        # elif hd < hd_2:
+                        #     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below2Hdistance_genes'] = gene
+                        # elif hd < hd_3:
+                        #     self.barcoded_fov_df.loc[self.barcoded_fov_df.barcode_reference_dot_id == name,'below3Hdistance_genes'] = gene
+   
+        fname = self.file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (self.file_tags['experiment_name'] + '_' + self.file_tags['channel'] + '_decoded_fov_' + self.file_tags['fov'] + '.parquet')
+        self.barcoded_fov_df.to_parquet(fname,index=False)
+   
+   
+   # ---------------------------------------------------
 
 
 

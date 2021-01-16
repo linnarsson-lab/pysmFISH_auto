@@ -35,9 +35,9 @@ analysis_parameters = load_analysis_config_file(experiment_fpath)
 consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
-start = time.time()
-cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
-client = Client(cluster)
+# start = time.time()
+# cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
+# client = Client(cluster)
 
 # print(f'cluster starting {time.time()-start}')
 
@@ -98,25 +98,25 @@ codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_ext
 all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
 
-all_futures = client.map(registration_barcode_detection_basic, all_grps,
-                        analysis_parameters = analysis_parameters,
-                        experiment_info = experiment_info,
-                        experiment_fpath = experiment_fpath,
-                        codebook = codebook)
-
-# data = registration_barcode_detection_basic(all_grps[0],
+# all_futures = client.map(registration_barcode_detection_basic, all_grps,
 #                         analysis_parameters = analysis_parameters,
 #                         experiment_info = experiment_info,
 #                         experiment_fpath = experiment_fpath,
 #                         codebook = codebook)
 
-data = client.gather(all_futures)
+data = registration_barcode_detection_basic(all_grps[100],
+                        analysis_parameters = analysis_parameters,
+                        experiment_info = experiment_info,
+                        experiment_fpath = experiment_fpath,
+                        codebook = codebook)
+
+# data = client.gather(all_futures)
 
 
-print(f'future for registration-barcode processing gathered {time.time()-start}')
+# print(f'future for registration-barcode processing gathered {time.time()-start}')
 
 
-cluster.close()
+# cluster.close()
 
 # except OSError:
 #     print(f' ERROR IN RECONNECTING TO THE CLUSTER')

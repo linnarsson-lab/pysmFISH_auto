@@ -25,7 +25,7 @@ class Output_models():
                             'r_shift_px','c_shift_px','min_number_matching_dots_registration',]
         
         self.output_variables_specific_barcodes = ['barcodes_extraction_resolution', 'barcode_reference_dot_id',
-                                'raw_barcodes','all_Hdistance_genes','0Hdistance_genes','below2Hdistance_genes',
+                                'raw_barcodes','all_Hdistance_genes','zeroHdistance_genes','below2Hdistance_genes',
                                 'below3Hdistance_genes','number_positive_bits','hamming_distance']
     
 
