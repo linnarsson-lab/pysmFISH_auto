@@ -33,7 +33,7 @@ class organize_square_tiles():
 
     """
 
-    def __init__(self, experiment_fpath:str,experiment_info:str,consolidated_grp,round_num:int):
+    def __init__(self, experiment_fpath:str,experiment_info:Dict,consolidated_grp,round_num:int):
         """
         round_num = int
             reference channel
@@ -312,6 +312,23 @@ class organize_square_tiles():
         self.identify_adjacent_tiles()
         self.determine_overlapping_regions()
 
+def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl,fov):
+    decoded_df_fpath = Path(decoded_df_fpath)
+    decoded_df = pd.read_parquet(decoded_df_fpath)
+    fov = int((decoded_df_fpath.stem).split('_')[-1])
+    r_microscope_coords = tile_corners_coords_pxl[fov,0]
+    c_microscope_coords = tile_corners_coords_pxl[fov,1]
+    if np.any(np.isnan(counts_df['r_px_registered'])):
+        decoded_df['r_px_microscope_stitched'] = np.nan
+        decoded_df['c_px_microscope_stitched'] = np.nan
+    else:
+        decoded_df['r_px_microscope_stitched'] = decoded_df['r_px_registered'] + r_microscope_coords
+        decoded_df['c_px_microscope_stitched'] = decoded_df['c_px_registered'] + c_microscope_coords
+    
+    decoded_df.to_parquet(decoded_df_fpath)
+    return counts_df
+
+
 class r_c_chunking():
     """
     Utility class used to chunk and arbitrary region and obtain the coords if the chunks.
@@ -449,35 +466,6 @@ class r_c_chunking():
                                                            c_coords_tl_all[r][c],\
                                                            c_coords_br_all[r][c]])) 
     
-
-
-
-def stitch_using_microscope_fov_coords(counts_df, experiment_info):
-    """
-    This function create a stitched image using the coords of the
-    tiles defined during the acquisition by the microscope
-    
-    Args:
-        counts_df: pd.DataFrame
-            dataframe containing the dots counts
-        experiment_info: dict
-            dictionary with the image acquisition parameters
-    Returns:
-        counts_df: pd.DataFrame
-            dataframe containing the dots counts with two
-            extra columns containing the stitched coords
-        
-    """
-    if experiment_info['Machine'] == 'ROBOFISH2':
-        counts_df['r_px_microscope_stitched'] = counts_df['r_px_registered'] + counts_df['fov_acquisition_coords_y'] / counts_df['pxl_um']
-        counts_df['c_px_microscope_stitched'] = counts_df['c_px_registered'] - counts_df['fov_acquisition_coords_x'] / counts_df['pxl_um']
-    elif experiment_info['Machine'] == 'ROBOFISH1':
-        pass
-    elif experiment_info['Machine'] == 'NOT_DEFINED':
-        counts_df['r_px_microscope_stitched'] = counts_df['r_px_registered'] + counts_df['fov_acquisition_coords_y'] / counts_df['pxl_um']
-        counts_df['c_px_microscope_stitched'] = counts_df['c_px_registered'] + counts_df['fov_acquisition_coords_x'] / counts_df['pxl_um']
-    return counts_df
-
 
 
 class triangles_based_dots_stitching():
