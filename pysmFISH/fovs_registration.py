@@ -35,7 +35,7 @@ from prefect import task
 from prefect.engine import signals
 
 from pysmFISH.logger_utils import selected_logger
-from pysmFISH.io import connect_to_shoji_smfish_experiment
+# from pysmFISH.io import connect_to_shoji_smfish_experiment
 from pysmFISH.errors import Registration_errors
 
 from pysmFISH.data_models import Output_models

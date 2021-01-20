@@ -8,7 +8,7 @@ import sys
 import dask
 import numpy as np
 import scipy.ndimage as nd
-from skimage import filters, morphology
+from skimage import filters, morphology, measure
 from pathlib import Path
 from dask.distributed import Client
 
@@ -174,17 +174,7 @@ def both_beads_filt_count_mask(
     
     data_models = Output_models()
     counts_dict = data_models.dots_counts_dict
-
-    # Initialise an empty version of the counts dict
-    counts_dict['r_px_original'] = np.array([fill_value])
-    counts_dict['c_px_original'] = np.array([fill_value])
-    counts_dict['dot_id'] = np.array([fill_value])
-    counts_dict['fov_num'] = np.array(fov)
-    counts_dict['round_num'] = np.array([img_metadata['hybridization_num']])
-    counts_dict['dot_intensity'] = np.array([fill_value])
-    counts_dict['selected_thr'] = np.array([fill_value])
-    counts_dict['dot_channel'] = np.array([img_metadata['channel']])
-    counts_dict['target_name'] = np.array([img_metadata['target_name']])
+    fill_value = np.nan
 
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
     experiment_fpath = parsed_raw_data_fpath.parent
@@ -225,7 +215,21 @@ def both_beads_filt_count_mask(
 
             img = raw_fish_images_meta[0]
             img_metadata = raw_fish_images_meta[1]
-            img = convert_from_uint16_to_float64(img_stack)
+            hybridization_num = img_metadata['hybridization_num']
+
+            fov = img_metadata['fov_num']
+            # Initialise an empty version of the counts dict
+            counts_dict['r_px_original'] = np.array([fill_value])
+            counts_dict['c_px_original'] = np.array([fill_value])
+            counts_dict['dot_id'] = np.array([fill_value])
+            counts_dict['fov_num'] = np.array(fov)
+            counts_dict['round_num'] = np.array([img_metadata['hybridization_num']])
+            counts_dict['dot_intensity'] = np.array([fill_value])
+            counts_dict['selected_thr'] = np.array([fill_value])
+            counts_dict['dot_channel'] = np.array([img_metadata['channel']])
+            counts_dict['target_name'] = np.array([img_metadata['target_name']])
+        
+            img = convert_from_uint16_to_float64(img)
             img -= dark_img
             img = np.amax(img, axis=0)
             background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
@@ -235,33 +239,32 @@ def both_beads_filt_count_mask(
             img = -img
             
             mask = np.zeros_like(img)
-            idx=  img > np.percentile(img,percentile_level)
+            idx=  img > np.percentile(img,LargeObjRemovalPercentile)
             mask[idx] = 1
             # mask[~idx] = 0
             labels = nd.label(mask)
 
             properties = measure.regionprops(labels[0])    
             for ob in properties:
-                if ob.area < min_obj_size:
+                if ob.area > LargeObjRemovalMinObjSize:
                     mask[ob.coords[:,0],ob.coords[:,1]]=0
 
 
-            mask = morphology.binary_dilation(np.logical_not(mask), selem=morphology.disk(selem_size))
+            mask = morphology.binary_dilation(np.logical_not(mask), selem=morphology.disk(LargeObjRemovalSelem))
             masked_image = mask*img
             
             thr_calculation = osmFISH_dots_thr_selection(img,parameters_dict)
             thr_calculation.counting_graph()
             thr_calculation.thr_identification()
 
-
-            if not np.isnan(counts.selected_thr):
+            if not np.isnan(thr_calculation.selected_thr):
                 dots = osmFISH_dots_mapping(masked_image,thr_calculation.selected_thr,parameters_dict)
                 if isinstance(dots.selected_peaks,np.ndarray):
                     # Peaks have been identified
                     total_dots = dots.selected_peaks.shape[0]
                     dot_id_array = np.array([str(fov)+'_'+str(hybridization_num)+'_'+ img_metadata['channel'] +'_'+str(nid) for nid in range(total_dots)])
                     fov_array = np.repeat(fov,total_dots)
-                    thr_array = np.repeat(counts.selected_thr,total_dots)
+                    thr_array = np.repeat(thr_calculation.selected_thr,total_dots)
                     channel_array = np.repeat(img_metadata['channel'],total_dots)
                     hybridization_num_array = np.repeat(img_metadata['hybridization_num'],total_dots)
                     target_name_array = np.repeat(img_metadata['target_name'],total_dots)
@@ -286,7 +289,7 @@ def both_beads_filt_count_mask(
         
         # save_dots_data(fish_counts)
         fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
-        pickle.dump(fish_counts,open(fname,'wb'))
+        pickle.dump((counts_dict,img_metadata),open(fname,'wb'))
 
 
 
