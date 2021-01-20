@@ -8,15 +8,17 @@ import sys
 import dask
 import numpy as np
 import scipy.ndimage as nd
-from skimage import filters
+from skimage import filters, morphology
 from pathlib import Path
 from dask.distributed import Client
+
 
 # pysmFISH imports
 from pysmFISH.io import load_raw_images
 from pysmFISH.dots_calling import osmFISH_peak_based_detection
+from pysmFISH.dots_calling import osmFISH_dots_thr_selection, osmFISH_dots_mapping
 from pysmFISH.utils import convert_from_uint16_to_float64
-
+from pysmFISH.data_models import Output_models
 
 from pysmFISH.logger_utils import selected_logger
 
@@ -141,6 +143,151 @@ def single_fish_filter_count_standard(
             # save_dots_data(fish_counts)
             fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
             pickle.dump(fish_counts,open(fname,'wb'))
+
+
+
+
+def both_beads_filt_count_mask(
+        zarr_grp_name,
+        parsed_raw_data_fpath,
+        processing_parameters):
+
+    """
+    Function to:
+    - preprocess the fish images
+    - count the dots and save the data
+    The processing try to catch small beads in presence of large beads.
+    The large beads are masked before calculating the thr for the counting
+    but the counting is run in the non masked image
+    
+    Args:
+    -----
+        zarr_grp_name: str
+            group representing the image to process
+        parsed_raw_data_fpath: str
+            path to the zarr file containing the parsed images
+        processing_parameters: dict
+            dictionary with the parameters used to process the images
+    """
+
+    logger = selected_logger()
+    
+    data_models = Output_models()
+    counts_dict = data_models.dots_counts_dict
+
+    # Initialise an empty version of the counts dict
+    counts_dict['r_px_original'] = np.array([fill_value])
+    counts_dict['c_px_original'] = np.array([fill_value])
+    counts_dict['dot_id'] = np.array([fill_value])
+    counts_dict['fov_num'] = np.array(fov)
+    counts_dict['round_num'] = np.array([img_metadata['hybridization_num']])
+    counts_dict['dot_intensity'] = np.array([fill_value])
+    counts_dict['selected_thr'] = np.array([fill_value])
+    counts_dict['dot_channel'] = np.array([img_metadata['channel']])
+    counts_dict['target_name'] = np.array([img_metadata['target_name']])
+
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    experiment_fpath = parsed_raw_data_fpath.parent
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
+    LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
+    min_distance=processing_parameters['CountingFishMinObjDistance']
+    min_obj_size=processing_parameters['CountingFishMinObjSize']
+    max_obj_size=processing_parameters['CountingFishMaxObjSize']
+    num_peaks_per_label=processing_parameters['CountingFishNumPeaksPerLabel']
+
+    LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
+    LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
+    LargeObjRemovalSelem = processing_parameters['LargeObjRemovalSelem']
+
+    parameters_dict = {
+    'min_distance': min_distance,
+    'min_obj_size': min_obj_size,
+    'max_obj_size': max_obj_size,
+    'num_peaks_per_label':num_peaks_per_label}
+
+    try:
+        raw_fish_images_meta = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+    except:
+        logger.error(f'cannot load {zarr_grp_name} raw fish image')
+        sys.exit(f'cannot load {zarr_grp_name} raw fish image')
+    else:
+        logger.info(f'loaded {zarr_grp_name} raw fish image')
+        try:
+            # This may chnaged if the image will be store in shoji
+            dark_img = load_dark_image(experiment_fpath)
+        except:
+            logger.error(f'cannot load dark reference fish image')
+            sys.exit(f'cannot load dark reference fish image')
+        else:
+            logger.info('loaded dark reference image')
+
+            img = raw_fish_images_meta[0]
+            img_metadata = raw_fish_images_meta[1]
+            img = convert_from_uint16_to_float64(img_stack)
+            img -= dark_img
+            img = np.amax(img, axis=0)
+            background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+            img /= background
+            img -= background
+            img = nd.gaussian_laplace(img,LaplacianKernel)
+            img = -img
+            
+            mask = np.zeros_like(img)
+            idx=  img > np.percentile(img,percentile_level)
+            mask[idx] = 1
+            # mask[~idx] = 0
+            labels = nd.label(mask)
+
+            properties = measure.regionprops(labels[0])    
+            for ob in properties:
+                if ob.area < min_obj_size:
+                    mask[ob.coords[:,0],ob.coords[:,1]]=0
+
+
+            mask = morphology.binary_dilation(np.logical_not(mask), selem=morphology.disk(selem_size))
+            masked_image = mask*img
+            
+            thr_calculation = osmFISH_dots_thr_selection(img,parameters_dict)
+            thr_calculation.counting_graph()
+            thr_calculation.thr_identification()
+
+
+            if not np.isnan(counts.selected_thr):
+                dots = osmFISH_dots_mapping(masked_image,thr_calculation.selected_thr,parameters_dict)
+                if isinstance(dots.selected_peaks,np.ndarray):
+                    # Peaks have been identified
+                    total_dots = dots.selected_peaks.shape[0]
+                    dot_id_array = np.array([str(fov)+'_'+str(hybridization_num)+'_'+ img_metadata['channel'] +'_'+str(nid) for nid in range(total_dots)])
+                    fov_array = np.repeat(fov,total_dots)
+                    thr_array = np.repeat(counts.selected_thr,total_dots)
+                    channel_array = np.repeat(img_metadata['channel'],total_dots)
+                    hybridization_num_array = np.repeat(img_metadata['hybridization_num'],total_dots)
+                    target_name_array = np.repeat(img_metadata['target_name'],total_dots)
+
+                    counts_dict['r_px_original'] = dots.selected_peaks[:,0]
+                    counts_dict['c_px_original'] = dots.selected_peaks[:,1]
+                    counts_dict['dot_id'] = dot_id_array
+                    counts_dict['fov_num'] = fov_array
+                    counts_dict['round_num'] = hybridization_num_array
+                    counts_dict['dot_intensity'] = dots.intensity_array
+                    counts_dict['selected_thr'] = thr_array
+                    counts_dict['dot_channel'] = channel_array
+                    counts_dict['target_name'] = target_name_array
+                else:
+                    logger.info(f' fov {fov} does not have counts (mapping)')
+                        
+            else:
+                logger.info(f' fov {fov} does not have counts (thr)')
+        
+        fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+        pickle.dump((img, img_metadata),open(fname,'wb'))
+        
+        # save_dots_data(fish_counts)
+        fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+        pickle.dump(fish_counts,open(fname,'wb'))
+
 
 
 

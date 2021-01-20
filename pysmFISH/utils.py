@@ -358,12 +358,11 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
         beads_selected_parameters  = analysis_parameters['large-beads']
         beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
     elif experiment_info['Stitching_type'] == 'both-beads':
-        beads_selected_parameters  = analysis_parameters['small-beads']
+        beads_selected_parameters  = analysis_parameters['both-beads']
         beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
     else:
         self.logger.error(f'Wrong stitching type in the experiment file')
-        err = signals.FAIL(f'Wrong stitching type in the experiment file')
-        raise err
+        sys.exit(f'Wrong stitching type in the experiment file')
     
     fish_selected_parameters = analysis_parameters['fish']
     fish_selected_parameters['BarcodesExtractionResolution'] = analysis_parameters['BarcodesExtractionResolution']

@@ -43,7 +43,7 @@ class osmFISH_dots_thr_selection():
         self.min_peaks = min_peaks
 
         if self.min_peaks == False:
-            self.min_peaks = 20
+            self.min_peaks = 3
         
         self.min_distance = self.parameters_dict['min_distance']
         
