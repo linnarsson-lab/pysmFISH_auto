@@ -12,6 +12,7 @@ from scipy.optimize import minimize
 
 
 from pysmFISH.utils import load_pipeline_config_file
+from pysmFISH.logger_utils import selected_logger
 
 
 class organize_square_tiles():
@@ -32,43 +33,49 @@ class organize_square_tiles():
 
     """
 
-    def __init__(self, experiment_fpath:str,stitching_channel:str, roi_num:int,round_num:int):
+    def __init__(self, experiment_fpath:str,experiment_info:str,consolidated_grp,round_num:int):
+        """
+        round_num = int
+            reference channel
+        """
+        
+        self.logger = selected_logger()
         self.experiment_fpath = Path(experiment_fpath)
-        self.stitching_channel = stitching_channel
-        self.roi_num = roi_num
+        self.experiment_info = experiment_info
+        self.consolidated_grp = consolidated_grp
         self.round_num = round_num
-        self.round_name = 'round_' + str(self.round_num)
-        self.logger = logging.getLogger(__name__)
-
-        search_key = '*roi_' + str(self.roi_num) + '_' + self.stitching_channel + '_images_config.yaml'
-        self.img_config_fpath = list((self.experiment_fpath / 'pipeline_config').glob(search_key))[0]
-        self.img_config = load_pipeline_config_file(self.img_config_fpath)
-
-        self.all_coords = np.zeros([len(self.img_config.keys()),2])
-
-        self.pixel_size = self.img_config['fov_0']['rounds'][self.round_name]['pixel_microns']
-        self.img_width = self.img_config['fov_0']['rounds'][self.round_name]['shape']['width']
-        self.img_height = self.img_config['fov_0']['rounds'][self.round_name]['shape']['height']
-        self.overlapping_percentage = int(self.img_config['fov_0']['rounds'][self.round_name]['overlapping_percentage']) / 100
+        
+        self.experiment_name = experiment_info['EXP_name']
+        self.stitching_channel = experiment_info['StitchingChannel']
+        self.overlapping_percentage = int(experiment_info['Overlapping_percentage']) / 100
+        
+        name  = next(iter(consolidated_grp)) 
+        self.pixel_size = consolidated_grp[name].attrs['pixel_microns'] #0.18133716158784
+        self.img_width = consolidated_grp[name].attrs['img_width']
+        self.img_height = consolidated_grp[name].attrs['img_height']
+        
+        
         if  self.img_width ==  self.img_height:
             self.img_size = self.img_width
         else:
             self.logger.error(f'the images to stitch are not square')
-
-        for idx, fov in enumerate(self.img_config.keys()):
-            self.all_coords[idx,0] = self.img_config[fov]['rounds'][self.round_name]['coords']['x']
-            self.all_coords[idx,1] = self.img_config[fov]['rounds'][self.round_name]['coords']['y']
-
+            sys.exit(f'the images to stitch are not square')
+            
+    
+    def extract_microscope_coords(self): 
+        
+        fname = self.experiment_fpath / 'tmp' / 'microscope_tiles_coords'/(self.experiment_name + '_Hybridization'+  \
+                            str(self.round_num).zfill(2) + '_' + self.stitching_channel + '_fovs_coords.npy')
+        coords = np.load(fname) 
+        self.x_coords = coords[:,1]
+        self.y_coords = coords[:,2]
+    
     def normalize_coords(self):
 
-        self.experiment_dict = load_pipeline_config_file(self.experiment_fpath / 'pipeline_config' / 'experiment.yaml')
-        if self.experiment_dict['machine'] == 'ROBOFISH2':
+        if self.experiment_info['Machine'] == 'ROBOFISH2':
             # RobofishII has stage with reference point
             # in the center (0,0)
             # consider that we get the top-right corner of the image as well
-
-            self.x_coords = self.all_coords[:,0]
-            self.y_coords = self.all_coords[:,1]
 
             # consider that we get the top-right corner of the image as well
             y_min = np.amin(self.y_coords)
@@ -76,6 +83,8 @@ class organize_square_tiles():
             x_max = np.amax(self.x_coords)
             y_max = np.amax(self.y_coords)
 
+            # Put the coords to zero
+    
             if x_max >=0 :
                 self.x_coords = self.x_coords - x_min
             else:
@@ -86,21 +95,19 @@ class organize_square_tiles():
             else:
                 self.y_coords = self.y_coords + np.abs(y_min)
 
-            # flip x_axis
-            self.x_coords = self.x_coords - x_max
-            self.x_coords = - self.x_coords
+            # flip y_axis
+            self.y_coords = self.y_coords - self.y_coords.max()
+            self.y_coords = - self.y_coords
 
 
             # change the coords from x,y to r,c
-            adjusted_coords = np.zeros_like(self.all_coords)
+            adjusted_coords = np.zeros([self.x_coords.shape[0],2])
             adjusted_coords[:,0] = self.y_coords
             adjusted_coords[:,1] = self.x_coords
 
-        elif self.experiment_dict['machine'] == 'ROBOFISH1':
+        elif self.experiment_info['machine'] == 'ROBOFISH1':
             # The current system has stage ref coords BOTTOM-RIGH
-            self.x_coords = self.all_coords[:,0]
-            self.y_coords = self.all_coords[:,1]
-
+           
             # Normalize to (0,0) still BOTTOM-RIGHT
             y_min = np.amin(self.y_coords)
             x_min = np.amin(self.x_coords)
@@ -116,19 +123,42 @@ class organize_square_tiles():
             self.y_coords = - self.y_coords
 
             # change the coords from x,y to r,c
-            adjusted_coords = np.zeros_like(self.all_coords)
+            adjusted_coords = np.zeros([self.x_coords.shape[0],2])
             adjusted_coords[:,0] = self.y_coords
             adjusted_coords[:,1] = self.x_coords
-
+        
+        elif self.experiment_info['machine'] == 'NOT_DEFINED':
+            self.logger.error(f'Need to define the specs for stitching NOT_DEFINED machine')
+            sys.exit(f'Need to define the specs for stitching NOT_DEFINED machine')
             
         else:
             self.logger.error(f'define the right machine used to collected the data')
+            sys.exit(f'define the right machine used to collected the data')
         
         self.tile_corners_coords_pxl = adjusted_coords / self.pixel_size
-
-    def save_graph(self):
+    
+    
+    def save_graph_original_coords(self):
         # Turn interactive plotting off
-        saving_fpath = self.experiment_fpath / 'output_figures' / (self.img_config_fpath.stem + '_tiles_organization.png')
+        saving_fpath = self.experiment_fpath / 'output_figures' / 'microscope_space_tiles_organization.png'
+        plt.ioff()
+        # Create image type axes
+        labels = [str(nr) for nr in np.arange(self.x_coords.shape[0])]
+        fig = plt.figure(figsize=(20,10))
+        plt.plot(self.x_coords,self.y_coords,'or')
+
+        for label, x, y in zip(labels, self.x_coords,self.y_coords):
+            plt.annotate(
+                label,
+                xy=(x,y), xytext=(-2, 2),
+                textcoords='offset points', ha='center', va='bottom',fontsize=12)
+        plt.tight_layout()
+        plt.savefig(saving_fpath)
+    
+    
+    def save_graph_image_space_coords(self):
+        # Turn interactive plotting off
+        saving_fpath = self.experiment_fpath / 'output_figures' / 'image_space_tiles_organization.png'
         plt.ioff()
         # Create image type axes
         labels = [str(nr) for nr in np.arange(self.tile_corners_coords_pxl.shape[0])]
@@ -140,9 +170,10 @@ class organize_square_tiles():
             plt.annotate(
                 label,
                 xy=(x,y), xytext=(-2, 2),
-                textcoords='offset points', ha='center', va='bottom')
+                textcoords='offset points', ha='center', va='bottom',fontsize=12)
         plt.tight_layout()
         plt.savefig(saving_fpath)
+        
     
     def identify_adjacent_tiles(self):
         shift_percent_tolerance = 0.05
@@ -178,100 +209,106 @@ class organize_square_tiles():
             only_new_cpls = [cpl for cpl in adj_cpls if (cpl[1],cpl[0]) not in self.overlapping_regions[cpl[1]].keys()]
             
 
-            # If tile coords are top left
-            # for cpl in only_new_cpls:
-                
-            #     tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
-            #     tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
-            #     tile1_c_coords = self.tile_corners_coords_pxl[cpl[0]][1]
-            #     tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
+            if experiment_info['Machine'] == 'ROBOFISH2':
+                # If tile coords are top left
+                for cpl in only_new_cpls:
 
-            #     if tile1_r_coords > tile2_r_coords:
-            #         r_tl = tile1_r_coords
-            #         r_br = tile2_r_coords + self.img_size
+                    tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
+                    tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
+                    tile1_c_coords = self.tile_corners_coords_pxl[cpl[0]][1]
+                    tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
 
-            #         r_bl = tile2_c_coords + self.img_size
-            #         r_tr = tile1_c_coords
+                    if tile1_r_coords > tile2_r_coords:
+                        r_tl = tile1_r_coords
+                        r_br = tile2_r_coords + self.img_size
 
-            #         row_order = ('bottom','top')
+                        r_bl = tile2_c_coords + self.img_size
+                        r_tr = tile1_c_coords
 
-            #     else:
-            #         r_tl = tile2_r_coords
-            #         r_br = tile1_r_coords + self.img_size
+                        row_order = ('bottom','top')
 
-            #         r_bl = tile1_r_coords + self.img_size
-            #         r_tr = tile2_r_coords
+                    else:
+                        r_tl = tile2_r_coords
+                        r_br = tile1_r_coords + self.img_size
 
-            #         row_order = ('top','bottom')
+                        r_bl = tile1_r_coords + self.img_size
+                        r_tr = tile2_r_coords
 
-            #     if tile1_c_coords > tile2_c_coords:
-            #         c_tl = tile1_c_coords
-            #         c_br = tile2_c_coords + self.img_size
+                        row_order = ('top','bottom')
 
-            #         c_tr = tile2_c_coords + self.img_size
-            #         c_bl = tile1_c_coords
+                    if tile1_c_coords > tile2_c_coords:
+                        c_tl = tile1_c_coords
+                        c_br = tile2_c_coords + self.img_size
 
-            #         col_order = ('right','left')
+                        c_tr = tile2_c_coords + self.img_size
+                        c_bl = tile1_c_coords
 
-            #     else:
-            #         c_tl = tile2_c_coords
-            #         c_br = tile1_c_coords + self.img_size
+                        col_order = ('right','left')
 
-            #         c_bl = tile2_c_coords
-            #         c_tr = tile1_c_coords + self.img_size
+                    else:
+                        c_tl = tile2_c_coords
+                        c_br = tile1_c_coords + self.img_size
 
-            #         col_order = ('left','right')
+                        c_bl = tile2_c_coords
+                        c_tr = tile1_c_coords + self.img_size
 
-            # If tile coords are bottom right
-            for cpl in only_new_cpls:
-                
-                tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
-                tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
-                tile1_c_coords = self.tile_corners_coords_pxl[cpl[0]][1]
-                tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
+                        col_order = ('left','right')
 
-                if tile1_r_coords > tile2_r_coords:
-                    r_tl = tile1_r_coords - self.img_size
-                    r_br = tile2_r_coords
+            elif experiment_info['Machine'] == 'ROBOFISH1':
+                # If tile coords are bottom right
+                for cpl in only_new_cpls:
 
-                    r_bl = tile2_c_coords
-                    r_tr = tile1_c_coords - self.img_size
+                    tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
+                    tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
+                    tile1_c_coords = self.tile_corners_coords_pxl[cpl[0]][1]
+                    tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
 
-                    row_order = ('bottom','top')
+                    if tile1_r_coords > tile2_r_coords:
+                        r_tl = tile1_r_coords - self.img_size
+                        r_br = tile2_r_coords
 
-                else:
-                    r_tl = tile2_r_coords - self.img_size
-                    r_br = tile1_r_coords 
+                        r_bl = tile2_c_coords
+                        r_tr = tile1_c_coords - self.img_size
 
-                    r_bl = tile1_r_coords 
-                    r_tr = tile2_r_coords - self.img_size
+                        row_order = ('bottom','top')
 
-                    row_order = ('top','bottom')
+                    else:
+                        r_tl = tile2_r_coords - self.img_size
+                        r_br = tile1_r_coords 
 
-                if tile1_c_coords > tile2_c_coords:
-                    c_tl = tile1_c_coords - self.img_size
-                    c_br = tile2_c_coords 
+                        r_bl = tile1_r_coords 
+                        r_tr = tile2_r_coords - self.img_size
 
-                    c_tr = tile2_c_coords
-                    c_bl = tile1_c_coords - self.img_size
+                        row_order = ('top','bottom')
 
-                    col_order = ('right','left')
+                    if tile1_c_coords > tile2_c_coords:
+                        c_tl = tile1_c_coords - self.img_size
+                        c_br = tile2_c_coords 
 
-                else:
-                    c_tl = tile2_c_coords - self.img_size
-                    c_br = tile1_c_coords 
+                        c_tr = tile2_c_coords
+                        c_bl = tile1_c_coords - self.img_size
 
-                    c_bl = tile2_c_coords - self.img_size
-                    c_tr = tile1_c_coords 
+                        col_order = ('right','left')
 
-                    col_order = ('left','right')
+                    else:
+                        c_tl = tile2_c_coords - self.img_size
+                        c_br = tile1_c_coords 
 
-                self.overlapping_regions[ref_tile][cpl] = [r_tl, r_br, c_tl, c_br]
-                self.overlapping_order[ref_tile][cpl] = {'row_order':row_order,'column_order':col_order}
+                        c_bl = tile2_c_coords - self.img_size
+                        c_tr = tile1_c_coords 
+
+                        col_order = ('left','right')
+            else:
+                pass
+
+            self.overlapping_regions[ref_tile][cpl] = [r_tl, r_br, c_tl, c_br]
+            self.overlapping_order[ref_tile][cpl] = {'row_order':row_order,'column_order':col_order}
 
     def run_tiles_organization(self):
+        self.extract_microscope_coords()
+        self.save_graph_original_coords()
         self.normalize_coords()
-        self.save_graph()
+        self.save_graph_image_space_coords()
         self.identify_adjacent_tiles()
         self.determine_overlapping_regions()
 
