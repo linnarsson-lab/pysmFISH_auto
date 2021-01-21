@@ -224,6 +224,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                                             'fov_num':fov ,'dot_channel':channel,'round_num':round_num},ignore_index=True)
                         status = 'FAILED'
                         all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+                        break
                     else:
                         round_num = tran_counts['round_num'][0]
                         tran_counts_df = pd.DataFrame(tran_counts)
@@ -290,8 +291,9 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
 
     if status == 'FAILED':
         error = registered_reference_channel_df['min_number_matching_dots_registration'].values[0]
-        registered_fish_df = registered_reference_channel_df.append({'min_number_matching_dots_registration':error,
-                                                           'fov_num':fov,'dot_channel':channel },ignore_index=True)
+        round_num = registered_reference_channel_df['round_num'].values[0]
+        registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':error,
+                                                           'fov_num':fov,'dot_channel':channel,'round_num':round_num },ignore_index=True)
     elif status == 'SUCCESS':
         reference_hybridization = registered_reference_channel_df.attrs[fov]['reference_hyb']
         reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
@@ -300,8 +302,9 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
                 fish_counts, fish_img_metadata = pickle.load(open(fpath,'rb'))
             except:
                 logger.error(f'cannot open the processing files')
+                round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                 registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':registration_errors.cannot_load_file_fish_channel,
-                                                'fov_num':fov,'dot_channel':channel },ignore_index=True)
+                                                'fov_num':fov,'dot_channel':channel,'round_num':round_num },ignore_index=True)
                 status = 'FAILED'
                 break
             else:                
