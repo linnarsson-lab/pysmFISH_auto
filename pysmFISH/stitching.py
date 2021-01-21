@@ -312,7 +312,7 @@ class organize_square_tiles():
         self.identify_adjacent_tiles()
         self.determine_overlapping_regions()
 
-def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl,fov):
+def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl):
     decoded_df_fpath = Path(decoded_df_fpath)
     decoded_df = pd.read_parquet(decoded_df_fpath)
     fov = int((decoded_df_fpath.stem).split('_')[-1])
