@@ -87,6 +87,7 @@ print(f'cluster creation completed in {(time.time()-start)/60} min')
 start = time.time()
 print(f'start preprocessing and dots counting')
 # consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
 consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 # sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
@@ -146,30 +147,6 @@ _ = client.gather(all_futures)
 
 print(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
-
-# REGISTRATION AND BARCODE PROCESSING
-start = time.time()
-
-registration_channel = 'Europium' # must be corrected in the config file
-key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-fovs = consolidated_grp[key].attrs['fields_of_view']
-codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
-all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
-
-
-all_futures = client.map(registration_barcode_detection_basic, all_grps,
-                        analysis_parameters = analysis_parameters,
-                        experiment_info = experiment_info,
-                        experiment_fpath = experiment_fpath,
-                        codebook = codebook)
-_ = client.gather(all_futures)
-
-print(f'registration and barcode processing completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
-
-
-
-
 
 print(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')
 
