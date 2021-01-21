@@ -45,9 +45,9 @@ class organize_square_tiles():
         self.consolidated_grp = consolidated_grp
         self.round_num = round_num
         
-        self.experiment_name = experiment_info['EXP_name']
-        self.stitching_channel = experiment_info['StitchingChannel']
-        self.overlapping_percentage = int(experiment_info['Overlapping_percentage']) / 100
+        self.experiment_name = self.experiment_info['EXP_name']
+        self.stitching_channel = self.experiment_info['StitchingChannel']
+        self.overlapping_percentage = int(self.experiment_info['Overlapping_percentage']) / 100
         
         name  = next(iter(consolidated_grp)) 
         self.pixel_size = consolidated_grp[name].attrs['pixel_microns'] #0.18133716158784
@@ -209,7 +209,7 @@ class organize_square_tiles():
             only_new_cpls = [cpl for cpl in adj_cpls if (cpl[1],cpl[0]) not in self.overlapping_regions[cpl[1]].keys()]
             
 
-            if experiment_info['Machine'] == 'ROBOFISH2':
+            if self.experiment_info['Machine'] == 'ROBOFISH2':
                 # If tile coords are top left
                 for cpl in only_new_cpls:
 
@@ -254,7 +254,7 @@ class organize_square_tiles():
 
                         col_order = ('left','right')
 
-            elif experiment_info['Machine'] == 'ROBOFISH1':
+            elif self.experiment_info['Machine'] == 'ROBOFISH1':
                 # If tile coords are bottom right
                 for cpl in only_new_cpls:
 
@@ -318,7 +318,7 @@ def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl,
     fov = int((decoded_df_fpath.stem).split('_')[-1])
     r_microscope_coords = tile_corners_coords_pxl[fov,0]
     c_microscope_coords = tile_corners_coords_pxl[fov,1]
-    if np.any(np.isnan(counts_df['r_px_registered'])):
+    if np.any(np.isnan(decoded_df['r_px_registered'])):
         decoded_df['r_px_microscope_stitched'] = np.nan
         decoded_df['c_px_microscope_stitched'] = np.nan
     else:
@@ -326,7 +326,7 @@ def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl,
         decoded_df['c_px_microscope_stitched'] = decoded_df['c_px_registered'] + c_microscope_coords
     
     decoded_df.to_parquet(decoded_df_fpath)
-    return counts_df
+    return decoded_df
 
 
 class r_c_chunking():
