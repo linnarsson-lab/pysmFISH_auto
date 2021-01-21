@@ -37,8 +37,8 @@ consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 start = time.time()
-# cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
-# client = Client(cluster)
+cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
+client = Client(cluster)
 
 # print(f'cluster starting {time.time()-start}')
 
@@ -54,17 +54,18 @@ start = time.time()
 #                             processing_parameters=sorted_grps['fish'][1])
 # all_futures.append(fish_futures) 
 # # _ = client.gather(all_futures)
-both_beads_filt_count_mask(sorted_grps['beads'][0],
-                            parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['beads'][1])
-
-# Filtering beads
-# beads_futures = client.map(single_fish_filter_count_standard,
-#                             sorted_grps['beads'][0],
+# both_beads_filt_count_mask(sorted_grps['beads'][0][0],
 #                             parsed_raw_data_fpath = parsed_raw_data_fpath,
 #                             processing_parameters=sorted_grps['beads'][1])
+
+# Filtering beads
+beads_futures = client.map(single_fish_filter_count_standard,
+                            sorted_grps['beads'][0],
+                            parsed_raw_data_fpath = parsed_raw_data_fpath,
+                            processing_parameters=sorted_grps['beads'][1])
 # all_futures.append(beads_futures) 
 # _ = client.gather(all_futures)
+_ = client.gather(beads_futures)
 
 # all_futures = [ft for grp_ft in all_futures for ft in grp_ft]
 
@@ -120,7 +121,7 @@ both_beads_filt_count_mask(sorted_grps['beads'][0],
 print(f'future for registration-barcode processing gathered {time.time()-start}')
 
 
-# cluster.close()
+cluster.close()
 
 # except OSError:
 #     print(f' ERROR IN RECONNECTING TO THE CLUSTER')
