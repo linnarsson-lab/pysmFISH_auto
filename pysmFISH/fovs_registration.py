@@ -344,7 +344,7 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
                     registered_fish_df = pd.concat([registered_fish_df,fish_counts_df],axis=0,ignore_index=True)
                     status = 'SUCCESS'
 
-    fname = file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (file_tags['experiment_name'] + '_' + file_tags['channel'] + '_registered_fov_' + file_tags['fov'] + '.parquet')
+    fname = file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (file_tags['experiment_name'] + '_' + file_tags['channel'] + '_registered_fov_' + str(file_tags['fov']) + '.parquet')
     registered_fish_df.to_parquet(fname,index=False)
     return registered_fish_df, file_tags, status
 
