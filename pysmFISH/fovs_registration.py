@@ -172,7 +172,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
     except:
         logger.error(f'missing reference hyb file for fov {fov}')
         output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.missing_file_reg_channel, 
-                                            'fov_num':fov,'dot_channel':channel,'round_num':round_num},ignore_index=True)
+                                            'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num)},ignore_index=True)
         status = 'FAILED'
         all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
     else:
@@ -181,7 +181,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
         except:
             logger.error(f'cannot open the reference hyb file for fov {fov}')
             output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.cannot_load_file_reg_channel,
-                                            'fov_num':fov,'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                                            'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
             status = 'FAILED'
             all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
         else:
@@ -189,7 +189,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
             if np.any(np.isnan(ref_counts['r_px_original'])):
                 logger.error(f'There are no dots in there reference hyb for fov {fov} ')
                 output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_reg_channel,
-                                            'fov_num':fov,'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                                            'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
                 status = 'FAILED'
                 all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
             else:
@@ -221,7 +221,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                         # If there is an error in the opening reset the df
                         output_registration_df = data_models.output_registration_df
                         output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.cannot_load_file_reg_channel,
-                                            'fov_num':fov ,'dot_channel':channel,'round_num':round_num},ignore_index=True)
+                                            'fov_num':int(fov) ,'dot_channel':channel,'round_num':int(round_num)},ignore_index=True)
                         status = 'FAILED'
                         all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                         break
@@ -234,7 +234,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                             # If dots are missing, reset the df
                             output_registration_df = data_models.output_registration_df
                             output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_reg_channel,
-                                            'fov_num':fov,'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                                            'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
                             status = 'FAILED'
                             all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                             break
@@ -293,25 +293,26 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
         error = registered_reference_channel_df['min_number_matching_dots_registration'].values[0]
         round_num = registered_reference_channel_df['round_num'].values[0]
         registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':error,
-                                                           'fov_num':fov,'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                                                           'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
     elif status == 'SUCCESS':
         reference_hybridization = registered_reference_channel_df.attrs[fov]['reference_hyb']
         reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
         for fpath in processing_files:
+            round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
             try:
                 fish_counts, fish_img_metadata = pickle.load(open(fpath,'rb'))
             except:
                 logger.error(f'cannot open the processing files')
-                round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
+                
                 registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':registration_errors.cannot_load_file_fish_channel,
-                                                'fov_num':fov,'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                                                'fov_num':int(fov),'dot_channel':channel,'round_num':round_num },ignore_index=True)
                 status = 'FAILED'
                 break
             else:                
                 if np.any(np.isnan(fish_counts['r_px_original'])):
                     logger.error(f'There are no dots in there reference hyb for fov {fov} ')
                     registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_fish_channel,
-                                                'fov_num':fov,'dot_channel':channel },ignore_index=True)
+                                                'fov_num':int(fov),'dot_channel':channel,'round_num':round_num },ignore_index=True)
                     status = 'FAILED'
                     break
 
@@ -319,8 +320,6 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
                     if reference_hybridization_str in fpath.as_posix():
                         fish_img_metadata['reference_hyb'] = reference_hybridization
                         registered_fish_df.attrs[fov] = fish_img_metadata
-
-                    round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                     fish_counts_df = pd.DataFrame(fish_counts)
                     
                     subset_df = registered_reference_channel_df.loc[registered_reference_channel_df['round_num'] == round_num, :]

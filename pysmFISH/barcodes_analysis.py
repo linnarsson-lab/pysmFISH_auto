@@ -131,13 +131,15 @@ class extract_barcodes_NN():
 
         if self.status == 'FAILED':
             error = self.counts['min_number_matching_dots_registration'].values[0]
+            round_num = self.counts['round_num'].values[0]
             self.barcoded_fov_df = self.barcoded_fov_df.append({'min_number_matching_dots_registration':error,
-                                                           'fov_num':fov,'dot_channel':channel },ignore_index=True)
+                                                           'fov_num':fov,'dot_channel':channel,'round_num': round_num },ignore_index=True)
         elif self.status == 'SUCCESS':
 
             if (min(self.counts.loc[:,'min_number_matching_dots_registration']) < self.barcodes_extraction_resolution):
+                round_num = self.counts['round_num'].values[0]
                 self.barcoded_fov_df = self.barcoded_fov_df.append({'min_number_matching_dots_registration':registration_errors.registration_below_extraction_resolution, 
-                                            'fov_num':fov,'dot_channel':channel},ignore_index=True)
+                                            'fov_num':fov,'dot_channel':channel,'round_num': round_num},ignore_index=True)
                 self.status = 'FAILED'
             else:
                 hd_2 = 2 / self.barcode_length
