@@ -133,7 +133,7 @@ consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 # ----------------------------------------------------------------
 # STITCHING
 start = time.time()
-
+print(f'start stitching using microscope coords')
 round_num =1
 tiles_org = organize_square_tiles(experiment_fpath,experiment_info,consolidated_grp,round_num)
 tiles_org.run_tiles_organization()
@@ -143,7 +143,7 @@ decoded_files = list((Path(experiment_fpath) / 'tmp' / 'registered_counts').glob
 all_futures = client.map(stitch_using_microscope_fov_coords,decoded_files,
                         tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl)       
 
-_ = client.gather(all_futures)
+_ = client.gather(all_futures)  
 
 print(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
