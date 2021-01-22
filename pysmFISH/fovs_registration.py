@@ -219,6 +219,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                     except:
                         logger.error(f'cannot open {fpath.stem} file for fov {fov}')
                         # If there is an error in the opening reset the df
+                        round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                         output_registration_df = data_models.output_registration_df
                         output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.cannot_load_file_reg_channel,
                                             'fov_num':int(fov) ,'dot_channel':channel,'round_num':int(round_num)},ignore_index=True)
