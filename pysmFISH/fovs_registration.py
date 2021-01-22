@@ -162,9 +162,9 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
     file_tags = {'experiment_fpath':experiment_fpath,
                 'experiment_name':experiment_name,
                 'channel':channel,
-                'fov':int(fov)}
+                'fov':fov}
 
-    fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_name + '_' + channel + '_registered_fov_' + str(fov) + '.parquet')
+    fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_name + '_' + channel + '_registered_fov_' + fov + '.parquet')
 
     # Load reference hybridization data
     try:
@@ -344,7 +344,7 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
                     registered_fish_df = pd.concat([registered_fish_df,fish_counts_df],axis=0,ignore_index=True)
                     status = 'SUCCESS'
 
-    fname = file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (file_tags['experiment_name'] + '_' + file_tags['channel'] + '_registered_fov_' + str(file_tags['fov']) + '.parquet')
+    fname = file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (file_tags['experiment_name'] + '_' + file_tags['channel'] + '_registered_fov_' + file_tags['fov'] + '.parquet')
     registered_fish_df.to_parquet(fname,index=False)
     return registered_fish_df, file_tags, status
 
