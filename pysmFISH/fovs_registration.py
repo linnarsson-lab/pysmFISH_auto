@@ -162,9 +162,9 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
     file_tags = {'experiment_fpath':experiment_fpath,
                 'experiment_name':experiment_name,
                 'channel':channel,
-                'fov':fov}
+                'fov':int(fov)}
 
-    fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_name + '_' + channel + '_registered_fov_' + fov + '.parquet')
+    fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_name + '_' + channel + '_registered_fov_' + str(fov) + '.parquet')
 
     # Load reference hybridization data
     try:
