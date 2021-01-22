@@ -318,7 +318,7 @@ def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl)
     fov = int((decoded_df_fpath.stem).split('_')[-1])
     r_microscope_coords = tile_corners_coords_pxl[fov,0]
     c_microscope_coords = tile_corners_coords_pxl[fov,1]
-    if np.any(np.isnan(decoded_df['r_px_registered'])):
+    if decoded_df['r_px_registered'].isnull().values.all():
         decoded_df['r_px_microscope_stitched'] = np.nan
         decoded_df['c_px_microscope_stitched'] = np.nan
     else:
