@@ -111,23 +111,23 @@ consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 
 # ----------------------------------------------------------------
 # REGISTRATION AND BARCODE PROCESSING
-start = time.time()
+# start = time.time()
+# print(f'start registration and barcode processing')
+# registration_channel = 'Europium' # must be corrected in the config file
+# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+# fovs = consolidated_grp[key].attrs['fields_of_view']
+# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
+# all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
-registration_channel = 'Europium' # must be corrected in the config file
-key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-fovs = consolidated_grp[key].attrs['fields_of_view']
-codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
-all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
 
+# all_futures = client.map(registration_barcode_detection_basic, all_grps,
+#                         analysis_parameters = analysis_parameters,
+#                         experiment_info = experiment_info,
+#                         experiment_fpath = experiment_fpath,
+#                         codebook = codebook)
+# _ = client.gather(all_futures)
 
-all_futures = client.map(registration_barcode_detection_basic, all_grps,
-                        analysis_parameters = analysis_parameters,
-                        experiment_info = experiment_info,
-                        experiment_fpath = experiment_fpath,
-                        codebook = codebook)
-_ = client.gather(all_futures)
-
-print(f'registration and barcode processing completed in {(time.time()-start)/60} min')
+# print(f'registration and barcode processing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
