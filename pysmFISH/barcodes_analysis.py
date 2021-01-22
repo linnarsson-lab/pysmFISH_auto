@@ -52,6 +52,7 @@ class extract_barcodes_NN():
     def __init__(self, counts, analysis_parameters:Dict,experiment_config:Dict,codebook_df,file_tags,status:str):
         
         self.barcodes_extraction_resolution = analysis_parameters['BarcodesExtractionResolution']
+        self.RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
         self.barcode_length = experiment_config['Barcode_length']
         self.counts = counts
         self.logger = selected_logger()
@@ -133,13 +134,13 @@ class extract_barcodes_NN():
             error = self.counts['min_number_matching_dots_registration'].values[0]
             round_num = self.counts['round_num'].values[0]
             self.barcoded_fov_df = self.barcoded_fov_df.append({'min_number_matching_dots_registration':error,
-                                                           'fov_num':fov,'dot_channel':channel,'round_num': round_num },ignore_index=True)
+                                                           'fov_num':int(fov),'dot_channel':channel,'round_num': round_num },ignore_index=True)
         elif self.status == 'SUCCESS':
 
-            if (min(self.counts.loc[:,'min_number_matching_dots_registration']) < self.barcodes_extraction_resolution):
+            if (min(self.counts.loc[:,'min_number_matching_dots_registration']) < self.RegistrationMinMatchingBeads):
                 round_num = self.counts['round_num'].values[0]
                 self.barcoded_fov_df = self.barcoded_fov_df.append({'min_number_matching_dots_registration':registration_errors.registration_below_extraction_resolution, 
-                                            'fov_num':fov,'dot_channel':channel,'round_num': round_num},ignore_index=True)
+                                            'fov_num':int(fov),'dot_channel':channel,'round_num': round_num},ignore_index=True)
                 self.status = 'FAILED'
             else:
                 hd_2 = 2 / self.barcode_length
@@ -152,7 +153,7 @@ class extract_barcodes_NN():
                 nn_sklearn.fit(codebook_array)
 
                 # remove points with np.NAN
-                self.counts = self.counts.dropna()
+                # self.counts = self.counts.dropna()
                 for round_num in rounds:
                     compare_df, barcoded_df = self.barcode_nn(self.counts, round_num, self.barcodes_extraction_resolution)
                     self.barcoded_fov_df = self.barcoded_fov_df.append(barcoded_df, ignore_index=True)
