@@ -311,8 +311,8 @@ class organize_square_tiles():
         self.save_graph_image_space_coords()
         self.identify_adjacent_tiles()
         self.determine_overlapping_regions()
-        fname = self.experiment_fpath / 'tmp' / 'microscope_tile_corners_coords_pxl.pkl'
-        pickle.dump(self.tile_corners_coords_pxl, open(fname,'wb'))
+        fname = self.experiment_fpath / 'tmp' / 'microscope_tile_corners_coords_pxl.npy'
+        np.save(self.tile_corners_coords_pxl, open(fname,'wb'))
 
 def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl):
     decoded_df_fpath = Path(decoded_df_fpath)
