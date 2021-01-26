@@ -89,7 +89,7 @@ print(f'start preprocessing and dots counting')
 # consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
 parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
 consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
-# sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
+sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 
 # Staining has different processing fun
