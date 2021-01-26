@@ -107,30 +107,26 @@ def single_fish_filter_count_standard(
             img = raw_fish_images_meta[0]
             img_metadata = raw_fish_images_meta[1]
             img = convert_from_uint16_to_float64(img)
+
             img -= dark_img
-            img = np.amax(img, axis=0)
-            background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
             img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
-            # img[img<0] = 0
+            img[img<0] = 0
+
+            background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
             img /= background
             img = nd.gaussian_laplace(img,LaplacianKernel)
-            # if np.all(img < 0):
-            #     # This line was included to flip the peaks in the laplacian processing
-            #     # I need to find the logic why it is not necessary anymore
-            #     # The selection for np.all is not correct but I just want to keep it and see if
-            #     # it works before remove it...find conditions when it will break
-            #     logger.debug(f'image values are negative after laplacian. Values flipped')
-            #     img = -img
-            # img[img<0] = 0
-            img = -img
-            # img[img<0] = 0
+            img = -img # the peaks are negative so invert the signal
+            img[img<0] = 0 # All negative values set to zero 
 
-            img = (img - np.mean(img)) / np.std(img)
-            img[img<0] = 0 
-        
-            
+            img_mean_z = img.mean(axis=(1,2))
+            img_mean_z = img_mean_z[:,np.newaxis,np.newaxis]
+            img_std_z = img.std(axis=(1,2))
+            img_std_z = img_std_z[:,np.newaxis,np.newaxis]
+            img_nn= (img - img_mean_z)/ img_std_z
+            img_nn = img_nn.max(axis=0)
 
-            fish_counts = osmFISH_peak_based_detection((img, img_metadata),
+
+            fish_counts = osmFISH_peak_based_detection((img_nn, img_metadata),
                                                     min_distance,
                                                     min_obj_size,
                                                     max_obj_size,
@@ -138,7 +134,7 @@ def single_fish_filter_count_standard(
             
           
             fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
-            pickle.dump((img, img_metadata),open(fname,'wb'))
+            pickle.dump((img_nn, img_metadata),open(fname,'wb'))
             
             # save_dots_data(fish_counts)
             fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
