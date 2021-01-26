@@ -210,10 +210,12 @@ class extract_barcodes_NN():
                         if hd == 0:
                             cols = cols + ['zeroHdistance_genes']
                             writing_data = writing_data + [gene]
-                        elif hd < hd_2:
+
+                        if hd < hd_2:
                             cols = cols + ['below2Hdistance_genes']
                             writing_data = writing_data + [gene]
-                        elif hd < hd_3:
+
+                        if hd < hd_3:
                             cols = cols + ['below3Hdistance_genes']
                             writing_data = writing_data + [gene]
 
