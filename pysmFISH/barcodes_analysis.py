@@ -125,6 +125,7 @@ class extract_barcodes_NN():
     def run_extraction(self):
 
         data_models = Output_models()
+        registration_errors = Registration_errors()
         fov = self.file_tags['fov']
         channel = self.file_tags['channel']
         self.barcoded_fov_df = data_models.barcode_analysis_df
