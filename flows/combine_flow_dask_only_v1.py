@@ -98,7 +98,7 @@ all_futures = []
 for grp, grp_data in sorted_grps.items():
     if grp in ['fish','beads']:
         for el in grp_data[0]:
-            future = client.submit(single_fish_filter_count_standard,
+            future = client.submit(single_fish_filter_count_standard_not_norm,
                             el,
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=sorted_grps['fish'][1])
