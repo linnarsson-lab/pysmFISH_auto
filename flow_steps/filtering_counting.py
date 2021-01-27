@@ -206,7 +206,7 @@ def single_fish_filter_count_standard_not_norm(
             img = -img # the peaks are negative so invert the signal
             img[img<0] = 0 # All negative values set to zero 
 
-            img = np.amax(axis=0)
+            img = np.amax(img,axis=0)
 
             fish_counts = osmFISH_peak_based_detection((img, img_metadata),
                                                     min_distance,
