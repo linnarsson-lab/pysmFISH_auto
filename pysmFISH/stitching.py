@@ -324,8 +324,8 @@ def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl)
         decoded_df['r_px_microscope_stitched'] = np.nan
         decoded_df['c_px_microscope_stitched'] = np.nan
     else:
-        decoded_df['r_px_microscope_stitched'] = decoded_df['r_px_registered'] + r_microscope_coords
-        decoded_df['c_px_microscope_stitched'] = decoded_df['c_px_registered'] + c_microscope_coords
+        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
+        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
     
     decoded_df.to_parquet(decoded_df_fpath)
     return decoded_df
