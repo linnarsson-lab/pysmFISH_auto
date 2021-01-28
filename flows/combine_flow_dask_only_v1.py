@@ -46,6 +46,7 @@ print(f'start loading configuration files')
 processing_env_config = load_processing_env_config_file(experiment_fpath)
 experiment_info = load_experiment_config_file(experiment_fpath)
 
+# Add check if an analysis file is already present
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
 analysis_parameters = load_analysis_config_file(experiment_fpath)
 print(f'config files loading completed in {(time.time()-start)/60} min')
