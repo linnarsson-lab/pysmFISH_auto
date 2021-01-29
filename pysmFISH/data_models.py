@@ -22,17 +22,15 @@ class Output_models():
                                         'target_name']
 
         self.output_variables_specific_registration = ['r_px_registered', 'c_px_registered',
-                            'r_shift_px','c_shift_px','min_number_matching_dots_registration',]
+                            'r_shift_px','c_shift_px','min_number_matching_dots_registration',
+                            'reference_hyb', 'experiment_type','experiment_name','pxl_um',
+                            'stitching_type', 'img_width_px','img_height_px','fov_acquisition_coords_x', 
+                            'fov_acquisition_coords_y', 'fov_acquisition_coords_z']
         
         self.output_variables_specific_barcodes = ['barcodes_extraction_resolution', 'barcode_reference_dot_id',
                                 'raw_barcodes','all_Hdistance_genes','zeroHdistance_genes','below2Hdistance_genes',
                                 'below3Hdistance_genes','number_positive_bits','hamming_distance']
     
-
-        # 'reference_hyb', 'experiment_type','experiment_name','pxl_um',
-        #                     'stitching_type', 'img_width_px','img_height_px','fov_acquisition_coords_x', 
-        #                     'fov_acquisition_coords_y', 'fov_acquisition_coords_z'
-
     
         self.dots_counts_dict = dict.fromkeys(self.output_variables_dot_calling)
         self.dots_counts_df = pd.DataFrame(columns=self.output_variables_dot_calling)
