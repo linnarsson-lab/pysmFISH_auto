@@ -258,9 +258,10 @@ class extract_barcodes():
         barcodes
     """
 
-    def __init__(self, counts, pxl:int):
+    def __init__(self, counts, pxl:int,save=True):
         self.counts = counts
         self.pxl = pxl
+        self.save = save
 
         self.logger = logging.getLogger(__name__)
 
@@ -357,7 +358,8 @@ class extract_barcodes():
                 # self.output['pxl_hood_size'] = self.pxl
                 # self.output['raw_barcodes'] = self.raw_barcodes
         else:
-            self.output = pd.DataFrame(np.nan,index=[0],columns = column_names_output)
+            if self.save:
+                self.output = pd.DataFrame(np.nan,index=[0],columns = column_names_output)
 
 
 

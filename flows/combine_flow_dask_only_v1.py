@@ -119,7 +119,7 @@ registration_channel = 'Europium' # must be corrected in the config file
 key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
 fovs = consolidated_grp[key].attrs['fields_of_view']
 codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / 'gene_HE_V5_extended_EELV2_codebook_16_6_5Alex647N_positive_bits.parquet')
-all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs)
+all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs,save=True)
 
 
 all_futures = client.map(registration_barcode_detection_basic, all_grps,

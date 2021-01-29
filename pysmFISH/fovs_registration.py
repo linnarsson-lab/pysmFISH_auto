@@ -40,7 +40,7 @@ from pysmFISH.errors import Registration_errors
 
 from pysmFISH.data_models import Output_models
 
-def create_registration_grps(experiment_fpath:str,registration_channel:str, fovs:List):
+def create_registration_grps(experiment_fpath:str,registration_channel:str, fovs:List, save=True):
     """
     Function to create groups of files that need to be registered together
     Args:
@@ -69,6 +69,9 @@ def create_registration_grps(experiment_fpath:str,registration_channel:str, fovs
         grp_fish = [fish_f for fish_f in fish_files if search_key_fish in fish_f.as_posix()]
         logger.debug(f'fov {fov} for registration on {registration_channel} has {len(grp_reg)} counts files')
         all_grps.append((grp_reg, grp_fish))
+    if save:
+        fname = Path(experiment_fpath) / 'tmp' / 'registration_groups.pkl'
+        pickle.dump(all_grps, open(fname,'rb'))
     return all_grps
 
 def create_fake_image(img_shape,coords):
@@ -128,7 +131,7 @@ def identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coord
     return number_matching_dots
 
 
-def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:dict):
+def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:dict, save=True):
     """
     Function used to run the registration of a single fov
     through all hybridization. The registration is done using the dots
@@ -273,15 +276,16 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                 output_registration_df['fov_acquisition_coords_z'] = img_metadata['fov_acquisition_coords_z']
         
         # Save extra metadata in the
-        
-        output_registration_df.to_parquet(fname,index=False)
-        pickle.dump(all_rounds_shifts,open(shift_fname,'wb'))
+        if save:
+            output_registration_df.to_parquet(fname,index=False)
+            pickle.dump(all_rounds_shifts,open(shift_fname,'wb'))
         return output_registration_df, all_rounds_shifts, file_tags, status
 
 
 
 def register_fish(processing_files:List,analysis_parameters:Dict,
-                        registered_reference_channel_df,all_rounds_shifts:Dict,file_tags:Dict,status:str):
+                        registered_reference_channel_df,all_rounds_shifts:Dict,file_tags:Dict,status:str,
+                        save=True):
 
     logger = selected_logger()
     registration_errors = Registration_errors()
@@ -345,8 +349,9 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
                     registered_fish_df = pd.concat([registered_fish_df,fish_counts_df],axis=0,ignore_index=True)
                     status = 'SUCCESS'
 
-    fname = file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (file_tags['experiment_name'] + '_' + file_tags['channel'] + '_registered_fov_' + file_tags['fov'] + '.parquet')
-    registered_fish_df.to_parquet(fname,index=False)
+    if save:
+        fname = file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (file_tags['experiment_name'] + '_' + file_tags['channel'] + '_registered_fov_' + file_tags['fov'] + '.parquet')
+        registered_fish_df.to_parquet(fname,index=False)
     return registered_fish_df, file_tags, status
 
 
