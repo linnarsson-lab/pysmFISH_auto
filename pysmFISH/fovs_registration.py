@@ -265,15 +265,15 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                 # Save the dataframe
                 
                 output_registration_df['reference_hyb'] = reference_hybridization
-                output_registration_df['experiment_type'] = img_metadata['experiment_type']
-                output_registration_df['experiment_name'] = img_metadata['experiment_name']
-                output_registration_df['pxl_um'] = img_metadata['pixel_microns']
-                output_registration_df['stitching_type'] = img_metadata['stitching_type']
-                output_registration_df['img_width_px'] = img_metadata['img_width']
-                output_registration_df['img_height_px'] = img_metadata['img_height']
-                output_registration_df['fov_acquisition_coords_x'] = img_metadata['fov_acquisition_coords_x']
-                output_registration_df['fov_acquisition_coords_y'] = img_metadata['fov_acquisition_coords_y']
-                output_registration_df['fov_acquisition_coords_z'] = img_metadata['fov_acquisition_coords_z']
+                output_registration_df['experiment_type'] = ref_img_metadata['experiment_type']
+                output_registration_df['experiment_name'] = ref_img_metadata['experiment_name']
+                output_registration_df['pxl_um'] = ref_img_metadata['pixel_microns']
+                output_registration_df['stitching_type'] = ref_img_metadata['stitching_type']
+                output_registration_df['img_width_px'] = ref_img_metadata['img_width']
+                output_registration_df['img_height_px'] = ref_img_metadata['img_height']
+                output_registration_df['fov_acquisition_coords_x'] = ref_img_metadata['fov_acquisition_coords_x']
+                output_registration_df['fov_acquisition_coords_y'] = ref_img_metadata['fov_acquisition_coords_y']
+                output_registration_df['fov_acquisition_coords_z'] = ref_img_metadata['fov_acquisition_coords_z']
         
         # Save extra metadata in the
         if save:
