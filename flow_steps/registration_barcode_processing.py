@@ -25,8 +25,7 @@ def registration_barcode_detection_basic(processing_grps,
                                                 experiment_info,
                                                 codebook,
                                                 file_tags,
-                                                status,
-                                                save=True)
+                                                status)
     process_barcodes.run_extraction()
 
 
@@ -36,7 +35,3 @@ def registration_barcode_detection_basic(processing_grps,
 
 
     # Isolate the dots_subimage
-
-    # Stitched the data
-    stitched_df = stitch_using_microscope_fov_coords(process_barcodes.barcoded_fov_df,experiment_info)
-    
