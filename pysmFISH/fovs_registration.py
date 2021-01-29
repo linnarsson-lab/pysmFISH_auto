@@ -165,7 +165,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                 'fov':fov}
 
     fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_name + '_' + channel + '_registered_fov_' + fov + '.parquet')
-
+    shift_fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_name + '_' + channel + '_all_rounds_shifts_fov_' + fov + '.pkl')
     # Load reference hybridization data
     try:
         ref_fpath = [fpath for fpath in processing_files if reference_hybridization_str in fpath.as_posix()][0]
@@ -275,6 +275,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
         # Save extra metadata in the
         
         output_registration_df.to_parquet(fname,index=False)
+        pickle.dump(all_rounds_shifts,open(shift_fname,'wb'))
         return output_registration_df, all_rounds_shifts, file_tags, status
 
 
