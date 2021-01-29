@@ -71,7 +71,7 @@ def create_registration_grps(experiment_fpath:str,registration_channel:str, fovs
         all_grps.append((grp_reg, grp_fish))
     if save:
         fname = Path(experiment_fpath) / 'tmp' / 'registration_groups.pkl'
-        pickle.dump(all_grps, open(fname,'rb'))
+        pickle.dump(all_grps, open(fname,'wb'))
     return all_grps
 
 def create_fake_image(img_shape,coords):
