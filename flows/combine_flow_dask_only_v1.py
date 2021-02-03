@@ -46,18 +46,21 @@ parsed_image_tag = 'img_data'
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
+# CREATE FOLDERS STRUCTURE
+create_folder_structure(experiment_fpath)
+# ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
 # LOAD CONFIGURATION FILES
 processing_env_config = load_processing_env_config_file(experiment_fpath)
 experiment_info = load_experiment_config_file(experiment_fpath)
-
 # Add check if an analysis file is already present
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
 analysis_parameters = load_analysis_config_file(experiment_fpath)
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
-# CREATE FOLDERS STRUCTURE AND ORGANIZE DATA
-create_folder_structure(experiment_fpath)
+# ORGANIZE DATA IN FOLDERS
 collect_processing_files(experiment_fpath, experiment_info)
 sort_data_into_folders(experiment_fpath, experiment_info)
 # ----------------------------------------------------------------
