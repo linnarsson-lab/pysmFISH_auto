@@ -31,7 +31,7 @@ def selected_logger():
 def json_logger(log_path,name):
     log_path = Path(log_path)
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
-    fname = log_path / (name + '_' + date_tag + '_pipeline_run.log')
+    fname = log_path / (name + '_' + date_tag + '.log')
     handler = logging.FileHandler(str(fname))  # Or FileHandler or anything else
     # Configure the fields to include in the JSON output. message is the main log string itself
     format_str = '%(message)%(levelname)%(name)%(asctime)'
