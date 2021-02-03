@@ -8,6 +8,7 @@ from typing import *
 from prefect import task
 from prefect.engine import signals
 import re
+import sys
 import numpy as np
 from pathlib import Path
 
@@ -17,7 +18,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.patches as mpatch
 
-from pysmFISH.logger_utils import prefect_logging_setup
+from pysmFISH.logger_utils import json_logger
 from pysmFISH.configuration_files_tasks import load_experiment_config_file
 
 
@@ -138,73 +139,100 @@ def check_experiment_yaml_file(experiment_fpath:str):
         experiment_fpath: str
             str with the path to the folder of the experiment to process
     """
-
-    experiment_info = load_experiment_config_file(experiment_fpath)
+    experiment_fpath = Path(experiment_fpath)
+    logger = json_logger((experiment_fpath / 'logs'),'qc_experiment_yaml')
     
-    logger = prefect_logging_setup('qc_experiment_yaml')
+    try:
+        experiment_info = load_experiment_config_file(experiment_fpath)
+    except:
+        logger.error(f'missing experiment info yaml file')
+        sys.exit(f'missing experiment info yaml file')
+    else:
 
-    experiment_info_keys = list(experiment_info.keys())
-
-    if 'Codebook' not in experiment_info_keys:
-        logger.error(f'Codebook keyword in the experiment file')
-        raise signals.FAIL(f'Codebook keyword in the experiment file')
-
-    if 'Barcode' not in experiment_info_keys:
-        logger.error(f'Barcode keyword in the experiment file')
-        raise signals.FAIL(f'Barcode keyword in the experiment file')
-
-    if 'Barcode_length' not in experiment_info_keys:
-        logger.error(f'Barcode_length keyword in the experiment file')
-        raise signals.FAIL(f'Barcode_length keyword in the experiment file')
-    
-    if 'Machine' not in experiment_info_keys:
-        logger.error(f'Machine keyword in the experiment file')
-        raise signals.FAIL(f'Machine keyword in the experiment file')
-    elif experiment_info['Machine'] not in ['ROBOFISH1', 'ROBOFISH2', 'NOT-DEFINED']:
-        logger.error(f'Wrong machine name')
-        raise signals.FAIL(f'Wrong machine name') 
-    
-    if 'Overlapping_percentage' not in experiment_info_keys:
-        logger.error(f'Overlapping_percentage keyword in the experiment file')
-        raise signals.FAIL(f'Overlapping_percentage keyword in the experiment file')
-
-    if 'Species' not in experiment_info_keys:
-        logger.error(f'Species keyword in the experiment file')
-        raise signals.FAIL(f'Species keyword in the experiment file')
-    elif experiment_info['Species'] not in ['Mus Musculus', 'Homo Sapiens']:
-        logger.error(f'Unknown Species selected')
-        raise signals.FAIL(f'Unknown Species selected')
-
-    if 'roi' not in experiment_info_keys:
-        logger.error(f'roi keyword in the experiment file')
-        raise signals.FAIL(f'roi keyword in the experiment file')
-
-    if 'StitchingChannel' not in experiment_info_keys:
-        logger.error(f'StitchingChannel keyword in the experiment file')
-        raise signals.FAIL(f'StitchingChannel keyword in the experiment file')
-
-    if 'Stitching_type' not in experiment_info_keys:
-        logger.error(f'Stitching_type keyword in the experiment file')
-        raise signals.FAIL(f'Stitching_type keyword in the experiment file')
-    elif experiment_info['Stitching_type'] not in ['small-beads', 'large-beads', 'nuclei']:
-        logger.error(f'Wrong Stitching_type selected in the experiment file')
-        raise signals.FAIL(f'Wrong Stitching_type selected in the experiment file')
-
-    if 'Experiment_type' not in experiment_info_keys:
-        logger.error(f'Experiment_type keyword in the experiment file')
-        raise signals.FAIL(f'Experiment_type keyword in the experiment file')
-    elif experiment_info['Experiment_type'] not in ['smfish-serial', 'smfish-barcoded', 'eel-barcoded']:
-        logger.error(f'Wrong Experiment_type selected in the experiment file')
-        raise signals.FAIL(f'Wrong Experiment_type selected in the experiment file')
-
-    if 'Probes' not in experiment_info_keys:
-        logger.error(f'Probes keyword in the experiment file')
-        raise signals.FAIL(f'Probes keyword in the experiment file')
+        codebooks_list = (experiment_fpath.parent / 'codebooks').glob('*')
+        probe_sets_list = (experiment_fpath.parent / 'probes_sets').glob('*')
 
 
+        experiment_info_keys = list(experiment_info.keys())
 
-@task(name='qc_matching_pkl')
-def check_matching_metadata_robofish(all_raw_files:list):
+        if 'Codebook' not in experiment_info_keys:
+            logger.error(f'Codebook keyword in the experiment file')
+
+        if 'Barcode' not in experiment_info_keys:
+            logger.error(f'Barcode keyword in the experiment file')
+        elif type(experiment_info['Barcode']) != bool:
+            logger.error(f'Value corresponding to Barcode keyword must be bool ')
+            sys.exit(f'Value corresponding to Barcode keyword must be bool ')
+        
+        if type(experiment_info['Barcode'])
+            if 'Barcode_length' not in experiment_info_keys:
+                logger.error(f'Barcode_length keyword in the experiment file')
+                sys.exit(f'Barcode_length keyword in the experiment file')
+            elif experiment_info['Barcode_length'] != 16:
+                logger.error(f'Wrong barcode length')
+                sys.exit(f'Barcode_length keyword in the experiment file')
+            
+            if 'Codebook' not in experiment_info_keys:
+                logger.error(f'Codebook keyword in the experiment file')
+                sys.exit(f'Codebook keyword in the experiment file')
+            else:
+                present = [x.name for x in codebooks_list if experiment_info['Codebook'] == x.name]
+                if not present:
+                    logger.error(f'Specified codebook is missing from the database')
+                    sys.exit(f'Specified codebook is missing from the database')
+
+        if 'Machine' not in experiment_info_keys:
+            logger.error(f'Machine keyword in the experiment file')
+        elif experiment_info['Machine'] not in ['ROBOFISH1', 'ROBOFISH2', 'NOT-DEFINED']:
+            logger.error(f'Wrong machine name')
+            sys.exit(f'Wrong machine name')
+        
+
+        if 'Overlapping_percentage' not in experiment_info_keys:
+            logger.error(f'Overlapping_percentage keyword in the experiment file')
+            sys.exit(f'Overlapping_percentage keyword in the experiment file')
+
+        if 'Species' not in experiment_info_keys:
+            logger.error(f'Species keyword in the experiment file')
+        elif experiment_info['Species'] not in ['Mus Musculus', 'Homo Sapiens']:
+            logger.error(f'Unknown Species selected')
+
+        if 'roi' not in experiment_info_keys:
+            logger.error(f'roi keyword in the experiment file')
+
+        if 'StitchingChannel' not in experiment_info_keys:
+            logger.error(f'StitchingChannel keyword in the experiment file')
+            sys.exit(f'StitchingChannel keyword in the experiment file')
+
+        if 'Stitching_type' not in experiment_info_keys:
+            logger.error(f'Stitching_type keyword in the experiment file')
+            sys.exit(f'Stitching_type keyword in the experiment file')
+        elif experiment_info['Stitching_type'] not in ['small-beads', 'large-beads','both-beads', 'nuclei',]:
+            logger.error(f'Wrong Stitching_type selected in the experiment file')
+            sys.exit(f'Wrong Stitching_type selected in the experiment file')
+
+        if 'EXP_name' not in experiment_info_keys:
+            logger.error(f'EXP_name keyword in the experiment file')
+            sys.exit(f'EXP_name keyword in the experiment file')
+        
+        if 'Experiment_type' not in experiment_info_keys:
+            logger.error(f'Experiment_type keyword in the experiment file')
+            sys.exit(f'Experiment_type keyword in the experiment file')
+        elif experiment_info['Experiment_type'] not in ['smfish-serial', 'smfish-barcoded', 'eel-barcoded']:
+            logger.error(f'Wrong Experiment_type selected in the experiment file')
+            sys.exit(f'Wrong Experiment_type selected in the experiment file')
+
+        if 'Probe_FASTA_name' not in experiment_info_keys:
+            logger.error(f'Probes keyword in the experiment file')
+            sys.error(f'Probes keyword in the experiment file')
+        else:
+            present = [x.name for x in probe_sets_list if experiment_info['Probe_FASTA_name'] == x.name]
+            if not present:
+                logger.error(f'Specified probes set is missing from the database')
+                sys.exit(f'Specified probes set is missing from the database')
+
+
+def qc_matching_nd2_metadata_robofish(all_raw_files:list):
     """
     This function is used to check that each of the nd2 files
     generated by the microscope has a matching pkl metadata
@@ -216,13 +244,13 @@ def check_matching_metadata_robofish(all_raw_files:list):
 
     """
 
-    logger = prefect_logging_setup('qc_config_pkl')
+    logger = json_logger((experiment_fpath / 'logs'),'qc_matching_pkl')
     experiment_fpath = all_raw_files[0].parent
     all_info_files = list(experiment_fpath.glob('*.pkl'))
   
     if len(all_info_files) == 0:
         logger.error(f"no .pkl files in the folder")
-        raise signals.FAIL()
+        sys.exit(f"no .pkl files in the folder")
 
     # Determine if there are multiple metadata files with same number
     all_codes = []
@@ -240,10 +268,10 @@ def check_matching_metadata_robofish(all_raw_files:list):
             for count_code,value in all_codes_counts_dict.items():
                 if value >1:
                     logger.error(f' multiple pkl files with {count_code}')
-                    raise signals.FAIL()
+                    sys.exit(f' multiple pkl files with {count_code}')
             
             logger.error(f'fix naming of the files with the repeated codes')
-            raise signals.FAIL()
+            sys.exit(f'fix naming of the files with the repeated codes')
 
     missing_pkl = []
     for nd2_file_path in all_raw_files:
@@ -253,12 +281,14 @@ def check_matching_metadata_robofish(all_raw_files:list):
         except:
             count_code = None
             logger.error(f'{nd2_file_path.stem} does not contain the CountXXXXX code')
-        try:
-            info_file = [info_file for info_file in all_info_files if count_code  in info_file.stem][0]
-        except IndexError:
-            logger.error(f'{nd2_file_path.stem} does not have the corresponding pkl file')
-            missing_pkl.append(nd2_file_path.stem)
+            sys.exit(f'{nd2_file_path.stem} does not contain the CountXXXXX code')
+        else:
+            try:
+                info_file = [info_file for info_file in all_info_files if count_code  in info_file.stem][0]
+            except IndexError:
+                logger.error(f'{nd2_file_path.stem} does not have the corresponding pkl file')
+                missing_pkl.append(nd2_file_path.stem)
 
     if missing_pkl:
         logger.error(f'collect the missing pkl for {missing_pkl} before parsing')
-        raise signals.FAIL()
+        sys.exit(f'collect the missing pkl for {missing_pkl} before parsing')
