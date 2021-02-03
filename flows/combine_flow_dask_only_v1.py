@@ -152,7 +152,7 @@ logger.info(f'registration and barcode processing completed in {(time.time()-sta
 # STITCHING
 start = time.time()
 logger.info(f'start stitching using microscope coords')
-round_num =1
+round_num = analysis_parameters['RegistrationReferenceHybridization']
 tiles_org = organize_square_tiles(experiment_fpath,experiment_info,consolidated_grp,round_num)
 tiles_org.run_tiles_organization()
 
