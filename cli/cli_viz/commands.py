@@ -29,23 +29,25 @@ def viz_utilities():
                 below3Hdistance_genes \
                 below2Hdistance_genes \
                 zeroHdistance_genes \
-                all_Hdistance_genes'\
-                )
+                all_Hdistance_genes')
+
 @click.option('--stitching_selected', type=str, help='Select the type of stitching to plot \
                 the default value is microscope_stitched \
                 Possible alternatives: \
                 microscope_stitched \
                 XXXXXXXXXXXXXXXXXXX \
-                XXXXXXXXXXXXXXXXXXX)
+                XXXXXXXXXXXXXXXXXXX')
 
 @click.option('--all_genes_visible', type=bool, help='Select if make all genes visible \
-                the default value is False)
+                the default value is False')
 
 
-def vizcounts(experiment_path:str, select_genes:str,stitching_selected:str,all_genes_visible:bool):
+def vizcounts(data_folder_path:str,microscope_tiles_coords_fpath:str, 
+                select_genes:str,stitching_selected:str,all_genes_visible:bool):
     logger = selected_logger()
     click.echo('    ')
     click.echo('--------------------------------------------------------------')
     click.echo('visualize the stitched counts')
     click.echo('--------------------------------------------------------------')
-    viz_napari_counts(experiment_path,select_genes,stitching_selected,all_genes_visible)
+    viz_napari_counts(data_folder_path,microscope_tiles_coords_fpath,
+                        select_genes,stitching_selected,all_genes_visible)

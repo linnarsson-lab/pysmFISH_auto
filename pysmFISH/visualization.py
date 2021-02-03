@@ -3,6 +3,7 @@ from dask.distributed import Client
 from dask import dataframe as dd
 from pathlib import Path
 import pandas as pd
+import numpy as np
 import random
 
 
@@ -10,6 +11,7 @@ def viz_napari_counts(data_folder_path,
                       microscope_tiles_coords_fpath,
                       select_genes='below3Hdistance_genes',
                       stitching_selected='microscope_stitched', all_genes_visible=False):
+    
     data_folder_path = Path(data_folder_path)
     tag = '*_decoded_*'
     r = lambda: random.randint(0,255)
@@ -37,10 +39,12 @@ def viz_napari_counts(data_folder_path,
                             edge_color = 'magenta',
                             face_color = 'magenta',
                             symbol = '+',
-                            size = 30
+                            size = 30,
+                            visible= False
                             )
         
         for idx, (gene, coords) in enumerate(gene_grp):
             coords = coords.loc[:,[r_coords_name,c_coords_name]].to_numpy()
-            col = '#%02X%02X%02X' % (r(),r(),r())
+            col = '#'+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+            # col = "#%02X%02X%02X" % (r(),r(),r())
             _ = vw.add_points(coords,name=gene,size=4,symbol='o',visible=all_genes_visible,edge_color=col, face_color=col)

@@ -1,14 +1,12 @@
 import click
 
-from cli_tranfer_files.commands import data_transfer
-from cli_viz import vizcounts
+from cli_viz.commands import viz_utilities
 
 @click.group()
 def pysmFISH_cli():
     pass
 
-pysmFISH_cli.add_command(data_transfer)
-pysmFISH_cli.add_command(vizcounts)
+pysmFISH_cli.add_command(viz_utilities)
 
 if __name__ == '__main__':
     pysmFISH_cli()
