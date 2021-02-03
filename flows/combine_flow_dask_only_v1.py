@@ -64,7 +64,7 @@ sort_data_into_folders(experiment_fpath, experiment_info)
 
 # ----------------------------------------------------------------
 # START PIPELINE LOGGER
-logger = json_logger(experiment_fpath + '/logs')
+logger = json_logger((experiment_fpath + '/logs'),'pipeline_run')
 # ----------------------------------------------------------------
 
 logger.info(f'run')
