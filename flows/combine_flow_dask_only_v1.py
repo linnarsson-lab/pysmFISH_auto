@@ -46,22 +46,13 @@ parsed_image_tag = 'img_data'
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
-# START PIPELINE LOGGER
-logger = json_logger(experiment_fpath + '/logs')
-# ----------------------------------------------------------------
-
-
-# ----------------------------------------------------------------
 # LOAD CONFIGURATION FILES
-start = time.time()
-logger.info(f'start loading configuration files')
 processing_env_config = load_processing_env_config_file(experiment_fpath)
 experiment_info = load_experiment_config_file(experiment_fpath)
 
 # Add check if an analysis file is already present
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
 analysis_parameters = load_analysis_config_file(experiment_fpath)
-logger.info(f'config files loading completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -69,6 +60,11 @@ logger.info(f'config files loading completed in {(time.time()-start)/60} min')
 create_folder_structure(experiment_fpath)
 collect_processing_files(experiment_fpath, experiment_info)
 sort_data_into_folders(experiment_fpath, experiment_info)
+# ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+# START PIPELINE LOGGER
+logger = json_logger(experiment_fpath + '/logs')
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -107,7 +103,7 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # IMAGE PREPROCESSING AND DOTS COUNTING
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
-# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
 # parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
 # consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
@@ -123,6 +119,7 @@ for grp, grp_data in sorted_grps.items():
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=sorted_grps['fish'][1])
             all_futures.append(future)
+    # separate processing beads and fish separately
 
 start = time.time()
 _ = client.gather(all_futures)
