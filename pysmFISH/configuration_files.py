@@ -294,6 +294,7 @@ def create_specific_analysis_config_file(experiment_fpath:str, experiment_info:D
 
     try:
         yaml.safe_load(open(analysis_config_fpath,'rb')) 
+        logger.debug(f'The analysis config file is already present')
     except:
         try:
             machine = experiment_info['Machine']
