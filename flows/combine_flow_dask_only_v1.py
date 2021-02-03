@@ -4,11 +4,16 @@ import pandas as pd
 from pathlib import Path
 from dask.distributed import Client
 
+from pysmFISH.logger_utils import json_logger
 
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_processing_env_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.configuration_files import create_specific_analysis_config_file
+
+from pysmFISH.utils import create_folder_structure
+from pysmFISH.utils import collect_processing_files
+from pysmFISH.utils import sort_data_into_folders
 
 from pysmFISH.io import create_empty_zarr_file
 from pysmFISH.io import consolidate_zarr_metadata
@@ -33,88 +38,102 @@ pipeline_start = time.time()
 
 # ----------------------------------------------------------------
 # PARAMETERS DEFINITION
-experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
-processing_env_config_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/config_db'
+experiment_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test'
+# experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
+
 raw_files_fpath = experiment_fpath + '/raw_data'
 parsed_image_tag = 'img_data'
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
+# START PIPELINE LOGGER
+logger = json_logger(experiment_fpath + '/logs')
+# ----------------------------------------------------------------
+
+
+# ----------------------------------------------------------------
 # LOAD CONFIGURATION FILES
 start = time.time()
-print(f'start loading configuration files')
+logger.info(f'start loading configuration files')
 processing_env_config = load_processing_env_config_file(experiment_fpath)
 experiment_info = load_experiment_config_file(experiment_fpath)
 
 # Add check if an analysis file is already present
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
 analysis_parameters = load_analysis_config_file(experiment_fpath)
-print(f'config files loading completed in {(time.time()-start)/60} min')
+logger.info(f'config files loading completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+# CREATE FOLDERS STRUCTURE AND ORGANIZE DATA
+create_folder_structure(experiment_fpath)
+collect_processing_files(experiment_fpath, experiment_info)
+sort_data_into_folders(experiment_fpath, experiment_info)
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # CREATE PROCESSING CLUSTER
 start = time.time()
-print(f'start cluster creation')
+logger.info(f'start cluster creation')
 cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
 client = Client(cluster)
-print(f'cluster creation completed in {(time.time()-start)/60} min')
+logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
-# # REPARSING THE MICROSCOPY DATA
-# start = time.time()
-# print(f'start reparsing raw data')
-# # Create empty zarr file for the parse data
-# parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-#                                     tag=parsed_image_tag)
+# ----------------------------------------------------------------
+# REPARSING THE MICROSCOPY DATA
+start = time.time()
+logger.info(f'start reparsing raw data')
+# Create empty zarr file for the parse data
+parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+                                    tag=parsed_image_tag)
 
-# # Reparse the data
-# all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+# Reparse the data
+all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
 
-# parsing_futures = client.map(nikon_nd2_reparser_zarr,
-#                             all_raw_nd2,
-#                             parsed_raw_data_fpath=parsed_raw_data_fpath,
-#                             experiment_info=experiment_info)
+parsing_futures = client.map(nikon_nd2_reparser_zarr,
+                            all_raw_nd2,
+                            parsed_raw_data_fpath=parsed_raw_data_fpath,
+                            experiment_info=experiment_info)
 
-# _ = client.gather(parsing_futures)
+_ = client.gather(parsing_futures)
 
-# print(f'reparsing completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+logger.info(f'reparsing completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
 
 
 # ----------------------------------------------------------------
 # IMAGE PREPROCESSING AND DOTS COUNTING
-# start = time.time()
-# print(f'start preprocessing and dots counting')
-# # consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
-consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
-# sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
+start = time.time()
+logger.info(f'start preprocessing and dots counting')
+# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+# parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
+# consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
+sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 
-# # Staining has different processing fun
-# all_futures = []
-# for grp, grp_data in sorted_grps.items():
-#     if grp in ['fish','beads']:
-#         for el in grp_data[0]:
-#             future = client.submit(single_fish_filter_count_standard_not_norm,
-#                             el,
-#                             parsed_raw_data_fpath = parsed_raw_data_fpath,
-#                             processing_parameters=sorted_grps['fish'][1])
-#             all_futures.append(future)
+# Staining has different processing fun
+all_futures = []
+for grp, grp_data in sorted_grps.items():
+    if grp in ['fish','beads']:
+        for el in grp_data[0]:
+            future = client.submit(single_fish_filter_count_standard_not_norm,
+                            el,
+                            parsed_raw_data_fpath = parsed_raw_data_fpath,
+                            processing_parameters=sorted_grps['fish'][1])
+            all_futures.append(future)
 
-# start = time.time()
-# _ = client.gather(all_futures)
-# print(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+start = time.time()
+_ = client.gather(all_futures)
+logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 
 # ----------------------------------------------------------------
 # REGISTRATION AND BARCODE PROCESSING
 start = time.time()
-print(f'start registration and barcode processing')
+logger.info(f'start registration and barcode processing')
 registration_channel = 'Europium' # must be corrected in the config file
 key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
 fovs = consolidated_grp[key].attrs['fields_of_view']
@@ -129,13 +148,13 @@ all_futures = client.map(registration_barcode_detection_basic, all_grps,
                         codebook = codebook)
 _ = client.gather(all_futures)
 
-print(f'registration and barcode processing completed in {(time.time()-start)/60} min')
+logger.info(f'registration and barcode processing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # STITCHING
 start = time.time()
-print(f'start stitching using microscope coords')
+logger.info(f'start stitching using microscope coords')
 round_num =1
 tiles_org = organize_square_tiles(experiment_fpath,experiment_info,consolidated_grp,round_num)
 tiles_org.run_tiles_organization()
@@ -147,10 +166,10 @@ all_futures = client.map(stitch_using_microscope_fov_coords,decoded_files,
 
 _ = client.gather(all_futures)  
 
-print(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
+logger.info(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
-print(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')
+logger.info(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')
 
 client.close()
 cluster.close()
