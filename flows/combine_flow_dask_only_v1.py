@@ -35,6 +35,7 @@ from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
 
 from qc_utils import QC_registration_error
+from qc_utils import check_experiment_yaml_file
 
 pipeline_start = time.time()
 
@@ -51,6 +52,13 @@ parsed_image_tag = 'img_data'
 # # CREATE FOLDERS STRUCTURE
 # create_folder_structure(experiment_fpath)
 # # ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+# QC Experiment info file
+check_experiment_yaml_file(experiment_fpath)
+# ----------------------------------------------------------------
+
+
 
 # ----------------------------------------------------------------
 # LOAD CONFIGURATION FILES
