@@ -157,8 +157,10 @@ def create_folder_structure(experiment_fpath:str):
                     'notebooks',
                     'probes',
                     'tmp',
-                    'logs']
-    subfolders_tmp = ['raw_counts','filtered_images','registered_counts','microscope_tiles_coords']
+                    'logs',
+                    'results']
+    subfolders_tmp = ['raw_counts','filtered_images','registered_counts',
+                    'microscope_tiles_coords','combined_rounds_images']
     for folder_name in folders_list:
         try:
             os.stat(experiment_fpath / folder_name )
@@ -177,7 +179,7 @@ def create_folder_structure(experiment_fpath:str):
 
 
 
-def organise_files_tmp(experiment_fpath:str, experiment_info:Dict):
+def collect_processing_files(experiment_fpath:str, experiment_info:Dict):
 
     """
     Task used to sort the files in the experiment folder and
@@ -196,7 +198,6 @@ def organise_files_tmp(experiment_fpath:str, experiment_info:Dict):
     except NameError:
         machine = 'NOT_DEFINED'
 
-    # This step will be modified when the dark_img will be stored in shoji
     dark_img_fpath = experiment_fpath.parent / 'dark_imgs' / (experiment_info['Machine'] + '_dark_img.npy')
     try:
         shutil.copy(dark_img_fpath, (experiment_fpath / 'extra_processing_data'))
