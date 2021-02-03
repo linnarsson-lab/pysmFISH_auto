@@ -356,19 +356,17 @@ def load_processing_env_config_file(experiment_fpath:str):
         config_db_fpath; str
             path to the folder containing the data_transfer_config.yaml
     """
-    # logger = prefect_logging_setup('load-processing-env-config')
-    config_db_fpath = Path(experiment_fpath).parent / 'config_db'
-    processing_env_config_fpath = config_db_fpath / 'processing_env_config.yaml'
+    logger = selected_logger()
+    
+    processing_env_config_fpath = Path(experiment_fpath) / 'pipeline_config' / 'processing_env_config.yaml'
     try:
         processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
     except (FileExistsError,NameError,FileNotFoundError) as e:
-        # logger.debug(f'{processing_env_config_fpath} missing')
+        logger.debug(f'{processing_env_config_fpath} missing')
         try:
             create_processing_env_config_file(experiment_fpath)
         except:
-            # logger.error('cannot create the processing config file')
-            # signals.FAIL('cannot create the processing config file')
-            print('cane')
+            logger.error('cannot create the processing config file')
         else:
             processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
             return processing_env_config
