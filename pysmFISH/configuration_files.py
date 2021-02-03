@@ -293,21 +293,24 @@ def create_specific_analysis_config_file(experiment_fpath:str, experiment_info:D
     general_analysis_config = yaml.safe_load(open(general_analysis_config_fpath, 'rb'))
 
     try:
-        machine = experiment_info['Machine']
-    except NameError:
-        machine = 'NOT_DEFINED'
-
-    try:
-        experiment_type = experiment_info['Experiment_type']
-        analysis_config = general_analysis_config[experiment_type][machine]
+        yaml.safe_load(open(analysis_config_fpath,'rb')) 
     except:
-        logger.error(f'Unidentified experiment type in the config.yaml file')
-    else:
         try:
-            with open(analysis_config_fpath, 'w') as new_config:
-                yaml.safe_dump(dict(analysis_config), new_config,default_flow_style=False,sort_keys=False)
+            machine = experiment_info['Machine']
+        except NameError:
+            machine = 'NOT_DEFINED'
+
+        try:
+            experiment_type = experiment_info['Experiment_type']
+            analysis_config = general_analysis_config[experiment_type][machine]
         except:
-            logger.error(f'cannot save the analysis_config_file')
+            logger.error(f'Unidentified experiment type in the config.yaml file')
+        else:
+            try:
+                with open(analysis_config_fpath, 'w') as new_config:
+                    yaml.safe_dump(dict(analysis_config), new_config,default_flow_style=False,sort_keys=False)
+            except:
+                logger.error(f'cannot save the analysis_config_file')
 
 
 def load_experiment_config_file(experiment_fpath:str):
@@ -380,7 +383,6 @@ def load_analysis_config_file(experiment_fpath:str):
         analysis_config = OrderedDict(yaml.safe_load(open(analysis_config_fpath, 'rb')))
     except (FileExistsError,NameError,FileNotFoundError) as e:
         logger.debug(f'{analysis_config_fpath} missing')
-        signals.FAIL(f'{analysis_config_fpath} missing')
     else:
         return analysis_config
 
