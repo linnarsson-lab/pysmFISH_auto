@@ -75,7 +75,7 @@ logger = json_logger((experiment_fpath + '/logs'),'pipeline_run')
 # CREATE PROCESSING CLUSTER
 start = time.time()
 logger.info(f'start cluster creation')
-cluster = create_processing_cluster(processing_env_config_fpath,experiment_fpath)
+cluster = create_processing_cluster(experiment_fpath)
 client = Client(cluster)
 logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
