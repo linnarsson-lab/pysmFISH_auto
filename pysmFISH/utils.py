@@ -174,8 +174,8 @@ def create_folder_structure(experiment_fpath:str):
             os.stat(experiment_fpath / 'tmp' / folder_name )
             logger.info(f'{folder_name} already exist')
         except FileNotFoundError:
-            os.mkdir(experiment_fpath / folder_name)
-            os.chmod(experiment_fpath / folder_name,0o777)
+            os.mkdir(experiment_fpath / 'tmp' / folder_name)
+            os.chmod(experiment_fpath / 'tmp' / folder_name,0o777)
 
 
 
