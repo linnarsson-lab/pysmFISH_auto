@@ -62,21 +62,21 @@ def create_processing_env_config_file(experiment_fpath:str):
 
 
 
-def create_general_analysis_config_file(experiment_fpath:str):
+def create_general_analysis_config_file(config_db_path:str):
     """
     This function creates a basic standard configuration files with the parameters used for running
     all available analysis. It will be stored in the config_db folder. The data required for the analysis
     will be extracted from the files using the experiment_info file. 
    
     Args:
-        experiment_fpath: str
-            path to the experiment that will be processed
+        config_db_path: str
+            path to the database with the yaml config files
 
     """
     
     logger = selected_logger()
-    experiment_fpath = Path(experiment_fpath)
-    analysis_config_fpath = experiment_fpath.parent / 'config_db' / 'analysis_config.yaml'
+    config_db_path = Path(config_db_path)
+    analysis_config_fpath = config_db_path / 'analysis_config.yaml'
     analysis_parameters = OrderedDict()
 
     analysis_parameters['eel-barcoded'] = {}

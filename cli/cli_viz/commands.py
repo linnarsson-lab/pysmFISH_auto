@@ -38,7 +38,7 @@ def viz_utilities():
                 XXXXXXXXXXXXXXXXXXX \
                 XXXXXXXXXXXXXXXXXXX')
 
-@click.option('--all_genes_visible', type=bool, help='Select if make all genes visible \
+@click.option('--all_genes_visible', type=bool, default=False,help='Select if make all genes visible \
                 the default value is False')
 
 
