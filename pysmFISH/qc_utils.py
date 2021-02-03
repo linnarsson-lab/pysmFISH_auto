@@ -11,8 +11,121 @@ import re
 import numpy as np
 from pathlib import Path
 
+from dask import dataframe as dd
+
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.patches as mpatch
+
 from pysmFISH.logger_utils import prefect_logging_setup
 from pysmFISH.configuration_files_tasks import load_experiment_config_file
+
+
+class QC_registration_error():
+
+    def __init__(self, client, experiment_fpath, analysis_parameters, tiles_coords, img_width, img_height):
+        self.client = client
+        self.experiment_fpath = Path(experiment_fpath)
+        self.analysis_parameters = analysis_parameters
+        self.tiles_coords = tiles_coords
+        self.img_width = img_width
+        self.img_height = img_height
+
+    def create_error_df(self):
+        all_counts_folder = self.experiment_fpath / 'tmp' / 'registered_counts'
+        search_key = '*decoded*'
+        self.error_output_df= pd.DataFrame()
+        all_counts_dd = dd.read_parquet(all_counts_folder / search_key)
+        registration_error_df = all_counts_dd.groupby('fov_num').agg({'min_number_matching_dots_registration': ['min']}).compute()
+        for idx, row in registration_error_df.itertuples():
+            search_key = '*decoded_fov_' + str(idx) +'.parquet'
+            fname = list(all_counts_folder.glob(search_key))[0]
+            fov_data_df = pd.read_parquet(fname)
+            matching_rounds = fov_data_df.loc[(fov_data_df.fov_num == idx) &
+                        (fov_data_df.min_number_matching_dots_registration == row),
+                        ['fov_num','min_number_matching_dots_registration','round_num']]
+            self.error_output_df = pd.concat([error_output_df,matching_rounds.iloc[0]],axis=1)
+        self.error_output_df = error_output_df.T
+        # #     RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
+        #     registration_error_df.columns = ["_".join(x) for x in registration_error_df.columns.ravel()]
+
+    def plot_error(self):
+    
+        scale_value = 5
+        self.tiles_coords = self.tiles_coords / scale_value
+        
+        fovs = self.error_output_df['fov_num'].values
+        rounds_num = self.error_output_df['round_num'].values
+        min_errors = self.error_output_df['min_number_matching_dots_registration'].values
+        
+        
+        plt.ioff()
+        fig = plt.figure(figsize=(30,20))
+        ax = fig.add_subplot(111)
+
+        r_coords = self.tiles_coords[:,0]
+        c_coords = self.tiles_coords[:,1]
+        r_coords_min = r_coords.min()
+        c_coords_min = c_coords.min()
+        to_zero_r_coords = r_coords - r_coords_min
+        to_zero_c_coords = c_coords - c_coords_min
+
+        ax.plot(to_zero_c_coords,to_zero_r_coords,'xk')
+
+
+        width = self.img_width / scale_value
+        height = self.img_height / scale_value
+
+
+        # create colormap for error in the registration
+        errors_normalized = (min_errors -min(min_errors)) / (max(min_errors -min(min_errors)))
+        threshold = (RegistrationMinMatchingBeads-min(min_errors)) / (max(min_errors -min(min_errors)))
+        nodes = [0,threshold, threshold, 1.0]
+
+        colors = ["black", "black", "blue", "magenta"]
+        cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colors)))
+        cmap.set_under("black")
+        
+        
+        rectangles = {}
+        # to change after I corrected the error with the '10'
+        for idx,fov in enumerate(fovs):
+        
+            round_num = rounds_num[idx]
+            min_error = min_errors[idx]
+            
+            tag = 'fov_' + str(fov) + '\n' + 'match: '+ str(min_error) + '\n' + 'round: ' + str(round_num)
+            rectangles.update({tag : mpatch.Rectangle( xy=(to_zero_c_coords[idx],to_zero_r_coords[idx] ),  # point of origin.
+                                            width=width,
+                                            height=height,
+                                            linewidth=0.5,
+                                            edgecolor='k',
+                                            fill=True,
+                                            alpha = 0.8,
+                                            facecolor=cmap(errors_normalized[idx]))})
+
+        for r in rectangles:
+            ax.add_artist(rectangles[r])
+            rx, ry = rectangles[r].get_xy()
+            cx = rx + rectangles[r].get_width()/2.0
+            cy = ry + rectangles[r].get_height()/2.0
+
+            ax.annotate(r, (cx, cy), color='white', weight='bold', 
+                        fontsize=10, ha='center', va='center')
+
+
+        ax.set_xlim((-width, to_zero_c_coords.max()+ width + (0.05*width)))
+        ax.set_ylim((-height, to_zero_r_coords.max()+ height + (0.05*height)))
+        ax.set_aspect('equal')
+        ax.axis('off')
+        plt.gca().invert_yaxis()
+        plt.tight_layout()
+        plt.savefig(experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
+        plt.show()
+
+    def run_qc(self):
+        self.create_error_df()
+        self.plot_error()
 
 
 def check_experiment_yaml_file(experiment_fpath:str):
