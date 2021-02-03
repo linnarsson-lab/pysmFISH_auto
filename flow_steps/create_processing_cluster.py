@@ -7,15 +7,12 @@ from pysmFISH.configuration_files import load_processing_env_config_file
 
 from pysmFISH.processing_cluster_setup import start_processing_env
 
-def create_processing_cluster(processing_env_config_fpath:str,experiment_fpath:str):
+def create_processing_cluster(experiment_fpath:str):
     """
     Function to create the cluster that will be used to process
     the entire pipeline
 
     Args:
-         processing_env_config_fpath: str
-           str to the location of the file with the config parameters
-           for setting up the cluster
         experiment_fpath: str
             path to the experiment to process
 
