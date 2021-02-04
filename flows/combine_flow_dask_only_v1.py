@@ -34,8 +34,8 @@ from flow_steps.registration_barcode_processing import registration_barcode_dete
 from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
 
-from qc_utils import QC_registration_error
-from qc_utils import check_experiment_yaml_file
+from pysmFISH.qc_utils import QC_registration_error
+from pysmFISH.qc_utils import check_experiment_yaml_file
 
 pipeline_start = time.time()
 
