@@ -9,6 +9,7 @@ from prefect import task
 from prefect.engine import signals
 import re
 import sys
+import pandas as pd
 import numpy as np
 from pathlib import Path
 
