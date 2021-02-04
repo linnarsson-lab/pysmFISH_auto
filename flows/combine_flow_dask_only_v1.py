@@ -141,25 +141,25 @@ consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 # # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
-# # REGISTRATION AND BARCODE PROCESSING
-# start = time.time()
-# logger.info(f'start registration and barcode processing')
-# registration_channel = 'Europium' # must be corrected in the config file
-# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-# fovs = consolidated_grp[key].attrs['fields_of_view']
-# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
-# all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs,save=True)
+# ----------------------------------------------------------------
+# REGISTRATION AND BARCODE PROCESSING
+start = time.time()
+logger.info(f'start registration and barcode processing')
+registration_channel = 'Europium' # must be corrected in the config file
+key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+fovs = consolidated_grp[key].attrs['fields_of_view']
+codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
+all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs,save=True)
 
 
-# all_futures = client.map(registration_barcode_detection_basic, all_grps,
-#                         analysis_parameters = analysis_parameters,
-#                         experiment_info = experiment_info,
-#                         experiment_fpath = experiment_fpath,
-#                         codebook = codebook)
-# _ = client.gather(all_futures)
+all_futures = client.map(registration_barcode_detection_basic, all_grps,
+                        analysis_parameters = analysis_parameters,
+                        experiment_info = experiment_info,
+                        experiment_fpath = experiment_fpath,
+                        codebook = codebook)
+_ = client.gather(all_futures)
 
-# logger.info(f'registration and barcode processing completed in {(time.time()-start)/60} min')
+logger.info(f'registration and barcode processing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -180,22 +180,19 @@ _ = client.gather(all_futures)
 logger.info(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
-# # ----------------------------------------------------------------
-# # QC REGISTRATION ERROR
-# start = time.time()
-# logger.info(f'plot registration error')
+# ----------------------------------------------------------------
+# QC REGISTRATION ERROR
+start = time.time()
+logger.info(f'plot registration error')
 
-# registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
-#                                             tiles_org.tile_corners_coords_px, 
-#                                             tiles_org.img_width, tiles_org.img_height)
+registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
+                                            tiles_org.tile_corners_coords_px, 
+                                            tiles_org.img_width, tiles_org.img_height)
 
-# registration_error.run_qc()
+registration_error.run_qc()
 
-# logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
-
-
-
+logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
 
 
 logger.info(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')
