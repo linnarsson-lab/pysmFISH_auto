@@ -164,7 +164,7 @@ def check_experiment_yaml_file(experiment_fpath:str):
             logger.error(f'Value corresponding to Barcode keyword must be bool ')
             sys.exit(f'Value corresponding to Barcode keyword must be bool ')
         
-        if type(experiment_info['Barcode'])
+        if type(experiment_info['Barcode']):
             if 'Barcode_length' not in experiment_info_keys:
                 logger.error(f'Barcode_length keyword in the experiment file')
                 sys.exit(f'Barcode_length keyword in the experiment file')
