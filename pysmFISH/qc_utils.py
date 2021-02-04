@@ -122,7 +122,6 @@ class QC_registration_error():
         plt.gca().invert_yaxis()
         plt.tight_layout()
         plt.savefig(experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
-        plt.show()
 
     def run_qc(self):
         self.create_error_df()

@@ -186,7 +186,7 @@ start = time.time()
 logger.info(f'plot registration error')
 
 registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
-                                            tiles_org.tile_corners_coords_px, 
+                                            tiles_org.tile_corners_coords_pxl, 
                                             tiles_org.img_width, tiles_org.img_height)
 
 registration_error.run_qc()
