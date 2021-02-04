@@ -19,7 +19,7 @@ from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.patches as mpatch
 
 from pysmFISH.logger_utils import json_logger
-from pysmFISH.configuration_files_tasks import load_experiment_config_file
+from pysmFISH.configuration_files import load_experiment_config_file
 
 
 class QC_registration_error():
