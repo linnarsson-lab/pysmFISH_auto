@@ -53,10 +53,10 @@ parsed_image_tag = 'img_data'
 # create_folder_structure(experiment_fpath)
 # # ----------------------------------------------------------------
 
-# ----------------------------------------------------------------
-# QC Experiment info file
-check_experiment_yaml_file(experiment_fpath)
-# ----------------------------------------------------------------
+# # ----------------------------------------------------------------
+# # QC Experiment info file
+# check_experiment_yaml_file(experiment_fpath)
+# # ----------------------------------------------------------------
 
 
 
@@ -91,54 +91,54 @@ logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 
-# ----------------------------------------------------------------
-# REPARSING THE MICROSCOPY DATA
-start = time.time()
-logger.info(f'start reparsing raw data')
-# Create empty zarr file for the parse data
-parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-                                    tag=parsed_image_tag)
+# # ----------------------------------------------------------------
+# # REPARSING THE MICROSCOPY DATA
+# start = time.time()
+# logger.info(f'start reparsing raw data')
+# # Create empty zarr file for the parse data
+# parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+#                                     tag=parsed_image_tag)
 
-# Reparse the data
-all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+# # Reparse the data
+# all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
 
-parsing_futures = client.map(nikon_nd2_reparser_zarr,
-                            all_raw_nd2,
-                            parsed_raw_data_fpath=parsed_raw_data_fpath,
-                            experiment_info=experiment_info)
+# parsing_futures = client.map(nikon_nd2_reparser_zarr,
+#                             all_raw_nd2,
+#                             parsed_raw_data_fpath=parsed_raw_data_fpath,
+#                             experiment_info=experiment_info)
 
-_ = client.gather(parsing_futures)
+# _ = client.gather(parsing_futures)
 
-logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
-
-
-# ----------------------------------------------------------------
-# IMAGE PREPROCESSING AND DOTS COUNTING
-start = time.time()
-logger.info(f'start preprocessing and dots counting')
-consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-# parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2/LBEXP20201207_EEL_HE_test2_img_data.zarr'
-# consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
-sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
+# logger.info(f'reparsing completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 
-# Staining has different processing fun
-all_futures = []
-for grp, grp_data in sorted_grps.items():
-    if grp in ['fish','beads']:
-        for el in grp_data[0]:
-            future = client.submit(single_fish_filter_count_standard_not_norm,
-                            el,
-                            parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['fish'][1])
-            all_futures.append(future)
-    # separate processing beads and fish separately
+# # ----------------------------------------------------------------
+# # IMAGE PREPROCESSING AND DOTS COUNTING
+# start = time.time()
+# logger.info(f'start preprocessing and dots counting')
+# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+parsed_raw_data_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test/JJEXP20201123_hGBM_Amine_test_img_data.zarr'
+consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
+# sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
-start = time.time()
-_ = client.gather(all_futures)
-logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
+
+# # Staining has different processing fun
+# all_futures = []
+# for grp, grp_data in sorted_grps.items():
+#     if grp in ['fish','beads']:
+#         for el in grp_data[0]:
+#             future = client.submit(single_fish_filter_count_standard_not_norm,
+#                             el,
+#                             parsed_raw_data_fpath = parsed_raw_data_fpath,
+#                             processing_parameters=sorted_grps['fish'][1])
+#             all_futures.append(future)
+#     # separate processing beads and fish separately
+
+# start = time.time()
+# _ = client.gather(all_futures)
+# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 
 # ----------------------------------------------------------------
