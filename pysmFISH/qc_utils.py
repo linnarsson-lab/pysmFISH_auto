@@ -46,7 +46,7 @@ class QC_registration_error():
             matching_rounds = fov_data_df.loc[(fov_data_df.fov_num == idx) &
                         (fov_data_df.min_number_matching_dots_registration == row),
                         ['fov_num','min_number_matching_dots_registration','round_num']]
-            self.error_output_df = pd.concat([error_output_df,matching_rounds.iloc[0]],axis=1)
+            self.error_output_df = pd.concat([self.error_output_df,matching_rounds.iloc[0]],axis=1)
         self.error_output_df = error_output_df.T
         # #     RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
         #     registration_error_df.columns = ["_".join(x) for x in registration_error_df.columns.ravel()]
