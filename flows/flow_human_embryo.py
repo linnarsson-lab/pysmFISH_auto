@@ -116,7 +116,7 @@ parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath
 # Parse the data
 all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
 
-parsing_futures = client.map(nikon_nd2_reparser_zarr,
+parsing_futures = client.map(nikon_nd2_autoparser_zarr,
                             all_raw_nd2,
                             parsed_raw_data_fpath=parsed_raw_data_fpath,
                             experiment_info=experiment_info)
