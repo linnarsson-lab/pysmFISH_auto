@@ -78,7 +78,7 @@ class QC_registration_error():
         width = self.img_width / scale_value
         height = self.img_height / scale_value
 
-
+        RegistrationMinMatchingBeads = self.analysis_parameters['RegistrationMinMatchingBeads']
         # create colormap for error in the registration
         errors_normalized = (min_errors -min(min_errors)) / (max(min_errors -min(min_errors)))
         threshold = (RegistrationMinMatchingBeads-min(min_errors)) / (max(min_errors -min(min_errors)))
