@@ -249,7 +249,7 @@ def create_dark_img(experiment_fpath,experiment_info):
         logger.debug(f'the dark image is already present')
     except:
         nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
-        nd2_blank = [el for el in nd2_list in 'Blank' in el.stem]
+        nd2_blank = [el for el in nd2_list if 'Blank' in el.stem]
         if nd2_blank:
             nd2fh = nd2reader.ND2Reader(nd2_blank[0])
             nd2fh.bundle_axes = 'zyx'
