@@ -249,21 +249,20 @@ def create_dark_img(experiment_fpath,experiment_info):
         logger.debug(f'the dark image is already present')
     except:
         nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
-        nd2_blanks = [el for el in nd2_list in 'Blank' in el.stem]
-        if nd2_blanks:
-            for nd2_fpath in nd2_blanks:
-                nd2fh = nd2reader.ND2Reader(nd2_fpath)
-                nd2fh.bundle_axes = 'zyx'
-                nd2fh.iter_axes = 'z'
-                # Image with single channel
-                channel = nd2fh.metadata['channels'][0]
-                # I can collect just one z because error of the reader
-                # that created both z and t planes
-                dark_img = np.median(nd2fh[0],axis=0)
-                dark_img = dark_img.astype(np.uint16)
-                fname = experiment_fpath / 'extra_processing_data' / (experiment_name + '_' + channel + '_' + machine + '_dark_img.npy')
-                np.save(fname, dark_img)
-                logger.debug(f'Created dark image')
+        nd2_blank = [el for el in nd2_list in 'Blank' in el.stem]
+        if nd2_blank:
+            nd2fh = nd2reader.ND2Reader(nd2_blank[0])
+            nd2fh.bundle_axes = 'zyx'
+            nd2fh.iter_axes = 'z'
+            # Image with single channel
+            channel = nd2fh.metadata['channels'][0]
+            # I can collect just one z because error of the reader
+            # that created both z and t planes
+            dark_img = np.median(nd2fh[0],axis=0)
+            dark_img = dark_img.astype(np.uint16)
+            fname = experiment_fpath / 'extra_processing_data' / (experiment_name + '_' + machine + '_dark_img.npy')
+            np.save(fname, dark_img)
+            logger.debug(f'Created dark image')
         else:
             logger.error(f'the Blank .nd2 for the dark image is missing')
 
