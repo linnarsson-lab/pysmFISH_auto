@@ -38,7 +38,7 @@ def nd2_raw_files_selector(experiment_fpath: str) -> list:
     logger = selected_logger()
 
     experiment_fpath = Path(experiment_fpath)
-    assert '_auto' in experiment_fpath.stem, sys.exit('no _auto in the experiment name')
+    # assert '_auto' in experiment_fpath.stem, sys.exit('no _auto in the experiment name')
 
     searching_key = '*Count*.nd2'
     all_files_to_process = list(experiment_fpath.glob(searching_key))
@@ -238,7 +238,6 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
         # Must copy the pkl file in order to be able to use the file for the other channels
         shutil.copy(str(info_file), str(new_file_path))
         
-
 
 
 
