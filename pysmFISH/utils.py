@@ -233,7 +233,15 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
         else:
             logger.debug(f'The experiment does not have large view images of fresh nuclei')
 
-
+        # move remaining .nd2 files
+        all_nd2 = list(experiment_fpath.glob('*.nd2'))
+        remaining = [el for el in all_nd2 in 'Count' not in el.stem]
+        if len(remaining):
+            for fremaining in remaining:
+                shutil.move(fremaining.as_posix(), (experiment_fpath / 'extra_files').as_posix())
+                logger.debug(f'moved {fremaining.stem} into extra_files')
+        else:
+            logger.debug(f'There are no extra files to be moved')
 
 def sorting_grps(grps, experiment_info, analysis_parameters):
     """
