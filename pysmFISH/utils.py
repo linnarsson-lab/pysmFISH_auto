@@ -229,7 +229,7 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
 
         # move remaining .nd2 files
         all_nd2 = list(experiment_fpath.glob('*.nd2'))
-        remaining = [el for el in all_nd2 in 'Count' not in el.stem]
+        remaining = [el for el in all_nd2 if 'Count' not in el.stem]
         if len(remaining):
             for fremaining in remaining:
                 shutil.move(fremaining.as_posix(), (experiment_fpath / 'extra_files').as_posix())
