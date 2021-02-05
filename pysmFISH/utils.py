@@ -261,7 +261,7 @@ def create_dark_img(experiment_fpath,experiment_info):
                 # that created both z and t planes
                 dark_img = np.median(nd2fh[0],axis=0)
                 dark_img = dark_img.astype(np.uint16)
-                fname = experiment_fpath / 'extra_processing_data' / (experiment_name + '_' + channel + '_' + machine + '_dark_img.npy'
+                fname = experiment_fpath / 'extra_processing_data' / (experiment_name + '_' + channel + '_' + machine + '_dark_img.npy')
                 np.save(fname, dark_img)
                 logger.debug(f'Created dark image')
         else:
