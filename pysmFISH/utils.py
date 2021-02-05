@@ -6,6 +6,7 @@ import sys
 import os
 import click
 import datetime
+import nd2reader
 import numpy as np
 from collections import OrderedDict
 from skimage import img_as_float64
@@ -120,48 +121,41 @@ def collect_processing_files(experiment_fpath:str, experiment_info:Dict):
     except NameError:
         machine = 'NOT_DEFINED'
 
-    dark_img_fpath = experiment_fpath.parent / 'dark_imgs' / (experiment_info['Machine'] + '_dark_img.npy')
+    # This step can be also be removed in case we won't use the processing env config 
+    processing_env_config_fpath = experiment_fpath.parent / 'config_db' / 'processing_env_config.yaml'
     try:
-        shutil.copy(dark_img_fpath, (experiment_fpath / 'extra_processing_data'))
+        shutil.copy(processing_env_config_fpath, (experiment_fpath / 'pipeline_config'))
     except FileNotFoundError:
-        logger.error('missing dark image')
-        sys.exit('missing dark image')
+        logger.error('missing pipeline env config file')
+        sys.exit('missing pipeline env config file')
     else:
-        # This step can be also be removed in case we won't use the processing env config 
-        processing_env_config_fpath = experiment_fpath.parent / 'config_db' / 'processing_env_config.yaml'
+        # This step will be modified when the rpobes will be stored in shoji
+        probes_fpath = experiment_fpath.parent / 'probes_sets' / (experiment_info['Probe_FASTA_name'])
         try:
-            shutil.copy(processing_env_config_fpath, (experiment_fpath / 'pipeline_config'))
+            shutil.copy(probes_fpath, (experiment_fpath / 'probes'))
         except FileNotFoundError:
-            logger.error('missing pipeline env config file')
-            sys.exit('missing pipeline env config file')
+            logger.error('missing probes set file')
+            sys.exit('missing probes set file')
         else:
-            # This step will be modified when the rpobes will be stored in shoji
-            probes_fpath = experiment_fpath.parent / 'probes_sets' / (experiment_info['Probe_FASTA_name'])
-            try:
-                shutil.copy(probes_fpath, (experiment_fpath / 'probes'))
-            except FileNotFoundError:
-                logger.error('missing probes set file')
-                sys.exit('missing probes set file')
-            else:
-                # This step will be modified when the codebook will be stored in shoji
-                if 'barcoded' in experiment_info['Experiment_type']:
-                    codebooks_folder = experiment_fpath.parent / 'codebooks'
-                    codebook_code = experiment_info['Codebook']
-                    
-                    codebook_fpath = codebooks_folder / codebook_code
-                    
-                    # Create codebook folder in the experiment folder
-                    try:
-                        os.stat(experiment_fpath / 'codebook' )
-                        logger.info(f'codebook folder already exist')
-                    except FileNotFoundError:
-                        os.mkdir(experiment_fpath / 'codebook')
-                        os.chmod(experiment_fpath / 'codebook',0o777)
-                    try:
-                        shutil.copy(codebook_fpath, (experiment_fpath / 'codebook'))
-                    except FileNotFoundError:
-                        logger.error('codebook is missing')
-                        sys.exit('codebook is missing')
+            # This step will be modified when the codebook will be stored in shoji
+            if 'barcoded' in experiment_info['Experiment_type']:
+                codebooks_folder = experiment_fpath.parent / 'codebooks'
+                codebook_code = experiment_info['Codebook']
+                
+                codebook_fpath = codebooks_folder / codebook_code
+                
+                # Create codebook folder in the experiment folder
+                try:
+                    os.stat(experiment_fpath / 'codebook' )
+                    logger.info(f'codebook folder already exist')
+                except FileNotFoundError:
+                    os.mkdir(experiment_fpath / 'codebook')
+                    os.chmod(experiment_fpath / 'codebook',0o777)
+                try:
+                    shutil.copy(codebook_fpath, (experiment_fpath / 'codebook'))
+                except FileNotFoundError:
+                    logger.error('codebook is missing')
+                    sys.exit('codebook is missing')
 
 
 def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
@@ -242,6 +236,37 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
                 logger.debug(f'moved {fremaining.stem} into extra_files')
         else:
             logger.debug(f'There are no extra files to be moved')
+
+
+
+def create_dark_img(experiment_fpath,experiment_info):
+    experiment_fpath = Path(experiment_fpath)
+    experiment_name = experiment_info['EXP_name']
+    machine = experiment_info['Machine']
+    # Check if the dark image is already present
+    try:
+        pres = list((experiment_fpath / 'extra_processing_data').glob('*_dark_img.npy'))[0]
+        logger.debug(f'the dark image is already present')
+    except:
+        nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
+        nd2_blanks = [el for el in nd2_list in 'Blank' in el.stem]
+        if nd2_blanks:
+            for nd2_fpath in nd2_blanks:
+                nd2fh = nd2reader.ND2Reader(nd2_fpath)
+                nd2fh.bundle_axes = 'zyx'
+                nd2fh.iter_axes = 'z'
+                # Image with single channel
+                channel = nd2fh.metadata['channels'][0]
+                # I can collect just one z because error of the reader
+                # that created both z and t planes
+                dark_img = np.median(nd2fh[0],axis=0)
+                dark_img = dark_img.astype(np.uint16)
+                fname = experiment_fpath / 'extra_processing_data' / (experiment_name + '_' + channel + '_' + machine + '_dark_img.npy'
+                np.save(fname, dark_img)
+                logger.debug(f'Created dark image')
+        else:
+            logger.error(f'the Blank .nd2 for the dark image is missing')
+
 
 def sorting_grps(grps, experiment_info, analysis_parameters):
     """
