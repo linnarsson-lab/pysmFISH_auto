@@ -45,8 +45,13 @@ pipeline_start = time.time()
 
 # ----------------------------------------------------------------
 # PARAMETERS DEFINITION
+# Experiment fpath will be loaded from the scanning function
 experiment_fpath = '/wsfish/smfish_ssd/LBEXP20210129_EEL_HE_3630um'
 # experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
+
+raw_data_folder_storage_path = '/fish/rawdata'
+results_data_folder_storage_path = '/fish/results'
+
 
 raw_files_fpath = experiment_fpath + '/raw_data'
 parsed_image_tag = 'img_data'
@@ -135,13 +140,21 @@ sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameter
 # Staining has different processing fun
 all_futures = []
 for grp, grp_data in sorted_grps.items():
-    if grp in ['fish','beads']:
+    if grp  == 'fish':
         for el in grp_data[0]:
             future = client.submit(single_fish_filter_count_standard_not_norm,
                             el,
                             parsed_raw_data_fpath = parsed_raw_data_fpath,
                             processing_parameters=sorted_grps['fish'][1])
             all_futures.append(future)
+    elif grp == 'beads':
+        for el in grp_data[0]:
+            future = client.submit(single_fish_filter_count_standard_not_norm,
+                            el,
+                            parsed_raw_data_fpath = parsed_raw_data_fpath,
+                            processing_parameters=sorted_grps['beads'][1])
+            all_futures.append(future)
+
     # separate processing beads and fish separately
 
 start = time.time()
@@ -154,12 +167,11 @@ logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/
 # REGISTRATION AND BARCODE PROCESSING
 start = time.time()
 logger.info(f'start registration and barcode processing')
-registration_channel = 'Europium' # must be corrected in the config file
+registration_channel = experiment_info['StitchingChannel'] # must be corrected in the config file
 key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
 fovs = consolidated_grp[key].attrs['fields_of_view']
 codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
 all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs,save=True)
-
 
 all_futures = client.map(registration_barcode_detection_basic, all_grps,
                         analysis_parameters = analysis_parameters,
