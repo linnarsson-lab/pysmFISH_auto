@@ -240,13 +240,13 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
 
 
 def create_dark_img(experiment_fpath,experiment_info):
+    logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     experiment_name = experiment_info['EXP_name']
     machine = experiment_info['Machine']
     # Check if the dark image is already present
     try:
         pres = list((experiment_fpath / 'extra_processing_data').glob('*_dark_img.npy'))[0]
-        logger.debug(f'the dark image is already present')
     except:
         nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
         nd2_blank = [el for el in nd2_list if 'Blank' in el.stem]
@@ -265,6 +265,8 @@ def create_dark_img(experiment_fpath,experiment_info):
             logger.debug(f'Created dark image')
         else:
             logger.error(f'the Blank .nd2 for the dark image is missing')
+    else:
+        logger.debug(f'the dark image is already present')
 
 
 def sorting_grps(grps, experiment_info, analysis_parameters):
