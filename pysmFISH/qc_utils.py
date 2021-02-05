@@ -160,9 +160,9 @@ def check_experiment_yaml_file(experiment_fpath:str):
 
         if 'Barcode' not in experiment_info_keys:
             logger.error(f'Barcode keyword in the experiment file')
-        elif type(experiment_info['Barcode']) != bool:
-            logger.error(f'Value corresponding to Barcode keyword must be bool ')
-            sys.exit(f'Value corresponding to Barcode keyword must be bool ')
+        elif type(experiment_info['Barcode']) not in ['True', 'False']:
+            logger.error(f'Value corresponding to Barcode keyword must be True or False ')
+            sys.exit(f'Value corresponding to Barcode keyword must be True or False ')
         
         if type(experiment_info['Barcode']):
             if 'Barcode_length' not in experiment_info_keys:
