@@ -114,31 +114,31 @@ logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 
 
 # # ----------------------------------------------------------------
-# IMAGE PREPROCESSING AND DOTS COUNTING
-start = time.time()
-logger.info(f'start preprocessing and dots counting')
-# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+# # IMAGE PREPROCESSING AND DOTS COUNTING
+# start = time.time()
+# logger.info(f'start preprocessing and dots counting')
+# # consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
 parsed_raw_data_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test/JJEXP20201123_hGBM_Amine_test_img_data.zarr'
 consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
-sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
+# sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 
-# Staining has different processing fun
-all_futures = []
-for grp, grp_data in sorted_grps.items():
-    if grp in ['fish','beads']:
-        for el in grp_data[0]:
-            future = client.submit(single_fish_filter_count_standard,
-                            el,
-                            parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['fish'][1])
-            all_futures.append(future)
-    # separate processing beads and fish separately
+# # Staining has different processing fun
+# all_futures = []
+# for grp, grp_data in sorted_grps.items():
+#     if grp in ['fish','beads']:
+#         for el in grp_data[0]:
+#             future = client.submit(single_fish_filter_count_standard,
+#                             el,
+#                             parsed_raw_data_fpath = parsed_raw_data_fpath,
+#                             processing_parameters=sorted_grps['fish'][1])
+#             all_futures.append(future)
+#     # separate processing beads and fish separately
 
-start = time.time()
-_ = client.gather(all_futures)
-logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
+# start = time.time()
+# _ = client.gather(all_futures)
+# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 
 # ----------------------------------------------------------------
