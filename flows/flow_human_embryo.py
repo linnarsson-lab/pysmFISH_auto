@@ -131,9 +131,9 @@ logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 # IMAGE PREPROCESSING AND DOTS COUNTING
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
-consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-# parsed_raw_data_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test/JJEXP20201123_hGBM_Amine_test_img_data.zarr'
-# consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
+# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20210129_EEL_HE_3630um/LBEXP20210129_EEL_HE_3630um_img_data.zarr'
+consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 
