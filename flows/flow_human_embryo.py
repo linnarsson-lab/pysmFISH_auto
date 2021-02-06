@@ -156,7 +156,6 @@ for grp, grp_data in sorted_grps.items():
             all_futures.append(future)
 
     # separate processing beads and fish separately
-all_futures = [el for x in all_futures for el in x]
 start = time.time()
 _ = client.gather(all_futures)
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
