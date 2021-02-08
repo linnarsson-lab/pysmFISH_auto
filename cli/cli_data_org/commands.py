@@ -2,7 +2,7 @@ import click
 import time
 from pathlib import Path
 
-from flows.data_organization import experiment_transfer_to_processing_hd
+from pysmFISH.data_organization import experiment_transfer_to_processing_hd
 
 from pysmFISH.logger_utils import selected_logger
 
