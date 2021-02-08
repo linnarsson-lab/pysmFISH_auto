@@ -163,43 +163,43 @@ logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/
 # ----------------------------------------------------------------
 
 
-# ----------------------------------------------------------------
-# REGISTRATION AND BARCODE PROCESSING
-start = time.time()
-logger.info(f'start registration and barcode processing')
-registration_channel = experiment_info['StitchingChannel'] # must be corrected in the config file
-key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-fovs = consolidated_grp[key].attrs['fields_of_view']
-codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
-all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs,save=True)
+# # ----------------------------------------------------------------
+# # REGISTRATION AND BARCODE PROCESSING
+# start = time.time()
+# logger.info(f'start registration and barcode processing')
+# registration_channel = experiment_info['StitchingChannel'] # must be corrected in the config file
+# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+# fovs = consolidated_grp[key].attrs['fields_of_view']
+# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
+# all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs,save=True)
 
-all_futures = client.map(registration_barcode_detection_basic, all_grps,
-                        analysis_parameters = analysis_parameters,
-                        experiment_info = experiment_info,
-                        experiment_fpath = experiment_fpath,
-                        codebook = codebook)
-_ = client.gather(all_futures)
+# all_futures = client.map(registration_barcode_detection_basic, all_grps,
+#                         analysis_parameters = analysis_parameters,
+#                         experiment_info = experiment_info,
+#                         experiment_fpath = experiment_fpath,
+#                         codebook = codebook)
+# _ = client.gather(all_futures)
 
-logger.info(f'registration and barcode processing completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
+# logger.info(f'registration and barcode processing completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
-# ----------------------------------------------------------------
-# STITCHING
-start = time.time()
-logger.info(f'start stitching using microscope coords')
-round_num = analysis_parameters['RegistrationReferenceHybridization']
-tiles_org = organize_square_tiles(experiment_fpath,experiment_info,consolidated_grp,round_num)
-tiles_org.run_tiles_organization()
+# # ----------------------------------------------------------------
+# # STITCHING
+# start = time.time()
+# logger.info(f'start stitching using microscope coords')
+# round_num = analysis_parameters['RegistrationReferenceHybridization']
+# tiles_org = organize_square_tiles(experiment_fpath,experiment_info,consolidated_grp,round_num)
+# tiles_org.run_tiles_organization()
 
-decoded_files = list((Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*_decoded_*'))
+# decoded_files = list((Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*_decoded_*'))
 
-all_futures = client.map(stitch_using_microscope_fov_coords,decoded_files,
-                        tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl)       
+# all_futures = client.map(stitch_using_microscope_fov_coords,decoded_files,
+#                         tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl)       
 
-_ = client.gather(all_futures)  
+# _ = client.gather(all_futures)  
 
-logger.info(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
+# logger.info(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 # # ----------------------------------------------------------------
 # # QC REGISTRATION ERROR
