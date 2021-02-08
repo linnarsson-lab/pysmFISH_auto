@@ -200,19 +200,19 @@ _ = client.gather(all_futures)
 logger.info(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
-# # ----------------------------------------------------------------
-# # QC REGISTRATION ERROR
-# start = time.time()
-# logger.info(f'plot registration error')
+# ----------------------------------------------------------------
+# QC REGISTRATION ERROR
+start = time.time()
+logger.info(f'plot registration error')
 
-# registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
-#                                             tiles_org.tile_corners_coords_pxl, 
-#                                             tiles_org.img_width, tiles_org.img_height)
+registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
+                                            tiles_org.tile_corners_coords_pxl, 
+                                            tiles_org.img_width, tiles_org.img_height)
 
-# registration_error.run_qc()
+registration_error.run_qc()
 
-# logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
 
 
 logger.info(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')

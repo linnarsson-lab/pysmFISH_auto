@@ -50,6 +50,7 @@ class QC_registration_error():
         self.error_output_df = self.error_output_df.T
         # #     RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
         #     registration_error_df.columns = ["_".join(x) for x in registration_error_df.columns.ravel()]
+        self.error_output_df.to_parquet(self.experiment_fpath / 'tmp' / 'registration_error.parquet')
 
     def plot_error(self):
     
