@@ -211,49 +211,6 @@ class organize_square_tiles():
 
             if self.experiment_info['Machine'] == 'ROBOFISH2':
                 # If tile coords are top left
-                # for cpl in only_new_cpls:
-
-                #     tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
-                #     tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
-                #     tile1_c_coords = self.tile_corners_coords_pxl[cpl[0]][1]
-                #     tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
-
-                #     if tile1_r_coords > tile2_r_coords:
-                #         r_tl = tile1_r_coords
-                #         r_br = tile2_r_coords + self.img_size
-
-                #         r_bl = tile2_c_coords + self.img_size
-                #         r_tr = tile1_c_coords
-
-                #         row_order = ('bottom','top')
-
-                #     else:
-                #         r_tl = tile2_r_coords
-                #         r_br = tile1_r_coords + self.img_size
-
-                #         r_bl = tile1_r_coords + self.img_size
-                #         r_tr = tile2_r_coords
-
-                #         row_order = ('top','bottom')
-
-                #     if tile1_c_coords > tile2_c_coords:
-                #         c_tl = tile1_c_coords
-                #         c_br = tile2_c_coords + self.img_size
-
-                #         c_tr = tile2_c_coords + self.img_size
-                #         c_bl = tile1_c_coords
-
-                #         col_order = ('right','left')
-
-                #     else:
-                #         c_tl = tile2_c_coords
-                #         c_br = tile1_c_coords + self.img_size
-
-                #         c_bl = tile2_c_coords
-                #         c_tr = tile1_c_coords + self.img_size
-
-                #         col_order = ('left','right')
-
                 for cpl in only_new_cpls:
 
                     tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
@@ -262,40 +219,42 @@ class organize_square_tiles():
                     tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
 
                     if tile1_r_coords > tile2_r_coords:
-                        r_tl = tile1_r_coords - self.img_size
-                        r_br = tile2_r_coords
+                        r_tl = tile1_r_coords
+                        r_br = tile2_r_coords + self.img_size
 
-                        r_bl = tile2_c_coords
-                        r_tr = tile1_c_coords - self.img_size
+                        r_bl = tile2_c_coords + self.img_size
+                        r_tr = tile1_c_coords
 
                         row_order = ('bottom','top')
 
                     else:
-                        r_tl = tile2_r_coords - self.img_size
-                        r_br = tile1_r_coords 
+                        r_tl = tile2_r_coords
+                        r_br = tile1_r_coords + self.img_size
 
-                        r_bl = tile1_r_coords 
-                        r_tr = tile2_r_coords - self.img_size
+                        r_bl = tile1_r_coords + self.img_size
+                        r_tr = tile2_r_coords
 
                         row_order = ('top','bottom')
 
                     if tile1_c_coords > tile2_c_coords:
-                        c_tl = tile1_c_coords - self.img_size
-                        c_br = tile2_c_coords 
+                        c_tl = tile1_c_coords
+                        c_br = tile2_c_coords + self.img_size
 
-                        c_tr = tile2_c_coords
-                        c_bl = tile1_c_coords - self.img_size
+                        c_tr = tile2_c_coords + self.img_size
+                        c_bl = tile1_c_coords
 
                         col_order = ('right','left')
 
                     else:
-                        c_tl = tile2_c_coords - self.img_size
-                        c_br = tile1_c_coords 
+                        c_tl = tile2_c_coords
+                        c_br = tile1_c_coords + self.img_size
 
-                        c_bl = tile2_c_coords - self.img_size
-                        c_tr = tile1_c_coords 
+                        c_bl = tile2_c_coords
+                        c_tr = tile1_c_coords + self.img_size
 
                         col_order = ('left','right')
+
+                
 
             elif self.experiment_info['Machine'] == 'ROBOFISH1':
                 # If tile coords are bottom right
@@ -367,6 +326,9 @@ def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl)
         decoded_df['r_px_microscope_stitched'] = np.nan
         decoded_df['c_px_microscope_stitched'] = np.nan
     else:
+        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
+        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
+
         decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
         decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
     
