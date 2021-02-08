@@ -140,7 +140,8 @@ sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameter
 # Staining has different processing fun
 all_futures = []
 for grp, grp_data in sorted_grps.items():
-    # if grp  == 'fish':
+    if grp  == 'fish':
+        pass
     #     for el in grp_data[0]:
     #         future = client.submit(single_fish_filter_count_standard_not_norm,
     #                         el,
