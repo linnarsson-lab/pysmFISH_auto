@@ -230,7 +230,8 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                         all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                         break
                     else:
-                        round_num = tran_counts['round_num'][0]
+                        round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
+                        # round_num = tran_counts['round_num'][0]
                         tran_counts_df = pd.DataFrame(tran_counts)
                         tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
                         if np.any(np.isnan(tran_coords)):
