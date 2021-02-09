@@ -105,26 +105,26 @@ logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 
-# ----------------------------------------------------------------
-# REPARSE THE MICROSCOPY DATA
-start = time.time()
-logger.info(f'start reparsing raw data')
-# Create empty zarr file for the parse data
-parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-                                    tag=parsed_image_tag)
+# # ----------------------------------------------------------------
+# # REPARSE THE MICROSCOPY DATA
+# start = time.time()
+# logger.info(f'start reparsing raw data')
+# # Create empty zarr file for the parse data
+# parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+#                                     tag=parsed_image_tag)
 
-# Reparse the data
-all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+# # Reparse the data
+# all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
 
-parsing_futures = client.map(nikon_nd2_reparser_zarr,
-                            all_raw_nd2,
-                            parsed_raw_data_fpath=parsed_raw_data_fpath,
-                            experiment_info=experiment_info)
+# parsing_futures = client.map(nikon_nd2_reparser_zarr,
+#                             all_raw_nd2,
+#                             parsed_raw_data_fpath=parsed_raw_data_fpath,
+#                             experiment_info=experiment_info)
 
-_ = client.gather(parsing_futures)
+# _ = client.gather(parsing_futures)
 
-logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
+# logger.info(f'reparsing completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 
 # ----------------------------------------------------------------
@@ -141,13 +141,12 @@ sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameter
 all_futures = []
 for grp, grp_data in sorted_grps.items():
     if grp  == 'fish':
-        pass
-    #     for el in grp_data[0]:
-    #         future = client.submit(single_fish_filter_count_standard_not_norm,
-    #                         el,
-    #                         parsed_raw_data_fpath = parsed_raw_data_fpath,
-    #                         processing_parameters=sorted_grps['fish'][1])
-    #         all_futures.append(future)
+        for el in grp_data[0]:
+            future = client.submit(single_fish_filter_count_standard_not_norm,
+                            el,
+                            parsed_raw_data_fpath = parsed_raw_data_fpath,
+                            processing_parameters=sorted_grps['fish'][1])
+            all_futures.append(future)
     elif grp == 'beads':
         for el in grp_data[0]:
             future = client.submit(single_fish_filter_count_standard_not_norm,
