@@ -232,7 +232,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                     else:
                         tran_counts_df = pd.DataFrame(tran_counts)
                         tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
-                        if np.any(np.isnan(tran_coords)) or tran_coords.shape(0)<registration_tollerance_pxl:
+                        if np.any(np.isnan(tran_coords)) or tran_coords.shape[0]<registration_tollerance_pxl:
                             round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                             # If dots are missing, reset the df
                             output_registration_df = data_models.output_registration_df
