@@ -189,7 +189,7 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
             all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
         else:
             # Check if there are dots detected in the reference round
-            if np.any(np.isnan(ref_counts['r_px_original'])):
+            if np.any(np.isnan(ref_counts['r_px_original'])) or (ref_counts['r_px_original'].shape[0]<registration_tollerance_pxl):
                 logger.error(f'There are no dots in there reference hyb for fov {fov} ')
                 output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_reg_channel,
                                             'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
