@@ -230,22 +230,22 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
                         all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
                         break
                     else:
-                        round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
-                        # round_num = tran_counts['round_num'][0]
                         tran_counts_df = pd.DataFrame(tran_counts)
                         tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
-                        if np.any(np.isnan(tran_coords)):
-
+                        if np.any(np.isnan(tran_coords)) or tran_coords.shape(0)<registration_tollerance_pxl:
+                            round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                             # If dots are missing, reset the df
                             output_registration_df = data_models.output_registration_df
                             output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_reg_channel,
                                             'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
                             status = 'FAILED'
                             all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+                            logger.error(f' {fpath.stem} file for fov {fov} has no counts')
                             break
                         else:
-                            ref_img_metadata['reference_hyb'] = str(reference_hybridization)
                             
+                            round_num = tran_counts['round_num'][0]
+                            ref_img_metadata['reference_hyb'] = str(reference_hybridization)
                             img_tran = create_fake_image(img_shape,tran_coords)
                             shift, error, diffphase = register_translation(img_ref, img_tran)
                             all_rounds_shifts[round_num] = shift
