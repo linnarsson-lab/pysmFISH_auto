@@ -300,3 +300,99 @@ def osmFISH_peak_based_detection(img_meta:tuple,
         logger.info(f' fov {fov} does not have counts (thr)')
     
     return (counts_dict, img_metadata)
+
+
+
+def osmFISH_barcoded_peak_based_detection_masked_thr(img_meta:tuple,
+                masked_img:np.ndarray,
+                min_distance: np.float64,
+                min_obj_size: np.uint16,
+                max_obj_size: np.uint16,
+                num_peaks_per_label: np.uint16):
+
+    # Need to add all the cases with no counts
+    """
+    This class apply the same strategy used for dots calling in osmFISH
+    on files that are structured for barcoded analysis using a masked image
+    for the selection of the thr
+
+    Attributes:
+    -----------
+    fov_name: str
+        name of the fov that is processed ex. fov_1
+    img_stack: np.ndarray
+        image stack containing in which each layer 
+        correspond to a round
+    parameters_dic:
+        dict with the parameters used for the counting
+
+    """
+
+    logger = selected_logger()
+
+    img = img_meta[0]
+    img_metadata = img_meta[1]
+    fov = img_metadata['fov_num']
+    hybridization = img_metadata['hybridization_num']
+    target_name = img_metadata['target_name']
+    
+    logger.info(f'logging osmFISH_peak_based_detection fov {fov}')
+    hybridization_num = img_metadata['hybridization_num']
+
+    counting_parameters_dict = {
+                            'min_distance': min_distance,
+                            'min_obj_size': min_obj_size,
+                            'max_obj_size': max_obj_size,
+                            'num_peaks_per_label': num_peaks_per_label,
+                                }
+
+    fill_value = np.nan
+        
+
+    counts = osmFISH_dots_thr_selection(masked_img,counting_parameters_dict)
+    counts.counting_graph()
+    counts.thr_identification()
+
+    data_models = Output_models()
+    counts_dict = data_models.dots_counts_dict
+
+    # Initialise an empty version of the counts dict
+    counts_dict['r_px_original'] = np.array([fill_value])
+    counts_dict['c_px_original'] = np.array([fill_value])
+    counts_dict['dot_id'] = np.array([fill_value])
+    counts_dict['fov_num'] = np.array(fov)
+    counts_dict['round_num'] = np.array([img_metadata['hybridization_num']])
+    counts_dict['dot_intensity'] = np.array([fill_value])
+    counts_dict['selected_thr'] = np.array([fill_value])
+    counts_dict['dot_channel'] = np.array([img_metadata['channel']])
+    counts_dict['target_name'] = np.array([img_metadata['target_name']])
+                    
+    if not np.isnan(counts.selected_thr):
+            dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
+            if isinstance(dots.selected_peaks,np.ndarray):
+                # Peaks have been identified
+                total_dots = dots.selected_peaks.shape[0]
+                dot_id_array = np.array([str(fov)+'_'+str(hybridization_num)+'_'+ img_metadata['channel'] +'_'+str(nid) for nid in range(total_dots)])
+                fov_array = np.repeat(fov,total_dots)
+                thr_array = np.repeat(counts.selected_thr,total_dots)
+                channel_array = np.repeat(img_metadata['channel'],total_dots)
+                hybridization_num_array = np.repeat(img_metadata['hybridization_num'],total_dots)
+                target_name_array = np.repeat(img_metadata['target_name'],total_dots)
+
+                counts_dict['r_px_original']  = dots.selected_peaks[:,0]
+                counts_dict['c_px_original'] = dots.selected_peaks[:,1]
+                counts_dict['dot_id'] = dot_id_array
+                counts_dict['fov_num'] = fov_array
+                counts_dict['round_num'] = hybridization_num_array
+                counts_dict['dot_intensity'] = dots.intensity_array
+                counts_dict['selected_thr'] = thr_array
+                counts_dict['dot_channel'] = channel_array
+                counts_dict['target_name'] = target_name_array
+            else:
+                logger.info(f' fov {fov} does not have counts (mapping)')
+                
+    else:
+        logger.info(f' fov {fov} does not have counts (thr)')
+    
+    return (counts_dict, img_metadata)
+
