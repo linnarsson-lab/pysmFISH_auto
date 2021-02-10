@@ -125,8 +125,8 @@ def single_fish_filter_count_standard(
             img_std_z = img_std_z[:,np.newaxis,np.newaxis]
             img_nn= (img - img_mean_z)/ img_std_z
             img_nn = img_nn.max(axis=0)
-            img_nn[img_nn<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
-
+            img_nn[img_nn<=0] = 0 # All negative values set to zero
+            img_nn = np.abs(img_nn) # to avoid -0.0 issues
 
             fish_counts = osmFISH_peak_based_detection((img_nn, img_metadata),
                                                     min_distance,
@@ -206,6 +206,7 @@ def single_fish_filter_count_standard_not_norm(
             img = nd.gaussian_laplace(img,LaplacianKernel)
             img = -img # the peaks are negative so invert the signal
             img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
+            img = np.abs(img) # to avoid -0.0 issues
 
             img = img.max(axis=0)
 
@@ -292,7 +293,8 @@ def single_fish_filter_count_avoid_large_obj(
             img = nd.gaussian_laplace(img,LaplacianKernel)
             img = -img # the peaks are negative so invert the signal
             img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
-
+            img = np.abs(img) # to avoid -0.0 issues
+            
             img = img.max(axis=0)
 
 
@@ -455,12 +457,14 @@ def both_beads_filt_count_mask(
         
             img = convert_from_uint16_to_float64(img)
             img -= dark_img
-            img = np.amax(img, axis=0)
             background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
             img /= background
             img -= background
             img = nd.gaussian_laplace(img,LaplacianKernel)
             img = -img
+            img[img<=0] = 0
+            img = np.abs(img) # to avoid -0.0 issues
+            img = np.amax(img, axis=0)
             
             mask = np.zeros_like(img)
             idx=  img > np.percentile(img,LargeObjRemovalPercentile)
