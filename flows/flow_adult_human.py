@@ -152,7 +152,7 @@ for grp, grp_data in sorted_grps.items():
     elif grp == 'beads':
         if experiment_info['Stitching_type']== 'large-beads':
             for el in grp_data[0]:
-                future = client.submit(single_fish_filter_count_standard_not_norm,
+                future = client.submit(filtering_counting_large_beads,
                                 el,
                                 parsed_raw_data_fpath = parsed_raw_data_fpath,
                                 processing_parameters=sorted_grps['beads'][1])
