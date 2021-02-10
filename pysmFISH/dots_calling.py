@@ -197,7 +197,7 @@ class osmFISH_dots_mapping():
         properties = measure.regionprops(labels,intensity_image=self.img)
 
         self.selected_peaks = feature.peak_local_max(self.img, min_distance=self.min_distance, 
-                                threshold_abs=self.thr, exclude_border=False, indices=True, num_peaks=np.inf, 
+                                threshold_abs=self.thr, exclude_border=False, indices=True, 
                                 footprint=None, labels=labels,num_peaks_per_label=self.num_peaks_per_label)                            
         
         if self.selected_peaks.size:
