@@ -118,6 +118,7 @@ def single_fish_filter_count_standard(
             img = nd.gaussian_laplace(img,LaplacianKernel)
             img = -img # the peaks are negative so invert the signal
             img[img<0] = 0 # All negative values set to zero 
+            img = np.abs(img) # to avoid -0.0 issues
 
             img_mean_z = img.mean(axis=(1,2))
             img_mean_z = img_mean_z[:,np.newaxis,np.newaxis]
@@ -126,7 +127,7 @@ def single_fish_filter_count_standard(
             img_nn= (img - img_mean_z)/ img_std_z
             img_nn = img_nn.max(axis=0)
             img_nn[img_nn<=0] = 0 # All negative values set to zero
-            img_nn = np.abs(img_nn) # to avoid -0.0 issues
+
 
             fish_counts = osmFISH_peak_based_detection((img_nn, img_metadata),
                                                     min_distance,
@@ -353,6 +354,7 @@ def filtering_counting_large_beads(zarr_grp_name,
 
     img -= dark_img
     img[img<0] = 0
+    img = np.abs(img) # to avoid -0.0 issues
 
     img = img.max(axis=0)
 
