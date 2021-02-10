@@ -34,6 +34,7 @@ from flow_steps.create_processing_cluster import create_processing_cluster
 from flow_steps.filtering_counting import single_fish_filter_count_standard
 from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm
 from flow_steps.filtering_counting import single_fish_filter_count_avoid_large_obj
+from flow_steps.filtering_counting import filtering_counting_large_beads
 from flow_steps.registration_barcode_processing import registration_barcode_detection_basic
 
 from pysmFISH.stitching import organize_square_tiles
@@ -149,12 +150,13 @@ for grp, grp_data in sorted_grps.items():
                             processing_parameters=sorted_grps['fish'][1])
             all_futures.append(future)
     elif grp == 'beads':
-        for el in grp_data[0]:
-            future = client.submit(single_fish_filter_count_standard_not_norm,
-                            el,
-                            parsed_raw_data_fpath = parsed_raw_data_fpath,
-                            processing_parameters=sorted_grps['beads'][1])
-            all_futures.append(future)
+        if experiment_info['Stitching_type']== 'large-beads':
+            for el in grp_data[0]:
+                future = client.submit(single_fish_filter_count_standard_not_norm,
+                                el,
+                                parsed_raw_data_fpath = parsed_raw_data_fpath,
+                                processing_parameters=sorted_grps['beads'][1])
+                all_futures.append(future)
 
     # separate processing beads and fish separately
 start = time.time()
