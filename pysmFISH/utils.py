@@ -11,6 +11,7 @@ import numpy as np
 from collections import OrderedDict
 from skimage import img_as_float64
 from pathlib import Path
+from scipy.ndimage import fourier_shift
 
 from pysmFISH.logger_utils import selected_logger
 
@@ -347,11 +348,38 @@ def create_dir(dir_path):
 
 
 
+def register_images(img, shift):
+        offset_image = fourier_shift(np.fft.fftn(img), shift)
+        offset_image = np.fft.ifftn(offset_image).real
+        return offset_image
 
 
+def combine_rounds_images(images_path_list,experiment_fpath, experiment_info,all_rounds_shifts, save=True):
+    experiment_fpath = Path(experiment_fpath)
+    
+    rounds_num = experiment_info['Barcode_length']
+    fov = images_path_list[0].stem.split('_')[-2]
+    channel = images_path_list[0].stem.split('_')[-4]
+    experiment_name = experiment_info['EXP_name']
 
+    img, meta = pickle.load(open(images_path_list[0],'rb'))
+    img_stack = np.zeros([rounds_num,img.shape[0],img.shape[1]])
 
+    for fpath in images_path_list:
+        fname = fpath.stem
+        round_num = int(fname.split('_')[-5].split('Hybridization')[-1])
+        img, meta = pickle.load(open(fpath,'rb'))
+        img[img<0] = 0
+        shift = all_rounds_shifts[round_num]
+        shifted_img = register_images(img,shift)
+        img_stack[round_num-1,:,:] = shifted_img
 
+    fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_combined_img_fov_' + fov + '.npy')
+    
+    if save:
+        # Add conversion to more compress ftype
+        np.save(fpath, img_stack)
+    return img_stack
 
 
 

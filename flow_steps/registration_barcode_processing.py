@@ -2,13 +2,20 @@ from pathlib import Path
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov
 from pysmFISH.fovs_registration import register_fish
 from pysmFISH.barcodes_analysis import extract_barcodes_NN
-from pysmFISH.stitching import stitch_using_microscope_fov_coords
+from pysmFISH.barcodes_analysis import extract_dots_images
+from pysmFISH.barcodes_analysis import define_flip_direction
+
+from pysmFISH.utils import combine_rounds_images
+
+
 
 def registration_barcode_detection_basic(processing_grps,
                                         analysis_parameters,
                                         experiment_info,
                                         experiment_fpath,
-                                        codebook):
+                                        codebook,
+                                        selected_genes,
+                                        correct_hamming_distance):
 
     # Register fov using the registration channel
     registered_counts_df, all_rounds_shifts, file_tags, status = calculate_shift_hybridization_fov(processing_grps[0],analysis_parameters,
@@ -31,7 +38,17 @@ def registration_barcode_detection_basic(processing_grps,
 
     # Create combined images
     # Remember to consider the status input in order to create dictionary
+    if process_barcodes.status == 'SUCCESS':
+        channels = np.unique(process_barcodes.barcoded_fov_df['dot_channel'])
+        split_groups_by_channel = []
+        for channel in channels:
+            grp = [el for el in processing_grps[1] if channel in el.stem]
+            img_stack = combine_rounds_images(grp,experiment_fpath, 
+                        experiment_info,all_rounds_shifts, save=True)
 
+    # Isolate the dots_subimages
+    all_regions = extract_dots_images(process_barcodes.barcoded_fov_df,
+                                    img_stack,experiment_fpath,save=True)
 
-
-    # Isolate the dots_subimage
+    # Define flip position and direction
+    define_flip_direction(experiment_fpath,output_df, selected_genes, correct_hamming_distance,save=True)

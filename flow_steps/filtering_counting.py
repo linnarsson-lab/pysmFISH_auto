@@ -124,7 +124,7 @@ def single_fish_filter_count_standard(
             img_std_z = img_std_z[:,np.newaxis,np.newaxis]
             img_nn= (img - img_mean_z)/ img_std_z
             img_nn = img_nn.max(axis=0)
-            img_nn[img_nn<0] = 0
+            img_nn[img_nn<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
 
 
             fish_counts = osmFISH_peak_based_detection((img_nn, img_metadata),
@@ -204,7 +204,7 @@ def single_fish_filter_count_standard_not_norm(
             img /= background
             img = nd.gaussian_laplace(img,LaplacianKernel)
             img = -img # the peaks are negative so invert the signal
-            img[img<0] = 0 # All negative values set to zero 
+            img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
 
             img = img.max(axis=0)
 

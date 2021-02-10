@@ -10,6 +10,7 @@ from pysmFISH.data_models import Output_models
 from pysmFISH.errors import Registration_errors
 
 
+
 class convert_xlsx_barcode():
     """
     Class use to conver handy .xlsx with barcodes.
@@ -238,7 +239,89 @@ class extract_barcodes_NN():
         fname = self.file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (self.file_tags['experiment_name'] + '_' + self.file_tags['channel'] + '_decoded_fov_' + self.file_tags['fov'] + '.parquet')
         self.barcoded_fov_df.to_parquet(fname,index=False)
    
-   
+
+
+
+
+
+
+def dots_hoods(coords,pxl):
+    r_tl = coords[:,0]-pxl
+    r_br = coords[:,0]+pxl
+    c_tl = coords[:,1]-pxl
+    c_tr = coords[:,1]+pxl
+    r_tl = r_tl[:,np.newaxis]
+    r_br = r_br[:,np.newaxis]
+    c_tl = c_tl[:,np.newaxis]
+    c_tr = c_tr[:,np.newaxis]
+    chunks_coords = np.hstack((r_tl,r_br,c_tl,c_tr))
+    chunks_coords = chunks_coords.astype(int)
+    return chunks_coords
+
+
+def extract_dots_images(barcoded_df,img_stack,experiment_fpath, save=True):
+    experiment_fpath = Path(experiment_fpath)
+    fov = barcoded_df.fov_num.values[0]
+    experiment_name = barcoded_df.experiment_name.values[0]
+    channel = barcoded_df.dot_channel.values[0]
+    
+    trimmed_df = barcoded_df.loc[barcoded_df.dot_id == barcoded_df.barcode_reference_dot_id ,
+                               ['barcode_reference_dot_id', 'r_px_registered', 'c_px_registered','barcodes_extraction_resolution']]
+
+    barcodes_names = trimmed_df['barcode_reference_dot_id'].values
+    coords = trimmed_df.loc[:, ['r_px_registered', 'c_px_registered']].to_numpy()
+    barcodes_extraction_resolution = trimmed_df['barcodes_extraction_resolution'].values[0]
+
+    chunks_coords = dots_hoods(coords,barcodes_extraction_resolution)
+    chunks_coords[chunks_coords<0]=0
+    chunks_coords[chunks_coords>img_stack.shape[0]]= img_stack.shape[0]
+    
+    all_regions = {}
+    for idx in np.arange(chunks_coords.shape[0]):
+        selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
+        max_array = selected_region.max(axis=(1,2))
+        all_regions[barcodes_names[idx]]={'image_region':selected_region,
+                                         'max_array':max_array}
+    if save:
+        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_dots_img_dict_fov_' + str(fov) + '.pkl')
+        pickle.dump(all_regions,open(fpath,'wb'))
+    return all_regions
+
+
+
+
+def identify_flipped_bits(codebook, gene,raw_barcode):
+    gene_barcode_str =codebook.loc[codebook.Gene == gene, 'Code'].values[0]
+    gene_barcode = np.frombuffer(gene_barcode_str, np.int8)
+    raw_barcode = np.frombuffer(raw_barcode, np.int8)
+    flipped_positions = np.where(raw_barcode != gene_barcode)[0].astype(np.int8)
+    flipping_directions = (gene_barcode[flipped_positions] - raw_barcode[flipped_positions]).astype(np.int8)
+    flipped_positions = flipped_positions.tobytes()
+    flipping_directions = flipping_directions.tobytes()
+    return flipped_positions,flipping_directions
+
+
+def define_flip_direction(experiment_fpath,output_df, selected_genes, correct_hamming_distance,save=True):
+    channel = output_df.dot_channel.values[0]
+    fov = output_df.fov_num.values[0]
+    trimmed_df = output_df.loc[(output_df.dot_id == output_df.barcode_reference_dot_id) &
+                           (output_df[correct_hamming_distance] != output_df[selected_genes]),
+                               ['barcode_reference_dot_id', selected_genes, 'raw_barcodes','hamming_distance']]
+    trimmed_df = trimmed_df.dropna(subset=[selected_genes])
+    trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits_test(codebook,
+                                                                                x.below3Hdistance_genes,x.raw_barcodes),axis=1)
+    if save:
+        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_df_flip_direction_fov' + str(fov) + '.parquet')
+        trimmed_df.to_parquet(fpath)
+
+
+
+
+
+
+
+
+
    # ---------------------------------------------------
 
 

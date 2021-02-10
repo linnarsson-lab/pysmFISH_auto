@@ -46,7 +46,7 @@ pipeline_start = time.time()
 # ----------------------------------------------------------------
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
-experiment_fpath = '/wsfish/smfish_ssd/AMEXP20201126_EEL_HumanH1930001V1C_HGprobes'
+experiment_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test'
 # experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
 
 raw_data_folder_storage_path = '/fish/rawdata'
@@ -132,7 +132,7 @@ logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
 # consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-parsed_raw_data_fpath = '/wsfish/smfish_ssd/AMEXP20201126_EEL_HumanH1930001V1C_HGprobes/AMEXP20201126_EEL_HumanH1930001V1C_HGprobes_img_data.zarr'
+parsed_raw_data_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test/JJEXP20201123_hGBM_Amine_test_img_data.zarr'
 consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
@@ -172,11 +172,16 @@ fovs = consolidated_grp[key].attrs['fields_of_view']
 codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
 all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs,save=True)
 
+selected_genes = 'below3Hdistance_genes'
+correct_hamming_distance = 'zeroHdistance_genes'
+
 all_futures = client.map(registration_barcode_detection_basic, all_grps,
                         analysis_parameters = analysis_parameters,
                         experiment_info = experiment_info,
                         experiment_fpath = experiment_fpath,
-                        codebook = codebook)
+                        codebook = codebook,
+                        selected_genes = selected_genes,
+                        correct_hamming_distance = correct_hamming_distance)
 _ = client.gather(all_futures)
 
 logger.info(f'registration and barcode processing completed in {(time.time()-start)/60} min')
