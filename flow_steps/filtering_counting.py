@@ -110,7 +110,7 @@ def single_fish_filter_count_standard(
             img = convert_from_uint16_to_float64(img)
 
             img -= dark_img
-            img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+            # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
             img[img<0] = 0
 
             background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
@@ -199,7 +199,7 @@ def single_fish_filter_count_standard_not_norm(
             img = convert_from_uint16_to_float64(img)
 
             img -= dark_img
-            img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+            # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
             img[img<0] = 0
 
             background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
@@ -286,7 +286,7 @@ def single_fish_filter_count_avoid_large_obj(
             img = convert_from_uint16_to_float64(img)
 
             img -= dark_img
-            img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+            # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
             img[img<0] = 0
 
             background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
@@ -315,8 +315,7 @@ def single_fish_filter_count_avoid_large_obj(
             masked_img = img*mask
 
 
-            fish_counts = osmFISH_barcoded_peak_based_detection_masked_thr((img, img_metadata),
-                                                    masked_img,
+            fish_counts = osmFISH_peak_based_detection((masked_img, img_metadata),
                                                     min_distance,
                                                     min_obj_size,
                                                     max_obj_size,
