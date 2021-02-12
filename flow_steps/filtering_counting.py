@@ -362,16 +362,18 @@ def filtering_counting_large_beads(zarr_grp_name,
 
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
-    c =22
-    f = {'a':'22'}
-
     # fish_counts = osmFISH_peak_based_detection((img, img_metadata),
     #                                                 min_distance,
     #                                                 min_obj_size,
     #                                                 max_obj_size,
     #                                                 num_peaks_per_label)
             
-          
+    fish_counts = osmFISH_barcoded_peak_based_detection_masked_thr((img, img_metadata),
+                                                    img,
+                                                    min_distance,
+                                                    min_obj_size,
+                                                    max_obj_size,
+                                                    num_peaks_per_label)
     # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
     # pickle.dump((img, img_metadata),open(fname,'wb'))
     
