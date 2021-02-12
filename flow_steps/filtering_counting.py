@@ -413,6 +413,12 @@ def test_fun(zarr_grp_name,
 
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
+    fish_counts = osmFISH_peak_based_detection((img, img_metadata),
+                                                min_distance,
+                                                min_obj_size,
+                                                max_obj_size,
+                                                num_peaks_per_label)
+
     return img
 
 
