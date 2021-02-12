@@ -350,7 +350,7 @@ def filtering_counting_large_beads(zarr_grp_name,
     img = raw_fish_images_meta[0]
     img_metadata = raw_fish_images_meta[1]
     img = convert_from_uint16_to_float64(img)
-
+    dark_img = load_dark_image(experiment_fpath)
     img -= dark_img
     img[img<0] = 0
     img = np.abs(img) # to avoid -0.0 issues
