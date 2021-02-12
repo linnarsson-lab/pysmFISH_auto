@@ -363,7 +363,7 @@ def filtering_counting_large_beads(zarr_grp_name,
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
     c =22
-    f = {a:'22'}
+    f = {'a':'22'}
 
     # fish_counts = osmFISH_peak_based_detection((img, img_metadata),
     #                                                 min_distance,
