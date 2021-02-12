@@ -304,6 +304,12 @@ def create_specific_analysis_config_file(experiment_fpath:str, experiment_info:D
         try:
             experiment_type = experiment_info['Experiment_type']
             analysis_config = general_analysis_config[experiment_type][machine]
+            beads_keys = [el for el in analysis_config.keys() if 'beads' in el]
+            selected_beads = experiment_info['Stitching_type']
+            beads_keys.remove(selected_beads)
+            for el in beads_keys:
+                analysis_config.pop(el, None)
+
         except:
             logger.error(f'Unidentified experiment type in the config.yaml file')
         else:
