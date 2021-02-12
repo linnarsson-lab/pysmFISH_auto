@@ -647,15 +647,15 @@ def filtering_counting_runner(client,
     # _ = dask.compute(*all_futures)
 
 
-if __name__ == '__main__':
-    processing_parameters = {'CountingFishMinObjDistance':5,
-                        'CountingFishMinObjSize':10,
-                        'CountingFishMaxObjSize':600,
-                        'CountingFishNumPeaksPerLabel':1,
-                        'PreprocessingFishFlatFieldKernel': (100,100)}
+# if __name__ == '__main__':
+#     processing_parameters = {'CountingFishMinObjDistance':5,
+#                         'CountingFishMinObjSize':10,
+#                         'CountingFishMaxObjSize':600,
+#                         'CountingFishNumPeaksPerLabel':1,
+#                         'PreprocessingFishFlatFieldKernel': (100,100)}
 
-    parsed_raw_data_fpath = 'AMEXP20201126_EEL_HumanH1930001V1C_HGprobes_img_data.zarr'
-    zarr_grp_name = 'AMEXP20201126_EEL_HumanH1930001V1C_HGprobes_Hybridization01_Europium_fov_100'
-    img = test_fun(zarr_grp_name,
-            parsed_raw_data_fpath,
-            processing_parameters)
+#     parsed_raw_data_fpath = 'AMEXP20201126_EEL_HumanH1930001V1C_HGprobes_img_data.zarr'
+#     zarr_grp_name = 'AMEXP20201126_EEL_HumanH1930001V1C_HGprobes_Hybridization01_Europium_fov_100'
+#     img = test_fun(zarr_grp_name,
+#             parsed_raw_data_fpath,
+#             processing_parameters)
