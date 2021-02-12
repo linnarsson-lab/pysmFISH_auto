@@ -378,7 +378,7 @@ def filtering_counting_large_beads(zarr_grp_name,
     # # save_dots_data(fish_counts)
     # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
     # pickle.dump(fish_counts,open(fname,'wb'))
-    return img,ciccio
+    return img,ciccio, (img, img_metadata)
 
 
 def test_fun(zarr_grp_name,
