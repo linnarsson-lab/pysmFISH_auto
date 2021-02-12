@@ -362,8 +362,6 @@ def filtering_counting_large_beads(zarr_grp_name,
 
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
-    ciccio = img.copy()
-    tp = (ciccio, img_metadata)
 
     fish_counts = osmFISH_peak_based_detection((img, img_metadata),
                                                     min_distance,
@@ -372,14 +370,14 @@ def filtering_counting_large_beads(zarr_grp_name,
                                                     num_peaks_per_label)
             
     
-    # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
-    # pickle.dump((img, img_metadata),open(fname,'wb'))
+    fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+    pickle.dump((img, img_metadata),open(fname,'wb'))
     
 
-    # # save_dots_data(fish_counts)
-    # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
-    # pickle.dump(fish_counts,open(fname,'wb'))
-    return img,ciccio, tp
+    # save_dots_data(fish_counts)
+    fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+    pickle.dump(fish_counts,open(fname,'wb'))
+   
 
 
 def test_fun(zarr_grp_name,
@@ -647,3 +645,17 @@ def filtering_counting_runner(client,
     #     all_futures.append(future)
     
     # _ = dask.compute(*all_futures)
+
+
+if __name__ == '__main__':
+    processing_parameters = {'CountingFishMinObjDistance':5,
+                        'CountingFishMinObjSize':10,
+                        'CountingFishMaxObjSize':600,
+                        'CountingFishNumPeaksPerLabel':1,
+                        'PreprocessingFishFlatFieldKernel': (100,100)}
+
+    parsed_raw_data_fpath = 'AMEXP20201126_EEL_HumanH1930001V1C_HGprobes_img_data.zarr'
+    zarr_grp_name = 'AMEXP20201126_EEL_HumanH1930001V1C_HGprobes_Hybridization01_Europium_fov_100'
+    img = test_fun(zarr_grp_name,
+            parsed_raw_data_fpath,
+            processing_parameters)
