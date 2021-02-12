@@ -360,7 +360,7 @@ def filtering_counting_large_beads(zarr_grp_name,
 
     img = img.max(axis=0)
 
-    img /= filters.gaussian(img,FlatFieldKernel,preserve_range=True)
+    img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
     fish_counts = osmFISH_peak_based_detection((img, img_metadata),
                                                     min_distance,
@@ -376,7 +376,6 @@ def filtering_counting_large_beads(zarr_grp_name,
     # save_dots_data(fish_counts)
     fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
     pickle.dump(fish_counts,open(fname,'wb'))
-    return img,fish_counts
 
 
 def both_beads_filt_count_mask(
