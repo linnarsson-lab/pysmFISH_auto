@@ -363,7 +363,7 @@ def filtering_counting_large_beads(zarr_grp_name,
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
     ciccio = img.copy()
-    tp = (img, img_metadata)
+    tp = (ciccio, img_metadata)
 
     fish_counts = osmFISH_peak_based_detection((img, img_metadata),
                                                     min_distance,
