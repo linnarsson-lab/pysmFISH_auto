@@ -346,6 +346,8 @@ def filtering_counting_large_beads(zarr_grp_name,
     max_obj_size=processing_parameters['CountingFishMaxObjSize']
     num_peaks_per_label=processing_parameters['CountingFishNumPeaksPerLabel']
 
+    raw_fish_images_meta = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
 
     img = raw_fish_images_meta[0]
     img_metadata = raw_fish_images_meta[1]
