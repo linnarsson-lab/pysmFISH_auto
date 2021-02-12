@@ -207,7 +207,7 @@ class osmFISH_dots_mapping():
 
 
 # @task(name='peak-based-detection')
-def osmFISH_peak_based_detection(img_meta:tuple,
+def osmFISH_peak_based_detection(img_meta:Tuple[np.ndarray, Dict],
                                         min_distance: np.float64,
                                         min_obj_size: np.uint16,
                                         max_obj_size: np.uint16,
@@ -303,7 +303,7 @@ def osmFISH_peak_based_detection(img_meta:tuple,
 
 
 
-def osmFISH_barcoded_peak_based_detection_masked_thr(img_meta:tuple,
+def osmFISH_barcoded_peak_based_detection_masked_thr(img_meta:Tuple[np.ndarray, Dict],
                 masked_img:np.ndarray,
                 min_distance: np.float64,
                 min_obj_size: np.uint16,
