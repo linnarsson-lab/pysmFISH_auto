@@ -15,6 +15,7 @@ from pathlib import Path
 
 from dask import dataframe as dd
 
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.patches as mpatch
@@ -32,6 +33,7 @@ class QC_registration_error():
         self.tiles_coords = tiles_coords
         self.img_width = img_width
         self.img_height = img_height
+        matplotlib.use("Agg")
 
     def create_error_df(self):
         all_counts_folder = self.experiment_fpath / 'tmp' / 'registered_counts'
