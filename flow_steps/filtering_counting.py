@@ -357,8 +357,7 @@ def filtering_counting_large_beads(zarr_grp_name,
 
     img = img.max(axis=0)
 
-    fish_counts = osmFISH_barcoded_peak_based_detection_masked_thr((img, img_metadata),
-                                                    masked_img,
+    fish_counts = osmFISH_peak_based_detection((img, img_metadata),
                                                     min_distance,
                                                     min_obj_size,
                                                     max_obj_size,
