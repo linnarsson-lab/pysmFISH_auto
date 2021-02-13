@@ -175,11 +175,17 @@ fovs = consolidated_grp[key].attrs['fields_of_view']
 codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
 all_grps = create_registration_grps(experiment_fpath,registration_channel, fovs,save=True)
 
+selected_genes = 'below3Hdistance_genes'
+correct_hamming_distance = 'zeroHdistance_genes'
+
+
 all_futures = client.map(registration_barcode_detection_basic, all_grps,
                         analysis_parameters = analysis_parameters,
                         experiment_info = experiment_info,
                         experiment_fpath = experiment_fpath,
-                        codebook = codebook)
+                        codebook = codebook,
+                        selected_genes=selected_genes,
+                        correct_hamming_distance=correct_hamming_distance)
 _ = client.gather(all_futures)
 
 logger.info(f'registration and barcode processing completed in {(time.time()-start)/60} min')
