@@ -1,4 +1,6 @@
 from pathlib import Path
+import numpy as np
+
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov
 from pysmFISH.fovs_registration import register_fish
 from pysmFISH.barcodes_analysis import extract_barcodes_NN
