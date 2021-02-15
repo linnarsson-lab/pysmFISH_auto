@@ -303,7 +303,7 @@ def identify_flipped_bits(codebook, gene,raw_barcode):
     return flipped_positions,flipping_directions
 
 
-def define_flip_direction(experiment_fpath,output_df, selected_genes, correct_hamming_distance,save=True):
+def define_flip_direction(codebook,experiment_fpath,output_df, selected_genes, correct_hamming_distance,save=True):
     channel = output_df.dot_channel.values[0]
     fov = output_df.fov_num.values[0]
     trimmed_df = output_df.loc[(output_df.dot_id == output_df.barcode_reference_dot_id) &
