@@ -4,6 +4,7 @@ import numpy as np
 import logging
 from sklearn.neighbors import NearestNeighbors
 # from pynndescent import NNDescent
+from pathlib import Path
 
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.data_models import Output_models
