@@ -310,7 +310,7 @@ def define_flip_direction(experiment_fpath,output_df, selected_genes, correct_ha
                            (output_df[correct_hamming_distance] != output_df[selected_genes]),
                                ['barcode_reference_dot_id', selected_genes, 'raw_barcodes','hamming_distance']]
     trimmed_df = trimmed_df.dropna(subset=[selected_genes])
-    trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits_test(codebook,
+    trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,
                                                                                 x.below3Hdistance_genes,x.raw_barcodes),axis=1)
     if save:
         fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_df_flip_direction_fov' + str(fov) + '.parquet')
