@@ -263,7 +263,7 @@ def dots_hoods(coords,pxl):
 def extract_dots_images(barcoded_df,img_stack,experiment_fpath, save=True):
     experiment_fpath = Path(experiment_fpath)
     fov = barcoded_df.fov_num.values[0]
-    experiment_name = barcoded_df.experiment_name.values[0]
+    experiment_name = experiment_fpath.stem
     channel = barcoded_df.dot_channel.values[0]
     
     trimmed_df = barcoded_df.loc[barcoded_df.dot_id == barcoded_df.barcode_reference_dot_id ,
