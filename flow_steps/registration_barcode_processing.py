@@ -42,7 +42,6 @@ def registration_barcode_detection_basic(processing_grps,
     # Remember to consider the status input in order to create dictionary
     if process_barcodes.status == 'SUCCESS':
         channels = np.unique(process_barcodes.barcoded_fov_df['dot_channel'])
-        split_groups_by_channel = []
         for channel in channels:
             grp = [el for el in processing_grps[1] if channel in el.stem]
             img_stack = combine_rounds_images(grp,experiment_fpath, 
