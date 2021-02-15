@@ -298,8 +298,8 @@ def identify_flipped_bits(codebook, gene,raw_barcode):
     raw_barcode = np.frombuffer(raw_barcode, np.int8)
     flipped_positions = np.where(raw_barcode != gene_barcode)[0].astype(np.int8)
     flipping_directions = (gene_barcode[flipped_positions] - raw_barcode[flipped_positions]).astype(np.int8)
-    flipped_positions = flipped_positions.tobytes()
-    flipping_directions = flipping_directions.tobytes()
+    # flipped_positions = flipped_positions.tobytes()
+    # flipping_directions = flipping_directions.tobytes()
     return flipped_positions,flipping_directions
 
 
