@@ -314,6 +314,10 @@ def define_flip_direction(codebook,experiment_fpath,output_df, selected_genes, c
     trimmed_df = trimmed_df.dropna(subset=[selected_genes])
     trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,
                                                                                 x.below3Hdistance_genes,x.raw_barcodes),axis=1)
+    trimmed_df['flip_position'] = trimmed_df['flip_and_direction'].apply(lambda x: x[0])
+    trimmed_df['flip_direction'] = trimmed_df['flip_and_direction'].apply(lambda x: x[1])
+    trimmed_df.drop('flip_and_direction')
+    
     if save:
         fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_df_flip_direction_fov' + str(fov) + '.parquet')
         trimmed_df.to_parquet(fpath)
