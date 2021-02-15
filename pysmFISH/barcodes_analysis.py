@@ -1,6 +1,7 @@
 from typing import *
 import pandas as pd
 import numpy as np
+import pickle
 import logging
 from sklearn.neighbors import NearestNeighbors
 # from pynndescent import NNDescent
