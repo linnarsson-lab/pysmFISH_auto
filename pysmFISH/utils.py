@@ -363,11 +363,14 @@ def combine_rounds_images(images_path_list,experiment_fpath, experiment_info,all
     channel = images_path_list[0].stem.split('_')[-4]
     experiment_name = experiment_info['EXP_name']
 
-    img, meta = pickle.load(open(images_path_list[0],'rb'))
+    fpath_dots = images_path_list[0]
+    fname = (fpath_dots.stem).split('_dots')[0] + '_filtered'
+    path_img = fpath_dots.parent.parent / 'filtered_images'
+    img, meta = pickle.load(open(path_img,'rb'))
     img_stack = np.zeros([rounds_num,img.shape[0],img.shape[1]])
 
     for fpath_dots in images_path_list:
-        fname = (fpath.stem).split('_dots')[0] + '_filtered'
+        fname = (fpath_dots.stem).split('_dots')[0] + '_filtered'
         path_img = fpath_dots.parent.parent / 'filtered_images'
         fpath = path_img / fname
         round_num = int(fname.split('_')[-5].split('Hybridization')[-1])
