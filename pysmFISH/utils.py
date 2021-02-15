@@ -365,7 +365,7 @@ def combine_rounds_images(images_path_list,experiment_fpath, experiment_info,all
 
     fpath_dots = images_path_list[0]
     fname = (fpath_dots.stem).split('_dots')[0] + '_filtered'
-    path_img = fpath_dots.parent.parent / 'filtered_images'
+    path_img = fpath_dots.parent.parent / 'filtered_images' / fname
     img, meta = pickle.load(open(path_img,'rb'))
     img_stack = np.zeros([rounds_num,img.shape[0],img.shape[1]])
 
