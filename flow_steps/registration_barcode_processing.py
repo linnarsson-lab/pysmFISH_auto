@@ -38,19 +38,19 @@ def registration_barcode_detection_basic(processing_grps,
     process_barcodes.run_extraction()
 
 
-    # # Create combined images
-    # # Remember to consider the status input in order to create dictionary
-    # if process_barcodes.status == 'SUCCESS':
-    #     channels = np.unique(process_barcodes.barcoded_fov_df['dot_channel'])
-    #     split_groups_by_channel = []
-    #     for channel in channels:
-    #         grp = [el for el in processing_grps[1] if channel in el.stem]
-    #         img_stack = combine_rounds_images(grp,experiment_fpath, 
-    #                     experiment_info,all_rounds_shifts, save=True)
+    # Create combined images
+    # Remember to consider the status input in order to create dictionary
+    if process_barcodes.status == 'SUCCESS':
+        channels = np.unique(process_barcodes.barcoded_fov_df['dot_channel'])
+        split_groups_by_channel = []
+        for channel in channels:
+            grp = [el for el in processing_grps[1] if channel in el.stem]
+            img_stack = combine_rounds_images(grp,experiment_fpath, 
+                        experiment_info,all_rounds_shifts, save=True)
 
-    #         # Isolate the dots_subimages
-    #         all_regions = extract_dots_images(process_barcodes.barcoded_fov_df,
-    #                                         img_stack,experiment_fpath,save=True)
+            # Isolate the dots_subimages
+            all_regions = extract_dots_images(process_barcodes.barcoded_fov_df,
+                                            img_stack,experiment_fpath,save=True)
 
-    #         # Define flip position and direction
-    #         define_flip_direction(experiment_fpath,output_df, selected_genes, correct_hamming_distance,save=True)
+            # Define flip position and direction
+            define_flip_direction(experiment_fpath,output_df, selected_genes, correct_hamming_distance,save=True)
