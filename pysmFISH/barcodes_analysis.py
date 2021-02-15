@@ -304,6 +304,7 @@ def identify_flipped_bits(codebook, gene,raw_barcode):
 
 
 def define_flip_direction(codebook,experiment_fpath,output_df, selected_genes, correct_hamming_distance,save=True):
+    experiment_fpath = Path(experiment_fpath)
     experiment_name = experiment_fpath.stem
     channel = output_df.dot_channel.values[0]
     fov = output_df.fov_num.values[0]
