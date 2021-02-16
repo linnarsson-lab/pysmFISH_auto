@@ -279,15 +279,19 @@ def extract_dots_images(barcoded_df,img_stack,experiment_fpath, save=True):
     chunks_coords[chunks_coords>img_stack.shape[0]]= img_stack.shape[0]
     
     all_regions = {}
+    all_max = {}
     for idx in np.arange(chunks_coords.shape[0]):
         selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
         max_array = selected_region.max(axis=(1,2))
-        all_regions[barcodes_names[idx]]={'image_region':selected_region,
-                                         'max_array':max_array}
+        all_regions[barcodes_names[idx]]= selected_region
+        all_max[barcodes_names[idx]]= max_array
+        # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
     if save:
-        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_dots_img_dict_fov_' + str(fov) + '.pkl')
+        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_img_dict_fov_' + str(fov) + '.pkl')
         pickle.dump(all_regions,open(fpath,'wb'))
-    return all_regions
+        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_max_array_dict_fov_' + str(fov) + '.pkl')
+        pickle.dump(all_max,open(fpath,'wb'))
+    return all_max
 
 
 
@@ -321,6 +325,7 @@ def define_flip_direction(codebook,experiment_fpath,output_df, selected_genes, c
     if save:
         fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_df_flip_direction_fov' + str(fov) + '.parquet')
         trimmed_df.to_parquet(fpath)
+    return trimmed_df
 
 
 

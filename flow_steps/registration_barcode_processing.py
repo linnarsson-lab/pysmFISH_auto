@@ -52,4 +52,5 @@ def registration_barcode_detection_basic(processing_grps,
                                             img_stack,experiment_fpath,save=True)
 
             # Define flip position and direction
-            define_flip_direction(codebook,experiment_fpath,process_barcodes.barcoded_fov_df, selected_genes, correct_hamming_distance,save=True)
+            flipped_df = define_flip_direction(codebook,experiment_fpath,process_barcodes.barcoded_fov_df, 
+                                                selected_genes, correct_hamming_distance,save=True)
