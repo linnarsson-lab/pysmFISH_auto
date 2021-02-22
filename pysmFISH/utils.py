@@ -181,7 +181,7 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
     if len(robofish_logs):
         for log in robofish_logs:
             shutil.move(log.as_posix(), (experiment_fpath / 'original_robofish_logs').as_posix())
-            self.logger.debug(f'moved {log.stem} into original_robofish_logs')
+            logger.debug(f'moved {log.stem} into original_robofish_logs')
     else:
         logger.debug(f'there are no original robofish logs in the experiment folder')
 
