@@ -248,11 +248,13 @@ def create_dark_img(experiment_fpath,experiment_info):
     machine = experiment_info['Machine']
     # Check if the dark image is already present
     try:
-        pres = list((experiment_fpath / 'extra_processing_data').glob('*_dark_img.npy'))[0]
+        pres = list((experiment_fpath / 'extra_processing_data').glob(machine + '_dark_img.npy'))[0]
     except:
-        nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
-        nd2_blank = [el for el in nd2_list if 'Blank' in el.stem]
-        if nd2_blank:
+        try:
+            nd2_list = list((experiment_fpath.parent / 'dark_imgs/').glob(machine + '_dark_img.npy'))[0]
+        except:
+            logger.error(f'the Blank .nd2 for the dark image is missing')
+        else:
             nd2fh = nd2reader.ND2Reader(nd2_blank[0])
             nd2fh.bundle_axes = 'zyx'
             nd2fh.iter_axes = 'z'
@@ -265,8 +267,6 @@ def create_dark_img(experiment_fpath,experiment_info):
             fname = experiment_fpath / 'extra_processing_data' / (experiment_name + '_' + machine + '_dark_img.npy')
             np.save(fname, dark_img)
             logger.debug(f'Created dark image')
-        else:
-            logger.error(f'the Blank .nd2 for the dark image is missing')
     else:
         logger.debug(f'the dark image is already present')
 
