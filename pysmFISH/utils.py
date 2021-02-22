@@ -251,11 +251,11 @@ def create_dark_img(experiment_fpath,experiment_info):
         pres = list((experiment_fpath / 'extra_processing_data').glob(machine + '_dark_img.npy'))[0]
     except:
         try:
-            nd2_list = list((experiment_fpath.parent / 'dark_imgs/').glob(machine + '_dark_img.npy'))[0]
+            nd2_blank = list((experiment_fpath.parent / 'dark_imgs/').glob(machine + '_dark_img.npy'))[0]
         except:
             logger.error(f'the Blank .nd2 for the dark image is missing')
         else:
-            nd2fh = nd2reader.ND2Reader(nd2_blank[0])
+            nd2fh = nd2reader.ND2Reader(nd2_blank)
             nd2fh.bundle_axes = 'zyx'
             nd2fh.iter_axes = 'z'
             # Image with single channel
