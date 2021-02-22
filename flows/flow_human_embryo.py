@@ -48,7 +48,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 experiment_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um'
-# experiment_fpath = '/wsfish/smfish_ssd/LBEXP20201207_EEL_HE_test2'
+# experiment_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -133,7 +133,7 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
 consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-# parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20210129_EEL_HE_3630um/LBEXP20210129_EEL_HE_3630um_img_data.zarr'
+# parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um/LBEXP20210209_EEL_HE_3680um_img_data.zarr'
 # consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
