@@ -379,23 +379,25 @@ def filtering_counting_large_beads(zarr_grp_name,
     pickle.dump(fish_counts,open(fname,'wb'))
    
 
-
-def test_fun(zarr_grp_name,
+def filtering_counting_both_beads(zarr_grp_name,
         parsed_raw_data_fpath,
         processing_parameters):
 
+    """
+    Function used to process only large beads in both-beads condition
+    Used for testing experiment
+    """
+
+    logger = selected_logger()
+    
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    experiment_fpath = parsed_raw_data_fpath.parent
     min_distance=processing_parameters['CountingFishMinObjDistance']
     min_obj_size=processing_parameters['CountingFishMinObjSize']
     max_obj_size=processing_parameters['CountingFishMaxObjSize']
     num_peaks_per_label=processing_parameters['CountingFishNumPeaksPerLabel']
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
 
-
-    logger = selected_logger()
-    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    experiment_fpath = parsed_raw_data_fpath.parent
-
-    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
     raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
 
@@ -411,16 +413,22 @@ def test_fun(zarr_grp_name,
 
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
+
     fish_counts = osmFISH_peak_based_detection((img, img_metadata),
-                                                min_distance,
-                                                min_obj_size,
-                                                max_obj_size,
-                                                num_peaks_per_label)
+                                                    min_distance,
+                                                    min_obj_size,
+                                                    max_obj_size,
+                                                    num_peaks_per_label)
+            
+    
+    fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+    pickle.dump((img, img_metadata),open(fname,'wb'))
+    
 
-    return img
-
-
-
+    # save_dots_data(fish_counts)
+    fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+    pickle.dump(fish_counts,open(fname,'wb'))
+   
 
 def both_beads_filt_count_mask(
         zarr_grp_name,
@@ -567,6 +575,9 @@ def both_beads_filt_count_mask(
         # save_dots_data(fish_counts)
         fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
         pickle.dump((counts_dict,img_metadata),open(fname,'wb'))
+
+
+
 
 
 
