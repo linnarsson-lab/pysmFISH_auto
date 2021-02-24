@@ -92,14 +92,14 @@ create_dark_img(experiment_fpath,experiment_info)
 # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
-# # CREATE PROCESSING CLUSTER
-# start = time.time()
-# logger.info(f'start cluster creation')
-# cluster = create_processing_cluster(experiment_fpath)
-# client = Client(cluster)
-# logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+# ----------------------------------------------------------------
+# CREATE PROCESSING CLUSTER
+start = time.time()
+logger.info(f'start cluster creation')
+cluster = create_processing_cluster(experiment_fpath)
+client = Client(cluster)
+logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
 
 
 # # ----------------------------------------------------------------
@@ -124,26 +124,26 @@ create_dark_img(experiment_fpath,experiment_info)
 # # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
-# # REPARSING THE MICROSCOPY DATA
-# start = time.time()
-# logger.info(f'start reparsing raw data')
-# # Create empty zarr file for the parse data
-# parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-#                                     tag=parsed_image_tag)
+# ----------------------------------------------------------------
+# REPARSING THE MICROSCOPY DATA
+start = time.time()
+logger.info(f'start reparsing raw data')
+# Create empty zarr file for the parse data
+parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+                                    tag=parsed_image_tag)
 
-# # Reparse the data
-# all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+# Reparse the data
+all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
 
-# parsing_futures = client.map(nikon_nd2_reparser_zarr,
-#                             all_raw_nd2,
-#                             parsed_raw_data_fpath=parsed_raw_data_fpath,
-#                             experiment_info=experiment_info)
+parsing_futures = client.map(nikon_nd2_reparser_zarr,
+                            all_raw_nd2,
+                            parsed_raw_data_fpath=parsed_raw_data_fpath,
+                            experiment_info=experiment_info)
 
-# _ = client.gather(parsing_futures)
+_ = client.gather(parsing_futures)
 
-# logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+logger.info(f'reparsing completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
 
 
 
