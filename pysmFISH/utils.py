@@ -319,6 +319,9 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
     elif experiment_info['Stitching_type'] == 'both-beads':
         beads_selected_parameters  = analysis_parameters['both-beads']
         beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+    elif experiment_info['Stitching_type'] == 'nuclei' :
+        beads_selected_parameters  = analysis_parameters['nuclei']
+        beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
     else:
         self.logger.error(f'Wrong stitching type in the experiment file')
         sys.exit(f'Wrong stitching type in the experiment file')
