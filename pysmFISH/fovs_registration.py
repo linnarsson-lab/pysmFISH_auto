@@ -19,6 +19,7 @@ from pysmFISH.utils import load_pipeline_config_file
 from skimage.feature import register_translation
 # from skimage.registration import phase_cross_correlation UPDATE SKIMAGEN
 from skimage import filters
+from skimage.registration import phase_cross_correlation
 
 from sklearn.neighbors import NearestNeighbors
 
@@ -354,6 +355,94 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
         fname = file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (file_tags['experiment_name'] + '_' + file_tags['channel'] + '_registered_fov_' + file_tags['fov'] + '.parquet')
         registered_fish_df.to_parquet(fname,index=False)
     return registered_fish_df, file_tags, status
+
+
+
+def calculate_shift_hybridization_fov_nuclei(processing_files:List,analysis_parameters:dict, save=True):
+    """
+    Function used to run the registration of a single fov
+    through all hybridization. The registration is done using the dots
+    coords determined in each image
+
+    Args:
+        processing_files: List
+            list of the files with the filtered images of the nuclei
+        analysis_parameters: Dict
+            dict that contains the settings for the analysis 
+    """
+    
+    logger = selected_logger()
+    all_rounds_shifts = {}
+    all_rounds_shifts_RMS = {}
+    registration_errors = Registration_errors()
+    data_models = Output_models()
+    output_registration_df = data_models.output_registration_df
+    status = 'SUCCESS'
+
+    reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
+    round_num = reference_hybridization
+    reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
+    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
+
+    # collect info used to generate fname when files are corrupted   
+    experiment_fpath = processing_files[0].parent.parent.parent
+    channel = (processing_files[0].stem).split('_')[-4]
+    experiment_name = experiment_fpath.stem
+    fov = (processing_files[0].stem).split('_')[-2]
+    file_tags = {'experiment_fpath':experiment_fpath,
+                'experiment_name':experiment_name,
+                'channel':channel,
+                'fov':fov}
+
+    shift_fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_name + '_' + channel + '_nuclei_all_rounds_shifts_fov_' + fov + '.pkl')
+    shift_error_fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_name + '_' + channel + '_nuclei_all_rounds_shifts_errors_fov_' + fov + '.pkl')
+    
+    # Load reference hybridization data
+    try:
+        ref_fpath = [fpath for fpath in processing_files if reference_hybridization_str in fpath.as_posix()][0]
+    except:
+        logger.error(f'missing reference hyb file for fov {fov}')
+        status = 'FAILED'
+        all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+        all_rounds_shifts_RMS[round_num] = 1
+    else:
+        try:
+            ref_img,ref_img_metadata = pickle.load(open(ref_fpath, 'rb'))
+        except:
+            logger.error(f'cannot open the reference hyb file for fov {fov}')
+            status = 'FAILED'
+            all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+            all_rounds_shifts_RMS[round_num] = 1
+        else:   
+                tran_processing_files =processing_files.copy()
+                tran_processing_files.remove(ref_fpath)
+                
+                for fpath in tran_processing_files:
+                    try:
+                        tran_img, tran_img_metadata = pickle.load(open(fpath, 'rb'))
+                    except:
+                        logger.error(f'cannot open {fpath.stem} file for fov {fov}')
+                        # If there is an error in the opening reset the df
+                        round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
+                        status = 'FAILED'
+                        all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+                        all_rounds_shifts_RMS[round_num] = 1
+                        break
+                    else:                    
+                            round_num = tran_counts['round_num'][0]
+                            ref_img_metadata['reference_hyb'] = str(reference_hybridization)
+                            
+                            shift, error, diffphase = phase_cross_correlation(ref_img, tran_img,return_error=True,)
+                            all_rounds_shifts[round_num] = shift
+                            all_rounds_shifts_RMS[round_num] = error
+        
+        # Save extra metadata in the
+        if save:
+            pickle.dump(all_rounds_shifts,open(shift_fname,'wb'))
+            pickle.dump(all_rounds_shifts_RMS,open(shift_error_fname,'wb'))
+
+        return all_rounds_shifts, all_rounds_shifts_RMS, file_tags, status
+
 
 
 #         counts_df = data[0]
