@@ -3,6 +3,8 @@ import numpy as np
 
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov
 from pysmFISH.fovs_registration import register_fish
+from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_nuclei
+from pysmFISH.fovs_registration import register_fish_on_nuclei
 from pysmFISH.barcodes_analysis import extract_barcodes_NN
 from pysmFISH.barcodes_analysis import extract_dots_images
 from pysmFISH.barcodes_analysis import define_flip_direction
@@ -54,3 +56,23 @@ def registration_barcode_detection_basic(processing_grps,
             # Define flip position and direction
             flipped_df = define_flip_direction(codebook,experiment_fpath,process_barcodes.barcoded_fov_df, 
                                                 selected_genes, correct_hamming_distance,save=True)
+
+
+# Need to split the groups by channels
+# Make sure that you are not registering everything in one image
+# def registration_serial_smFISH(processing_grps,
+#                                         analysis_parameters,
+#                                         experiment_info,
+#                                         experiment_fpath,
+#                                         codebook,
+#                                         selected_genes,
+#                                         correct_hamming_distance):
+
+#     # Register fov using the registration channel
+#     all_rounds_shifts, all_rounds_shifts_RMS, file_tags, status = calculate_shift_hybridization_fov_nuclei(processing_grps[0],analysis_parameters,
+#                                                                 save=True)
+    
+
+#     # Register the fish dots coords
+#     registered_fish_df, file_tags, status = register_fish_on_nuclei(processing_grps[1],analysis_parameters,registered_counts_df,
+#                                             all_rounds_shifts,file_tags,status,save=True)
