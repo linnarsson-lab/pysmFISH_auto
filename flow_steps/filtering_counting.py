@@ -331,8 +331,6 @@ def single_fish_filter_count_avoid_large_obj(
             pickle.dump(fish_counts,open(fname,'wb'))
 
 
-
-
 def filtering_counting_large_beads(zarr_grp_name,
         parsed_raw_data_fpath,
         processing_parameters):
@@ -581,6 +579,76 @@ def both_beads_filt_count_mask(
 
 
 
+def nuclei_stitching_filtering(zarr_grp_name,
+        parsed_raw_data_fpath,
+        processing_parameters:
+        
+        """
+        This function remove the background from large structures like nuclei
+        For the sigma I seleced a value quite bigger than
+        the nuclei size in order to remove them from the 
+        image. I used what showed on the gaussian filter code page and on this
+        link on stackoverflow: 
+        http://stackoverflow.com/questions/25216382/gaussian-filter-in-scipy
+
+        Parameters:
+        -----------
+
+        img_stack: np.array float64
+            raw image to filter
+        
+        large_kernel_size_sigma: list
+            list with the kernel size used to remove large objects in the image
+            to identify the background
+
+        Returns
+        -----------
+
+        img_stack: np.array float64 
+            img stack after filtering 
+
+        """
+
+        parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+        experiment_fpath = parsed_raw_data_fpath.parent
+        FlatFieldKernel=processing_parameters['PreprocessingNucleiFlatFieldKernel']
+    
+        try:
+        raw_fish_images_meta = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+        except:
+            logger.error(f'cannot load {zarr_grp_name} raw fish image')
+            sys.exit(f'cannot load {zarr_grp_name} raw fish image')
+        else:
+            logger.info(f'loaded {zarr_grp_name} raw fish image')
+            try:
+                # This may chnaged if the image will be store in shoji
+                dark_img = load_dark_image(experiment_fpath)
+            except:
+                logger.error(f'cannot load dark reference fish image')
+                sys.exit(f'cannot load dark reference fish image')
+            else:
+                logger.info('loaded dark reference image')
+
+                img = raw_fish_images_meta[0]
+                img_metadata = raw_fish_images_meta[1]
+                img = convert_from_uint16_to_float64(img)
+
+                img -= dark_img
+                # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+                img[img<0] = 0
+
+                background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+                img -= background
+                img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
+                img = np.abs(img) # to avoid -0.0 issues
+                img /= background
+                
+                img = img.max(axis=0)
+            
+                fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+                pickle.dump((img, img_metadata),open(fname,'wb'))
+                
 
 def filtering_counting_runner(client,
                             running_function,
