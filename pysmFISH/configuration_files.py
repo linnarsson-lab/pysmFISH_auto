@@ -21,19 +21,19 @@ yaml.SafeDumper.ignore_aliases = lambda *args : True
 
 
 
-def create_processing_env_config_file(experiment_fpath:str):
+def create_processing_env_config_file(config_db_path:str):
     """
     This function creates a configuration files with the parameters requested for the 
     setup of the processing cluster. 
     The current file is defaulted to htcondor
 
     Args:
-        experiment_fpath: str
-            path to the experiment that will be processed
+        config_db_path: str
+            path to the database with the yaml config files
     """
 
-    experiment_fpath = Path(experiment_fpath)
-    processing_env_config_fpath = experiment_fpath / 'pipeline_config' / 'processing_env_config.yaml'
+    config_db_path = Path(config_db_path)
+    processing_env_config_fpath = config_db_path / 'processing_env_config.yaml'
     processing_env_config = OrderedDict()
 
     processing_env_config['htcondor'] = {}

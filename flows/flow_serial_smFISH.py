@@ -35,6 +35,7 @@ from flow_steps.filtering_counting import single_fish_filter_count_standard
 from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm
 from flow_steps.filtering_counting import single_fish_filter_count_avoid_large_obj
 from flow_steps.filtering_counting import filtering_counting_large_beads
+from flow_steps.filtering_counting import nuclei_registration_filtering
 from flow_steps.registration_barcode_processing import registration_barcode_detection_basic
 
 from pysmFISH.stitching import organize_square_tiles
@@ -155,40 +156,40 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # processing the beads
 
 
-# # ----------------------------------------------------------------
-# # IMAGE PREPROCESSING AND DOTS COUNTING
-# start = time.time()
-# logger.info(f'start preprocessing and dots counting')
-# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-# # parsed_raw_data_fpath = '/wsfish/smfish_ssd/AMEXP20201126_EEL_HumanH1930001V1C_HGprobes/AMEXP20201126_EEL_HumanH1930001V1C_HGprobes_img_data.zarr'
-# # consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
-# sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
+# ----------------------------------------------------------------
+# IMAGE PREPROCESSING AND DOTS COUNTING
+start = time.time()
+logger.info(f'start preprocessing and dots counting')
+consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+# parsed_raw_data_fpath = '/fish/work_std/AMEXP20200914_Spinal_cordGel1'
+# consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
+sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
 
 
-# # Staining has different processing fun
-# all_futures = []
-# for grp, grp_data in sorted_grps.items():
-#     if grp  == 'fish':
-#         for el in grp_data[0]:
-#             future = client.submit(single_fish_filter_count_avoid_large_obj,
-#                             el,
-#                             parsed_raw_data_fpath = parsed_raw_data_fpath,
-#                             processing_parameters=sorted_grps['fish'][1])
-#             all_futures.append(future)
-#     elif grp == 'beads':
-#         if experiment_info['Stitching_type']== 'large-beads':
-#             for el in grp_data[0]:
-#                 future = client.submit(filtering_counting_large_beads,
-#                                 el,
-#                                 parsed_raw_data_fpath = parsed_raw_data_fpath,
-#                                 processing_parameters=sorted_grps['beads'][1])
-#                 all_futures.append(future)
+# Staining has different processing fun
+all_futures = []
+for grp, grp_data in sorted_grps.items():
+    if grp  == 'fish':
+        for el in grp_data[0]:
+            future = client.submit(single_fish_filter_count_avoid_large_obj,
+                            el,
+                            parsed_raw_data_fpath = parsed_raw_data_fpath,
+                            processing_parameters=sorted_grps['fish'][1])
+            all_futures.append(future)
+    elif grp == 'beads':
+        if experiment_info['Stitching_type']== 'nuclei':
+            for el in grp_data[0]:
+                future = client.submit(nuclei_registration_filtering,
+                                el,
+                                parsed_raw_data_fpath = parsed_raw_data_fpath,
+                                processing_parameters=sorted_grps['beads'][1])
+                all_futures.append(future)
 
-#     # separate processing beads and fish separately
-# start = time.time()
-# _ = client.gather(all_futures)
-# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+    # separate processing beads and fish separately
+start = time.time()
+_ = client.gather(all_futures)
+logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
 
 
 # ----------------------------------------------------------------

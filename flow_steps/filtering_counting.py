@@ -579,7 +579,7 @@ def both_beads_filt_count_mask(
 
 
 
-def nuclei_stitching_filtering(zarr_grp_name,
+def nuclei_registration_filtering(zarr_grp_name,
         parsed_raw_data_fpath,
         processing_parameters:
         

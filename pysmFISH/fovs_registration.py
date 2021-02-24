@@ -445,6 +445,73 @@ def calculate_shift_hybridization_fov_nuclei(processing_files:List,analysis_para
 
 
 
+def register_fish_on_nuclei(processing_files:List,analysis_parameters:Dict,
+                        registered_reference_channel_df,all_rounds_shifts:Dict,file_tags:Dict,status:str,
+                        save=True):
+    """
+    The only difference to the other function is the channel name definition
+    """
+    logger = selected_logger()
+    registration_errors = Registration_errors()
+    data_models = Output_models()
+    fov = file_tags['fov']
+    channel = 'all_channels'
+    file_tags['channel'] = channel
+    registered_fish_df = data_models.output_registration_df
+
+    if status == 'FAILED':
+        error = registered_reference_channel_df['min_number_matching_dots_registration'].values[0]
+        round_num = registered_reference_channel_df['round_num'].values[0]
+        registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':error,
+                                                           'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
+    elif status == 'SUCCESS':
+        reference_hybridization = registered_reference_channel_df.attrs[fov]['reference_hyb']
+        reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
+        for fpath in processing_files:
+            round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
+            try:
+                fish_counts, fish_img_metadata = pickle.load(open(fpath,'rb'))
+            except:
+                logger.error(f'cannot open the processing files')
+                
+                registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':registration_errors.cannot_load_file_fish_channel,
+                                                'fov_num':int(fov),'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                status = 'FAILED'
+                break
+            else:                
+                if np.any(np.isnan(fish_counts['r_px_original'])):
+                    logger.error(f'There are no dots in there reference hyb for fov {fov} ')
+                    registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_fish_channel,
+                                                'fov_num':int(fov),'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                    status = 'FAILED'
+                    break
+
+                else:
+                    if reference_hybridization_str in fpath.as_posix():
+                        fish_img_metadata['reference_hyb'] = reference_hybridization
+                        registered_fish_df.attrs[fov] = fish_img_metadata
+                    fish_counts_df = pd.DataFrame(fish_counts)
+                    
+                    subset_df = registered_reference_channel_df.loc[registered_reference_channel_df['round_num'] == round_num, :]
+                    subset_df = subset_df.reset_index()
+                        
+                    shift = all_rounds_shifts[round_num]
+                    fish_counts_df['r_px_registered'] = fish_counts['r_px_original'] + shift[0]
+                    fish_counts_df['c_px_registered'] = fish_counts['c_px_original'] + shift[1]
+                    fish_counts_df['r_shift_px'] = shift[0]
+                    fish_counts_df['c_shift_px'] = shift[1]
+                    fish_counts_df['min_number_matching_dots_registration'] = subset_df.loc[0,'min_number_matching_dots_registration'] 
+                    registered_fish_df = pd.concat([registered_fish_df,fish_counts_df],axis=0,ignore_index=True)
+                    status = 'SUCCESS'
+
+    if save:
+        fname = file_tags['experiment_fpath'] / 'tmp' / 'registered_counts' / (file_tags['experiment_name'] + '_' + file_tags['channel'] +'_registered_fov_' + file_tags['fov'] + '.parquet')
+        registered_fish_df.to_parquet(fname,index=False)
+    return registered_fish_df, file_tags, status
+
+
+
+
 #         counts_df = data[0]
 
 
