@@ -282,10 +282,11 @@ def extract_dots_images(barcoded_df,img_stack,experiment_fpath, save=True):
     all_max = {}
     for idx in np.arange(chunks_coords.shape[0]):
         selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
-        max_array = selected_region.max(axis=(1,2))
-        all_regions[barcodes_names[idx]]= selected_region
-        all_max[barcodes_names[idx]]= max_array
-        # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
+        if selected_region.size >0:
+            max_array = selected_region.max(axis=(1,2))
+            all_regions[barcodes_names[idx]]= selected_region
+            all_max[barcodes_names[idx]]= max_array
+            # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
     if save:
         fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_img_dict_fov_' + str(fov) + '.pkl')
         pickle.dump(all_regions,open(fpath,'wb'))
