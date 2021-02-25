@@ -581,7 +581,7 @@ def both_beads_filt_count_mask(
 
 def nuclei_registration_filtering(zarr_grp_name,
         parsed_raw_data_fpath,
-        processing_parameters:
+        processing_parameters):
         
         """
         This function remove the background from large structures like nuclei
