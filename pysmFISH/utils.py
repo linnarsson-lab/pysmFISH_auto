@@ -391,6 +391,31 @@ def combine_rounds_images(images_path_list,experiment_fpath, experiment_info,all
     return img_stack
 
 
+def not_run_counting_sorted_grps(experiment_fpath, sorted_grps):
+    """
+    Helper function to identify the files not processed for counting
+    because a failure of dask/htcondor. Identify the files that
+    remain to be processed.
+    """
+    experiment_fpath = Path(experiment_fpath)
+    counts_fpath = experiment_fpath / 'tmp' / 'raw_counts'
+    
+    non_processed_sorted_grps = {}
+    
+    files_processed = list(counts_fpath.glob('*_dots.pkl'))
+    files_processed = [el.stem for el in files_processed]
+    for key, (grp, param) in sorted_grps.items():
+        non_processed_grp = []
+        for zarr_grp_name in grp:
+            if zarr_grp_name in files_processed:
+                files_processed.remove(zarr_grp_name)
+            else:
+                non_processed_grp.append(zarr_grp_name)
+        non_processed_sorted_grps[key] = (non_processed_grp, param)
+    return non_processed_sorted_grps
+
+
+
 
 
 

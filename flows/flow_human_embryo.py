@@ -27,6 +27,7 @@ from pysmFISH.microscopy_file_parsers import nikon_nd2_autoparser_zarr
 from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_zarr
 
 from pysmFISH.utils import sorting_grps
+from pysmFISH.utils import not_run_counting_sorted_grps
 
 from pysmFISH.fovs_registration import create_registration_grps
 
@@ -128,36 +129,39 @@ logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
 
 
-# ----------------------------------------------------------------
-# REPARSING THE MICROSCOPY DATA
-start = time.time()
-logger.info(f'start reparsing raw data')
-# Create empty zarr file for the parse data
-parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-                                    tag=parsed_image_tag)
+# # ----------------------------------------------------------------
+# # REPARSING THE MICROSCOPY DATA
+# start = time.time()
+# logger.info(f'start reparsing raw data')
+# # Create empty zarr file for the parse data
+# parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+#                                     tag=parsed_image_tag)
 
-# Reparse the data
-all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+# # Reparse the data
+# all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
 
-parsing_futures = client.map(nikon_nd2_reparser_zarr,
-                            all_raw_nd2,
-                            parsed_raw_data_fpath=parsed_raw_data_fpath,
-                            experiment_info=experiment_info)
+# parsing_futures = client.map(nikon_nd2_reparser_zarr,
+#                             all_raw_nd2,
+#                             parsed_raw_data_fpath=parsed_raw_data_fpath,
+#                             experiment_info=experiment_info)
 
-_ = client.gather(parsing_futures)
+# _ = client.gather(parsing_futures)
 
-logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
+# logger.info(f'reparsing completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 
 # ----------------------------------------------------------------
 # IMAGE PREPROCESSING AND DOTS COUNTING
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
-consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-# parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um/LBEXP20210209_EEL_HE_3680um_img_data.zarr'
-# consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
+# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um/LBEXP20210209_EEL_HE_3680um_img_data.zarr'
+consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps(consolidated_grp, experiment_info, analysis_parameters)
+
+# Redefine sorted groups because the data processing crushed during the analysis
+sorted_grps = not_run_counting_sorted_grps(experiment_fpath,sorted_grps)
 
 
 # Staining has different processing fun
@@ -183,7 +187,6 @@ start = time.time()
 _ = client.gather(all_futures)
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
-
 
 # ----------------------------------------------------------------
 # REGISTRATION AND BARCODE PROCESSING
