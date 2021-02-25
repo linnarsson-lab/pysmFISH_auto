@@ -276,7 +276,7 @@ def extract_dots_images(barcoded_df,img_stack,experiment_fpath, save=True):
 
     chunks_coords = dots_hoods(coords,barcodes_extraction_resolution)
     chunks_coords[chunks_coords<0]=0
-    chunks_coords[chunks_coords>img_stack.shape[0]]= img_stack.shape[0]
+    chunks_coords[chunks_coords>img_stack.shape[1]]= img_stack.shape[1]
     
     all_regions = {}
     all_max = {}
