@@ -614,7 +614,7 @@ def nuclei_registration_filtering(zarr_grp_name,
         FlatFieldKernel=processing_parameters['PreprocessingNucleiFlatFieldKernel']
     
         try:
-        raw_fish_images_meta = load_raw_images(zarr_grp_name,
+            raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
         except:
             logger.error(f'cannot load {zarr_grp_name} raw fish image')
