@@ -90,7 +90,7 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict,experim
         cluster_config_parameters['experiment_fpath'] = experiment_fpath
         cluster = htcondor_cluster_setup(cluster_config_parameters)
         # cluster.scale(jobs=50)
-        minimum_jobs = 32
+        minimum_jobs = 2
         maximum_jobs = 1000
         cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
         logger.info(f'adaptive dask cluster with {minimum_jobs} minimum jobs')
