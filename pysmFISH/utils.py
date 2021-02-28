@@ -344,7 +344,8 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
 def sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters):
 
     registration_channel = experiment_info['StitchingChannel']
-    key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+    experiment_name =  experiment_info['EXP_name']
+    key = experiment_name + '_Hybridization01_' + registration_channel + '_fov_0'
     fovs = consolidated_grp[key].attrs['fields_of_view']
 
     if experiment_info['Stitching_type'] == 'small-beads':
