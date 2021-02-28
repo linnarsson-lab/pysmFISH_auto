@@ -190,7 +190,23 @@ registration_reference_hybridization = analysis_parameters['RegistrationReferenc
 selected_genes = 'below3Hdistance_genes'
 correct_hamming_distance = 'zeroHdistance_genes' 
 
-all_futures = client.map(fov_processing_eel_barcoded,
+# all_futures = client.map(fov_processing_eel_barcoded,
+#                                         fovs,
+#                                         sorted_grps=sorted_grps,
+#                                         experiment_info=experiment_info,
+#                                         experiment_fpath=experiment_fpath,
+#                                         parsed_raw_data_fpath=parsed_raw_data_fpath,
+#                                         running_functions=running_functions,
+#                                         img_width=img_width,
+#                                         img_height=img_height,
+#                                         selected_genes=selected_genes,
+#                                         correct_hamming_distance=correct_hamming_distance,
+#                                         save_steps_output=False)
+
+# Test submit
+all_futures = []
+for fov in fovs:
+    future = client.submit(fov_processing_eel_barcoded,
                                         fovs,
                                         sorted_grps=sorted_grps,
                                         experiment_info=experiment_info,
@@ -202,6 +218,8 @@ all_futures = client.map(fov_processing_eel_barcoded,
                                         selected_genes=selected_genes,
                                         correct_hamming_distance=correct_hamming_distance,
                                         save_steps_output=False)
+    
+    all_futures.append(future)
 
 start = time.time()
 _ = client.gather(all_futures)
