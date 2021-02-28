@@ -33,6 +33,8 @@ def fov_processing_eel_barcoded(fov,
     processing_grp = sorted_grps[fov]
     processing_grp_split = processing_grp['split']
     fish_img_stacks = {}
+
+    experiment_fpath = Path(experiment_fpath)
     experiment_name = experiment_fpath.stem
     
     # Path of directory where to save the intermediate results
