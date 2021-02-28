@@ -207,7 +207,7 @@ correct_hamming_distance = 'zeroHdistance_genes'
 all_futures = []
 for fov in fovs:
     future = client.submit(fov_processing_eel_barcoded,
-                                        fovs,
+                                        fov,
                                         sorted_grps=sorted_grps,
                                         experiment_info=experiment_info,
                                         experiment_fpath=experiment_fpath,
