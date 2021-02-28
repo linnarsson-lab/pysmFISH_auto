@@ -144,11 +144,11 @@ def fov_processing_eel_barcoded(fov,
         pickle.dump(all_regions, open(fname,'wb' ))
         fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.parquet')
         flipped_df.to_parquet(fname,index=False)
-        
+
         if save_steps_output:
             fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
             np.save(fname,registered_image)
 
         # Save the decoded data
-        fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_' +str(fov) + '.parquet')
+        fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.parquet')
         process_barcodes.barcoded_fov_df.to_parquet(fname,index=False)   
