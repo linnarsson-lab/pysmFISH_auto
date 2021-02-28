@@ -192,13 +192,13 @@ correct_hamming_distance = 'zeroHdistance_genes'
 
 all_futures = client.map(fov_processing_eel_barcoded,
                                         fovs,
-                                        sorted_grps,
-                                        experiment_fpath,
-                                        running_functions,
-                                        img_width,
-                                        img_height,
-                                        selected_genes,
-                                        correct_hamming_distance,
+                                        sorted_grps=sorted_grps,
+                                        experiment_fpath=experiment_fpath,
+                                        running_functions=running_functions,
+                                        img_width=img_width,
+                                        img_height=img_height,
+                                        selected_genes=selected_genes,
+                                        correct_hamming_distance=correct_hamming_distance,
                                         save_steps_output=False)
 
 start = time.time()
