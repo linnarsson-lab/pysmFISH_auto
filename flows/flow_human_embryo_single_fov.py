@@ -193,6 +193,7 @@ correct_hamming_distance = 'zeroHdistance_genes'
 all_futures = client.map(fov_processing_eel_barcoded,
                                         fovs,
                                         sorted_grps=sorted_grps,
+                                        experiment_info=experiment_info,
                                         experiment_fpath=experiment_fpath,
                                         running_functions=running_functions,
                                         img_width=img_width,
