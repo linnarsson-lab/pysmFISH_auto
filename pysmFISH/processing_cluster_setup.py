@@ -126,7 +126,6 @@ def start_transfering_env(processing_hd_location:str):
         transfer_env_config = yaml.safe_load(open(transfer_env_config_fpath,'rb'))
     except (FileExistsError,NameError) as e:
         logger.error(f'missing transfer env configuration file')
-        signals.FAIL(f'missing transfer env configuration file')
     else:
         processing_engine = transfer_env_config['processing_engine']
         if processing_engine == 'htcondor':

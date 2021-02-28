@@ -20,7 +20,7 @@ from flow_steps.filtering_counting import filtering_counting_both_beads
 
 
 def fov_processing_eel_barcoded(fov,
-                    sorted_grps,
+                    sorted_grp,
                     experiment_info,
                     experiment_fpath,
                     parsed_raw_data_fpath,
@@ -32,8 +32,7 @@ def fov_processing_eel_barcoded(fov,
                     save_steps_output=False):
     
     
-    processing_grp = sorted_grps[fov]
-    processing_grp_split = processing_grp['split']
+    processing_grp_split = sorted_grp['split']
     fish_img_stacks = {}
 
     experiment_fpath = Path(experiment_fpath)
