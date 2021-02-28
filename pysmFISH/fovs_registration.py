@@ -285,6 +285,138 @@ def calculate_shift_hybridization_fov(processing_files:List,analysis_parameters:
 
 
 
+def calculate_shift_hybridization_fov_test(fov:int,
+                                            counts_output:Dict,
+                                            analysis_parameters:Dict, 
+                                            experiment_info:Dict):
+    """
+    Function used to run the registration of a single fov
+    through all hybridization. The registration is done using the dots
+    coords determined in each image
+
+    Args:
+        processing_files: List
+            list of the files with the counts to register
+        analysis_parameters: Dict
+            dict that contains the settings for the analysis 
+    """
+    
+    logger = selected_logger()
+    all_rounds_shifts = {}
+    
+    registration_errors = Registration_errors()
+    data_models = Output_models()
+    output_registration_df = data_models.output_registration_df
+    status = 'SUCCESS'
+
+    reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
+    round_num = reference_hybridization
+    reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
+    channel = experiment_info['StitchingChannel']
+    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
+    counts_zarr_names = list(counts_output['registration'][channel].keys())
+
+    try:
+        ref_zarr_name = [el for el in counts_zarr_names if reference_hybridization_str in el][0]
+    except:
+        logger.error(f'missing registration counts fov {fov}')
+        output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.missing_file_reg_channel, 
+                                            'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num)},ignore_index=True)
+        status = 'FAILED'
+        all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+
+    else:
+        ref_counts, ref_img_metadata = counts_output['registration'][channel][ref_zarr_name]
+        # Check if there are dots detected in the reference round
+        if np.any(np.isnan(ref_counts['r_px_original'])) or (ref_counts['r_px_original'].shape[0]<registration_tollerance_pxl):
+            logger.error(f'There are no dots in there reference hyb for fov {fov} ')
+            output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_reg_channel,
+                                        'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
+            status = 'FAILED'
+            all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+        else:
+            ref_counts_df = pd.DataFrame(ref_counts)
+            ref_counts_df['r_px_registered'] = ref_counts_df['r_px_original']
+            ref_counts_df['c_px_registered'] = ref_counts_df['c_px_original']
+            ref_counts_df['r_shift_px'] = 0
+            ref_counts_df['c_shift_px'] = 0
+            ref_counts_df['min_number_matching_dots_registration'] = 1000
+            all_rounds_shifts[round_num] = np.array([0,0])
+
+            output_registration_df = pd.concat([output_registration_df,ref_counts_df],axis=0,ignore_index=True)
+            
+            tran_processing_files = counts_zarr_names.copy()
+            tran_processing_files.remove(ref_zarr_name)
+            img_width = ref_img_metadata['img_width']
+            img_height = ref_img_metadata['img_height']
+
+            img_shape = (img_width, img_height)
+            ref_coords = ref_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+            img_ref = create_fake_image(img_shape,ref_coords)
+    
+
+            for zarr_name in tran_processing_files:
+                round_num = int(zarr_name.split('_')[-4].split('Hybridization')[-1])
+                try:
+                    tran_counts, tran_img_metadata = counts_output['registration'][channel][zarr_name]
+                except:
+                    logger.error(f'cannot open {zarr_name} file for fov {fov}')
+                    # If there is an error in the opening reset the df
+                    output_registration_df = data_models.output_registration_df
+                    output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.cannot_load_file_reg_channel,
+                                        'fov_num':int(fov) ,'dot_channel':channel,'round_num':int(round_num)},ignore_index=True)
+                    status = 'FAILED'
+                    all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+                    break
+                else:
+                    tran_counts_df = pd.DataFrame(tran_counts)
+                    tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+                    if np.any(np.isnan(tran_coords)) or tran_coords.shape[0]<registration_tollerance_pxl:
+                        # If dots are missing, reset the df
+                        output_registration_df = data_models.output_registration_df
+                        output_registration_df = output_registration_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_reg_channel,
+                                        'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
+                        status = 'FAILED'
+                        all_rounds_shifts[round_num] = np.array([np.nan,np.nan])
+                        logger.error(f' {zarr_name} file for fov {fov} has no counts')
+                        break
+                    else:
+                        
+                        round_num = tran_counts['round_num'][0]
+                        ref_img_metadata['reference_hyb'] = str(reference_hybridization)
+                        img_tran = create_fake_image(img_shape,tran_coords)
+                        shift, error, diffphase = register_translation(img_ref, img_tran)
+                        all_rounds_shifts[round_num] = shift
+                        registered_tran_coords = tran_coords + shift
+                        min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
+                                                                                registered_tran_coords,
+                                                                                registration_tollerance_pxl)
+                        
+                        tran_counts_df['r_px_registered'] = registered_tran_coords[:,0]
+                        tran_counts_df['c_px_registered'] = registered_tran_coords[:,1]
+                        tran_counts_df['r_shift_px'] = shift[0]
+                        tran_counts_df['c_shift_px'] = shift[1]
+                        tran_counts_df['min_number_matching_dots_registration'] = min_num_matching_dots
+
+                        output_registration_df = pd.concat([output_registration_df,tran_counts_df],axis=0,ignore_index=True)
+
+            # Save the dataframe
+            
+            output_registration_df['reference_hyb'] = reference_hybridization
+            output_registration_df['experiment_type'] = ref_img_metadata['experiment_type']
+            output_registration_df['experiment_name'] = ref_img_metadata['experiment_name']
+            output_registration_df['pxl_um'] = ref_img_metadata['pixel_microns']
+            output_registration_df['stitching_type'] = ref_img_metadata['stitching_type']
+            output_registration_df['img_width_px'] = ref_img_metadata['img_width']
+            output_registration_df['img_height_px'] = ref_img_metadata['img_height']
+            output_registration_df['fov_acquisition_coords_x'] = ref_img_metadata['fov_acquisition_coords_x']
+            output_registration_df['fov_acquisition_coords_y'] = ref_img_metadata['fov_acquisition_coords_y']
+            output_registration_df['fov_acquisition_coords_z'] = ref_img_metadata['fov_acquisition_coords_z']
+    
+    
+    return output_registration_df, all_rounds_shifts, status
+
+
 def register_fish(processing_files:List,analysis_parameters:Dict,
                         registered_reference_channel_df,all_rounds_shifts:Dict,file_tags:Dict,status:str,
                         save=True):
@@ -356,6 +488,84 @@ def register_fish(processing_files:List,analysis_parameters:Dict,
         registered_fish_df.to_parquet(fname,index=False)
     return registered_fish_df, file_tags, status
 
+
+def register_fish_test(fov:int,
+                        channel:str,
+                        counts_output:Dict,
+                        registered_reference_channel_df,
+                        all_rounds_shifts:Dict,
+                        analysis_parameters:Dict,
+                        status:str):
+
+    logger = selected_logger()
+    registration_errors = Registration_errors()
+    data_models = Output_models()
+
+    registered_fish_df = data_models.output_registration_df
+
+    counts_zarr_names = list(counts_output['fish'][channel].keys())
+
+    if status == 'FAILED':
+        error = registered_reference_channel_df['min_number_matching_dots_registration'].values[0]
+        round_num = registered_reference_channel_df['round_num'].values[0]
+        registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':error,
+                                                           'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
+    elif status == 'SUCCESS':
+        reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
+        reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
+        
+        for zarr_name in counts_zarr_names:
+            round_num = int(zarr_name.split('_')[-4].split('Hybridization')[-1])
+            try:
+                fish_counts, fish_img_metadata = counts_output['fish'][channel][zarr_name]
+            except:
+                logger.error(f'missing the counts in {zarr_name}')
+                
+                registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':registration_errors.cannot_load_file_fish_channel,
+                                                'fov_num':int(fov),'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                status = 'FAILED'
+                break
+            else:                
+                if np.any(np.isnan(fish_counts['r_px_original'])):
+                    logger.error(f'There are no dots in there reference hyb for fov {fov} ')
+                    registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':registration_errors.missing_counts_fish_channel,
+                                                'fov_num':int(fov),'dot_channel':channel,'round_num':round_num },ignore_index=True)
+                    status = 'FAILED'
+                    break
+
+                else:
+                    if reference_hybridization_str in zarr_name:
+                        fish_img_metadata['reference_hyb'] = reference_hybridization
+                        registered_fish_df.attrs[fov] = fish_img_metadata
+                    fish_counts_df = pd.DataFrame(fish_counts)
+                    
+                    subset_df = registered_reference_channel_df.loc[registered_reference_channel_df['round_num'] == round_num, :]
+                    subset_df = subset_df.reset_index()
+                        
+                    shift = all_rounds_shifts[round_num]
+                    fish_counts_df['r_px_registered'] = fish_counts['r_px_original'] + shift[0]
+                    fish_counts_df['c_px_registered'] = fish_counts['c_px_original'] + shift[1]
+                    fish_counts_df['r_shift_px'] = shift[0]
+                    fish_counts_df['c_shift_px'] = shift[1]
+                    fish_counts_df['min_number_matching_dots_registration'] = subset_df.loc[0,'min_number_matching_dots_registration'] 
+                    fish_counts_df['reference_hyb'] = reference_hybridization
+                    fish_counts_df['experiment_type'] = subset_df.loc[0,'experiment_type']
+                    fish_counts_df['experiment_name'] = subset_df.loc[0,'experiment_name']
+                    fish_counts_df['pxl_um'] = subset_df.loc[0,'pxl_um']
+                    fish_counts_df['stitching_type'] = subset_df.loc[0,'stitching_type']
+                    fish_counts_df['fov_acquisition_coords_x'] = subset_df.loc[0,'fov_acquisition_coords_x']
+                    fish_counts_df['fov_acquisition_coords_y'] = subset_df.loc[0,'fov_acquisition_coords_y']
+                    fish_counts_df['fov_acquisition_coords_z'] = subset_df.loc[0,'fov_acquisition_coords_z']
+                    fish_counts_df['img_width_px'] = fish_img_metadata['img_width']
+                    fish_counts_df['img_height_px'] = fish_img_metadata['img_height']
+
+
+
+
+                    registered_fish_df = pd.concat([registered_fish_df,fish_counts_df],axis=0,ignore_index=True)
+                    status = 'SUCCESS'
+
+    return registered_fish_df, status
 
 
 def calculate_shift_hybridization_fov_nuclei(processing_files:List,analysis_parameters:dict, save=True):

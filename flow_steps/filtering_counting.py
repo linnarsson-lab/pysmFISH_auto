@@ -218,14 +218,16 @@ def single_fish_filter_count_standard_not_norm(
                                                     num_peaks_per_label)
             
           
-            fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
-            pickle.dump((img, img_metadata),open(fname,'wb'))
+            # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+            # pickle.dump((img, img_metadata),open(fname,'wb'))
             
 
-            # save_dots_data(fish_counts)
-            fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
-            pickle.dump(fish_counts,open(fname,'wb'))
+            # # save_dots_data(fish_counts)
+            # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+            # pickle.dump(fish_counts,open(fname,'wb'))
 
+
+            return fish_counts, img
 
 def single_fish_filter_count_avoid_large_obj(
         zarr_grp_name,
@@ -322,14 +324,15 @@ def single_fish_filter_count_avoid_large_obj(
                                                     num_peaks_per_label)
             
           
-            fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
-            pickle.dump((img, img_metadata),open(fname,'wb'))
+            # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+            # pickle.dump((img, img_metadata),open(fname,'wb'))
             
 
-            # save_dots_data(fish_counts)
-            fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
-            pickle.dump(fish_counts,open(fname,'wb'))
+            # # save_dots_data(fish_counts)
+            # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+            # pickle.dump(fish_counts,open(fname,'wb'))
 
+            return fish_counts, img
 
 def filtering_counting_large_beads(zarr_grp_name,
         parsed_raw_data_fpath,
@@ -368,14 +371,15 @@ def filtering_counting_large_beads(zarr_grp_name,
                                                     num_peaks_per_label)
             
     
-    fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
-    pickle.dump((img, img_metadata),open(fname,'wb'))
+    # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+    # pickle.dump((img, img_metadata),open(fname,'wb'))
     
 
-    # save_dots_data(fish_counts)
-    fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
-    pickle.dump(fish_counts,open(fname,'wb'))
+    # # save_dots_data(fish_counts)
+    # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+    # pickle.dump(fish_counts,open(fname,'wb'))
    
+    return fish_counts, img
 
 def filtering_counting_both_beads(zarr_grp_name,
         parsed_raw_data_fpath,
@@ -419,14 +423,15 @@ def filtering_counting_both_beads(zarr_grp_name,
                                                     num_peaks_per_label)
             
     
-    fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
-    pickle.dump((img, img_metadata),open(fname,'wb'))
+    # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+    # pickle.dump((img, img_metadata),open(fname,'wb'))
     
 
-    # save_dots_data(fish_counts)
-    fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
-    pickle.dump(fish_counts,open(fname,'wb'))
+    # # save_dots_data(fish_counts)
+    # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+    # pickle.dump(fish_counts,open(fname,'wb'))
    
+    return fish_counts, img
 
 def both_beads_filt_count_mask(
         zarr_grp_name,

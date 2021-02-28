@@ -323,7 +323,7 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
         beads_selected_parameters  = analysis_parameters['nuclei']
         beads_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
     else:
-        self.logger.error(f'Wrong stitching type in the experiment file')
+        logger.error(f'Wrong stitching type in the experiment file')
         sys.exit(f'Wrong stitching type in the experiment file')
     
     fish_selected_parameters = analysis_parameters['fish']
@@ -341,7 +341,74 @@ def sorting_grps(grps, experiment_info, analysis_parameters):
     return combined_grps
 
 
+def sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters):
 
+    registration_channel = experiment_info['StitchingChannel']
+    key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+    fovs = consolidated_grp[key].attrs['fields_of_view']
+
+    if experiment_info['Stitching_type'] == 'small-beads':
+            registration_selected_parameters  = analysis_parameters['small-beads']
+            registration_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+    elif experiment_info['Stitching_type'] == 'large-beads':
+        registration_selected_parameters  = analysis_parameters['large-beads']
+        registration_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+    elif experiment_info['Stitching_type'] == 'both-beads':
+        registration_selected_parameters  = analysis_parameters['both-beads']
+        registration_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+    elif experiment_info['Stitching_type'] == 'nuclei' :
+        registration_selected_parameters  = analysis_parameters['nuclei']
+        registration_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+    else:
+        logger.error(f'Wrong stitching type in the experiment file')
+        sys.exit(f'Wrong stitching type in the experiment file')
+
+    fish_selected_parameters = analysis_parameters['fish']
+    fish_selected_parameters['BarcodesExtractionResolution'] = analysis_parameters['BarcodesExtractionResolution']
+    fish_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+
+    staining_selected_parameters = analysis_parameters['staining']
+    staining_selected_parameters['RegistrationReferenceHybridization'] = analysis_parameters['RegistrationReferenceHybridization']
+
+
+    # Group the names by fov
+    grpd_by_fov = {}
+    for fov in fovs:
+        grpd_by_fov[fov] = {}
+        grpd_by_fov[fov]['split'] = {}
+        grpd_by_fov[fov]['all_names'] = []
+    for name, grp in consolidated_grp.items():
+        fov = int(name.split('_fov_')[-1])
+        grpd_by_fov[fov]['all_names'].append(name)
+
+
+    # Regroup by processing type
+    for fov, data_dict in grpd_by_fov.items():
+        grpd_by_fov[fov]['split']['fish'] = {}
+        grpd_by_fov[fov]['split']['registration'] = {}
+        grpd_by_fov[fov]['split']['staining'] = {}
+        
+        for name in data_dict['all_names']:
+            if consolidated_grp[name].attrs['stitching_channel'] == consolidated_grp[name].attrs['channel']:
+                if consolidated_grp[name].attrs['channel'] in grpd_by_fov[fov]['split']['registration'].keys():
+                    grpd_by_fov[fov]['split']['registration'][consolidated_grp[name].attrs['channel']][0].append(name)
+                else:
+                    grpd_by_fov[fov]['split']['registration'][consolidated_grp[name].attrs['channel']] = ([],registration_selected_parameters)
+                    grpd_by_fov[fov]['split']['registration'][consolidated_grp[name].attrs['channel']][0].append(name)
+            elif '_ST' in consolidated_grp[name].attrs['target_name']:
+                if consolidated_grp[name].attrs['channel'] in grpd_by_fov[fov]['split']['staining'].keys():
+                    grpd_by_fov[fov]['split']['staining'][consolidated_grp[name].attrs['channel']][0].append(name)
+                else:
+                    grpd_by_fov[fov]['split']['staining'][consolidated_grp[name].attrs['channel']] = ([],staining_selected_parameters)
+                    grpd_by_fov[fov]['split']['staining'][consolidated_grp[name].attrs['channel']][0].append(name)
+            else:
+                if consolidated_grp[name].attrs['channel'] in grpd_by_fov[fov]['split']['fish'].keys():
+                    grpd_by_fov[fov]['split']['fish'][consolidated_grp[name].attrs['channel']][0].append(name)
+                else:
+                    grpd_by_fov[fov]['split']['fish'][consolidated_grp[name].attrs['channel']] = ([],fish_selected_parameters)
+                    grpd_by_fov[fov]['split']['fish'][consolidated_grp[name].attrs['channel']][0].append(name)
+
+    return grpd_by_fov
 
 def create_dir(dir_path):
     try:
@@ -389,6 +456,22 @@ def combine_rounds_images(images_path_list,experiment_fpath, experiment_info,all
         # Add conversion to more compress ftype
         np.save(fpath, img_stack)
     return img_stack
+
+
+def register_combined_rounds_images(combined_round_images,all_rounds_shifts):
+    
+    img_stack = np.zeros_like(combined_round_images)
+
+    for round_num, shift in all_rounds_shifts.items():
+        img = combined_round_images[round_num-1,:,:]
+        img[img<0] = 0
+        shifted_img = register_images(img,shift)
+        img_stack[round_num-1,:,:] = shifted_img
+
+    return img_stack
+
+
+
 
 
 def not_run_counting_sorted_grps(experiment_fpath, sorted_grps):
