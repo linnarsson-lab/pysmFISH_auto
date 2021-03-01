@@ -8,7 +8,7 @@ from pysmFISH.utils import register_combined_rounds_images
 from pysmFISH.barcodes_analysis import extract_dots_images
 from pysmFISH.barcodes_analysis import define_flip_direction
 
-from pysmFISH.logger_utils import json_logger
+from pysmFISH.logger_utils import selected_logger
 
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
 from pysmFISH.fovs_registration import register_fish_test
@@ -35,6 +35,8 @@ def fov_processing_eel_barcoded(fov,
     
     processing_grp_split = sorted_grp['split']
     fish_img_stacks = {}
+
+    logger = selected_logger()
 
     experiment_fpath = Path(experiment_fpath)
     experiment_name = experiment_fpath.stem
