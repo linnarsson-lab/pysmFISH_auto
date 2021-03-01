@@ -4,6 +4,7 @@ Collection of functions to run filtering of the images and counting
 from typing import *
 import pickle
 import sys
+import time
 
 import dask
 import numpy as np
@@ -47,7 +48,7 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
         dark_img = np.load(dark_img_fpath[0])
     except:
         logger.error(f'cannot load the dark image file')
-        err = sys.exit(f'cannot load the dark image file')
+        sys.exit(f'cannot load the dark image file')
     else:
         logger.info(f'loaded {dark_img_fpath[0].stem} dark image')
         dark_img = convert_from_uint16_to_float64(dark_img)
@@ -76,7 +77,6 @@ def single_fish_filter_count_standard(
     """
 
     logger = selected_logger()
-    
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
     experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
