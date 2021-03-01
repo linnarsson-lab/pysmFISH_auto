@@ -5,6 +5,7 @@ from pathlib import Path
 from dask.distributed import Client
 
 from pysmFISH.logger_utils import json_logger
+from pysmFISH.logger_utils import selected_logger()
 
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_processing_env_config_file
@@ -107,7 +108,8 @@ codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info
 
 # ----------------------------------------------------------------
 # START PIPELINE LOGGER
-logger = json_logger((experiment_fpath + '/logs'),'pipeline_run')
+# logger = json_logger((experiment_fpath + '/logs'),'pipeline_run')
+logger = selected_logger()
 # ----------------------------------------------------------------
 
 
