@@ -403,6 +403,7 @@ def filtering_counting_both_beads(zarr_grp_name,
     raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
 
+    logger.info(f'loaded {zarr_grp_name} raw fish image')
     img = raw_fish_images_meta[0]
     img_metadata = raw_fish_images_meta[1]
     img = convert_from_uint16_to_float64(img)
