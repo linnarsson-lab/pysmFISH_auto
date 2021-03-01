@@ -254,11 +254,11 @@ def osmFISH_peak_based_detection(img_meta:Tuple[np.ndarray, Dict],
                             'num_peaks_per_label': num_peaks_per_label,
                                 }
     fill_value = np.nan
-    logger.debug(f'started thr selection')
+    logger.info(f'started thr selection')
     counts = osmFISH_dots_thr_selection(img,counting_parameters_dict)
     counts.counting_graph()
     counts.thr_identification()
-    logger.debug(f'identified the thr')
+    logger.info(f'identified the thr')
     data_models = Output_models()
     counts_dict = data_models.dots_counts_dict
 
@@ -274,9 +274,9 @@ def osmFISH_peak_based_detection(img_meta:Tuple[np.ndarray, Dict],
     counts_dict['target_name'] = np.array([img_metadata['target_name']])
                     
     if not np.isnan(counts.selected_thr):
-            logger.debug(f'started dots mapping')
+            logger.info(f'started dots mapping')
             dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
-            logger.debug(f'completed dots mapping')
+            logger.info(f'completed dots mapping')
             if isinstance(dots.selected_peaks,np.ndarray):
                 # Peaks have been identified
                 total_dots = dots.selected_peaks.shape[0]
