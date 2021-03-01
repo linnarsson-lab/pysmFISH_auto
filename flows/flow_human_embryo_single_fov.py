@@ -164,7 +164,6 @@ if parsing_type == 'original':
     _ = client.gather(parsing_futures)
 
     consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-
     logger.info(f'reparsing completed in {(time.time()-start)/60} min')
     # ----------------------------------------------------------------
 
@@ -191,8 +190,6 @@ elif parsing_type == 'reparsing_from_processing_folder':
 
     consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
     logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-
-
     # ----------------------------------------------------------------
 
 elif parsing_type == 'reparsing_from_storage':
@@ -201,9 +198,9 @@ elif parsing_type == 'reparsing_from_storage':
 
 elif parsing_type == None:
     logger.info(f'data parsing is not required')
-    consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
     exp_path = Path(experiment_fpath)
     parsed_raw_data_fpath = exp_path / (exp_path.stem + '_' + parsed_image_tag + '.zarr') 
+    consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
     pass
     
 # ----------------------------------------------------------------
