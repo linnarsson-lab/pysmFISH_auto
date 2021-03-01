@@ -144,64 +144,51 @@ logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 
-if parsing_type == 'original':
-    # ----------------------------------------------------------------
-    # PARSING THE MICROSCOPY DATA
-    start = time.time()
-    logger.info(f'start reparsing raw data')
-    # Create empty zarr file for the parse data
-    parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-                                        tag=parsed_image_tag)
+# ----------------------------------------------------------------
+# PARSING THE MICROSCOPY DATA
+start = time.time()
+logger.info(f'start parsing raw data')
 
-    # Parse the data
-    all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
-
-    parsing_futures = client.map(nikon_nd2_autoparser_zarr,
-                                all_raw_nd2,
-                                parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                experiment_info=experiment_info)
-
-    _ = client.gather(parsing_futures)
-
-    consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-    logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-    # ----------------------------------------------------------------
-
-elif parsing_type == 'reparsing_from_processing_folder':
-
-    # ----------------------------------------------------------------
-    # REPARSING THE MICROSCOPY DATA
-    start = time.time()
-    logger.info(f'start reparsing raw data')
-    raw_files_fpath = experiment_fpath + '/raw_data'
-    # Create empty zarr file for the parse data
-    parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-                                        tag=parsed_image_tag)
-
-    # Reparse the data
-    all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
-
-    parsing_futures = client.map(nikon_nd2_reparser_zarr,
-                                all_raw_nd2,
-                                parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                experiment_info=experiment_info)
-
-    _ = client.gather(parsing_futures)
-
-    consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-    logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-    # ----------------------------------------------------------------
-
-elif parsing_type == 'reparsing_from_storage':
-    consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-    pass
-
-elif parsing_type == None:
+if parsing_type == None:
     logger.info(f'data parsing is not required')
     exp_path = Path(experiment_fpath)
     parsed_raw_data_fpath = exp_path / (exp_path.stem + '_' + parsed_image_tag + '.zarr') 
-    consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
-    pass
+    consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath.as_posix())
+else:
+    # Create empty zarr file for the parse data
+    parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+                                        tag=parsed_image_tag)
+    if parsing_type == 'original':
+        all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
+
+        parsing_futures = client.map(nikon_nd2_autoparser_zarr,
+                                all_raw_nd2,
+                                parsed_raw_data_fpath=parsed_raw_data_fpath,
+                                experiment_info=experiment_info)
+
+        _ = client.gather(parsing_futures)
+
+        consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+    
+    else:
+        if parsing_type == 'reparsing_from_processing_folder':
+            raw_files_fpath = experiment_fpath + '/raw_data'
+        elif parsing_type == 'reparsing_from_storage':
+            raw_files_fpath = storage_experiment_fpath + '/raw_data'
+
+        all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+        parsing_futures = client.map(nikon_nd2_reparser_zarr,
+                                all_raw_nd2,
+                                parsed_raw_data_fpath=parsed_raw_data_fpath,
+                                experiment_info=experiment_info)
+
+        _ = client.gather(parsing_futures)
+
+        consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+
+logger.info(f'reparsing completed in {(time.time()-start)/60} min')
+ # ----------------------------------------------------------------
+
     
 # ----------------------------------------------------------------
 # IMAGE PREPROCESSING AND DOTS COUNTING
