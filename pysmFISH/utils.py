@@ -502,7 +502,7 @@ def transfer_files_from_storage(storage_experiment_fpath:str,experiment_fpath:st
     """
     logger = selected_logger()
     storage_experiment_fpath = Path(storage_experiment_fpath)
-    logger.info(f'storage directory {storage_experiment_path.as_posix()}')
+    logger.info(f'storage directory {storage_experiment_fpath.as_posix()}')
     experiment_fpath = Path(experiment_fpath)
     logger.info(f'target directory {experiment_fpath.as_posix()}')
 

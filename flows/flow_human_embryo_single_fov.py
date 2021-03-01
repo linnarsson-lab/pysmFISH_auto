@@ -189,7 +189,7 @@ else:
 logger.info(f'reparsing completed in {(time.time()-start)/60} min')
  # ----------------------------------------------------------------
 
-    
+
 # ----------------------------------------------------------------
 # IMAGE PREPROCESSING AND DOTS COUNTING
 start = time.time()
@@ -205,20 +205,6 @@ img_height = consolidated_grp[key].attrs['img_height']
 registration_reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
 selected_genes = 'below3Hdistance_genes'
 correct_hamming_distance = 'zeroHdistance_genes' 
-
-
-# all_futures = client.map(fov_processing_eel_barcoded,
-#                                         fovs,
-#                                         sorted_grps=sorted_grps,
-#                                         experiment_info=experiment_info,
-#                                         experiment_fpath=experiment_fpath,
-#                                         parsed_raw_data_fpath=parsed_raw_data_fpath,
-#                                         running_functions=running_functions,
-#                                         img_width=img_width,
-#                                         img_height=img_height,
-#                                         selected_genes=selected_genes,
-#                                         correct_hamming_distance=correct_hamming_distance,
-#                                         save_steps_output=False)
 
 all_futures = []
 for fov,sorted_grp in sorted_grps.items():
