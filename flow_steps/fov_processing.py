@@ -22,6 +22,7 @@ from flow_steps.filtering_counting import filtering_counting_both_beads
 def fov_processing_eel_barcoded(fov,
                     sorted_grp,
                     experiment_info,
+                    analysis_parameters,
                     experiment_fpath,
                     parsed_raw_data_fpath,
                     running_functions,
