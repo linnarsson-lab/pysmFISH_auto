@@ -210,6 +210,7 @@ for fov,sorted_grp in sorted_grps.items():
                                         fov,
                                         sorted_grp,
                                         experiment_info=experiment_info,
+                                        analysis_parameters=analysis_parameters,
                                         experiment_fpath=experiment_fpath,
                                         parsed_raw_data_fpath=parsed_raw_data_fpath,
                                         running_functions=running_functions,
