@@ -472,6 +472,35 @@ def register_combined_rounds_images(combined_round_images,all_rounds_shifts):
     return img_stack
 
 
+# https://stackoverflow.com/questions/1868714/how-do-i-copy-an-entire-directory-of-files-into-an-existing-directory-using-pyth
+def copytree(src, dst, symlinks=False, ignore=None):
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            copytree(s, d, symlinks, ignore)
+        else:
+            if not os.path.exists(d) or os.stat(s).st_mtime - os.stat(d).st_mtime > 1:
+                shutil.copy2(s, d)
+
+
+
+def transfer_files_from_storage(storage_experiment_fpath,experiment_fpath):
+    storage_experiment_path = Path(storage_experiment_fpath)
+    experiment_path = Path(experiment_fpath)
+    config_file = storage_experiment_path.glob('*.yaml')
+    folders_to_copy=[
+        'extra_processing_data',
+        'pipeline_config',
+        'codebook',
+        'probes'
+    ]
+    for folder_name in folders_to_copy:
+        src = (storage_experiment_path / folder_name).as_posix()
+        dst = (experiment_path / folder_name).as_posix()
+        copytree(src,dst)
 
 
 
