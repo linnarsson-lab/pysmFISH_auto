@@ -108,8 +108,8 @@ codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info
 
 # ----------------------------------------------------------------
 # START PIPELINE LOGGER
-# logger = json_logger((experiment_fpath + '/logs'),'pipeline_run')
-logger = selected_logger()
+logger = json_logger((experiment_fpath + '/logs'),'pipeline_run')
+# logger = selected_logger()
 # ----------------------------------------------------------------
 
 
