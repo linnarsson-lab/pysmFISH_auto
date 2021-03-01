@@ -216,6 +216,7 @@ for fov,sorted_grp in sorted_grps.items():
                                         running_functions=running_functions,
                                         img_width=img_width,
                                         img_height=img_height,
+                                        codebook=codebook,
                                         selected_genes=selected_genes,
                                         correct_hamming_distance=correct_hamming_distance,
                                         save_steps_output=False)

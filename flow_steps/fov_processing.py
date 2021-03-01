@@ -26,10 +26,11 @@ def fov_processing_eel_barcoded(fov,
                     experiment_fpath,
                     parsed_raw_data_fpath,
                     running_functions,
-                                img_width,
-                                img_height,
-                                selected_genes,
-                                correct_hamming_distance,
+                    img_width,
+                    img_height,
+                    codebook,
+                    selected_genes,
+                    correct_hamming_distance,
                     save_steps_output=False):
     
     
