@@ -5,7 +5,7 @@ from pathlib import Path
 from dask.distributed import Client
 
 from pysmFISH.logger_utils import json_logger
-from pysmFISH.logger_utils import selected_logger()
+from pysmFISH.logger_utils import selected_logger
 
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_processing_env_config_file
