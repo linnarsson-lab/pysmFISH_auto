@@ -135,22 +135,23 @@ def fov_processing_eel_barcoded(fov,
                                            status)
         process_barcodes.run_extraction()
         
-        registered_image = register_combined_rounds_images(fish_img_stacks[channel],all_rounds_shifts)
-        
-        all_regions = extract_dots_images(process_barcodes.barcoded_fov_df,
-                                registered_image,experiment_fpath,save=False)
-        
-        flipped_df = define_flip_direction(codebook,experiment_fpath,process_barcodes.barcoded_fov_df, 
-                                    selected_genes, correct_hamming_distance,save=False)
+        if process_barcodes.status == 'SUCCESS':
+            registered_image = register_combined_rounds_images(fish_img_stacks[channel],all_rounds_shifts)
+            
+            all_regions = extract_dots_images(process_barcodes.barcoded_fov_df,
+                                    registered_image,experiment_fpath,save=False)
+            
+            flipped_df = define_flip_direction(codebook,experiment_fpath,process_barcodes.barcoded_fov_df, 
+                                        selected_genes, correct_hamming_distance,save=False)
 
-        fname = combined_images_path / (experiment_name + '_' + channel + '_max_array_dict_' +str(fov) + '.npy')
-        pickle.dump(all_regions, open(fname,'wb' ))
-        fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.parquet')
-        flipped_df.to_parquet(fname,index=False)
-        # Save the decoded data
-        fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.parquet')
-        process_barcodes.barcoded_fov_df.to_parquet(fname,index=False)   
+            fname = combined_images_path / (experiment_name + '_' + channel + '_max_array_dict_' +str(fov) + '.npy')
+            pickle.dump(all_regions, open(fname,'wb' ))
+            fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.parquet')
+            flipped_df.to_parquet(fname,index=False)
+            # Save the decoded data
+            fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.parquet')
+            process_barcodes.barcoded_fov_df.to_parquet(fname,index=False)   
 
-        if save_steps_output:
-            fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
-            np.save(fname,registered_image)
+            if save_steps_output:
+                fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
+                np.save(fname,registered_image)
