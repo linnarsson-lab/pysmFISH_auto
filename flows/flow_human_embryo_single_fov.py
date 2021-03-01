@@ -13,6 +13,7 @@ from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.configuration_files import create_specific_analysis_config_file
 
 from pysmFISH.utils import create_folder_structure
+from pysmFISH.utils import transfer_files_from_storage
 from pysmFISH.utils import collect_processing_files
 from pysmFISH.utils import sort_data_into_folders
 from pysmFISH.utils import create_dark_img
@@ -58,23 +59,30 @@ pipeline_start = time.time()
 # ----------------------------------------------------------------
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
+
 experiment_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um'
-# experiment_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
-
-
-raw_files_fpath = experiment_fpath + '/raw_data'
 parsed_image_tag = 'img_data'
 
+# parsing type (str) can be:
+# original
+# reparsing_from_processing_folder
+# reparsing_from_storage 
+# None if parsing not to be performed
 
-running_functions ={'parsing_raw_data': None,
+parsing_type = None
+
+running_functions ={
                     'fish_channels_filtering_counting':single_fish_filter_count_standard_not_norm,
                    'registration_channel_filtering_counting':filtering_counting_both_beads,
                    'registration_reference':calculate_shift_hybridization_fov_test,
                    'registration_fish': register_fish_test,
                    'barcode_extraction': extract_barcodes_NN_test}
+
+
+storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
 
 # ----------------------------------------------------------------
 
@@ -88,6 +96,13 @@ running_functions ={'parsing_raw_data': None,
 # check_experiment_yaml_file(experiment_fpath)
 # # ----------------------------------------------------------------
 
+
+# # ----------------------------------------------------------------
+# TRANSFER REQUIRED FILES FOR THE PROCESSING IF THE ANALYSIS START
+# FROM RAW DATA IN THE STORAGE HD
+if parsing_type == 'reparsing_from_storage':
+    transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
+# # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # LOAD CONFIGURATION FILES
@@ -129,57 +144,72 @@ logger.info(f'cluster creation completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
-# # PARSING THE MICROSCOPY DATA
-# start = time.time()
-# logger.info(f'start reparsing raw data')
-# # Create empty zarr file for the parse data
-# parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-#                                     tag=parsed_image_tag)
+if parsing_type == 'original':
+    # ----------------------------------------------------------------
+    # PARSING THE MICROSCOPY DATA
+    start = time.time()
+    logger.info(f'start reparsing raw data')
+    # Create empty zarr file for the parse data
+    parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+                                        tag=parsed_image_tag)
 
-# # Parse the data
-# all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
+    # Parse the data
+    all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
 
-# parsing_futures = client.map(nikon_nd2_autoparser_zarr,
-#                             all_raw_nd2,
-#                             parsed_raw_data_fpath=parsed_raw_data_fpath,
-#                             experiment_info=experiment_info)
+    parsing_futures = client.map(nikon_nd2_autoparser_zarr,
+                                all_raw_nd2,
+                                parsed_raw_data_fpath=parsed_raw_data_fpath,
+                                experiment_info=experiment_info)
 
-# _ = client.gather(parsing_futures)
+    _ = client.gather(parsing_futures)
 
-# logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+    consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+
+    logger.info(f'reparsing completed in {(time.time()-start)/60} min')
+    # ----------------------------------------------------------------
+
+elif parsing_type == 'reparsing_from_processing_folder':
+
+    # ----------------------------------------------------------------
+    # REPARSING THE MICROSCOPY DATA
+    start = time.time()
+    logger.info(f'start reparsing raw data')
+    raw_files_fpath = experiment_fpath + '/raw_data'
+    # Create empty zarr file for the parse data
+    parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+                                        tag=parsed_image_tag)
+
+    # Reparse the data
+    all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+
+    parsing_futures = client.map(nikon_nd2_reparser_zarr,
+                                all_raw_nd2,
+                                parsed_raw_data_fpath=parsed_raw_data_fpath,
+                                experiment_info=experiment_info)
+
+    _ = client.gather(parsing_futures)
+
+    consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+    logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 
 
-# # ----------------------------------------------------------------
-# # REPARSING THE MICROSCOPY DATA
-# start = time.time()
-# logger.info(f'start reparsing raw data')
-# # Create empty zarr file for the parse data
-# parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-#                                     tag=parsed_image_tag)
+    # ----------------------------------------------------------------
 
-# # Reparse the data
-# all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+elif parsing_type == 'reparsing_from_storage':
+    consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+    pass
 
-# parsing_futures = client.map(nikon_nd2_reparser_zarr,
-#                             all_raw_nd2,
-#                             parsed_raw_data_fpath=parsed_raw_data_fpath,
-#                             experiment_info=experiment_info)
-
-# _ = client.gather(parsing_futures)
-
-# logger.info(f'reparsing completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
-
-
+elif parsing_type == None:
+    logger.info(f'data parsing is not required')
+    consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
+    exp_path = Path(experiment_fpath)
+    parsed_raw_data_fpath = exp_path / (exp_path.stem + '_' + parsed_image_tag + '.zarr') 
+    pass
+    
 # ----------------------------------------------------------------
 # IMAGE PREPROCESSING AND DOTS COUNTING
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
-# consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-parsed_raw_data_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um/LBEXP20210209_EEL_HE_3680um_img_data.zarr'
-consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath)
 sorted_grps = sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters)
 
 # PROCESSING PARAMETERS
