@@ -112,7 +112,6 @@ experiment_info = load_experiment_config_file(experiment_fpath)
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
 analysis_parameters = load_analysis_config_file(experiment_fpath)
 
-codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -194,6 +193,8 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # IMAGE PREPROCESSING, DOTS COUNTING, REGISTRATION TO MICROSCOPE COORDS
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
+
+codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
 sorted_grps = sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters)
 
 # PROCESSING PARAMETERS
