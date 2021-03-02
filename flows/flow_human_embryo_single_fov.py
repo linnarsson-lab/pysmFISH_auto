@@ -8,7 +8,6 @@ from pysmFISH.logger_utils import json_logger
 from pysmFISH.logger_utils import selected_logger
 
 from pysmFISH.configuration_files import load_experiment_config_file
-from pysmFISH.configuration_files import load_processing_env_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.configuration_files import create_specific_analysis_config_file
 
@@ -106,9 +105,18 @@ if parsing_type == 'reparsing_from_storage':
     transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
 # # ----------------------------------------------------------------
 
+
+
+# ----------------------------------------------------------------
+# ORGANIZE DATA IN FOLDERS
+collect_processing_files(experiment_fpath, experiment_info)
+sort_data_into_folders(experiment_fpath, experiment_info)
+# ----------------------------------------------------------------
+
+
+
 # ----------------------------------------------------------------
 # LOAD CONFIGURATION FILES
-processing_env_config = load_processing_env_config_file(experiment_fpath)
 experiment_info = load_experiment_config_file(experiment_fpath)
 # Add check if an analysis file is already present
 create_specific_analysis_config_file(experiment_fpath, experiment_info)
