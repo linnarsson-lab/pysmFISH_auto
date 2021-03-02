@@ -37,7 +37,7 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
     cluster = HTCondorCluster(cores=cores, memory=memory, 
                         disk=disk,local_directory=local_directory,
                         log_directory=log_directory,
-                        death_timeout=5000,processes=1)
+                        death_timeout=5000)
     logger.info(f'created cluster with {cores} cores and {memory} memory')
     return cluster
 
@@ -91,7 +91,7 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict,experim
         cluster = htcondor_cluster_setup(cluster_config_parameters)
         # cluster.scale(jobs=50)
         minimum_jobs = 2
-        maximum_jobs = 100
+        maximum_jobs = 800
         cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
         logger.info(f'adaptive dask cluster with {minimum_jobs} minimum jobs')
         return cluster
