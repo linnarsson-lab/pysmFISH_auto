@@ -62,7 +62,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/wsfish/smfish_ssd/LBEXP20210209_EEL_HE_3680um'
+experiment_fpath = '/fish/work_std/LBEXP20210220_EEL_HE_2410um'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -74,7 +74,7 @@ parsed_image_tag = 'img_data'
 # reparsing_from_storage 
 # None if parsing not to be performed
 
-parsing_type = None
+parsing_type = 'original'
 
 running_functions ={
                     'fish_channels_filtering_counting':single_fish_filter_count_standard_not_norm_test,
@@ -88,10 +88,10 @@ storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment
 
 # ----------------------------------------------------------------
 
-# # ----------------------------------------------------------------
-# # CREATE FOLDERS STRUCTURE
-# create_folder_structure(experiment_fpath)
-# # ----------------------------------------------------------------
+# ----------------------------------------------------------------
+# CREATE FOLDERS STRUCTURE
+create_folder_structure(experiment_fpath)
+# ----------------------------------------------------------------
 
 # # ----------------------------------------------------------------
 # # QC Experiment info file
@@ -117,11 +117,11 @@ analysis_parameters = load_analysis_config_file(experiment_fpath)
 codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
 # ----------------------------------------------------------------
 
-# # ----------------------------------------------------------------
-# # ORGANIZE DATA IN FOLDERS
-# collect_processing_files(experiment_fpath, experiment_info)
-# sort_data_into_folders(experiment_fpath, experiment_info)
-# # ----------------------------------------------------------------
+# ----------------------------------------------------------------
+# ORGANIZE DATA IN FOLDERS
+collect_processing_files(experiment_fpath, experiment_info)
+sort_data_into_folders(experiment_fpath, experiment_info)
+# ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # START PIPELINE LOGGER
@@ -130,10 +130,10 @@ logger = json_logger((experiment_fpath + '/logs'),'pipeline_run')
 # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
-# # CREATE DARK IMAGES
-# create_dark_img(experiment_fpath,experiment_info)
-# # ----------------------------------------------------------------
+# ----------------------------------------------------------------
+# CREATE DARK IMAGES
+create_dark_img(experiment_fpath,experiment_info)
+# ----------------------------------------------------------------
 
 
 # ----------------------------------------------------------------
