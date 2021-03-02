@@ -105,16 +105,6 @@ if parsing_type == 'reparsing_from_storage':
     transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
 # # ----------------------------------------------------------------
 
-
-
-# ----------------------------------------------------------------
-# ORGANIZE DATA IN FOLDERS
-collect_processing_files(experiment_fpath, experiment_info)
-sort_data_into_folders(experiment_fpath, experiment_info)
-# ----------------------------------------------------------------
-
-
-
 # ----------------------------------------------------------------
 # LOAD CONFIGURATION FILES
 experiment_info = load_experiment_config_file(experiment_fpath)
