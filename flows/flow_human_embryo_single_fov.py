@@ -193,7 +193,7 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 
 
 # ----------------------------------------------------------------
-# IMAGE PREPROCESSING AND DOTS COUNTING
+# IMAGE PREPROCESSING, DOTS COUNTING, REGISTRATION TO MICROSCOPE COORDS
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
 sorted_grps = sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters)
@@ -208,6 +208,12 @@ registration_reference_hybridization = analysis_parameters['RegistrationReferenc
 selected_genes = 'below3Hdistance_genes'
 correct_hamming_distance = 'zeroHdistance_genes' 
 
+tiles_org = organize_square_tiles(experiment_fpath,experiment_info,
+                                    consolidated_grp,
+                                    registration_reference_hybridization)
+tiles_org.run_tiles_organization()
+tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
+
 # all_futures = []
 # for fov,sorted_grp in sorted_grps.items():
 #     future = client.submit(fov_processing_eel_barcoded,
@@ -220,6 +226,7 @@ correct_hamming_distance = 'zeroHdistance_genes'
 #                                         running_functions=running_functions,
 #                                         img_width=img_width,
 #                                         img_height=img_height,
+#                                         tile_corners_coords_pxl=tile_corners_coords_pxl,
 #                                         codebook=codebook,
 #                                         selected_genes=selected_genes,
 #                                         correct_hamming_distance=correct_hamming_distance,
@@ -231,24 +238,6 @@ correct_hamming_distance = 'zeroHdistance_genes'
 # _ = client.gather(all_futures)
 # logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
-
-# ----------------------------------------------------------------
-# STITCHING
-start = time.time()
-logger.info(f'start stitching using microscope coords')
-round_num = analysis_parameters['RegistrationReferenceHybridization']
-tiles_org = organize_square_tiles(experiment_fpath,experiment_info,consolidated_grp,round_num)
-tiles_org.run_tiles_organization()
-
-decoded_files = list((Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*_decoded_*'))
-
-all_futures = client.map(stitch_using_microscope_fov_coords,decoded_files,
-                        tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl)       
-
-_ = client.gather(all_futures)  
-
-logger.info(f'stitching using microscope coords completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
 
 # # ----------------------------------------------------------------
 # # QC REGISTRATION ERROR

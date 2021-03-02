@@ -19,6 +19,8 @@ from flow_steps.filtering_counting import single_fish_filter_count_standard_not_
 from flow_steps.filtering_counting import filtering_counting_both_beads
 from flow_steps.filtering_counting import load_dark_image
 
+from pysmFISH.stitching import stitch_using_microscope_fov_coords_test
+
 
 def fov_processing_eel_barcoded(fov,
                     sorted_grp,
@@ -29,6 +31,7 @@ def fov_processing_eel_barcoded(fov,
                     running_functions,
                     img_width,
                     img_height,
+                    tile_corners_coords_pxl,
                     codebook,
                     selected_genes,
                     correct_hamming_distance,
@@ -139,10 +142,14 @@ def fov_processing_eel_barcoded(fov,
                                            codebook,
                                            status)
         process_barcodes.run_extraction()
+
+        registered_mic_df = stitch_using_microscope_fov_coords_test(process_barcodes.barcoded_fov_df,
+                                                                    fov,
+                                                                    tile_corners_coords_pxl)
          
         # Save the decoded data
         fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.parquet')
-        process_barcodes.barcoded_fov_df.to_parquet(fname,index=False)  
+        registered_mic_df.to_parquet(fname,index=False)  
  
         if process_barcodes.status == 'SUCCESS':
             registered_image = register_combined_rounds_images(fish_img_stacks[channel],all_rounds_shifts)

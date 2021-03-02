@@ -336,6 +336,23 @@ def stitch_using_microscope_fov_coords(decoded_df_fpath,tile_corners_coords_pxl)
     return decoded_df
 
 
+def stitch_using_microscope_fov_coords_test(decoded_df,fov,tile_corners_coords_pxl):
+    r_microscope_coords = tile_corners_coords_pxl[fov,0]
+    c_microscope_coords = tile_corners_coords_pxl[fov,1]
+    if decoded_df['r_px_registered'].isnull().values.all():
+        decoded_df['r_px_microscope_stitched'] = np.nan
+        decoded_df['c_px_microscope_stitched'] = np.nan
+    else:
+        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
+        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
+
+        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
+        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
+    
+    decoded_df.to_parquet(decoded_df_fpath)
+    return decoded_df
+
+
 class r_c_chunking():
     """
     Utility class used to chunk and arbitrary region and obtain the coords if the chunks.
