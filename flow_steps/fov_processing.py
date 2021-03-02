@@ -17,6 +17,7 @@ from pysmFISH.barcodes_analysis import extract_barcodes_NN_test
 
 from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm
 from flow_steps.filtering_counting import filtering_counting_both_beads
+from flow_steps.filtering_counting import load_dark_image
 
 
 def fov_processing_eel_barcoded(fov,
@@ -52,6 +53,8 @@ def fov_processing_eel_barcoded(fov,
     
     counts_output = {}
     
+    dark_img = load_dark_image(experiment_fpath)
+
     # Filter and count
     for processing_type, processing_input in processing_grp_split.items():
         if processing_type == 'fish':
@@ -68,7 +71,8 @@ def fov_processing_eel_barcoded(fov,
                                                 running_functions['fish_channels_filtering_counting'](
                                                                     zarr_grp_name,
                                                                     parsed_raw_data_fpath,
-                                                                    processing_parameters)
+                                                                    processing_parameters,
+                                                                    dark_img)
                     img_stack[round_num-1,:,:] = img
                     if save_steps_output:
                          np.save(filtered_img_path / (zarr_grp_name + '.npy'),img )
@@ -87,7 +91,8 @@ def fov_processing_eel_barcoded(fov,
                                                     running_functions['registration_channel_filtering_counting'](
                                                                         zarr_grp_name,
                                                                         parsed_raw_data_fpath,
-                                                                        processing_parameters)
+                                                                        processing_parameters,
+                                                                        dark_img)
 
                     if save_steps_output:
                          np.save(filtered_img_path / (zarr_grp_name + '.npy'),img)

@@ -229,6 +229,84 @@ def single_fish_filter_count_standard_not_norm(
 
             return fish_counts, img
 
+
+def single_fish_filter_count_standard_not_norm_test(
+        zarr_grp_name,
+        parsed_raw_data_fpath,
+        processing_parameters,
+        dark_img):
+
+    """
+    Function to:
+    - preprocess the fish images
+    - count the dots and save the data
+    
+    Args:
+    -----
+        zarr_grp_name: str
+            group representing the image to process
+        parsed_raw_data_fpath: str
+            path to the zarr file containing the parsed images
+        processing_parameters: dict
+            dictionary with the parameters used to process the images
+    """
+
+    logger = selected_logger()
+    
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    experiment_fpath = parsed_raw_data_fpath.parent
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
+    LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
+    min_distance=processing_parameters['CountingFishMinObjDistance']
+    min_obj_size=processing_parameters['CountingFishMinObjSize']
+    max_obj_size=processing_parameters['CountingFishMaxObjSize']
+    num_peaks_per_label=processing_parameters['CountingFishNumPeaksPerLabel']
+
+
+    try:
+        raw_fish_images_meta = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+    except:
+        logger.error(f'cannot load {zarr_grp_name} raw fish image')
+        sys.exit(f'cannot load {zarr_grp_name} raw fish image')
+    else:
+        logger.info(f'loaded {zarr_grp_name} raw fish image')
+        img = raw_fish_images_meta[0]
+        img_metadata = raw_fish_images_meta[1]
+        img = convert_from_uint16_to_float64(img)
+
+        img -= dark_img
+        # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+        img[img<0] = 0
+
+        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        img /= background
+        img = nd.gaussian_laplace(img,LaplacianKernel)
+        img = -img # the peaks are negative so invert the signal
+        img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
+        img = np.abs(img) # to avoid -0.0 issues
+
+        img = img.max(axis=0)
+
+        fish_counts = osmFISH_peak_based_detection((img, img_metadata),
+                                                min_distance,
+                                                min_obj_size,
+                                                max_obj_size,
+                                                num_peaks_per_label)
+        
+          
+            # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+            # pickle.dump((img, img_metadata),open(fname,'wb'))
+            
+
+            # # save_dots_data(fish_counts)
+            # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+            # pickle.dump(fish_counts,open(fname,'wb'))
+
+
+        return fish_counts, img
+
 def single_fish_filter_count_avoid_large_obj(
         zarr_grp_name,
         parsed_raw_data_fpath,
@@ -408,6 +486,59 @@ def filtering_counting_both_beads(zarr_grp_name,
     img_metadata = raw_fish_images_meta[1]
     img = convert_from_uint16_to_float64(img)
     dark_img = load_dark_image(experiment_fpath)
+    img -= dark_img
+    img[img<0] = 0
+    img = np.abs(img) # to avoid -0.0 issues
+
+    img = img.max(axis=0)
+
+    img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+
+
+    fish_counts = osmFISH_peak_based_detection((img, img_metadata),
+                                                    min_distance,
+                                                    min_obj_size,
+                                                    max_obj_size,
+                                                    num_peaks_per_label)
+            
+    
+    # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
+    # pickle.dump((img, img_metadata),open(fname,'wb'))
+    
+
+    # # save_dots_data(fish_counts)
+    # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
+    # pickle.dump(fish_counts,open(fname,'wb'))
+   
+    return fish_counts, img
+
+def filtering_counting_both_beads_test(zarr_grp_name,
+        parsed_raw_data_fpath,
+        processing_parameters,
+        dark_img):
+
+    """
+    Function used to process only large beads in both-beads condition
+    Used for testing experiment
+    """
+
+    logger = selected_logger()
+    
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    experiment_fpath = parsed_raw_data_fpath.parent
+    min_distance=processing_parameters['CountingFishMinObjDistance']
+    min_obj_size=processing_parameters['CountingFishMinObjSize']
+    max_obj_size=processing_parameters['CountingFishMaxObjSize']
+    num_peaks_per_label=processing_parameters['CountingFishNumPeaksPerLabel']
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+
+    raw_fish_images_meta = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+
+    logger.info(f'loaded {zarr_grp_name} raw fish image')
+    img = raw_fish_images_meta[0]
+    img_metadata = raw_fish_images_meta[1]
+    img = convert_from_uint16_to_float64(img)
     img -= dark_img
     img[img<0] = 0
     img = np.abs(img) # to avoid -0.0 issues
