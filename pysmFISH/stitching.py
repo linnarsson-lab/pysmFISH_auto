@@ -348,8 +348,6 @@ def stitch_using_microscope_fov_coords_test(decoded_df,fov,tile_corners_coords_p
 
         # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
         # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
-    
-    decoded_df.to_parquet(decoded_df_fpath)
     return decoded_df
 
 
