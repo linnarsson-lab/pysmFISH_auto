@@ -208,29 +208,29 @@ registration_reference_hybridization = analysis_parameters['RegistrationReferenc
 selected_genes = 'below3Hdistance_genes'
 correct_hamming_distance = 'zeroHdistance_genes' 
 
-all_futures = []
-for fov,sorted_grp in sorted_grps.items():
-    future = client.submit(fov_processing_eel_barcoded,
-                                        fov,
-                                        sorted_grp,
-                                        experiment_info=experiment_info,
-                                        analysis_parameters=analysis_parameters,
-                                        experiment_fpath=experiment_fpath,
-                                        parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                        running_functions=running_functions,
-                                        img_width=img_width,
-                                        img_height=img_height,
-                                        codebook=codebook,
-                                        selected_genes=selected_genes,
-                                        correct_hamming_distance=correct_hamming_distance,
-                                        save_steps_output=False)
+# all_futures = []
+# for fov,sorted_grp in sorted_grps.items():
+#     future = client.submit(fov_processing_eel_barcoded,
+#                                         fov,
+#                                         sorted_grp,
+#                                         experiment_info=experiment_info,
+#                                         analysis_parameters=analysis_parameters,
+#                                         experiment_fpath=experiment_fpath,
+#                                         parsed_raw_data_fpath=parsed_raw_data_fpath,
+#                                         running_functions=running_functions,
+#                                         img_width=img_width,
+#                                         img_height=img_height,
+#                                         codebook=codebook,
+#                                         selected_genes=selected_genes,
+#                                         correct_hamming_distance=correct_hamming_distance,
+#                                         save_steps_output=False)
     
-    all_futures.append(future)
+#     all_futures.append(future)
 
-start = time.time()
-_ = client.gather(all_futures)
-logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
-# ----------------------------------------------------------------
+# start = time.time()
+# _ = client.gather(all_futures)
+# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+# # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # STITCHING
