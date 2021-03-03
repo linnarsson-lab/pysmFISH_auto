@@ -148,8 +148,10 @@ def fov_processing_eel_barcoded(fov,
                                                                     tile_corners_coords_pxl)
          
         # Save the decoded data
-        fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.parquet')
-        registered_mic_df.to_parquet(fname,index=False)  
+        # fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.parquet')
+        # registered_mic_df.to_parquet(fname,index=False) 
+        fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.pkl')
+        registered_mic_df.to_pickle(fname,index=False) 
  
         if process_barcodes.status == 'SUCCESS':
             registered_image = register_combined_rounds_images(fish_img_stacks[channel],all_rounds_shifts)
@@ -162,8 +164,10 @@ def fov_processing_eel_barcoded(fov,
 
             fname = combined_images_path / (experiment_name + '_' + channel + '_max_array_dict_' +str(fov) + '.npy')
             pickle.dump(all_regions, open(fname,'wb' ))
-            fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.parquet')
-            flipped_df.to_parquet(fname,index=False)
+            # fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.parquet')
+            # flipped_df.to_parquet(fname,index=False)
+            fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.pkl')
+            flipped_df.to_pickle(fname,index=False)
 
             if save_steps_output:
                 fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
