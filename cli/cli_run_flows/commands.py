@@ -20,9 +20,9 @@ def flows_runner():
 
 @click.option('--experiment_fpath', type=str, help='Path to the folder \
                 where the experiments will be processed')
-@click.option('--run_type', type=str, help='Type of run \
+@click.option('--run_type', type=str,default='new', help='Type of run \
                 select between new/re-run')
-@click.option('--parsing_type', type=str, help='key to select the type of data parsing to run \
+@click.option('--parsing_type', type=str, default='original', help='key to select the type of data parsing to run \
                 - original: parse the data out from robofish system \
                 - reparsing_from_processing_folder: parse the raw data stored in the \
                                 experiment folder in the processing HD \

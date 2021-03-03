@@ -56,7 +56,7 @@ from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
 
 
-def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str='original')
+def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str='original'):
 
     """
     Flows for running human embryo eel experiment
