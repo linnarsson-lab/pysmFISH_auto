@@ -1,8 +1,11 @@
 import time
+import traceback
+import pickle
 
 import pandas as pd
 from pathlib import Path
 from dask.distributed import Client
+from dask.distributed import as_completed, wait
 
 from pysmFISH.logger_utils import json_logger
 from pysmFISH.logger_utils import selected_logger
@@ -155,6 +158,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     # ----------------------------------------------------------------
     # START PIPELINE LOGGER
     logger = json_logger((experiment_fpath + '/logs'),'pipeline_run')
+    logger_print = selected_logger()
     # logger = selected_logger()
     # ----------------------------------------------------------------
 
@@ -245,7 +249,12 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     tiles_org.run_tiles_organization()
     tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
 
+    remote_running_functions = client.scatter(running_functions)
+    remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
+    remote_codebook = client.scatter(codebook)
+
     all_futures = []
+    start = time.time()
     for fov,sorted_grp in sorted_grps.items():
         future = client.submit(fov_processing_eel_barcoded,
                                             fov,
@@ -254,19 +263,27 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
                                             analysis_parameters=analysis_parameters,
                                             experiment_fpath=experiment_fpath,
                                             parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                            running_functions=running_functions,
+                                            running_functions=remote_running_functions,
                                             img_width=img_width,
                                             img_height=img_height,
-                                            tile_corners_coords_pxl=tile_corners_coords_pxl,
-                                            codebook=codebook,
+                                            tile_corners_coords_pxl=remote_tile_corners_coords_pxl,
+                                            codebook=remote_codebook,
                                             selected_genes=selected_genes,
                                             correct_hamming_distance=correct_hamming_distance,
-                                            save_steps_output=False)
+                                            save_steps_output=False,
+                                            key= ('processing-fov-'+str(fov)))
         
         all_futures.append(future)
 
-    start = time.time()
-    _ = client.gather(all_futures)
+    # _ = client.gather(all_futures)
+    tracebacks = {}
+    for future in as_completed(all_futures):
+        logger_print.info(f'processed {future.key} in {time.time()-start} sec')
+        tracebacks[future.key] = traceback.format_tb(future.traceback())
+
+    wait(all_futures)
+    fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
+    pickle.dump(tracebacks, open(fname,'wb'))
     logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
     # ----------------------------------------------------------------
 
