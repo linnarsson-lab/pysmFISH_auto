@@ -167,7 +167,7 @@ def fov_processing_eel_barcoded(fov,
             # fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.parquet')
             # flipped_df.to_parquet(fname,index=False)
             fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.pkl')
-            flipped_df.to_pickle(fname,index=False)
+            flipped_df.to_pickle(fname)
 
             if save_steps_output:
                 fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
