@@ -73,7 +73,12 @@ parsed_image_tag = 'img_data'
 # reparsing_from_storage 
 # None if parsing not to be performed
 
-parsing_type = 'original'
+parsing_type = None
+
+# run type can be:
+# new
+# re-run
+run_type = 'new'
 
 running_functions ={
                     'fish_channels_filtering_counting':single_fish_filter_count_standard_not_norm_test,
@@ -87,10 +92,11 @@ storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment
 
 # ----------------------------------------------------------------
 
-# ----------------------------------------------------------------
-# CREATE FOLDERS STRUCTURE
-create_folder_structure(experiment_fpath)
-# ----------------------------------------------------------------
+if run_type == 'new': 
+    # ----------------------------------------------------------------
+    # CREATE FOLDERS STRUCTURE
+    create_folder_structure(experiment_fpath)
+    # ----------------------------------------------------------------
 
 # # ----------------------------------------------------------------
 # # QC Experiment info file
@@ -114,11 +120,12 @@ analysis_parameters = load_analysis_config_file(experiment_fpath)
 
 # ----------------------------------------------------------------
 
-# ----------------------------------------------------------------
-# ORGANIZE DATA IN FOLDERS
-collect_processing_files(experiment_fpath, experiment_info)
-sort_data_into_folders(experiment_fpath, experiment_info)
-# ----------------------------------------------------------------
+if run_type == 'new': 
+    # ----------------------------------------------------------------
+    # ORGANIZE DATA IN FOLDERS
+    collect_processing_files(experiment_fpath, experiment_info)
+    sort_data_into_folders(experiment_fpath, experiment_info)
+    # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # START PIPELINE LOGGER
