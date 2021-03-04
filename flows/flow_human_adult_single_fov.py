@@ -48,6 +48,27 @@ from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
 
 
+
+def culo(fov,
+        sorted_grp,
+        experiment_info,
+        analysis_parameters,
+        experiment_fpath,
+        parsed_raw_data_fpath,
+        running_functions,
+        img_width,
+        img_height,
+        tile_corners_coords_pxl,
+        codebook,
+        selected_genes,
+        correct_hamming_distance,
+        dark_img,
+        save_steps_output=False):
+    pass
+
+
+
+
 def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str='original'):
 
     """
@@ -254,24 +275,43 @@ def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str=
     pickle.dump(sorted_grps, open(fname,'wb'))
 
     for fov,sorted_grp in sorted_grps.items():
-        future = client.submit(fov_processing_eel_barcoded,
-                                            fov,
-                                            sorted_grp,
-                                            experiment_info=experiment_info,
-                                            analysis_parameters=analysis_parameters,
-                                            experiment_fpath=experiment_fpath,
-                                            parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                            running_functions=running_functions,
-                                            img_width=img_width,
-                                            img_height=img_height,
-                                            tile_corners_coords_pxl=remote_tile_corners_coords_pxl,
-                                            codebook=remote_codebook,
-                                            selected_genes=selected_genes,
-                                            correct_hamming_distance=correct_hamming_distance,
-                                            dark_img = remote_dark_img,
-                                            save_steps_output=False,
-                                            key= ('processing-fov-'+str(fov)))
+        # future = client.submit(fov_processing_eel_barcoded,
+        #                                     fov=fov,
+        #                                     sorted_grp=sorted_grp,
+        #                                     experiment_info=experiment_info,
+        #                                     analysis_parameters=analysis_parameters,
+        #                                     experiment_fpath=experiment_fpath,
+        #                                     parsed_raw_data_fpath=parsed_raw_data_fpath,
+        #                                     running_functions=running_functions,
+        #                                     img_width=img_width,
+        #                                     img_height=img_height,
+        #                                     tile_corners_coords_pxl=remote_tile_corners_coords_pxl,
+        #                                     codebook=remote_codebook,
+        #                                     selected_genes=selected_genes,
+        #                                     correct_hamming_distance=correct_hamming_distance,
+        #                                     dark_img = remote_dark_img,
+        #                                     save_steps_output=False,
+        #                                     key= ('processing-fov-'+str(fov)))
         
+
+        future = client.submit(culo,
+                            fov=fov,
+                            sorted_grp=sorted_grp,
+                            experiment_info=experiment_info,
+                            analysis_parameters=analysis_parameters,
+                            experiment_fpath=experiment_fpath,
+                            parsed_raw_data_fpath=parsed_raw_data_fpath,
+                            running_functions=running_functions,
+                            img_width=img_width,
+                            img_height=img_height,
+                            tile_corners_coords_pxl=remote_tile_corners_coords_pxl,
+                            codebook=remote_codebook,
+                            selected_genes=selected_genes,
+                            correct_hamming_distance=correct_hamming_distance,
+                            dark_img = remote_dark_img,
+                            save_steps_output=False,
+                            key= ('processing-fov-'+str(fov)))
+
         all_futures.append(future)
 
     _ = client.gather(all_futures)
