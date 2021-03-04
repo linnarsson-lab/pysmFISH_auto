@@ -35,6 +35,7 @@ def fov_processing_eel_barcoded(fov,
                     codebook,
                     selected_genes,
                     correct_hamming_distance,
+                    dark_img,
                     save_steps_output=False):
     
     
@@ -56,7 +57,7 @@ def fov_processing_eel_barcoded(fov,
     
     counts_output = {}
     
-    dark_img = load_dark_image(experiment_fpath)
+    # dark_img = load_dark_image(experiment_fpath)
 
     # Filter and count
     for processing_type, processing_input in processing_grp_split.items():

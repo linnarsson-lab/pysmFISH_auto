@@ -37,6 +37,7 @@ from pysmFISH.utils import sorting_grps_for_fov_processing
 from pysmFISH.fovs_registration import create_registration_grps
 
 from flow_steps.create_processing_cluster import create_processing_cluster
+from flow_steps.filtering_counting import load_dark_image
 from flow_steps.filtering_counting import single_fish_filter_count_standard
 from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm
 from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm_test
@@ -249,9 +250,13 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     tiles_org.run_tiles_organization()
     tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
 
+    dark_img = load_dark_image(experiment_fpath)
+
+    # scatter the data to different workers
     remote_running_functions = client.scatter(running_functions)
     remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
     remote_codebook = client.scatter(codebook)
+    remote_dark_img = client.scatter(dark_img)
 
     logger_print.info(f'check if the logger is printing')
 
@@ -272,6 +277,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
                                             codebook=remote_codebook,
                                             selected_genes=selected_genes,
                                             correct_hamming_distance=correct_hamming_distance,
+                                            dark_img = remote_dark_img,
                                             save_steps_output=False,
                                             key= ('processing-fov-'+str(fov)))
         
