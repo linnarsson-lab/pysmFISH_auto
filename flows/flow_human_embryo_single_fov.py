@@ -249,7 +249,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
 
     all_futures = []
     start = time.time()
-    for fov,sorted_grp in sorted_grps.items():
+    for fov,sorted_grp in sorted_grps[:6].items():
         future = client.submit(fov_processing_eel_barcoded,
                                             fov,
                                             sorted_grp,
