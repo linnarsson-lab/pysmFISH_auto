@@ -23,7 +23,6 @@ from flow_steps.filtering_counting import single_fish_filter_count_standard_not_
 from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm_test
 from flow_steps.filtering_counting import filtering_counting_both_beads
 from flow_steps.filtering_counting import filtering_counting_both_beads_test
-from flow_steps.filtering_counting import load_dark_image
 
 from pysmFISH.stitching import stitch_using_microscope_fov_coords_test
 
@@ -147,6 +146,7 @@ def fov_processing_eel_barcoded(fov,
                                     experiment_info,
                                     codebook,
                                     status)
+                                    
         process_barcodes.run_extraction()
 
         registered_mic_df = stitch_using_microscope_fov_coords_test(process_barcodes.barcoded_fov_df,
