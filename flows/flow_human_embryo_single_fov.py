@@ -99,10 +99,10 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
 
     running_functions ={
                         'fish_channels_filtering_counting':'single_fish_filter_count_standard_not_norm_test',
-                    'registration_channel_filtering_counting':'filtering_counting_both_beads_test',
-                    'registration_reference':'calculate_shift_hybridization_fov_test',
-                    'registration_fish': 'register_fish_test',
-                    'barcode_extraction': 'extract_barcodes_NN_test'}
+                        'registration_channel_filtering_counting':'filtering_counting_both_beads_test',
+                        'registration_reference':'calculate_shift_hybridization_fov_test',
+                        'registration_fish': 'register_fish_test',
+                        'barcode_extraction': 'extract_barcodes_NN_test'}
 
 
     storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
@@ -245,8 +245,6 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
     remote_codebook = client.scatter(codebook)
     remote_dark_img = client.scatter(dark_img)
-    remote_analysis_parameters = client.scatter(analysis_parameters)
-    remote_experiment_info = client.scatter(experiment_info)
 
     logger_print.info(f'check if the logger is printing')
 
@@ -256,8 +254,8 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
         future = client.submit(fov_processing_eel_barcoded,
                                             fov,
                                             sorted_grp,
-                                            experiment_info=remote_experiment_info,
-                                            analysis_parameters=remote_analysis_parameters,
+                                            experiment_info=experiment_info,
+                                            analysis_parameters=analysis_parameters,
                                             experiment_fpath=experiment_fpath,
                                             parsed_raw_data_fpath=parsed_raw_data_fpath,
                                             running_functions=remote_running_functions,
