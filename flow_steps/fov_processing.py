@@ -76,7 +76,7 @@ def fov_processing_eel_barcoded(fov,
                 processing_parameters = data_info[1]
                 for zarr_grp_name in names:
                     round_num = int(zarr_grp_name.split('_')[-4].split('Hybridization')[-1])
-                    counts_output['fish'][channel][zarr_grp_name], img = getattr(flow_steps.filtering_counting,running_functions['fish_channels_filtering_counting'])(
+                    counts_output['fish'][channel][zarr_grp_name], img = single_fish_filter_count_avoid_large_obj_test(
                                                                     zarr_grp_name,
                                                                     parsed_raw_data_fpath,
                                                                     processing_parameters,
@@ -95,7 +95,7 @@ def fov_processing_eel_barcoded(fov,
                 names = data_info[0]
                 processing_parameters = data_info[1]
                 for zarr_grp_name in names:
-                    counts_output['registration'][channel][zarr_grp_name], img = getattr(flow_steps.filtering_counting,running_functions['registration_channel_filtering_counting'])(
+                    counts_output['registration'][channel][zarr_grp_name], img = filtering_counting_large_beads_test(
                                 zarr_grp_name,
                                 parsed_raw_data_fpath,
                                 processing_parameters,
@@ -113,7 +113,7 @@ def fov_processing_eel_barcoded(fov,
     
     
     # Register the reference channel
-    registered_reference_channel_df, all_rounds_shifts, status = getattr(flow_steps.filtering_counting,running_functions['registration_reference'])(
+    registered_reference_channel_df, all_rounds_shifts, status = calculate_shift_hybridization_fov_test(
                                             fov,
                                             counts_output,
                                             analysis_parameters, 
@@ -130,7 +130,7 @@ def fov_processing_eel_barcoded(fov,
     for channel, counts in counts_output['fish'].items():
         
         output_channel[channel] = {}
-        registered_fish_df, status = getattr(flow_steps.filtering_counting,running_functions['registration_fish'])(
+        registered_fish_df, status =register_fish_test(
                             fov,
                             channel,
                             counts_output,
@@ -139,7 +139,7 @@ def fov_processing_eel_barcoded(fov,
                             analysis_parameters,
                             status)
     
-        process_barcodes = getattr(flow_steps.filtering_counting,running_functions['extract_barcodes_NN_test'])(
+        process_barcodes = extract_barcodes_NN_test(
                                     fov,
                                     channel,
                                     registered_fish_df,
