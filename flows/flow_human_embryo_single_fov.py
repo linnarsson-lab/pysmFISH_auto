@@ -252,7 +252,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
 
     dark_img = load_dark_image(experiment_fpath)
 
-    # scatter the data to different workers
+    # scatter the data to different workers to save timr
     remote_running_functions = client.scatter(running_functions)
     remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
     remote_codebook = client.scatter(codebook)
@@ -290,7 +290,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
         tracebacks[future.key] = traceback.format_tb(future.traceback())
         del future
 
-    wait(all_futures)
+    # wait(all_futures)
     fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
     pickle.dump(tracebacks, open(fname,'wb'))
     logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
