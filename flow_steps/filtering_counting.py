@@ -540,6 +540,47 @@ def filtering_counting_large_beads(zarr_grp_name,
    
     return fish_counts, img
 
+
+
+def filtering_counting_large_beads_test(zarr_grp_name,
+        parsed_raw_data_fpath,
+        processing_parameters,
+        dark_img):
+
+    logger = selected_logger()
+    
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    experiment_fpath = parsed_raw_data_fpath.parent
+    min_distance=processing_parameters['CountingFishMinObjDistance']
+    min_obj_size=processing_parameters['CountingFishMinObjSize']
+    max_obj_size=processing_parameters['CountingFishMaxObjSize']
+    num_peaks_per_label=processing_parameters['CountingFishNumPeaksPerLabel']
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+
+    raw_fish_images_meta = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+
+    img = raw_fish_images_meta[0]
+    img_metadata = raw_fish_images_meta[1]
+    img = convert_from_uint16_to_float64(img)
+    img -= dark_img
+    img[img<0] = 0
+    img = np.abs(img) # to avoid -0.0 issues
+
+    img = img.max(axis=0)
+
+    img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+
+
+    fish_counts = osmFISH_peak_based_detection((img, img_metadata),
+                                                    min_distance,
+                                                    min_obj_size,
+                                                    max_obj_size,
+                                                    num_peaks_per_label)
+    return fish_counts, img
+
+
+
 def filtering_counting_both_beads(zarr_grp_name,
         parsed_raw_data_fpath,
         processing_parameters):
