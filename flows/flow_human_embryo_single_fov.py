@@ -289,7 +289,20 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
         #                                     save_steps_output=False,
         #                                     key= ('processing-fov-'+str(fov)))
         
-        future = client.submit(culo,fov)
+        future = client.submit(culo,fov, sorted_grp,
+                    experiment_info,
+                    analysis_parameters,
+                    experiment_fpath,
+                    parsed_raw_data_fpath,
+                    running_functions,
+                    img_width,
+                    img_height,
+                    tile_corners_coords_pxl,
+                    codebook,
+                    selected_genes,
+                    correct_hamming_distance,
+                    dark_img,
+                    save_steps_output=False)
         all_futures.append(future)
 
     _ = client.gather(all_futures)
