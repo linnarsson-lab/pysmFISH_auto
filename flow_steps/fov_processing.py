@@ -110,70 +110,70 @@ def fov_processing_eel_barcoded(fov,
             pickle.dump(counts_output,open(fname,'wb'))
     
     
-    # Register the reference channel
-    registered_reference_channel_df, all_rounds_shifts, status = calculate_shift_hybridization_fov_test(
-                                            fov,
-                                            counts_output,
-                                            analysis_parameters, 
-                                            experiment_info)
+    # # Register the reference channel
+    # registered_reference_channel_df, all_rounds_shifts, status = calculate_shift_hybridization_fov_test(
+    #                                         fov,
+    #                                         counts_output,
+    #                                         analysis_parameters, 
+    #                                         experiment_info)
     
-    if save_steps_output:
-            fname = registered_counts_path / (experiment_info['EXP_name'] + '_fov_' +str(fov) +'.pkl')
-            pickle.dump((registered_reference_channel_df, all_rounds_shifts),open(fname,'wb'))
+    # if save_steps_output:
+    #         fname = registered_counts_path / (experiment_info['EXP_name'] + '_fov_' +str(fov) +'.pkl')
+    #         pickle.dump((registered_reference_channel_df, all_rounds_shifts),open(fname,'wb'))
     
     
     
-    # Register and decode the fish channels
-    output_channel = {}
-    for channel, counts in counts_output['fish'].items():
+    # # Register and decode the fish channels
+    # output_channel = {}
+    # for channel, counts in counts_output['fish'].items():
         
-        output_channel[channel] = {}
-        registered_fish_df, status = register_fish_test(
-                            fov,
-                            channel,
-                            counts_output,
-                            registered_reference_channel_df,
-                            all_rounds_shifts,
-                            analysis_parameters,
-                            status)
+    #     output_channel[channel] = {}
+    #     registered_fish_df, status = register_fish_test(
+    #                         fov,
+    #                         channel,
+    #                         counts_output,
+    #                         registered_reference_channel_df,
+    #                         all_rounds_shifts,
+    #                         analysis_parameters,
+    #                         status)
     
-        process_barcodes = extract_barcodes_NN_test(
-                                    fov,
-                                    channel,
-                                    registered_fish_df,
-                                    analysis_parameters,
-                                    experiment_info,
-                                    codebook,
-                                    status)
+    #     process_barcodes = extract_barcodes_NN_test(
+    #                                 fov,
+    #                                 channel,
+    #                                 registered_fish_df,
+    #                                 analysis_parameters,
+    #                                 experiment_info,
+    #                                 codebook,
+    #                                 status)
 
-        process_barcodes.run_extraction()
+    #     process_barcodes.run_extraction()
 
-        registered_mic_df = stitch_using_microscope_fov_coords_test(process_barcodes.barcoded_fov_df,
-                                                                    fov,
-                                                                    tile_corners_coords_pxl)
+    #     registered_mic_df = stitch_using_microscope_fov_coords_test(process_barcodes.barcoded_fov_df,
+    #                                                                 fov,
+    #                                                                 tile_corners_coords_pxl)
          
-        # Save the decoded data
-        fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.parquet')
-        registered_mic_df.to_parquet(fname,index=False) 
-        # fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.pkl')
-        # registered_mic_df.to_pickle(fname) 
+    #     # Save the decoded data
+    #     fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.parquet')
+    #     registered_mic_df.to_parquet(fname,index=False) 
+    #     # fname =  registered_counts_path / (experiment_name + '_' + channel + '_decoded_fov_' +str(fov) + '.pkl')
+    #     # registered_mic_df.to_pickle(fname) 
  
-        if process_barcodes.status == 'SUCCESS':
-            registered_image = register_combined_rounds_images(fish_img_stacks[channel],all_rounds_shifts)
+    #     if process_barcodes.status == 'SUCCESS':
+    #         registered_image = register_combined_rounds_images(fish_img_stacks[channel],all_rounds_shifts)
             
-            all_regions = extract_dots_images(process_barcodes.barcoded_fov_df,
-                                    registered_image,experiment_fpath,save=False)
+    #         all_regions = extract_dots_images(process_barcodes.barcoded_fov_df,
+    #                                 registered_image,experiment_fpath,save=False)
             
-            flipped_df = define_flip_direction(codebook,experiment_fpath,process_barcodes.barcoded_fov_df, 
-                                        selected_genes, correct_hamming_distance,save=False)
+    #         flipped_df = define_flip_direction(codebook,experiment_fpath,process_barcodes.barcoded_fov_df, 
+    #                                     selected_genes, correct_hamming_distance,save=False)
 
-            fname = combined_images_path / (experiment_name + '_' + channel + '_max_array_dict_' +str(fov) + '.npy')
-            pickle.dump(all_regions, open(fname,'wb' ))
-            fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.parquet')
-            flipped_df.to_parquet(fname,index=False)
-            # fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.pkl')
-            # flipped_df.to_pickle(fname)
+    #         fname = combined_images_path / (experiment_name + '_' + channel + '_max_array_dict_' +str(fov) + '.npy')
+    #         pickle.dump(all_regions, open(fname,'wb' ))
+    #         fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.parquet')
+    #         flipped_df.to_parquet(fname,index=False)
+    #         # fname = combined_images_path / (experiment_name + '_' + channel + '_flip_direction_' +str(fov) + '.pkl')
+    #         # flipped_df.to_pickle(fname)
 
-            if save_steps_output:
-                fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
-                np.save(fname,registered_image)
+    #         if save_steps_output:
+    #             fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
+    #             np.save(fname,registered_image)
