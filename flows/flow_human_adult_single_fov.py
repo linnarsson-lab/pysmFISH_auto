@@ -274,16 +274,16 @@ def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str=
         
         all_futures.append(future)
 
-    # _ = client.gather(all_futures)
-    tracebacks = {}
-    for future in as_completed(all_futures):
-        logger_print.info(f'processed {future.key} in {time.time()-start} sec')
-        tracebacks[future.key] = traceback.format_tb(future.traceback())
-        del future
+    _ = client.gather(all_futures)
+    # tracebacks = {}
+    # for future in as_completed(all_futures):
+    #     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
+    #     tracebacks[future.key] = traceback.format_tb(future.traceback())
+    #     del future
 
-    # wait(all_futures)
-    fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
-    pickle.dump(tracebacks, open(fname,'wb'))
+    # # wait(all_futures)
+    # fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
+    # pickle.dump(tracebacks, open(fname,'wb'))
     logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
     # del all_futures
