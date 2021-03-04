@@ -257,6 +257,8 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
     remote_codebook = client.scatter(codebook)
     remote_dark_img = client.scatter(dark_img)
+    remote_analysis_parameters = client.scatter(analysis_parameters)
+    remote_experiment_info = client.scatter(experiment_info)
 
     logger_print.info(f'check if the logger is printing')
 
@@ -266,8 +268,8 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
         future = client.submit(fov_processing_eel_barcoded,
                                             fov,
                                             sorted_grp,
-                                            experiment_info=experiment_info,
-                                            analysis_parameters=analysis_parameters,
+                                            experiment_info=remote_experiment_info,
+                                            analysis_parameters=remote_analysis_parameters,
                                             experiment_fpath=experiment_fpath,
                                             parsed_raw_data_fpath=parsed_raw_data_fpath,
                                             running_functions=remote_running_functions,
