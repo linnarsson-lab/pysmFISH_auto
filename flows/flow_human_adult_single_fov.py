@@ -67,7 +67,8 @@ def culo(fov,
     pass
 
 
-def chiappe(fov):
+def chiappe(fov,
+        codebook):
     time.sleep(20)
 
 
@@ -314,7 +315,7 @@ def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str=
         #                     save_steps_output=False,
         #                     key= ('processing-fov-'+str(fov)))
 
-        future = client.submit(chiappe,fov)
+        future = client.submit(chiappe,fov,remote_codebook)
 
         all_futures.append(future)
 
