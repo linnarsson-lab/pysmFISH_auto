@@ -49,7 +49,6 @@ from pysmFISH.qc_utils import check_experiment_yaml_file
 
 
 def culo(fov,
-                    experiment_info,
                     analysis_parameters,
                     experiment_fpath,
                     parsed_raw_data_fpath,
@@ -289,7 +288,6 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
         #                                     key= ('processing-fov-'+str(fov)))
         
         future = client.submit(culo,fov,
-                                            experiment_info=experiment_info,
                                             analysis_parameters=analysis_parameters,
                                             experiment_fpath=experiment_fpath,
                                             parsed_raw_data_fpath=parsed_raw_data_fpath,
