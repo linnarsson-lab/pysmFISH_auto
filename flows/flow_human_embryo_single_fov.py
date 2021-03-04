@@ -253,6 +253,8 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
     remote_codebook = client.scatter(codebook)
 
+    logger_print.info(f'check if the logger is printing')
+
     all_futures = []
     start = time.time()
     for fov,sorted_grp in sorted_grps.items():
