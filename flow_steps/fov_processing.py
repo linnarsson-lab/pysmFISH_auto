@@ -62,52 +62,52 @@ def fov_processing_eel_barcoded(fov,
     counts_output = {}
     
 
-    # Filter and count
-    for processing_type, processing_input in processing_grp_split.items():
-        if processing_type == 'fish':
+    # # Filter and count
+    # for processing_type, processing_input in processing_grp_split.items():
+    #     if processing_type == 'fish':
             
-            counts_output['fish'] = {}
-            for channel, data_info in processing_input.items():
-                img_stack = np.zeros([total_rounds,img_height,img_width])
-                counts_output['fish'][channel] = {}
-                names = data_info[0]
-                processing_parameters = data_info[1]
-                for zarr_grp_name in names:
-                    round_num = int(zarr_grp_name.split('_')[-4].split('Hybridization')[-1])
-                    counts_output['fish'][channel][zarr_grp_name], img = single_fish_filter_count_standard_not_norm_test(
-                                                                    zarr_grp_name,
-                                                                    parsed_raw_data_fpath,
-                                                                    processing_parameters,
-                                                                    dark_img)
-                    img_stack[round_num-1,:,:] = img
-                    if save_steps_output:
-                         np.save(filtered_img_path / (zarr_grp_name + '.npy'),img )
+    #         counts_output['fish'] = {}
+    #         for channel, data_info in processing_input.items():
+    #             img_stack = np.zeros([total_rounds,img_height,img_width])
+    #             counts_output['fish'][channel] = {}
+    #             names = data_info[0]
+    #             processing_parameters = data_info[1]
+    #             for zarr_grp_name in names:
+    #                 round_num = int(zarr_grp_name.split('_')[-4].split('Hybridization')[-1])
+    #                 counts_output['fish'][channel][zarr_grp_name], img = single_fish_filter_count_standard_not_norm_test(
+    #                                                                 zarr_grp_name,
+    #                                                                 parsed_raw_data_fpath,
+    #                                                                 processing_parameters,
+    #                                                                 dark_img)
+    #                 img_stack[round_num-1,:,:] = img
+    #                 if save_steps_output:
+    #                      np.save(filtered_img_path / (zarr_grp_name + '.npy'),img )
                 
-                fish_img_stacks[channel] = img_stack
+    #             fish_img_stacks[channel] = img_stack
         
         
-        elif processing_type == 'registration':
-            counts_output['registration'] = {}
-            for channel, data_info in processing_input.items():
-                counts_output['registration'][channel] = {}
-                names = data_info[0]
-                processing_parameters = data_info[1]
-                for zarr_grp_name in names:
-                    counts_output['registration'][channel][zarr_grp_name], img = filtering_counting_both_beads_test(
-                                zarr_grp_name,
-                                parsed_raw_data_fpath,
-                                processing_parameters,
-                                dark_img)
+    #     elif processing_type == 'registration':
+    #         counts_output['registration'] = {}
+    #         for channel, data_info in processing_input.items():
+    #             counts_output['registration'][channel] = {}
+    #             names = data_info[0]
+    #             processing_parameters = data_info[1]
+    #             for zarr_grp_name in names:
+    #                 counts_output['registration'][channel][zarr_grp_name], img = filtering_counting_both_beads_test(
+    #                             zarr_grp_name,
+    #                             parsed_raw_data_fpath,
+    #                             processing_parameters,
+    #                             dark_img)
 
-                    if save_steps_output:
-                         np.save(filtered_img_path / (zarr_grp_name + '.npy'),img)
+    #                 if save_steps_output:
+    #                      np.save(filtered_img_path / (zarr_grp_name + '.npy'),img)
 
-        elif processing_type == 'staining':
-            pass
+    #     elif processing_type == 'staining':
+    #         pass
 
-        if save_steps_output:
-            fname = raw_counts_path / (experiment_info['EXP_name'] + '_fov_' +str(fov) +'.pkl')
-            pickle.dump(counts_output,open(fname,'wb'))
+    #     if save_steps_output:
+    #         fname = raw_counts_path / (experiment_info['EXP_name'] + '_fov_' +str(fov) +'.pkl')
+    #         pickle.dump(counts_output,open(fname,'wb'))
     
     
     # # Register the reference channel
