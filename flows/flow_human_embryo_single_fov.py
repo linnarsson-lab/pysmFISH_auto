@@ -48,7 +48,7 @@ from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
 
 
-def culo(fov, sorted_grp,
+def culo(fov,
                     experiment_info,
                     analysis_parameters,
                     experiment_fpath,
@@ -288,7 +288,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
         #                                     save_steps_output=False,
         #                                     key= ('processing-fov-'+str(fov)))
         
-        future = client.submit(culo,fov, sorted_grp,
+        future = client.submit(culo,fov,
                     experiment_info,
                     analysis_parameters,
                     experiment_fpath,
