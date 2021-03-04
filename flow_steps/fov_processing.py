@@ -116,7 +116,7 @@ def fov_processing_eel_barcoded(fov,
     
     # Register the reference channel
     registered_reference_channel_df, all_rounds_shifts, status = \
-                                        getattr(pysmFISH.fovs_registration['registration_reference'])(
+                                        getattr(pysmFISH.fovs_registration,running_functions['registration_reference'])(
                                             fov,
                                             counts_output,
                                             analysis_parameters, 
@@ -133,7 +133,7 @@ def fov_processing_eel_barcoded(fov,
     for channel, counts in counts_output['fish'].items():
         
         output_channel[channel] = {}
-        registered_fish_df, status = getattr(pysmFISH.fovs_registration['registration_fish'])(
+        registered_fish_df, status = getattr(pysmFISH.fovs_registration,running_functions['registration_fish'])(
                             fov,
                             channel,
                             counts_output,
@@ -142,7 +142,7 @@ def fov_processing_eel_barcoded(fov,
                             analysis_parameters,
                             status)
     
-        process_barcodes = getattr(pysmFISH.barcodes_analysis['barcode_extraction'])(
+        process_barcodes = getattr(pysmFISH.barcodes_analysis,running_functions['barcode_extraction'])(
                                     fov,
                                     channel,
                                     registered_fish_df,
