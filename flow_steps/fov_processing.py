@@ -15,7 +15,6 @@ from pysmFISH.logger_utils import selected_logger
 
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
 from pysmFISH.fovs_registration import register_fish_test
-from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
 
 from pysmFISH.barcodes_analysis import extract_barcodes_NN_test
 
@@ -146,7 +145,7 @@ def fov_processing_eel_barcoded(fov,
                                     experiment_info,
                                     codebook,
                                     status)
-                                    
+
         process_barcodes.run_extraction()
 
         registered_mic_df = stitch_using_microscope_fov_coords_test(process_barcodes.barcoded_fov_df,
@@ -178,4 +177,3 @@ def fov_processing_eel_barcoded(fov,
             if save_steps_output:
                 fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
                 np.save(fname,registered_image)
-        

@@ -295,14 +295,6 @@ def single_fish_filter_count_standard_not_norm_test(
                                                 max_obj_size,
                                                 num_peaks_per_label)
         
-          
-            # fname = experiment_fpath / 'tmp' / 'filtered_images' / (zarr_grp_name + '_filtered.pkl')
-            # pickle.dump((img, img_metadata),open(fname,'wb'))
-            
-
-            # # save_dots_data(fish_counts)
-            # fname = experiment_fpath / 'tmp' / 'raw_counts' / (zarr_grp_name + '_dots.pkl')
-            # pickle.dump(fish_counts,open(fname,'wb'))
 
         return fish_counts, img
 
