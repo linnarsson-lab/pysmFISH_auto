@@ -67,6 +67,8 @@ def culo(fov,
     pass
 
 
+def chiappe(fov):
+    time.sleep(20)
 
 
 def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str='original'):
@@ -294,23 +296,25 @@ def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str=
         #                                     key= ('processing-fov-'+str(fov)))
         
 
-        future = client.submit(culo,
-                            fov=fov,
-                            sorted_grp=sorted_grp,
-                            experiment_info=experiment_info,
-                            analysis_parameters=analysis_parameters,
-                            experiment_fpath=experiment_fpath,
-                            parsed_raw_data_fpath=parsed_raw_data_fpath,
-                            running_functions=running_functions,
-                            img_width=img_width,
-                            img_height=img_height,
-                            tile_corners_coords_pxl=remote_tile_corners_coords_pxl,
-                            codebook=remote_codebook,
-                            selected_genes=selected_genes,
-                            correct_hamming_distance=correct_hamming_distance,
-                            dark_img = remote_dark_img,
-                            save_steps_output=False,
-                            key= ('processing-fov-'+str(fov)))
+        # future = client.submit(culo,
+        #                     fov=fov,
+        #                     sorted_grp=sorted_grp,
+        #                     experiment_info=experiment_info,
+        #                     analysis_parameters=analysis_parameters,
+        #                     experiment_fpath=experiment_fpath,
+        #                     parsed_raw_data_fpath=parsed_raw_data_fpath,
+        #                     running_functions=running_functions,
+        #                     img_width=img_width,
+        #                     img_height=img_height,
+        #                     tile_corners_coords_pxl=remote_tile_corners_coords_pxl,
+        #                     codebook=remote_codebook,
+        #                     selected_genes=selected_genes,
+        #                     correct_hamming_distance=correct_hamming_distance,
+        #                     dark_img = remote_dark_img,
+        #                     save_steps_output=False,
+        #                     key= ('processing-fov-'+str(fov)))
+
+        future = client.submit(chiappe,fov)
 
         all_futures.append(future)
 
