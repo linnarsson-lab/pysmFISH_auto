@@ -288,6 +288,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     for future in as_completed(all_futures):
         logger_print.info(f'processed {future.key} in {time.time()-start} sec')
         tracebacks[future.key] = traceback.format_tb(future.traceback())
+        del future
 
     wait(all_futures)
     fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
