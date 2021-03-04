@@ -48,7 +48,20 @@ from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
 
 
-def culo(fov):
+def culo(fov, sorted_grp,
+                    experiment_info,
+                    analysis_parameters,
+                    experiment_fpath,
+                    parsed_raw_data_fpath,
+                    running_functions,
+                    img_width,
+                    img_height,
+                    tile_corners_coords_pxl,
+                    codebook,
+                    selected_genes,
+                    correct_hamming_distance,
+                    dark_img,
+                    save_steps_output=False):
     pass
 
 
