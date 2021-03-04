@@ -449,7 +449,6 @@ def single_fish_filter_count_avoid_large_obj_test(
         sys.exit(f'cannot load {zarr_grp_name} raw fish image')
     else:
         logger.info(f'loaded {zarr_grp_name} raw fish image')
-        logger.info('loaded dark reference image')
 
         img = raw_fish_images_meta[0]
         img_metadata = raw_fish_images_meta[1]
