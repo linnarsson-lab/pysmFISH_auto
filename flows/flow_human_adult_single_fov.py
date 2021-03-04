@@ -265,9 +265,9 @@ def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str=
     dark_img = load_dark_image(experiment_fpath)
 
     # scatter the data to different workers to save timr
-    remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
-    remote_codebook = client.scatter(codebook)
-    remote_dark_img = client.scatter(dark_img)
+    # remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
+    # remote_codebook = client.scatter(codebook)
+    # remote_dark_img = client.scatter(dark_img)
 
     logger_print.info(f'check if the logger is printing')
 
@@ -289,11 +289,11 @@ def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str=
                                                 running_functions=running_functions,
                                                 img_width=img_width,
                                                 img_height=img_height,
-                                                tile_corners_coords_pxl=remote_tile_corners_coords_pxl,
-                                                codebook=remote_codebook,
+                                                tile_corners_coords_pxl= tile_corners_coords_pxl,
+                                                codebook=codebook,
                                                 selected_genes=selected_genes,
                                                 correct_hamming_distance=correct_hamming_distance,
-                                                dark_img = remote_dark_img,
+                                                dark_img = dark_img,
                                                 save_steps_output=False,
                                                 key= ('processing-fov-'+str(fov)))
         
