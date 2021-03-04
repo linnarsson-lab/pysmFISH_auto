@@ -249,7 +249,11 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
 
     all_futures = []
     start = time.time()
-    for fov,sorted_grp in sorted_grps[:6].items():
+
+    fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
+    pickle.dump(sorted_grps, open(fname,'wb'))
+
+    for fov,sorted_grp in sorted_grps.items():
         future = client.submit(fov_processing_eel_barcoded,
                                             fov,
                                             sorted_grp,
