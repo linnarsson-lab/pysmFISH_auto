@@ -38,18 +38,6 @@ from pysmFISH.fovs_registration import create_registration_grps
 
 from flow_steps.create_processing_cluster import create_processing_cluster
 from flow_steps.filtering_counting import load_dark_image
-from flow_steps.filtering_counting import single_fish_filter_count_standard
-from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm
-from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm_test
-from flow_steps.filtering_counting import filtering_counting_both_beads
-from flow_steps.filtering_counting import filtering_counting_both_beads_test
-from flow_steps.registration_barcode_processing import registration_barcode_detection_basic
-
-
-from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
-from pysmFISH.fovs_registration import register_fish_test
-
-from pysmFISH.barcodes_analysis import extract_barcodes_NN_test
 
 from flow_steps.fov_processing import fov_processing_eel_barcoded
 
@@ -110,11 +98,11 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
 
 
     running_functions ={
-                        'fish_channels_filtering_counting':single_fish_filter_count_standard_not_norm_test,
-                    'registration_channel_filtering_counting':filtering_counting_both_beads_test,
-                    'registration_reference':calculate_shift_hybridization_fov_test,
-                    'registration_fish': register_fish_test,
-                    'barcode_extraction': extract_barcodes_NN_test}
+                        'fish_channels_filtering_counting':'single_fish_filter_count_standard_not_norm_test',
+                    'registration_channel_filtering_counting':'filtering_counting_both_beads_test',
+                    'registration_reference':'calculate_shift_hybridization_fov_test',
+                    'registration_fish': 'register_fish_test',
+                    'barcode_extraction': 'extract_barcodes_NN_test'}
 
 
     storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
