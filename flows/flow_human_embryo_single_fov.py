@@ -280,7 +280,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     # # wait(all_futures)
     # fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
     # pickle.dump(tracebacks, open(fname,'wb'))
-    # logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+    logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
     # del all_futures
     # ----------------------------------------------------------------
