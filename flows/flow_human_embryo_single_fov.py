@@ -241,7 +241,6 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
     dark_img = load_dark_image(experiment_fpath)
 
     # scatter the data to different workers to save timr
-    remote_running_functions = client.scatter(running_functions)
     remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
     remote_codebook = client.scatter(codebook)
     remote_dark_img = client.scatter(dark_img)
@@ -258,7 +257,7 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
                                             analysis_parameters=analysis_parameters,
                                             experiment_fpath=experiment_fpath,
                                             parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                            running_functions=remote_running_functions,
+                                            running_functions=running_functions,
                                             img_width=img_width,
                                             img_height=img_height,
                                             tile_corners_coords_pxl=remote_tile_corners_coords_pxl,
@@ -271,16 +270,16 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
         
         all_futures.append(future)
 
-    _ = client.gather(all_futures)
-    # tracebacks = {}
-    # for future in as_completed(all_futures):
-    #     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
-    #     tracebacks[future.key] = traceback.format_tb(future.traceback())
-    #     del future
+    # _ = client.gather(all_futures)
+    tracebacks = {}
+    for future in as_completed(all_futures):
+        logger_print.info(f'processed {future.key} in {time.time()-start} sec')
+        tracebacks[future.key] = traceback.format_tb(future.traceback())
+        del future
 
-    # # wait(all_futures)
-    # fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
-    # pickle.dump(tracebacks, open(fname,'wb'))
+    # wait(all_futures)
+    fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
+    pickle.dump(tracebacks, open(fname,'wb'))
     logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
     # del all_futures
