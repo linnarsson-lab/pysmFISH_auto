@@ -44,24 +44,24 @@ def fov_processing_eel_barcoded(fov,
                     dark_img,
                     save_steps_output=False):
     
-   
-    processing_grp_split = sorted_grp['split']
-    fish_img_stacks = {}
+   pass
+    # processing_grp_split = sorted_grp['split']
+    # fish_img_stacks = {}
 
-    logger = selected_logger()
+    # logger = selected_logger()
 
-    experiment_fpath = Path(experiment_fpath)
-    experiment_name = experiment_fpath.stem
+    # experiment_fpath = Path(experiment_fpath)
+    # experiment_name = experiment_fpath.stem
     
-    # Path of directory where to save the intermediate results
-    filtered_img_path = experiment_fpath / 'tmp' / 'filtered_images'
-    raw_counts_path = experiment_fpath / 'tmp' / 'raw_counts'
-    registered_counts_path = experiment_fpath / 'tmp' / 'registered_counts'
-    combined_images_path = experiment_fpath / 'tmp' / 'combined_rounds_images'
+    # # Path of directory where to save the intermediate results
+    # filtered_img_path = experiment_fpath / 'tmp' / 'filtered_images'
+    # raw_counts_path = experiment_fpath / 'tmp' / 'raw_counts'
+    # registered_counts_path = experiment_fpath / 'tmp' / 'registered_counts'
+    # combined_images_path = experiment_fpath / 'tmp' / 'combined_rounds_images'
 
-    total_rounds = experiment_info['Barcode_length']
+    # total_rounds = experiment_info['Barcode_length']
     
-    counts_output = {}
+    # counts_output = {}
     
 
     # # Filter and count
