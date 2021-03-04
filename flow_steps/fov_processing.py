@@ -12,11 +12,14 @@ from pysmFISH.logger_utils import selected_logger
 
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
 from pysmFISH.fovs_registration import register_fish_test
+from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
 
 from pysmFISH.barcodes_analysis import extract_barcodes_NN_test
 
 from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm
+from flow_steps.filtering_counting import single_fish_filter_count_standard_not_norm_test
 from flow_steps.filtering_counting import filtering_counting_both_beads
+from flow_steps.filtering_counting import filtering_counting_both_beads_test
 from flow_steps.filtering_counting import load_dark_image
 
 from pysmFISH.stitching import stitch_using_microscope_fov_coords_test
@@ -72,7 +75,7 @@ def fov_processing_eel_barcoded(fov,
                 for zarr_grp_name in names:
                     round_num = int(zarr_grp_name.split('_')[-4].split('Hybridization')[-1])
                     counts_output['fish'][channel][zarr_grp_name], img = \
-                                                running_functions['fish_channels_filtering_counting'](
+                                                locals()[running_functions['fish_channels_filtering_counting']](
                                                                     zarr_grp_name,
                                                                     parsed_raw_data_fpath,
                                                                     processing_parameters,
@@ -92,7 +95,7 @@ def fov_processing_eel_barcoded(fov,
                 processing_parameters = data_info[1]
                 for zarr_grp_name in names:
                     counts_output['registration'][channel][zarr_grp_name], img = \
-                                                    running_functions['registration_channel_filtering_counting'](
+                                                    locals()[running_functions['registration_channel_filtering_counting']](
                                                                         zarr_grp_name,
                                                                         parsed_raw_data_fpath,
                                                                         processing_parameters,
@@ -111,7 +114,7 @@ def fov_processing_eel_barcoded(fov,
     
     # Register the reference channel
     registered_reference_channel_df, all_rounds_shifts, status = \
-                                        running_functions['registration_reference'](fov,
+                                        locals()[running_functions['registration_reference']](fov,
                                             counts_output,
                                             analysis_parameters, 
                                             experiment_info)
@@ -127,7 +130,7 @@ def fov_processing_eel_barcoded(fov,
     for channel, counts in counts_output['fish'].items():
         
         output_channel[channel] = {}
-        registered_fish_df, status = running_functions['registration_fish'](fov,
+        registered_fish_df, status = locals()[running_functions['registration_fish']](fov,
                             channel,
                             counts_output,
                             registered_reference_channel_df,
@@ -135,7 +138,7 @@ def fov_processing_eel_barcoded(fov,
                             analysis_parameters,
                             status)
     
-        process_barcodes = running_functions['barcode_extraction'](fov,
+        process_barcodes = locals()[running_functions['barcode_extraction']](fov,
                                             channel,
                                             registered_fish_df,
                                            analysis_parameters,
