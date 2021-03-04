@@ -6,6 +6,7 @@ from pysmFISH.logger_utils import selected_logger
 
 
 from flows.flow_human_embryo_single_fov import flow_human_embryo
+from flows.flow_human_adult_single_fov import flow_human_adult
 
 
 
@@ -40,6 +41,37 @@ def run_eel_human_embryo(experiment_fpath:str,run_type:str,parsing_type:str):
     click.echo('--------------------------------------------------------------')
     
     flow_human_embryo(experiment_fpath,run_type,parsing_type)
+
+    click.echo('    ')
+    click.echo('--------------------------------------------------------------')
+    click.echo(f'processing wall time: {(time.time()-start_time)/60} min')
+    click.echo('--------------------------------------------------------------')
+
+
+@flows_runner.command('eel-human-adult')
+
+@click.option('--experiment_fpath', type=str, help='Path to the folder \
+                where the experiments will be processed')
+@click.option('--run_type', type=str,default='new', help='Type of run \
+                select between new/re-run')
+@click.option('--parsing_type', type=str, default='original', help='key to select the type of data parsing to run \
+                - original: parse the data out from robofish system \
+                - reparsing_from_processing_folder: parse the raw data stored in the \
+                                experiment folder in the processing HD \
+                - reparsing_from_storage: parse the raw data stored in the \
+                                experiment folder in the storage HD \
+                - no_parsing: skip parsing step')
+
+
+def run_eel_human_adult(experiment_fpath:str,run_type:str,parsing_type:str):
+    logger = selected_logger()
+    start_time = time.time()
+    click.echo('    ')
+    click.echo('--------------------------------------------------------------')
+    click.echo('Run eel human adult processing')
+    click.echo('--------------------------------------------------------------')
+    
+    flow_human_adult(experiment_fpath,run_type,parsing_type)
 
     click.echo('    ')
     click.echo('--------------------------------------------------------------')
