@@ -190,9 +190,8 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
                                     parsed_raw_data_fpath=parsed_raw_data_fpath,
                                     experiment_info=experiment_info)
 
-            _ = client.gather(parsing_futures)
-
-            consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+            # wait(parsing_futures)
+            # _ = client.gather(parsing_futures)
         
         else:
             if parsing_type == 'reparsing_from_processing_folder':
@@ -206,9 +205,9 @@ def flow_human_embryo(experiment_fpath:str, run_type:str='new', parsing_type:str
                                     parsed_raw_data_fpath=parsed_raw_data_fpath,
                                     experiment_info=experiment_info)
 
-            _ = client.gather(parsing_futures)
-
-            consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+            # _ = client.gather(parsing_futures)
+        wait(parsing_futures)
+        consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
 
     logger.info(f'reparsing completed in {(time.time()-start)/60} min')
     # ----------------------------------------------------------------
