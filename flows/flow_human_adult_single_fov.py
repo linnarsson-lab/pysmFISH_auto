@@ -208,6 +208,7 @@ def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str=
             # _ = client.gather(parsing_futures)
         wait(parsing_futures)
         consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
+        del parsing_futures
 
     logger.info(f'reparsing completed in {(time.time()-start)/60} min')
     # ----------------------------------------------------------------
