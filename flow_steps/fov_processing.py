@@ -110,16 +110,16 @@ def fov_processing_eel_barcoded(fov,
             pickle.dump(counts_output,open(fname,'wb'))
     
     
-    # Register the reference channel
-    registered_reference_channel_df, all_rounds_shifts, status = calculate_shift_hybridization_fov_test(
-                                            fov,
-                                            counts_output,
-                                            analysis_parameters, 
-                                            experiment_info)
+    # # Register the reference channel
+    # registered_reference_channel_df, all_rounds_shifts, status = calculate_shift_hybridization_fov_test(
+    #                                         fov,
+    #                                         counts_output,
+    #                                         analysis_parameters, 
+    #                                         experiment_info)
     
-    if save_steps_output:
-            fname = registered_counts_path / (experiment_info['EXP_name'] + '_fov_' +str(fov) +'.pkl')
-            pickle.dump((registered_reference_channel_df, all_rounds_shifts),open(fname,'wb'))
+    # if save_steps_output:
+    #         fname = registered_counts_path / (experiment_info['EXP_name'] + '_fov_' +str(fov) +'.pkl')
+    #         pickle.dump((registered_reference_channel_df, all_rounds_shifts),open(fname,'wb'))
     
     
     
