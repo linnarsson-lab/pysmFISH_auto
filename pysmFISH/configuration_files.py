@@ -346,7 +346,7 @@ def create_function_runner(experiment_fpath,experiment_info):
     running_functions = OrderedDict()
 
     running_type = experiment_info['Sample']
-    reference_channel = experiment_info['Stitching_type']
+    stitching_type = experiment_info['Stitching_type']
 
     if running_type == 'eel-human-GBM':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
