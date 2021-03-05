@@ -13,7 +13,7 @@ from pysmFISH.logger_utils import selected_logger
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.configuration_files import create_specific_analysis_config_file
-from configuration_files import create_function_runner
+from pysmFISH.configuration_files import create_function_runner
 
 from pysmFISH.utils import create_folder_structure
 from pysmFISH.utils import transfer_files_from_storage
