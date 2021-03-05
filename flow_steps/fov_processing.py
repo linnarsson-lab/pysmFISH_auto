@@ -236,7 +236,7 @@ def fov_processing_eel_barcoded_dev(fov,
                     round_num = int(zarr_grp_name.split('_')[-4].split('Hybridization')[-1])
                     if running_functions['fish_channels_preprocessing'] == 'filter_remove_large_objs':
 
-                            img, masked_img, metadata = getattr(pysmFISH.preprocessing,running_functions['fish_channels_preprocessing'])(
+                            img, masked_img, img_metadata = getattr(pysmFISH.preprocessing,running_functions['fish_channels_preprocessing'])(
                                                                             zarr_grp_name,
                                                                             parsed_raw_data_fpath,
                                                                             processing_parameters,
@@ -251,7 +251,7 @@ def fov_processing_eel_barcoded_dev(fov,
                     
                     else:
                             
-                            img, metadata = getattr(pysmFISH.preprocessing,running_functions['fish_channels_preprocessing'])(
+                            img, img_metadata = getattr(pysmFISH.preprocessing,running_functions['fish_channels_preprocessing'])(
                                                                             zarr_grp_name,
                                                                             parsed_raw_data_fpath,
                                                                             processing_parameters,
@@ -280,7 +280,7 @@ def fov_processing_eel_barcoded_dev(fov,
                 processing_parameters = data_info[1]
                 for zarr_grp_name in names:
 
-                    img, metadata = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
+                    img, img_metadata = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
                                                                             zarr_grp_name,
                                                                             parsed_raw_data_fpath,
                                                                             processing_parameters,
