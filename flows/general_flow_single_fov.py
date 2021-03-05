@@ -254,7 +254,7 @@ fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
 pickle.dump(sorted_grps, open(fname,'wb'))
 
 for fov,sorted_grp in sorted_grps.items():
-    if fov < 40:
+    if fov < 5:
         future = client.submit(fov_processing_eel_barcoded_dev,
                                             fov=fov,
                                             sorted_grp=sorted_grp,
