@@ -255,24 +255,23 @@ fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
 pickle.dump(sorted_grps, open(fname,'wb'))
 
 for fov,sorted_grp in sorted_grps.items():
-    if fov < 5:
-        future = client.submit(fov_processing_eel_barcoded_dev,
-                                            fov=fov,
-                                            sorted_grp=sorted_grp,
-                                            experiment_info=experiment_info,
-                                            analysis_parameters=analysis_parameters,
-                                            experiment_fpath=experiment_fpath,
-                                            parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                            running_functions=running_functions,
-                                            img_width=img_width,
-                                            img_height=img_height,
-                                            tile_corners_coords_pxl= tile_corners_coords_pxl,
-                                            codebook=codebook,
-                                            selected_genes=selected_genes,
-                                            correct_hamming_distance=correct_hamming_distance,
-                                            dark_img = dark_img,
-                                            save_steps_output=False,
-                                            key= ('processing-fov-'+str(fov)))
+    future = client.submit(fov_processing_eel_barcoded_dev,
+                                        fov=fov,
+                                        sorted_grp=sorted_grp,
+                                        experiment_info=experiment_info,
+                                        analysis_parameters=analysis_parameters,
+                                        experiment_fpath=experiment_fpath,
+                                        parsed_raw_data_fpath=parsed_raw_data_fpath,
+                                        running_functions=running_functions,
+                                        img_width=img_width,
+                                        img_height=img_height,
+                                        tile_corners_coords_pxl= tile_corners_coords_pxl,
+                                        codebook=codebook,
+                                        selected_genes=selected_genes,
+                                        correct_hamming_distance=correct_hamming_distance,
+                                        dark_img = dark_img,
+                                        save_steps_output=False,
+                                        key= ('processing-fov-'+str(fov)))
         
 
     all_futures.append(future)
