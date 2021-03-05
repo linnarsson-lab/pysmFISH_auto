@@ -329,8 +329,8 @@ def flow_human_adult(experiment_fpath:str, run_type:str='new', parsing_type:str=
     #     del future
 
     # wait(all_futures)
-    # fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
-    # pickle.dump(tracebacks, open(fname,'wb'))
+    fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
+    pickle.dump(tracebacks, open(fname,'wb'))
     logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
     # del all_futures
