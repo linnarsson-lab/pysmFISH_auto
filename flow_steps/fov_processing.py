@@ -322,7 +322,7 @@ def fov_processing_eel_barcoded_dev(fov,
                             analysis_parameters,
                             status)
     
-        process_barcodes = extract_barcodes_NN_test(
+        process_barcodes = getattr(pysmFISH.barcodes_analysis,running_functions['barcode_extraction'])(
                                     fov,
                                     channel,
                                     registered_fish_df,
@@ -333,7 +333,7 @@ def fov_processing_eel_barcoded_dev(fov,
 
         process_barcodes.run_extraction()
 
-        registered_mic_df = getattr(pysmFISH.barcodes_analysis,running_functions['barcode_extraction'])(process_barcodes.barcoded_fov_df,
+        registered_mic_df = stitch_using_microscope_fov_coords_test(process_barcodes.barcoded_fov_df,
                                                                     fov,
                                                                     tile_corners_coords_pxl)
          
