@@ -13,6 +13,8 @@ from pysmFISH.barcodes_analysis import define_flip_direction
 
 from pysmFISH.logger_utils import selected_logger
 
+from pysmFISH.preprocessing import standard_not_norm_preprocessing
+
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
 from pysmFISH.fovs_registration import register_fish_test
 
@@ -112,7 +114,7 @@ def fov_processing_eel_barcoded(fov,
     
     
     # Register the reference channel
-    registered_reference_channel_df, all_rounds_shifts, status = getattr(pysmFISH.fovs_registration['registration_reference'])(
+    registered_reference_channel_df, all_rounds_shifts, status = getattr(pysmFISH.fovs_registration,running_functions['registration_reference'])(
                                             fov,
                                             counts_output,
                                             analysis_parameters, 
@@ -129,7 +131,7 @@ def fov_processing_eel_barcoded(fov,
     for channel, counts in counts_output['fish'].items():
         
         output_channel[channel] = {}
-        registered_fish_df, status =getattr(pysmFISH.fovs_registration['registration_fish'])(
+        registered_fish_df, status =getattr(pysmFISH.fovs_registration,running_functions['registration_fish'])(
                             fov,
                             channel,
                             counts_output,
@@ -149,7 +151,7 @@ def fov_processing_eel_barcoded(fov,
 
         process_barcodes.run_extraction()
 
-        registered_mic_df = getattr(pysmFISH.fovs_registration['barcode_extraction'])(process_barcodes.barcoded_fov_df,
+        registered_mic_df = getattr(pysmFISH.barcodes_analysis,running_functions['barcode_extraction'])(process_barcodes.barcoded_fov_df,
                                                                     fov,
                                                                     tile_corners_coords_pxl)
          
@@ -178,3 +180,101 @@ def fov_processing_eel_barcoded(fov,
             if save_steps_output:
                 fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
                 np.save(fname,registered_image)
+
+
+
+
+def fov_processing_eel_barcoded_dev(fov,
+                    sorted_grp,
+                    experiment_info,
+                    analysis_parameters,
+                    experiment_fpath,
+                    parsed_raw_data_fpath,
+                    running_functions,
+                    img_width,
+                    img_height,
+                    tile_corners_coords_pxl,
+                    codebook,
+                    selected_genes,
+                    correct_hamming_distance,
+                    dark_img,
+                    save_steps_output=False):
+    
+    processing_grp_split = sorted_grp['split']
+    fish_img_stacks = {}
+
+    logger = selected_logger()
+
+    experiment_fpath = Path(experiment_fpath)
+    experiment_name = experiment_fpath.stem
+    
+    # Path of directory where to save the intermediate results
+    filtered_img_path = experiment_fpath / 'tmp' / 'filtered_images'
+    raw_counts_path = experiment_fpath / 'tmp' / 'raw_counts'
+    registered_counts_path = experiment_fpath / 'tmp' / 'registered_counts'
+    combined_images_path = experiment_fpath / 'tmp' / 'combined_rounds_images'
+
+    total_rounds = experiment_info['Barcode_length']
+    
+    counts_output = {}
+    
+
+    # Filter and count
+    for processing_type, processing_input in processing_grp_split.items():
+        if processing_type == 'fish':
+            
+            counts_output['fish'] = {}
+            for channel, data_info in processing_input.items():
+                img_stack = np.zeros([total_rounds,img_height,img_width])
+                counts_output['fish'][channel] = {}
+                names = data_info[0]
+                processing_parameters = data_info[1]
+                for zarr_grp_name in names:
+                    round_num = int(zarr_grp_name.split('_')[-4].split('Hybridization')[-1])
+                    img, metadata = getattr(pysmFISH.preprocessing,running_functions['standard_not_norm_preprocessing'])(
+                                                                    zarr_grp_name,
+                                                                    parsed_raw_data_fpath,
+                                                                    processing_parameters,
+                                                                    dark_img)
+
+
+                    fish_counts = osmFISH_peak_based_detection((img, img_metadata),
+                                                    min_distance,
+                                                    min_obj_size,
+                                                    max_obj_size,
+                                                    num_peaks_per_label)
+
+                    counts_output['fish'][channel][zarr_grp_name], img = getattr(flow_steps.filtering_counting,running_functions['fish_channels_filtering_counting'])(
+                                                                    zarr_grp_name,
+                                                                    parsed_raw_data_fpath,
+                                                                    processing_parameters,
+                                                                    dark_img)
+                    img_stack[round_num-1,:,:] = img
+                    if save_steps_output:
+                         np.save(filtered_img_path / (zarr_grp_name + '.npy'),img )
+                
+                fish_img_stacks[channel] = img_stack
+        
+        
+        elif processing_type == 'registration':
+            counts_output['registration'] = {}
+            for channel, data_info in processing_input.items():
+                counts_output['registration'][channel] = {}
+                names = data_info[0]
+                processing_parameters = data_info[1]
+                for zarr_grp_name in names:
+                    counts_output['registration'][channel][zarr_grp_name], img = getattr(flow_steps.filtering_counting,running_functions['registration_channel_filtering_counting'])(
+                                zarr_grp_name,
+                                parsed_raw_data_fpath,
+                                processing_parameters,
+                                dark_img)
+
+                    if save_steps_output:
+                         np.save(filtered_img_path / (zarr_grp_name + '.npy'),img)
+
+        elif processing_type == 'staining':
+            pass
+
+        if save_steps_output:
+            fname = raw_counts_path / (experiment_info['EXP_name'] + '_fov_' +str(fov) +'.pkl')
+            pickle.dump(counts_output,open(fname,'wb'))
