@@ -342,8 +342,7 @@ def create_general_analysis_config_file(config_db_path:str):
 
 def create_function_runner(experiment_fpath,experiment_info):
     logger = selected_logger()
-    config_db_path = Path(config_db_path)
-    analysis_config_fpath = config_db_path / 'analysis_config.yaml'
+    experiment_fpath = Path(experiment_fpath)
     running_functions = OrderedDict()
 
     running_type = experiment_info['Sample']
