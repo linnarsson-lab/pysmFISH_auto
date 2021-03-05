@@ -340,6 +340,58 @@ def create_general_analysis_config_file(config_db_path:str):
         logger.error(f'cannot save the analysis_config_file')
 
 
+def create_function_runner(experiment_fpath,experiment_info):
+    logger = selected_logger()
+    config_db_path = Path(config_db_path)
+    analysis_config_fpath = config_db_path / 'analysis_config.yaml'
+    running_functions = OrderedDict()
+
+    running_type = experiment_info['Sample']
+    reference_channel = experiment_info['Stitching_type']
+
+    if running_type == 'eel-human-GBM':
+        running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
+                            'fish_channels_dots_calling':'osmFISH_peak_based_detection_test',
+                            'reference_channels_dots_calling': 'osmFISH_peak_based_detection_test',
+                            'registration_reference':'calculate_shift_hybridization_fov_test',
+                            'registration_fish': 'register_fish_test',
+                            'barcode_extraction': 'extract_barcodes_NN_test'}        
+
+        if stitching_type == 'large-beads':
+                running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing'
+
+        elif stitching_type == 'small-beads':
+            pass
+        elif stitching_type == 'both-beads':
+            pass
+
+        logger.info(f'selected functions for {running_type}')
+
+    elif running_type == 'eel-human-adult-brain':
+        logger.info(f'selected functions for {running_type}')
+        pass
+
+    elif running_type == 'human-embryo':
+        logger.info(f'selected functions for {running_type}')
+        pass
+
+    else:
+        logger.error(f'The sample does not have a corresponding analysis pipeline')
+        sys.exit(f'The sample does not have a corresponding analysis pipeline')
+
+    try:
+        analysis_config_fpath = experiment_fpath / 'pipeline_config' / 'running_functions.yaml'
+        with open(analysis_config_fpath, 'w') as new_config:
+                yaml.safe_dump(dict(running_functions), new_config,default_flow_style=False,sort_keys=False)
+    except:
+        logger.error(f'cannot save the analysis_config_file')
+    
+    
+    return running_functions
+
+
+
+
 def create_specific_analysis_config_file(experiment_fpath:str, experiment_info:Dict):
     """
     Select the analysis parameters according to the processing machine. If the
