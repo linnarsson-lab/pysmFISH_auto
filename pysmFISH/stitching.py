@@ -10,6 +10,7 @@ from pathlib import Path
 from sklearn.neighbors import NearestNeighbors
 from scipy.optimize import minimize
 
+from pynndescent import NNDescent
 
 from pysmFISH.utils import load_pipeline_config_file
 from pysmFISH.logger_utils import selected_logger
@@ -349,6 +350,65 @@ def stitch_using_microscope_fov_coords_test(decoded_df,fov,tile_corners_coords_p
         # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
         # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
     return decoded_df
+
+
+def get_dots_in_overlapping_regions(counts_df, unfolded_overlapping_regions_dict, 
+                       stitching_selected, gene):    
+    r_tag = 'r_px_' + stitching_selected
+    c_tag = 'c_px_' + stitching_selected
+    
+    ref_tiles_df = pd.DataFrame(columns=counts_df.columns)
+    comp_tiles_df = pd.DataFrame(columns=counts_df.columns)
+    
+    
+    grpd_df = counts_df.groupby('fov_num')
+    list_fov = list(grpd_df.groups.keys())
+    
+    for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
+        
+        if (cpl[0] in list_fov) and (cpl[1] in list_fov):
+            r_tl = chunk_coords[0]
+            r_br = chunk_coords[1]
+            c_tl = chunk_coords[2]
+            c_br = chunk_coords[3]
+
+            barcoded_ref_df = grpd_df.get_group(cpl[0])
+            barcoded_comp_df = grpd_df.get_group(cpl[1])
+
+            overlapping_ref_df = barcoded_ref_df.loc[(barcoded_ref_df[r_tag] > r_tl) & (barcoded_ref_df[r_tag] < r_br) 
+                                               & (barcoded_ref_df[c_tag] > c_tl) & (barcoded_ref_df[c_tag] < c_br),:]
+
+
+            overlapping_comp_df = barcoded_comp_df.loc[(barcoded_comp_df[r_tag] > r_tl) & (barcoded_comp_df[r_tag] < r_br) 
+                                               & (barcoded_comp_df[c_tag] > c_tl) & (barcoded_comp_df[c_tag] < c_br),:]
+
+
+            ref_tiles_df = ref_tiles_df.append(overlapping_ref_df)
+            comp_tiles_df = comp_tiles_df.append(overlapping_comp_df)
+        
+    return ref_tiles_df, comp_tiles_df
+
+def identify_duplicated_dots(channel_df,ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius):
+    
+    r_tag = 'r_px_' + stitching_selected
+    c_tag = 'c_px_' + stitching_selected
+
+    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
+    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
+    dots_ids = comp_tiles_df.loc[:, ['dot_id']].to_numpy()
+    index = NNDescent(overlapping_ref_coords,metric='euclidean',n_neighbors=1)
+    indices, dists = index.query(overlapping_comp_coords,k=1)
+    idx_dists = np.where(dists < same_dot_radius)[0]
+    dots_id_to_remove = dots_ids[idx_dists]
+    dots_id_to_remove = list(dots_id_to_remove.reshape(dots_id_to_remove.shape[0],))
+    return dots_id_to_remove
+
+
+
+
+
+
+
 
 
 class r_c_chunking():

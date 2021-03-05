@@ -6,6 +6,7 @@ import pandas as pd
 from pathlib import Path
 from dask.distributed import Client
 from dask.distributed import as_completed, wait
+from dask import dataframe as dd
 
 from pysmFISH.logger_utils import json_logger
 from pysmFISH.logger_utils import selected_logger
@@ -45,6 +46,8 @@ from flow_steps.fov_processing import fov_processing_eel_barcoded_dev
 
 from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
+from pysmFISH.stitching import get_dots_in_overlapping_regions
+from pysmFISH.stitching import removed_duplicated_dots
 
 from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
@@ -276,10 +279,10 @@ for fov,sorted_grp in sorted_grps.items():
 
     all_futures.append(future)
 
-_ = client.gather(all_futures)
+# _ = client.gather(all_futures)
 # tracebacks = {}
-# for future in as_completed(all_futures):
-#     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
+for future in as_completed(all_futures):
+    logger_print.info(f'processed {future.key} in {time.time()-start} sec')
 #     tracebacks[future.key] = traceback.format_tb(future.traceback())
 #     del future
 
@@ -304,6 +307,31 @@ _ = client.gather(all_futures)
 
 # logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+# REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
+# start = time.time()
+# logger.info(f'plot registration error')
+
+# unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+# corrected_overlapping_regions_dict = {}
+# for key, value in unfolded_overlapping_regions_dict.items():
+#     corrected_overlapping_regions_dict[key] = np.array(value)-img_width
+
+# # Prepare the dataframe
+# select_genes = 'below3Hdistance_genes'
+# stitching_selected = 'microscope_stitched'
+# r_tag = 'r_px_' + stitching_selected
+# c_tag = 'c_px_' + stitching_selected
+
+# counts_dd = dd.read_parquet(experiment_fpath / 'tmp' / 'registered_counts' / '*decoded*.parquet')
+# counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
+# counts_df = counts_dd.dropna(subset=[select_genes]).compute()
+# grpd = counts_df.groupby(select_genes)
+# for gene, count_df in grpd:
+    
+
+
 
 
 logger.info(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')
