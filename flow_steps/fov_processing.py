@@ -244,10 +244,7 @@ def fov_processing_eel_barcoded_dev(fov,
 
                             counts_output['fish'][channel][zarr_grp_name] = getattr(pysmFISH.dots_calling,running_functions['fish_channels_dots_calling'])(
                                                                                 (masked_img, img_metadata),
-                                                                                min_distance,
-                                                                                min_obj_size,
-                                                                                max_obj_size,
-                                                                                num_peaks_per_label)                                              
+                                                                                processing_parameters)                                              
                     
                     else:
                             
@@ -260,10 +257,7 @@ def fov_processing_eel_barcoded_dev(fov,
 
                             counts_output['fish'][channel][zarr_grp_name] = getattr(pysmFISH.dots_calling,running_functions['fish_channels_dots_calling'])(
                                                             (img, img_metadata),
-                                                            min_distance,
-                                                            min_obj_size,
-                                                            max_obj_size,
-                                                            num_peaks_per_label)
+                                                            processing_parameters)
 
                     img_stack[round_num-1,:,:] = img
                     if save_steps_output:
@@ -290,10 +284,7 @@ def fov_processing_eel_barcoded_dev(fov,
 
                     counts_output['registration'][channel][zarr_grp_name] = getattr(pysmFISH.dots_calling,running_functions['reference_channels_dots_calling'])(
                                                             (img, img_metadata),
-                                                            min_distance,
-                                                            min_obj_size,
-                                                            max_obj_size,
-                                                            num_peaks_per_label)
+                                                            processing_parameters)
                     if save_steps_output:
                          np.save(filtered_img_path / (zarr_grp_name + '.npy'),img)
 
