@@ -362,6 +362,7 @@ def create_function_runner(experiment_fpath,experiment_info):
         elif stitching_type == 'small-beads':
             pass
         elif stitching_type == 'both-beads':
+            running_functions['reference_channels_preprocessing'] = 'both_beads_preprocessing'
             pass
 
         logger.info(f'selected functions for {running_type}')
