@@ -46,8 +46,8 @@ from flow_steps.fov_processing import fov_processing_eel_barcoded_dev
 
 from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
-from pysmFISH.stitching import get_dots_in_overlapping_regions
-from pysmFISH.stitching import removed_duplicated_dots
+# from pysmFISH.stitching import get_dots_in_overlapping_regions
+# from pysmFISH.stitching import removed_duplicated_dots
 
 from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
