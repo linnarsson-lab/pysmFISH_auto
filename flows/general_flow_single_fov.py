@@ -92,7 +92,7 @@ parsed_image_tag = 'img_data'
 # run type can be:
 # new
 # re-run
-run_type = 'new'
+run_type = 're-run'
 
 # parsing type (str) can be:
 # original
@@ -100,7 +100,7 @@ run_type = 'new'
 # reparsing_from_storage 
 # None if parsing not to be performed
 
-parsing_type = 'original'
+parsing_type = 'no_parsing'
 
 storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
 
@@ -279,10 +279,10 @@ for fov,sorted_grp in sorted_grps.items():
 
     all_futures.append(future)
 
-# _ = client.gather(all_futures)
+_ = client.gather(all_futures)
 # tracebacks = {}
-for future in as_completed(all_futures):
-    logger_print.info(f'processed {future.key} in {time.time()-start} sec')
+# for future in as_completed(all_futures):
+#     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
 #     tracebacks[future.key] = traceback.format_tb(future.traceback())
 #     del future
 
