@@ -83,7 +83,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test'
+experiment_fpath = '/fish/work_std/LBEXP20210129_EEL_HE_3630um'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -100,7 +100,7 @@ run_type = 'new'
 # reparsing_from_storage 
 # None if parsing not to be performed
 
-parsing_type = 'no_parsing'
+parsing_type = 'original'
 
 storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
 
