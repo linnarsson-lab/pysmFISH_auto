@@ -355,16 +355,6 @@ def create_function_runner(experiment_fpath,experiment_info):
                             'registration_reference':'calculate_shift_hybridization_fov_test',
                             'registration_fish': 'register_fish_test',
                             'barcode_extraction': 'extract_barcodes_NN_test'}        
-
-        if stitching_type == 'large-beads':
-                running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing'
-
-        elif stitching_type == 'small-beads':
-            pass
-        elif stitching_type == 'both-beads':
-            running_functions['reference_channels_preprocessing'] = 'both_beads_preprocessing'
-            pass
-
         logger.info(f'selected functions for {running_type}')
 
     elif running_type == 'eel-human-adult-brain':
@@ -377,13 +367,23 @@ def create_function_runner(experiment_fpath,experiment_info):
                             'reference_channels_dots_calling': 'osmFISH_peak_based_detection_test',
                             'registration_reference':'calculate_shift_hybridization_fov_test',
                             'registration_fish': 'register_fish_test',
-                            'barcode_extraction': 'extract_barcodes_NN_test'}   
-        logger.info(f'selected functions for {running_type}')
-        pass
+                            'barcode_extraction': 'extract_barcodes_NN_test'}
 
     else:
         logger.error(f'The sample does not have a corresponding analysis pipeline')
         sys.exit(f'The sample does not have a corresponding analysis pipeline')
+
+    
+    if stitching_type == 'large-beads':
+                running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing'
+
+    elif stitching_type == 'small-beads':
+        pass
+    elif stitching_type == 'both-beads':
+        running_functions['reference_channels_preprocessing'] = 'both_beads_preprocessing'
+        pass
+
+
 
     try:
         analysis_config_fpath = experiment_fpath / 'pipeline_config' / 'running_functions.yaml'
