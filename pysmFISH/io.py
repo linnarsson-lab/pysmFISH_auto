@@ -6,6 +6,7 @@ that will contain all the analysis outputs
 from typing import *
 import os
 import zarr
+import sys
 # import shoji
 import numpy as np
 from pathlib import Path
