@@ -92,7 +92,7 @@ parsed_image_tag = 'img_data'
 # run type can be:
 # new
 # re-run
-run_type = 'new'
+run_type = 're-run'
 
 # parsing type (str) can be:
 # original
@@ -100,7 +100,7 @@ run_type = 'new'
 # reparsing_from_storage 
 # None if parsing not to be performed
 
-parsing_type = 'original'
+parsing_type = 'reparsing_from_processing_folder'
 
 storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
 
