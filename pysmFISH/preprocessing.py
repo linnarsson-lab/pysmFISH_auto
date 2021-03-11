@@ -412,7 +412,7 @@ def fresh_nuclei_filtering(
             2D flattened image 
 
         """
-        PreprocessingFreshNucleiLargeKernelSize = processing_parameters['PreprocessingFishFlatFieldKernel']
+        PreprocessingFreshNucleiLargeKernelSize = processing_parameters['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize']
 
         filtered_store = zarr.DirectoryStore(filtered_raw_data_fpath)
         filtered_root = zarr.group(store=filtered_store,overwrite=False)
