@@ -471,7 +471,6 @@ def register_combined_rounds_images(combined_round_images,all_rounds_shifts):
 
     return img_stack
 
-
 # https://stackoverflow.com/questions/1868714/how-do-i-copy-an-entire-directory-of-files-into-an-existing-directory-using-pyth
 def copytree(src, dst, symlinks=False, ignore=None):
     if not os.path.exists(dst):
@@ -484,48 +483,6 @@ def copytree(src, dst, symlinks=False, ignore=None):
         else:
             if not os.path.exists(d) or os.stat(s).st_mtime - os.stat(d).st_mtime > 1:
                 shutil.copy2(s, d)
-
-
-
-def transfer_files_from_storage(storage_experiment_fpath:str,experiment_fpath:str):
-    """
-    Function used to transfer the files required for data processing when
-    the raw images are collected from the storage directory
-
-    Args:
-    ----
-    storage_experiment_fpath: str
-        path of the experiment in the storage HD that contains the raw data
-    
-    experiment_fpath: str
-        path to the folder where the processing will be run
-    """
-    logger = selected_logger()
-    storage_experiment_fpath = Path(storage_experiment_fpath)
-    logger.info(f'storage directory {storage_experiment_fpath.as_posix()}')
-    experiment_fpath = Path(experiment_fpath)
-    logger.info(f'target directory {experiment_fpath.as_posix()}')
-
-    folders_to_copy=[
-        'extra_processing_data',
-        'pipeline_config',
-        'codebook',
-        'probes'
-    ]
-    
-    try:
-        config_file_fpath = list(storage_experiment_fpath.glob('*.yaml'))[0]
-    except:
-        logger.error(f'The experiment .yaml config file is missing')
-        sys.exit(f'The experiment .yaml config file is missing')
-    else:
-        for folder_name in folders_to_copy:
-            src = (storage_experiment_fpath / folder_name).as_posix()
-            dst = (experiment_fpath / folder_name).as_posix()
-            copytree(src,dst)
-        
-        dst_config = (experiment_fpath / config_file_fpath.name).as_posix()
-        _ = shutil.copy2(config_file_fpath,dst_config)
 
 
 def not_run_counting_sorted_grps(experiment_fpath, sorted_grps):

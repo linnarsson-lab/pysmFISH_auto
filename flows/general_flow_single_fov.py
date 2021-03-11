@@ -32,6 +32,8 @@ from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector
 from pysmFISH.microscopy_file_parsers import nikon_nd2_autoparser_zarr
 from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_zarr
 
+from pysmFISH.data_organization import transfer_data_to_storage
+
 from pysmFISH.utils import sorting_grps
 from pysmFISH.utils import not_run_counting_sorted_grps
 from pysmFISH.utils import sorting_grps_for_fov_processing
@@ -330,6 +332,19 @@ _ = client.gather(all_futures)
 # grpd = counts_df.groupby(select_genes)
 # for gene, count_df in grpd:
     
+
+
+# ----------------------------------------------------------------
+# TRANSFER THE RAW DATA TO STORAGE FOLDER
+start = time.time()
+logger.info(f'start data transfer to storage folder')
+
+if parsing_type in ['original','reparsing_from_processing_folder']:
+    transfer_data_to_storage(experiment_fpath,raw_data_folder_storage_path)
+
+logger.info(f'data transfer to storage folder completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
+
 
 
 
