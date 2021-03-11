@@ -11,13 +11,14 @@ from dask import dataframe as dd
 from pysmFISH.logger_utils import json_logger
 from pysmFISH.logger_utils import selected_logger
 
+from pysmFISH.data_organization import transfer_data_to_storage
+
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.configuration_files import create_specific_analysis_config_file
 from pysmFISH.configuration_files import create_function_runner
 
 from pysmFISH.utils import create_folder_structure
-from pysmFISH.utils import transfer_files_from_storage
 from pysmFISH.utils import collect_processing_files
 from pysmFISH.utils import sort_data_into_folders
 from pysmFISH.utils import create_dark_img
@@ -25,14 +26,13 @@ from pysmFISH.utils import create_dark_img
 
 from pysmFISH.io import create_empty_zarr_file
 from pysmFISH.io import consolidate_zarr_metadata
-from pysmFISH.io import open_consolidated_metadata # to remove
+from pysmFISH.io import open_consolidated_metadata
 
 from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector_general
 from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector
 from pysmFISH.microscopy_file_parsers import nikon_nd2_autoparser_zarr
 from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_zarr
 
-from pysmFISH.data_organization import transfer_data_to_storage
 
 from pysmFISH.utils import sorting_grps
 from pysmFISH.utils import not_run_counting_sorted_grps
@@ -48,8 +48,7 @@ from flow_steps.fov_processing import fov_processing_eel_barcoded_dev
 
 from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
-# from pysmFISH.stitching import get_dots_in_overlapping_regions
-# from pysmFISH.stitching import removed_duplicated_dots
+from pysmFISH.stitching import remove_overlapping_dots_from_gene
 
 from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
@@ -312,27 +311,40 @@ _ = client.gather(all_futures)
 
 # ----------------------------------------------------------------
 # REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
-# start = time.time()
-# logger.info(f'plot registration error')
+start = time.time()
+logger.info(f'plot registration error')
 
-# unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
-# corrected_overlapping_regions_dict = {}
-# for key, value in unfolded_overlapping_regions_dict.items():
-#     corrected_overlapping_regions_dict[key] = np.array(value)-img_width
+unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+corrected_overlapping_regions_dict = {}
+for key, value in unfolded_overlapping_regions_dict.items():
+    corrected_overlapping_regions_dict[key] = np.array(value)-img_width
 
-# # Prepare the dataframe
-# select_genes = 'below3Hdistance_genes'
-# stitching_selected = 'microscope_stitched'
-# r_tag = 'r_px_' + stitching_selected
-# c_tag = 'c_px_' + stitching_selected
+# Prepare the dataframe
+select_genes = 'below3Hdistance_genes'
+stitching_selected = 'microscope_stitched'
+same_dot_radius = 10
+r_tag = 'r_px_' + stitching_selected
+c_tag = 'c_px_' + stitching_selected
 
-# counts_dd = dd.read_parquet(experiment_fpath / 'tmp' / 'registered_counts' / '*decoded*.parquet')
-# counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
-# counts_df = counts_dd.dropna(subset=[select_genes]).compute()
-# grpd = counts_df.groupby(select_genes)
-# for gene, count_df in grpd:
+counts_dd = dd.read_parquet(experiment_fpath / 'tmp' / 'registered_counts' / '*decoded*.parquet')
+counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
+counts_df = counts_dd.dropna(subset=[select_genes]).compute()
+grpd = counts_df.groupby(select_genes)
+
+all_futures = []
+
+for gene, count_df in grpd:
+    future = client.submit(remove_overlapping_dots_from_gene,
+                            experiment_fpath = experiment_fpath,
+                            counts_df=counts_df,
+                            unfolded_overlapping_regions_dict=corrected_overlapping_regions_dict,
+                            stitching_selected=stitching_selected,
+                            gene = gene,
+                            same_dot_radius = same_dot_radius)
     
+    all_futures.append(future)
 
+_ = client.gather(all_futures)
 
 # ----------------------------------------------------------------
 # TRANSFER THE RAW DATA TO STORAGE FOLDER
