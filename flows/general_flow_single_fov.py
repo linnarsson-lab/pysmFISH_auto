@@ -377,7 +377,7 @@ if fresh_nuclei_processing:
 
             # create zarr file
             filtered_fpath = nuclei_fpath.parent / (nuclei_fpath.stem + '_filtered.zarr')
-            create_empty_zarr_file(nuclei_fpath.as_posix(), tag='filtered')
+            create_empty_zarr_file(nuclei_fpath.parent.as_posix(), tag='filtered')
 
             # filtering all the fovs
             zarr_fpath = nuclei_fpath.parent / (nuclei_fpath.stem + '.zarr')
