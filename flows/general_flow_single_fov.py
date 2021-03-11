@@ -1,7 +1,9 @@
 import time
 import traceback
 import pickle
+import zarr
 
+import numpy as np
 import pandas as pd
 from pathlib import Path
 from dask.distributed import Client
@@ -12,6 +14,7 @@ from pysmFISH.logger_utils import json_logger
 from pysmFISH.logger_utils import selected_logger
 
 from pysmFISH.data_organization import transfer_data_to_storage
+from pysmFISH.data_organization import transfer_files_from_storage
 
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
@@ -32,6 +35,7 @@ from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector_general
 from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector
 from pysmFISH.microscopy_file_parsers import nikon_nd2_autoparser_zarr
 from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_zarr
+from pysmFISH.microscopy_file_parsers import single_nikon_nd2_parser_simple
 
 
 from pysmFISH.utils import sorting_grps
@@ -49,6 +53,9 @@ from flow_steps.fov_processing import fov_processing_eel_barcoded_dev
 from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
 from pysmFISH.stitching import remove_overlapping_dots_from_gene
+
+
+from pysmFISH.preprocessing import fresh_nuclei_filtering
 
 from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
@@ -102,6 +109,10 @@ run_type = 're-run'
 # None if parsing not to be performed
 
 parsing_type = 'reparsing_from_processing_folder'
+
+
+fresh_nuclei_processing = True
+
 
 storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
 
@@ -312,7 +323,7 @@ _ = client.gather(all_futures)
 # ----------------------------------------------------------------
 # REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
 start = time.time()
-logger.info(f'plot registration error')
+logger.info(f'start removal of duplicated dots')
 
 unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
 corrected_overlapping_regions_dict = {}
@@ -326,7 +337,7 @@ same_dot_radius = 10
 r_tag = 'r_px_' + stitching_selected
 c_tag = 'c_px_' + stitching_selected
 
-counts_dd = dd.read_parquet(experiment_fpath / 'tmp' / 'registered_counts' / '*decoded*.parquet')
+counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet')
 counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
 counts_df = counts_dd.dropna(subset=[select_genes]).compute()
 grpd = counts_df.groupby(select_genes)
@@ -345,13 +356,56 @@ for gene, count_df in grpd:
     all_futures.append(future)
 
 _ = client.gather(all_futures)
+logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+# PROCESS FRESH NUCLEI
+start = time.time()
+logger.info(f'start processing of the fresh nuclei')
+if fresh_nuclei_processing:
+    if parsing_type == 'reparsing_from_storage':
+        pass
+    else:
+        try:
+            nuclei_fpath = list((Path(experiment_fpath) / 'fresh_nuclei').glob('*.nd2'))[0]
+        except:
+            logger.error(f'missing images of the fresh nuclei')
+        else:
+            parsing_future = client.submit(single_nikon_nd2_parser_simple,nuclei_fpath)
+            _ = client.gather(parsing_future)
+
+            # create zarr file
+            filtered_fpath = nuclei_fpath.parent / (nuclei_fpath.stem + '_filtered.zarr')
+            create_empty_zarr_file(filtered_fpath.as_posix())
+
+            # filtering all the fovs
+            zarr_fpath = nuclei_fpath.parent / (nuclei_fpath.stem + '.zarr')
+            parsed_store = zarr.DirectoryStore(zarr_fpath)
+            parsed_root = zarr.group(store=parsed_store,overwrite=False)
+            fovs = list(parsed_root.keys())
+
+            all_futures = []
+            for fov in fovs:
+                parsing_future = client.submit(fresh_nuclei_filtering,
+                                parsed_raw_data_fpath=zarr_fpath,
+                                filtered_raw_data_fpath=filtered_fpath,
+                                fov=fov,
+                                processing_parameters=analysis_parameters)
+                all_futures.append(parsing_future)
+            _ = client.gather(all_futures)
+
+logger.info(f'processing of the fresh nuclei completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
+
+
 
 # ----------------------------------------------------------------
 # TRANSFER THE RAW DATA TO STORAGE FOLDER
 start = time.time()
 logger.info(f'start data transfer to storage folder')
 
-if parsing_type in ['original','reparsing_from_processing_folder']:
+if parsing_type != 'reparsing_from_storage':
     transfer_data_to_storage(experiment_fpath,raw_data_folder_storage_path)
 
 logger.info(f'data transfer to storage folder completed in {(time.time()-start)/60} min')

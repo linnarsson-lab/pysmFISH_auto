@@ -107,6 +107,44 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
 
 
 
+def load_zarr_fov(zarr_fpath:str, fov:int):
+    """
+    Function used to load in memory the raw image stacks,
+    it will also convert the data into float64
+
+    Parameters:
+    -----------
+    zarr_fpah: str 
+        path to the file containing the raw images
+    fov: int
+        number of the fov to load
+    
+    Returns:
+    --------
+    img_stack: float64
+        raw image
+    """
+
+    logger = selected_logger()
+
+    try:
+        raw_store = zarr.DirectoryStore(zarr_fpath)
+        raw_root = zarr.group(store=raw_store,overwrite=False)
+    except:
+        logger.error(f'cannot load the zarr file {zarr_fpath}')
+        sys.exit(f'cannot load the zarr file {zarr_fpath}')
+    
+    try:
+        img_stack = raw_root[fov][...]
+    except:
+        logger.error(f'cannot load image fov {fov} from {zarr_fpath}')
+        sys.exit(f'cannot load image fov {fov} from {zarr_fpath}')
+
+    return img_stack
+
+
+
+
 
 
 # def connect_to_shoji_smfish_experiment(experiment_name: str):

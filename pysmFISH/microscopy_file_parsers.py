@@ -365,3 +365,97 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
                 dgrp.attrs['processing_type'] = 'fish'
 
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
+
+
+def single_nikon_nd2_parser_simple(nd2_file_path):
+    """
+    Utility class used to parse a single .nd2 file
+    The output will be a .zarr file with
+    root/frame/channel/fov and the image chunked on the z-level
+    This is for small files, i do not make used of the ram
+    """
+
+    nd2_file_path = Path(nd2_file_path)
+    fresh_nuclei_dpath = nd2_file_path.parent
+    logger = selected_loggger()
+    parsed_fpath = fresh_nuclei_dpath / (nd2_file_path.stem + '.zarr')
+    parse_st = zarr.DirectoryStore(parsed_fpath.as_posix())
+    parsed_root = zarr.group(store=parse_st,overwrite=True)
+
+    with ND2Reader(nd2_file_path.as_posix()) as nd2fh:
+        
+        # Collect metadata
+        all_metadata = nd2fh.parser._raw_metadata
+        parsed_metadata = nd2fh.parser._raw_metadata.get_parsed_metadata()
+                
+        # Collect FOV coords
+        x_data = np.array(all_metadata.x_data)
+        x_data = x_data[:,np.newaxis]
+        y_data = np.array(all_metadata.y_data)
+        y_data = y_data[:,np.newaxis]
+        z_data = np.array(all_metadata.z_data)
+        z_data = z_data[:,np.newaxis]
+        all_coords = np.hstack((z_data,x_data,y_data))
+        fov_coords = all_coords[0::len(z_levels),:]
+        
+        tag_name = experiment_name + '_' + hybridization_name + '_' + channel
+    
+        # Save the fov_coords
+        fname = experiment_fpath / 'results' / (tag_name + '_fresh_nuclei_fovs_coords.npy')
+        np.save(fname, fov_coords)
+                
+        if 'z' in nd2fh.axes:
+            nd2fh.bundle_axes = 'zyx'
+
+            # Collect FOV coords
+            x_data = np.array(all_metadata.x_data)
+            x_data = x_data[:,np.newaxis]
+            y_data = np.array(all_metadata.y_data)
+            y_data = y_data[:,np.newaxis]
+            z_data = np.array(all_metadata.z_data)
+            z_data = z_data[:,np.newaxis]
+            all_coords = np.hstack((z_data,x_data,y_data))
+            fov_coords = all_coords[0::len(z_levels),:]
+
+        else:
+            nd2fh.bundle_axes = 'yx'
+            
+            # Collect FOV coords
+            x_data = np.array(all_metadata.x_data)
+            x_data = x_data[:,np.newaxis]
+            y_data = np.array(all_metadata.y_data)
+            y_data = y_data[:,np.newaxis]
+            fov_coords = np.hstack((x_data,y_data))
+
+        # Save the fov_coords
+        fname = experiment_fpath / 'fresh_nuclei' / (tag_name + '_fresh_nuclei_fovs_coords.npy')
+        np.save(fname, fov_coords)
+
+        # Save metadata
+        fname = experiment_fpath / 'fresh_nuclei' / (tag_name + '_fresh_nuclei_all_metadata.pkl')
+        pickle.dump(all_metadata, open(fname,'wb'))
+
+        fname = experiment_fpath / 'fresh_nuclei' / (tag_name + '_fresh_nuclei_parsed_metadata.pkl')
+        pickle.dump(parsed_metadata, open(fname,'wb'))
+
+        axis_iter_order = []
+        # Different type of conversion depending on the axis:
+        if 'c' in nd2fh.axes:
+            axis_iter_order.append('c')
+        if 'v' in nd2fh.axes:
+            axis_iter_order.append('v')
+
+        nd2fh.iter_axes = axis_iter_order
+        
+        counter = 0            
+
+        # loop through the frames (time dimension)
+        for frame in nd2fh.metadata['frames']:
+            for channel in nd2fh.metadata['channels']:
+                for fov in nd2fh.metadata['fields_of_view']:
+                    img = np.array(nd2fh.get_frame(counter),dtype=np.uint16)
+                    if len(img.shape) == 3:
+                        parsed_root.create_dataset(fov, data=img, shape=img.shape, chunks=(1,None,None))
+                    elif len(img.shape) == 2:
+                        parsed_root.create_dataset(fov, data=img, shape=img.shape, chunks=(None,None))
+                    counter +=1

@@ -5,6 +5,7 @@ from typing import *
 import pickle
 import sys
 import time
+import zarr
 
 import dask
 import numpy as np
@@ -16,10 +17,12 @@ from dask.distributed import Client
 
 # pysmFISH imports
 from pysmFISH.io import load_raw_images
+from pysmFISH.io import load_zarr_fov
 from pysmFISH.dots_calling import osmFISH_peak_based_detection
 from pysmFISH.dots_calling import osmFISH_dots_thr_selection, osmFISH_dots_mapping
 from pysmFISH.dots_calling import osmFISH_barcoded_peak_based_detection_masked_thr
 from pysmFISH.utils import convert_from_uint16_to_float64
+from pysmFISH.utils import convert_to_uint16
 from pysmFISH.data_models import Output_models
 
 from pysmFISH.logger_utils import selected_logger
@@ -380,3 +383,50 @@ def nuclei_registration_filtering(zarr_grp_name,
             img = img.max(axis=0)
         
             return img, img_metadata
+
+
+def fresh_nuclei_filtering(
+        parsed_raw_data_fpath,
+        filtered_raw_data_fpath,
+        fov,
+        processing_parameters):
+        
+        """
+        This function remove the background from large structures like nuclei
+        For the sigma I seleced a value quite bigger than
+        the nuclei size in order to remove them from the 
+        image. I used what showed on the gaussian filter code page and on this
+        link on stackoverflow: 
+        http://stackoverflow.com/questions/25216382/gaussian-filter-in-scipy
+
+        Arguments
+        -----------
+
+        img_stack: np.array float64
+            3D numpy array with the image
+        
+        Returns
+        -----------
+
+        filtered_image: np.array float64 
+            2D flattened image 
+
+        """
+        PreprocessingFreshNucleiLargeKernelSize = processing_parameters['PreprocessingFishFlatFieldKernel']
+
+        filtered_store = zarr.DirectoryStore(filtered_raw_data_fpath)
+        filtered_root = zarr.group(store=filtered_store,overwrite=False)
+
+        img_stack = load_zarr_fov(parsed_raw_data_fpath,fov)
+        img_stack = convert_from_uint16_to_float64(img_stack)
+
+        # Clean the image from the background
+        img_stack = img_stack-filters.gaussian(img_stack,sigma=PreprocessingFreshNucleiLargeKernelSize)
+        # Remove the negative values        
+        img_stack[img_stack<0] = 0
+        # Flatten the image
+        flattened_img = np.amax(img_stack,axis=0)
+
+        filtered_img = convert_to_uint16(filtered_img)
+        filtered_root.create_dataset(fov, data=filtered_img, shape=filtered_img.shape, chunks=(1,None,None),overwrite=True)
+
