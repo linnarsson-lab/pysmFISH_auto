@@ -427,6 +427,6 @@ def fresh_nuclei_filtering(
         # Flatten the image
         flattened_img = np.amax(img_stack,axis=0)
 
-        filtered_img = convert_to_uint16(filtered_img)
-        filtered_root.create_dataset(fov, data=filtered_img, shape=filtered_img.shape, chunks=(1,None,None),overwrite=True)
+        flattened_img = convert_to_uint16(flattened_img)
+        filtered_root.create_dataset(fov, data=flattened_img, shape=flattened_img.shape, chunks=(None,None),overwrite=True)
 

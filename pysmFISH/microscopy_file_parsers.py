@@ -377,37 +377,22 @@ def single_nikon_nd2_parser_simple(nd2_file_path):
 
     nd2_file_path = Path(nd2_file_path)
     fresh_nuclei_dpath = nd2_file_path.parent
-    logger = selected_loggger()
+    logger = selected_logger()
     parsed_fpath = fresh_nuclei_dpath / (nd2_file_path.stem + '.zarr')
     parse_st = zarr.DirectoryStore(parsed_fpath.as_posix())
     parsed_root = zarr.group(store=parse_st,overwrite=True)
 
-    with ND2Reader(nd2_file_path.as_posix()) as nd2fh:
+    with nd2reader.ND2Reader(nd2_file_path.as_posix()) as nd2fh:
         
         # Collect metadata
         all_metadata = nd2fh.parser._raw_metadata
         parsed_metadata = nd2fh.parser._raw_metadata.get_parsed_metadata()
                 
-        # Collect FOV coords
-        x_data = np.array(all_metadata.x_data)
-        x_data = x_data[:,np.newaxis]
-        y_data = np.array(all_metadata.y_data)
-        y_data = y_data[:,np.newaxis]
-        z_data = np.array(all_metadata.z_data)
-        z_data = z_data[:,np.newaxis]
-        all_coords = np.hstack((z_data,x_data,y_data))
-        fov_coords = all_coords[0::len(z_levels),:]
-        
-        tag_name = experiment_name + '_' + hybridization_name + '_' + channel
-    
-        # Save the fov_coords
-        fname = experiment_fpath / 'results' / (tag_name + '_fresh_nuclei_fovs_coords.npy')
-        np.save(fname, fov_coords)
-                
         if 'z' in nd2fh.axes:
             nd2fh.bundle_axes = 'zyx'
 
             # Collect FOV coords
+            z_levels = parsed_metadata['z_levels']
             x_data = np.array(all_metadata.x_data)
             x_data = x_data[:,np.newaxis]
             y_data = np.array(all_metadata.y_data)
@@ -428,14 +413,11 @@ def single_nikon_nd2_parser_simple(nd2_file_path):
             fov_coords = np.hstack((x_data,y_data))
 
         # Save the fov_coords
-        fname = experiment_fpath / 'fresh_nuclei' / (tag_name + '_fresh_nuclei_fovs_coords.npy')
+        fname = nd2_file_path.parent / (nd2_file_path.stem + '_fovs_coords.npy')
         np.save(fname, fov_coords)
 
         # Save metadata
-        fname = experiment_fpath / 'fresh_nuclei' / (tag_name + '_fresh_nuclei_all_metadata.pkl')
-        pickle.dump(all_metadata, open(fname,'wb'))
-
-        fname = experiment_fpath / 'fresh_nuclei' / (tag_name + '_fresh_nuclei_parsed_metadata.pkl')
+        fname = nd2_file_path.parent / (nd2_file_path.stem + '_parsed_metadata.pkl')
         pickle.dump(parsed_metadata, open(fname,'wb'))
 
         axis_iter_order = []
