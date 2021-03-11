@@ -11,6 +11,7 @@ import dask
 import numpy as np
 import scipy.ndimage as nd
 from skimage import filters, morphology, measure
+from skimage import img_as_float64, img_as_uint
 from pathlib import Path
 from dask.distributed import Client
 
@@ -22,7 +23,6 @@ from pysmFISH.dots_calling import osmFISH_peak_based_detection
 from pysmFISH.dots_calling import osmFISH_dots_thr_selection, osmFISH_dots_mapping
 from pysmFISH.dots_calling import osmFISH_barcoded_peak_based_detection_masked_thr
 from pysmFISH.utils import convert_from_uint16_to_float64
-from pysmFISH.utils import convert_to_uint16
 from pysmFISH.data_models import Output_models
 
 from pysmFISH.logger_utils import selected_logger
@@ -418,7 +418,7 @@ def fresh_nuclei_filtering(
         filtered_root = zarr.group(store=filtered_store,overwrite=False)
 
         img_stack = load_zarr_fov(parsed_raw_data_fpath,fov)
-        img_stack = convert_from_uint16_to_float64(img_stack)
+        img_stack = img_as_float64(img_stack)
 
         # Clean the image from the background
         img_stack = img_stack-filters.gaussian(img_stack,sigma=PreprocessingFreshNucleiLargeKernelSize)
@@ -427,6 +427,6 @@ def fresh_nuclei_filtering(
         # Flatten the image
         flattened_img = np.amax(img_stack,axis=0)
 
-        flattened_img = convert_to_uint16(flattened_img)
+        flattened_img = img_as_uint(flattened_img)
         filtered_root.create_dataset(fov, data=flattened_img, shape=flattened_img.shape, chunks=(None,None),overwrite=True)
-
+        
