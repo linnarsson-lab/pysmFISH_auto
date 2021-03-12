@@ -206,7 +206,6 @@ def fov_processing_eel_barcoded_dev(fov,
     processing_grp_split = sorted_grp['split']
     fish_img_stacks = {}
 
-    fish_mask_img_stacks = {}
 
     logger = selected_logger()
 
@@ -231,8 +230,7 @@ def fov_processing_eel_barcoded_dev(fov,
             counts_output['fish'] = {}
             for channel, data_info in processing_input.items():
                 img_stack = np.zeros([total_rounds,img_height,img_width])
-                img_mask_stack = np.zeros([total_rounds,img_height,img_width])
-
+            
                 counts_output['fish'][channel] = {}
                 names = data_info[0]
                 processing_parameters = data_info[1]
@@ -264,12 +262,10 @@ def fov_processing_eel_barcoded_dev(fov,
     #                                                         processing_parameters)
 
                     img_stack[round_num-1,:,:] = img
-                    img_mask_stack[round_num-1,:,:] = masked_img
     #                 if save_steps_output:
     #                      np.save(filtered_img_path / (zarr_grp_name + '.npy'),img )
                 
                 fish_img_stacks[channel] = img_stack
-                fish_mask_img_stacks[channel] = img_mask_stack
         
         
         elif processing_type == 'registration':
@@ -368,6 +364,4 @@ def fov_processing_eel_barcoded_dev(fov,
     #         if save_steps_output:
     #             fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
     #             np.save(fname,registered_image)
-
-    return fish_img_stacks, fish_mask_img_stacks
 
