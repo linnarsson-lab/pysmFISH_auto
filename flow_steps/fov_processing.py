@@ -261,11 +261,11 @@ def fov_processing_eel_barcoded_dev(fov,
     #                                                         (img, img_metadata),
     #                                                         processing_parameters)
 
-                    img_stack[round_num-1,:,:] = img
+                    # img_stack[round_num-1,:,:] = img
     #                 if save_steps_output:
     #                      np.save(filtered_img_path / (zarr_grp_name + '.npy'),img )
                 
-                fish_img_stacks[channel] = img_stack
+                # fish_img_stacks[channel] = img_stack
         
         
         elif processing_type == 'registration':
