@@ -234,7 +234,7 @@ def fov_processing_eel_barcoded_dev(fov,
                 processing_parameters = data_info[1]
                 for zarr_grp_name in names:
                     round_num = int(zarr_grp_name.split('_')[-4].split('Hybridization')[-1])
-                    if running_functions['fish_channels_preprocessing'] == 'filter_remove_large_objs_gpus':
+                    if running_functions['fish_channels_preprocessing'] == 'filter_remove_large_objs_gpu':
 
                             img, masked_img, img_metadata = getattr(pysmFISH.preprocessing,running_functions['fish_channels_preprocessing'])(
                                                                             zarr_grp_name,
