@@ -330,11 +330,11 @@ def filter_remove_large_objs_gpu(
     
         labels = ndx.label(mask)
 
-        labels = labels.get()
-        mask = mask.get()
-        img = img.get()
+        labels = cp.asnumpy(labels[0])
+        mask = cp.asnumpy(mask)
+        img = cp.asnumpy(img)
 
-        properties = measure.regionprops(labels[0])    
+        properties = measure.regionprops(labels)    
         for ob in properties:
             if ob.area < LargeObjRemovalMinObjSize:
                 mask[ob.coords[:,0],ob.coords[:,1]]=0
