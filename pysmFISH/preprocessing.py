@@ -57,7 +57,8 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
         sys.exit(f'cannot load the dark image file')
     else:
         logger.info(f'loaded {dark_img_fpath[0].stem} dark image')
-        dark_img = convert_from_uint16_to_float64(dark_img)
+        # dark_img = convert_from_uint16_to_float64(dark_img)
+        dark_img = img_as_float64(dark_img)
         return dark_img
 
 
@@ -307,7 +308,7 @@ def filter_remove_large_objs_gpu(
 
         img = raw_fish_images_meta[0]
         img_metadata = raw_fish_images_meta[1]
-        img = convert_from_uint16_to_float64(img)
+        img = img_as_float64(img)
 
         img -= dark_img
         img[img<0] = 0
@@ -362,7 +363,7 @@ def large_beads_preprocessing_gpu(zarr_grp_name,
 
     img = raw_fish_images_meta[0]
     img_metadata = raw_fish_images_meta[1]
-    img = convert_from_uint16_to_float64(img)
+    img = img_as_float64(img)
     img -= dark_img
     img[img<0] = 0
     img = np.abs(img) # to avoid -0.0 issues
