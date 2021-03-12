@@ -330,9 +330,9 @@ def filter_remove_large_objs_gpu(
     
         labels = ndx.label(mask)
 
-        labels = cp.asnumpy(labels)
-        mask = cp.asnumpy(mask)
-        img = cp.asnumpy(img)
+        labels = labels.get()
+        mask = mask.get()
+        img = img.get()
 
         properties = measure.regionprops(labels[0])    
         for ob in properties:
