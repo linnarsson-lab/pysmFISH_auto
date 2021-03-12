@@ -349,7 +349,7 @@ def create_function_runner(experiment_fpath,experiment_info):
     stitching_type = experiment_info['Stitching_type']
 
     if running_type == 'eel-human-GBM':
-        running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
+        running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs_gpu',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_test',
                             'reference_channels_dots_calling': 'osmFISH_peak_based_detection_test',
                             'registration_reference':'calculate_shift_hybridization_fov_test',
@@ -375,7 +375,7 @@ def create_function_runner(experiment_fpath,experiment_info):
 
     
     if stitching_type == 'large-beads':
-                running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing'
+                running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing_gpu'
 
     elif stitching_type == 'small-beads':
         pass
