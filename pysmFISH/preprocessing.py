@@ -372,7 +372,7 @@ def large_beads_preprocessing_gpu(zarr_grp_name,
 
     img = cp.array(img)
 
-    img /= ndx.gaussian_filter(img,FlatFieldKernel,preserve_range=False)
+    img /= ndx.gaussian_filter(img,FlatFieldKernel)
 
     img = cp.asnumpy(img)
     return img, img_metadata
