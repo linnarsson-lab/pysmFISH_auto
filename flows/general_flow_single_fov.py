@@ -392,8 +392,8 @@ if fresh_nuclei_processing:
                                 filtered_raw_data_fpath=filtered_fpath,
                                 fov=fov,
                                 processing_parameters=analysis_parameters)
-            #     all_futures.append(parsing_future)
-            # _ = client.gather(all_futures)
+                all_futures.append(parsing_future)
+            _ = client.gather(all_futures)
 
 logger.info(f'processing of the fresh nuclei completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
