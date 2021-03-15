@@ -91,7 +91,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/wsfish/smfish_ssd/LBEXP20210129_EEL_HE_3630um'
+experiment_fpath = '/fish/work_std/LBEXP20210209_EEL_HE_3680um'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
