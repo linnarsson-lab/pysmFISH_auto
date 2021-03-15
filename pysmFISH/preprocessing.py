@@ -418,7 +418,7 @@ def fresh_nuclei_filtering(
         filtered_root = zarr.group(store=filtered_store,overwrite=False)
 
         img_stack = load_zarr_fov(parsed_raw_data_fpath,fov)
-        img_stack = img_as_float64(img_stack)
+        img_stack = convert_from_uint16_to_float64(img_stack)
 
         # Clean the image from the background
         img_stack = img_stack-filters.gaussian(img_stack,sigma=PreprocessingFreshNucleiLargeKernelSize)
