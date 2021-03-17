@@ -92,7 +92,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test'
+experiment_fpath = '/wsfish/smfish_ssd/AMEXP20201126_EEL_HumanH1930001V1C_HGprobes'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -338,7 +338,7 @@ same_dot_radius = 10
 r_tag = 'r_px_' + stitching_selected
 c_tag = 'c_px_' + stitching_selected
 
-counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',engine='fastparquet')
+counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet')
 counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
 counts_df = counts_dd.dropna(subset=[select_genes]).compute()
 grpd = counts_df.groupby(select_genes)
