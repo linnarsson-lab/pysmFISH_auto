@@ -16,8 +16,6 @@ from pathlib import Path
 from pysmFISH.utils import load_pipeline_config_file, convert_from_uint16_to_float64
 from pysmFISH.data_models import Output_models
 
-from prefect import task
-from prefect.engine import signals
 from pysmFISH.logger_utils import selected_logger
 
 
