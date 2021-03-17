@@ -5,8 +5,6 @@ Ex. missing positions after parsing the data
 """
 
 from typing import *
-from prefect import task
-from prefect.engine import signals
 import re
 import sys
 import pandas as pd
