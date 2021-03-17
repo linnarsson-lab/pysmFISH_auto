@@ -635,7 +635,7 @@ def calculate_shift_hybridization_fov_nuclei(processing_files:List,analysis_para
                         all_rounds_shifts_RMS[round_num] = 1
                         break
                     else:                    
-                            round_num = tran_counts['round_num'][0]
+                            round_num = int((fpath.stem).split('_')[-5].split('Hybridization')[-1])
                             ref_img_metadata['reference_hyb'] = str(reference_hybridization)
                             
                             shift, error, diffphase = phase_cross_correlation(ref_img, tran_img,return_error=True,)
