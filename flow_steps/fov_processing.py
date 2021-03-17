@@ -17,6 +17,7 @@ from pysmFISH.preprocessing import standard_not_norm_preprocessing
 from pysmFISH.preprocessing import filter_remove_large_objs
 
 from pysmFISH.dots_calling import osmFISH_peak_based_detection_test
+from pysmFISH.dots_calling import osmFISH_barcoded_peak_based_detection_masked_thr_test
 
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
 from pysmFISH.fovs_registration import register_fish_test
