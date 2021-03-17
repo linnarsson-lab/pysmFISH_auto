@@ -13,11 +13,6 @@ from pathlib import Path
 from dask import dataframe as dd
 import pandas as pd
 
-import prefect
-from prefect import task
-from prefect import Task
-from prefect.engine import signals
-
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.utils import convert_to_uint16
 
