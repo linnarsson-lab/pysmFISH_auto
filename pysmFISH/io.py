@@ -149,8 +149,7 @@ def load_zarr_fov(zarr_fpath:str, fov:int):
 def simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client):
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*_counts*.parquet',
-                                engine='fastparquet')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*_counts*.parquet')
 
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
