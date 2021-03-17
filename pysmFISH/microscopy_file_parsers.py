@@ -12,11 +12,6 @@ import xarray as xr
 from pathlib import Path
 
 
-import prefect
-from prefect import Task
-from prefect import task
-from prefect.engine import signals
-
 from pysmFISH.logger_utils import selected_logger
 
 
