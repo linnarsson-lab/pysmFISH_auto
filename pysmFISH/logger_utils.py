@@ -10,12 +10,6 @@ from pythonjsonlogger import jsonlogger
 from logging.handlers import RotatingFileHandler
 
 
-
-import prefect
-from prefect import task
-from prefect.utilities.logging import get_logger
-
-
 def selected_logger():
     """
     Logger function. If you want to change the logging
