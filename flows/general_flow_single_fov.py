@@ -338,8 +338,12 @@ same_dot_radius = 10
 r_tag = 'r_px_' + stitching_selected
 c_tag = 'c_px_' + stitching_selected
 
-counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',
-                                                engine='pyarrow')
+# counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',
+#                                                 engine='pyarrow')
+
+all_files = (Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*decoded*.parquet')
+counts_dd_list = [dd.read_parquet(counts_file) for counts_file in all_files]
+counts_dd = dd.concat(counts_dd_list, axis=0)
 counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
 counts_df = counts_dd.dropna(subset=[select_genes]).compute()
 grpd = counts_df.groupby(select_genes)
