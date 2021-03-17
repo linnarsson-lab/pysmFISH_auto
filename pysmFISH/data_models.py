@@ -5,10 +5,6 @@ import numpy as np
 from pathlib import Path
 import pandas as pd
 
-import prefect
-from prefect import Task
-from prefect.engine import signals
-
 class Output_models():
     """
     Class containing the definition of the output data
