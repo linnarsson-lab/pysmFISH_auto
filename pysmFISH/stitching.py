@@ -411,7 +411,7 @@ def remove_overlapping_dots_from_gene(experiment_fpath,counts_df,unfolded_overla
 
     ref_tiles_df, comp_tiles_df = get_dots_in_overlapping_regions(counts_df,unfolded_overlapping_regions_dict, 
                        stitching_selected, gene)
-    dots_id_to_remove = removed_overlapping_dots(counts_df,ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius)
+    dots_id_to_remove = identify_duplicated_dots(counts_df,ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius)
     cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
     fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_' + gene +'_counts.parquet')
     cleaned_df.to_parquet(fpath,index=False)
