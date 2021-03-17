@@ -30,6 +30,7 @@ from pysmFISH.utils import create_dark_img
 from pysmFISH.io import create_empty_zarr_file
 from pysmFISH.io import consolidate_zarr_metadata
 from pysmFISH.io import open_consolidated_metadata
+from pysmFISH.io import simple_output_plotting
 
 from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector_general
 from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector
@@ -337,7 +338,7 @@ same_dot_radius = 10
 r_tag = 'r_px_' + stitching_selected
 c_tag = 'c_px_' + stitching_selected
 
-counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',engine='fastparquet')
+counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',engine='pyarrow')
 counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
 counts_df = counts_dd.dropna(subset=[select_genes]).compute()
 grpd = counts_df.groupby(select_genes)
@@ -362,9 +363,7 @@ logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} m
 
 # ----------------------------------------------------------------
 # GENERATE OUTPUT FOR PLOTTING
-
-
-
+simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
 
 # # ----------------------------------------------------------------
 # # PROCESS FRESH NUCLEI
