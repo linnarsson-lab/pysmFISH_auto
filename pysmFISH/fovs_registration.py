@@ -31,9 +31,6 @@ from scipy.optimize import minimize
 
 import gc
 
-import prefect
-from prefect import task
-from prefect.engine import signals
 
 from pysmFISH.logger_utils import selected_logger
 # from pysmFISH.io import connect_to_shoji_smfish_experiment
@@ -87,7 +84,6 @@ def fft_registration_beads(reference_coords:np.ndarray, translated_coords:np.nda
                        img_shape: np.ndarray, fov_num:int,
                        hybridization_num_translated:int):
 
-    logger = prefect.utilities.logging.get_logger("fft_registration_beads")
     # CHECK THE VALUES AND CATCH THE ERROR TO BLOCK FOV FOR REGISTRATION     
     if np.any(np.isnan(reference_coords)):
         logger.error(f'missing reference round for registration for fov {fov_num}') 
