@@ -250,7 +250,7 @@ def filter_remove_large_objs(
             if ob.area < LargeObjRemovalMinObjSize:
                 mask[ob.coords[:,0],ob.coords[:,1]]=0
 
-        mask = morphology.binary_dilation(np.logical_not(mask), selem=morphology.disk(LargeObjRemovalSelem))
+        # mask = morphology.binary_dilation(np.logical_not(mask), selem=morphology.disk(LargeObjRemovalSelem))
         mask = np.logical_not(mask)
 
         masked_img = img*mask
