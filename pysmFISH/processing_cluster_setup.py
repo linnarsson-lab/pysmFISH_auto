@@ -37,7 +37,11 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
     cluster = HTCondorCluster(cores=cores, memory=memory, 
                         disk=disk,local_directory=local_directory,
                         log_directory=log_directory,
-                        death_timeout=5000)
+                        death_timeout=5000,
+                        processes=int(cores/2),
+                        extra = ["--lifetime", "300m",
+                        "--lifetime-stagger", "10m",
+                        "--nthreads","1"])
     logger.info(f'created cluster with {cores} cores and {memory} memory')
     return cluster
 
