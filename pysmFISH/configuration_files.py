@@ -348,7 +348,7 @@ def create_function_runner(experiment_fpath,experiment_info):
 
     if running_type == 'eel-human-GBM':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
-                            'fish_channels_dots_calling':'osmFISH_barcoded_peak_based_detection_masked_thr_test',
+                            'fish_channels_dots_calling':'osmFISH_peak_based_detection_test',
                             'reference_channels_dots_calling': 'osmFISH_peak_based_detection_test',
                             'registration_reference':'calculate_shift_hybridization_fov_test',
                             'registration_fish': 'register_fish_test',
