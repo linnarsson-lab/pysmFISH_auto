@@ -244,8 +244,7 @@ def fov_processing_eel_barcoded_dev(fov,
                                                                             dark_img)
 
                             counts_output['fish'][channel][zarr_grp_name] = getattr(pysmFISH.dots_calling,running_functions['fish_channels_dots_calling'])(
-                                                                                (img, img_metadata),
-                                                                                masked_img,
+                                                                                (masked_img, img_metadata),
                                                                                 processing_parameters)                                              
                     
                     else:
