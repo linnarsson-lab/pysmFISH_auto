@@ -224,7 +224,7 @@ def filter_remove_large_objs(
 
         img = raw_fish_images_meta[0]
         img_metadata = raw_fish_images_meta[1]
-        img = convert_from_uint16_to_float64(img)
+        img = img_as_float64(img)
 
         img -= dark_img
         img[img<0] = 0
@@ -250,8 +250,8 @@ def filter_remove_large_objs(
             if ob.area < LargeObjRemovalMinObjSize:
                 mask[ob.coords[:,0],ob.coords[:,1]]=0
 
-        mask = morphology.binary_dilation(np.logical_not(mask), selem=morphology.disk(LargeObjRemovalSelem))
-        # mask = np.logical_not(mask)
+        mask = morphology.binary_dilation(mask, selem=morphology.disk(LargeObjRemovalSelem))
+        mask = np.logical_not(mask)
 
         masked_img = img*mask
 
