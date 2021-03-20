@@ -38,7 +38,7 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
                         disk=disk,local_directory=local_directory,
                         log_directory=log_directory,
                         death_timeout=5000,
-                        processes=int(cores/2),
+                        processes=1,
                         extra = ["--lifetime", "300m",
                         "--lifetime-stagger", "10m",
                         "--nthreads","1"])
