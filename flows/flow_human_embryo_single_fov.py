@@ -15,7 +15,7 @@ from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.configuration_files import create_specific_analysis_config_file
 
 from pysmFISH.utils import create_folder_structure
-from pysmFISH.utils import transfer_files_from_storage
+from pysmFISH.data_organization import transfer_files_from_storage
 from pysmFISH.utils import collect_processing_files
 from pysmFISH.utils import sort_data_into_folders
 from pysmFISH.utils import create_dark_img
