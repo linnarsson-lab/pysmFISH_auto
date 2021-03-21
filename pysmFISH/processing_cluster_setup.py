@@ -40,7 +40,8 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
                         death_timeout=5000,
                         processes=1,
                         extra = ["--lifetime", "300m",
-                        "--lifetime-stagger", "10m"])
+                        "--lifetime-stagger", "10m",
+                        "--resources", "process=1"])
     logger.info(f'created cluster with {cores} cores and {memory} memory')
     return cluster
 
