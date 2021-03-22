@@ -579,3 +579,129 @@ def osmFISH_barcoded_peak_based_detection_masked_thr(img_meta:Tuple[np.ndarray, 
     
     return (counts_dict, img_metadata)
 
+@njit
+def osmFISH_dots_thr_selection_np(img:np.ndarray, min_distance:int, 
+                               min_int:float=False, 
+                               max_int:float=False,
+                               min_peaks:int=False):
+
+    if min_peaks == False:
+        min_peaks = 3
+
+
+    fill_value = 9999
+
+    # List with the total peaks calculated for each threshold
+    total_peaks = []
+    thr_used = []
+
+    binning = 100
+    # Define the range of thr to be tested
+    if min_int and max_int:
+        thr_array = np.linspace(min_int,max_int,num=binning)
+    elif min_int:
+        thr_array = np.linspace(min_int,img.max(),num=binning)
+    elif max_int:
+        thr_array = np.linspace(np.min(img[np.nonzero(img)]),max_int,num=binning)
+    else:
+        thr_array = np.linspace(np.min(img[np.nonzero(img)]),img.max(),num=binning)
+
+    # Calculate the number of peaks for each threshold. In this calculation
+    # the size of the objects is not considered
+    peak_counter_min = 0
+    peak_counter_max = 0
+    for vl, thr in enumerate(thr_array):
+        # The border is excluded from the counting
+        peaks = feature.peak_local_max(img,min_distance=min_distance,\
+            threshold_abs=thr,exclude_border=False, indices=True,\
+            num_peaks=np.inf, footprint=None,labels=None)
+
+        number_peaks = len(peaks)
+
+        # Stop the counting when the number of peaks detected falls below 3
+        if number_peaks<=min_peaks:
+            stop_thr = thr # Move in the upper loop so you will stop at the previous thr
+            break
+        else:
+            total_peaks.append(len(peaks))
+            thr_used.append(thr)
+
+    # Consider the case of no detectected peaks or if there is only one Thr
+    # that create peaks (list total_peaks have only one element and )
+    # if np.array(total_peaks).sum()>0 or len(total_peaks)>1:
+    if len(total_peaks)>1:
+
+        # Trim the threshold array in order to match the stopping point
+        # used the [0][0] to get the first number and then take it out from list
+        # thr_array = thr_array[:np.where(thr_array==stop_thr)[0][0]]
+        thr_array = np.array(thr_used)
+
+        # Calculate the gradient of the number of peaks distribution
+        grad = np.gradient(total_peaks)
+
+        # Restructure the data in order to avoid to consider the min_peak in the
+        # calculations
+
+        # Coord of the gradient min_peak
+        grad_min_peak_coord = np.argmin(grad)
+
+        # Trim the data to remove the peak.
+        trimmed_thr_array = thr_array[grad_min_peak_coord:]
+        trimmed_grad = grad[grad_min_peak_coord:]
+
+        if trimmed_thr_array.shape>(1,):
+
+            # Trim the coords array in order to maintain the same length of the 
+            # tr and pk
+            trimmed_total_peaks = total_peaks[grad_min_peak_coord:]
+
+            # To determine the threshold we will determine the Thr with the biggest
+            # distance to the segment that join the end points of the calculated
+            # gradient
+
+            
+            # Calculate the coords of the end points of the gradient
+            p1 = np.array([trimmed_thr_array[0],trimmed_grad[0]])
+            p2 = np.array([trimmed_thr_array[-1],trimmed_grad[-1]])
+
+            # Create a line that join the points
+            allpoints = np.arange(0,len(trimmed_thr_array))
+            allpoints_coords = np.array([trimmed_thr_array[allpoints],trimmed_grad[allpoints]]).T
+
+            distances = []
+            for point in allpoints_coords:
+                distances.append(np.linalg.norm(np.cross(p2-p1, p1-point))/np.linalg.norm(p2-p1))
+
+#             # Calculate the distance between all points and the line
+#             for p in allpoints:
+#                 dst = s.distance(Point(trimmed_thr_array[p],trimmed_grad[p]))
+#                 distances.append(dst.evalf())
+
+            # Remove the end points from the lists
+            trimmed_thr_array = trimmed_thr_array[1:-1]
+            trimmed_grad = trimmed_grad[1:-1]
+            trimmed_total_peaks = trimmed_total_peaks[1:-1]
+            trimmed_distances = distances[1:-1]
+
+            # Determine the coords of the selected Thr
+            # Converted trimmed_distances to array because it crashed
+            # on Sanger.
+            if trimmed_distances: # Most efficient way will be to consider the length of Thr list
+                thr_idx = np.argmax(np.array(trimmed_distances))
+                selected_thr = trimmed_thr_array[thr_idx]
+                # The selected threshold usually causes oversampling of the number of dots
+                # I added a stringency parameter (int n) to use to select the Thr+n 
+                # for the counting. It selects a stringency only if the trimmed_thr_array
+                # is long enough. Also consider the case in which the stringency in negative
+            else:
+                selected_thr = fill_value
+                trimmed_thr_array = fill_value
+        else:
+            selected_thr = fill_value
+            trimmed_thr_array = fill_value
+    else:
+        selected_thr = fill_value
+        trimmed_thr_array = fill_value
+    
+    return selected_thr
+    
