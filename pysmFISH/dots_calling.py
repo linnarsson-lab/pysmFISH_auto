@@ -579,7 +579,7 @@ def osmFISH_barcoded_peak_based_detection_masked_thr(img_meta:Tuple[np.ndarray, 
     
     return (counts_dict, img_metadata)
 
-@njit
+
 def osmFISH_dots_thr_selection_np(img:np.ndarray, min_distance:int, 
                                min_int:float=False, 
                                max_int:float=False,
