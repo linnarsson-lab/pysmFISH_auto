@@ -92,7 +92,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test'
+experiment_fpath = '/fish/work_std/LBEXP20210308_EEL_HE_900um'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -101,7 +101,7 @@ parsed_image_tag = 'img_data'
 # run type can be:
 # new
 # re-run
-run_type = 're-run'
+run_type = 'new'
 
 # parsing type (str) can be:
 # original
@@ -109,10 +109,10 @@ run_type = 're-run'
 # reparsing_from_storage 
 # None if parsing not to be performed
 
-parsing_type = 'no_parsing'
+parsing_type = 'original'
 
 
-fresh_nuclei_processing = False
+fresh_nuclei_processing = True
 
 
 storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
@@ -307,19 +307,19 @@ _ = client.gather(all_futures)
 # del all_futures
 # ----------------------------------------------------------------
 
-# # ----------------------------------------------------------------
-# # QC REGISTRATION ERROR
-# start = time.time()
-# logger.info(f'plot registration error')
+# ----------------------------------------------------------------
+# QC REGISTRATION ERROR
+start = time.time()
+logger.info(f'plot registration error')
 
-# registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
-#                                             tiles_org.tile_corners_coords_pxl, 
-#                                             tiles_org.img_width, tiles_org.img_height)
+registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
+                                            tiles_org.tile_corners_coords_pxl, 
+                                            tiles_org.img_width, tiles_org.img_height)
 
-# registration_error.run_qc()
+registration_error.run_qc()
 
-# logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
 
 # # ----------------------------------------------------------------
 # # REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
@@ -370,44 +370,44 @@ _ = client.gather(all_futures)
 # # GENERATE OUTPUT FOR PLOTTING
 # simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
 
-# # ----------------------------------------------------------------
-# # PROCESS FRESH NUCLEI
-# start = time.time()
-# logger.info(f'start processing of the fresh nuclei')
-# if fresh_nuclei_processing:
-#     if parsing_type == 'reparsing_from_storage':
-#         pass
-#     else:
-#         try:
-#             nuclei_fpath = list((Path(experiment_fpath) / 'fresh_nuclei').glob('*.nd2'))[0]
-#         except:
-#             logger.error(f'missing images of the fresh nuclei')
-#         else:
-#             parsing_future = client.submit(single_nikon_nd2_parser_simple,nuclei_fpath)
-#             _ = client.gather(parsing_future)
+# ----------------------------------------------------------------
+# PROCESS FRESH NUCLEI
+start = time.time()
+logger.info(f'start processing of the fresh nuclei')
+if fresh_nuclei_processing:
+    if parsing_type == 'reparsing_from_storage':
+        pass
+    else:
+        try:
+            nuclei_fpath = list((Path(experiment_fpath) / 'fresh_nuclei').glob('*.nd2'))[0]
+        except:
+            logger.error(f'missing images of the fresh nuclei')
+        else:
+            parsing_future = client.submit(single_nikon_nd2_parser_simple,nuclei_fpath)
+            _ = client.gather(parsing_future)
 
-#             # create zarr file
-#             filtered_fpath = nuclei_fpath.parent / (nuclei_fpath.stem + '_filtered.zarr')
-#             # create_empty_zarr_file(nuclei_fpath.parent.as_posix(), tag='filtered')
+            # create zarr file
+            filtered_fpath = nuclei_fpath.parent / (nuclei_fpath.stem + '_filtered.zarr')
+            # create_empty_zarr_file(nuclei_fpath.parent.as_posix(), tag='filtered')
 
-#             # filtering all the fovs
-#             zarr_fpath = nuclei_fpath.parent / (nuclei_fpath.stem + '.zarr')
-#             parsed_store = zarr.DirectoryStore(zarr_fpath)
-#             parsed_root = zarr.group(store=parsed_store,overwrite=False)
-#             fovs = list(parsed_root.keys())
+            # filtering all the fovs
+            zarr_fpath = nuclei_fpath.parent / (nuclei_fpath.stem + '.zarr')
+            parsed_store = zarr.DirectoryStore(zarr_fpath)
+            parsed_root = zarr.group(store=parsed_store,overwrite=False)
+            fovs = list(parsed_root.keys())
 
-#             all_futures = []
-#             for fov in fovs:
-#                 parsing_future = client.submit(fresh_nuclei_filtering,
-#                                 parsed_raw_data_fpath=zarr_fpath,
-#                                 filtered_raw_data_fpath=filtered_fpath,
-#                                 fov=fov,
-#                                 processing_parameters=analysis_parameters)
-#                 all_futures.append(parsing_future)
-#             _ = client.gather(all_futures)
+            all_futures = []
+            for fov in fovs:
+                parsing_future = client.submit(fresh_nuclei_filtering,
+                                parsed_raw_data_fpath=zarr_fpath,
+                                filtered_raw_data_fpath=filtered_fpath,
+                                fov=fov,
+                                processing_parameters=analysis_parameters)
+                all_futures.append(parsing_future)
+            _ = client.gather(all_futures)
 
-# logger.info(f'processing of the fresh nuclei completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+logger.info(f'processing of the fresh nuclei completed in {(time.time()-start)/60} min')
+# ----------------------------------------------------------------
 
 
 
