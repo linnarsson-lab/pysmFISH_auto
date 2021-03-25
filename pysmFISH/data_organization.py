@@ -179,6 +179,7 @@ def transfer_files_from_storage(storage_experiment_fpath:str,experiment_fpath:st
         'probes'
     ]
     
+    list_dir = [x[0] for x in os.walk(storage_experiment_fpath)]
     try:
         config_file_fpath = list(storage_experiment_fpath.glob('*.yaml'))[0]
     except:
@@ -187,8 +188,10 @@ def transfer_files_from_storage(storage_experiment_fpath:str,experiment_fpath:st
     else:
         for folder_name in folders_to_copy:
             src = (storage_experiment_fpath / folder_name).as_posix()
-            dst = (experiment_fpath / folder_name).as_posix()
-            copytree(src,dst)
-        
+            if src in list_dir:
+                dst = (experiment_fpath / folder_name).as_posix()
+                copytree(src,dst)
+            else:
+                logger.error(f'missing {folder_name}')
         dst_config = (experiment_fpath / config_file_fpath.name).as_posix()
         _ = shutil.copy2(config_file_fpath,dst_config)
