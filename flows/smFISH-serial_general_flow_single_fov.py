@@ -119,7 +119,7 @@ storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment
 
 # ----------------------------------------------------------------
 
-if run_type == 'new': 
+if (run_type == 'new') or (parsing_type == 'reparsing_from_storage'): 
     # ----------------------------------------------------------------
     # CREATE FOLDERS STRUCTURE
     create_folder_structure(experiment_fpath)
