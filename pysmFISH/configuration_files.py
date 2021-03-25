@@ -5,6 +5,7 @@ create configuration files needed to run the pipeline
 from typing import *
 import yaml
 import sys
+import shutil
 from pathlib import Path
 from collections import OrderedDict
 
@@ -568,10 +569,16 @@ def load_processing_env_config_file(experiment_fpath:str):
     except (FileExistsError,NameError,FileNotFoundError) as e:
         logger.debug(f'{processing_env_config_fpath} missing')
         try:
-            create_processing_env_config_file(experiment_fpath)
+            processing_env_config_db = (Path(experiment_fpath)).parent / 'config_db' / 'processing_env_config.yaml'
+            processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_db, 'rb')))
+            _ = shutil.copy2(processing_env_config_db,processing_env_config)
         except:
             logger.error('cannot create the processing config file')
         else:
+            create_processing_env_config_file(experiment_fpath)
+            processing_env_config_db = (Path(experiment_fpath)).parent / 'config_db' / 'processing_env_config.yaml'
+            processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_db, 'rb')))
+            _ = shutil.copy2(processing_env_config_db,processing_env_config)
             processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
             return processing_env_config
     else:
