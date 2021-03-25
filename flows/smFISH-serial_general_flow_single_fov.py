@@ -132,10 +132,10 @@ if run_type == 'new':
 
 
 # # ----------------------------------------------------------------
-# TRANSFER REQUIRED FILES FOR THE PROCESSING IF THE ANALYSIS START
-# FROM RAW DATA IN THE STORAGE HD
-if parsing_type == 'reparsing_from_storage':
-    transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
+# # TRANSFER REQUIRED FILES FOR THE PROCESSING IF THE ANALYSIS START
+# # FROM RAW DATA IN THE STORAGE HD
+# if parsing_type == 'reparsing_from_storage':
+#     transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
 # # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
