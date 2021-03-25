@@ -367,11 +367,16 @@ def create_function_runner(experiment_fpath,experiment_info):
                             'registration_fish': 'register_fish_test',
                             'barcode_extraction': 'extract_barcodes_NN_test'}
 
+    elif running_type == 'smfish-serial-adult-human':
+        
+        logger.info(f'selected functions for {running_type}')
     else:
         logger.error(f'The sample does not have a corresponding analysis pipeline')
         sys.exit(f'The sample does not have a corresponding analysis pipeline')
 
     
+
+
     if stitching_type == 'large-beads':
                 running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing'
 
