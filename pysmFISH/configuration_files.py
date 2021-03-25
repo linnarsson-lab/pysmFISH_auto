@@ -368,7 +368,7 @@ def create_function_runner(experiment_fpath,experiment_info):
                             'barcode_extraction': 'extract_barcodes_NN_test'}
 
     elif running_type == 'smfish-serial-adult-human':
-        
+
         logger.info(f'selected functions for {running_type}')
     else:
         logger.error(f'The sample does not have a corresponding analysis pipeline')
@@ -384,6 +384,7 @@ def create_function_runner(experiment_fpath,experiment_info):
         pass
     elif stitching_type == 'both-beads':
         running_functions['reference_channels_preprocessing'] = 'both_beads_preprocessing'
+    elif stitching_type == 'nuclei':
         pass
 
 
