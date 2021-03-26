@@ -578,7 +578,7 @@ def load_processing_env_config_file(experiment_fpath:str):
             create_processing_env_config_file(experiment_fpath)
             processing_env_config_db = (Path(experiment_fpath)).parent / 'config_db' / 'processing_env_config.yaml'
             processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_db, 'rb')))
-            _ = shutil.copy2(processing_env_config_db,processing_env_config)
+            _ = shutil.copy2(processing_env_config_db,processing_env_config_fpath)
             processing_env_config = OrderedDict(yaml.safe_load(open(processing_env_config_fpath, 'rb')))
             return processing_env_config
     else:
