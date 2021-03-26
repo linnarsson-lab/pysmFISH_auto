@@ -290,9 +290,9 @@ for fov,sorted_grp in sorted_grps.items():
                                         key= ('processing-fov-'+str(fov)))
         
 
-    all_futures.append(future)
+#     all_futures.append(future)
 
-_ = client.gather(all_futures)
+# _ = client.gather(all_futures)
 # tracebacks = {}
 # for future in as_completed(all_futures):
 #     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
