@@ -112,7 +112,7 @@ run_type = 're-run'
 parsing_type = 'reparsing_from_storage'
 
 
-fresh_nuclei_processing = True
+fresh_nuclei_processing = False
 
 
 storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
