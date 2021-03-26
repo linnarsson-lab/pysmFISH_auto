@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
+import gc
 
 import pysmFISH
 import flow_steps
@@ -364,5 +365,5 @@ def fov_processing_eel_barcoded_dev(fov,
                 fname = combined_images_path / (experiment_name + '_' + channel + '_combined_img_fov_' +str(fov) + '.npy')
                 np.save(fname,registered_image)
 
-
+    gc.collect()
 
