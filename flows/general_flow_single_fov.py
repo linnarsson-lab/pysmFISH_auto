@@ -107,12 +107,12 @@ run_type = 'new'
 # original
 # reparsing_from_processing_folder
 # reparsing_from_storage 
-# None if parsing not to be performed
+# no_parsing if parsing not to be performed
 
-parsing_type = 'original'
+parsing_type = 'no_parsing'
 
 
-fresh_nuclei_processing = True
+fresh_nuclei_processing = False
 
 
 storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
