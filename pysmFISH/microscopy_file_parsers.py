@@ -273,7 +273,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
 
     experiment_fpath = nd2_file_path.parent.parent
     experiment_name = nd2_file_path.parent.parent.stem
-    experiment_name = experiment_name.split('_auto')[0]
+    # experiment_name = experiment_name.split('_auto')[0]
     
     info_file = nd2_file_path.parent / (nd2_fname + '_info.pkl')
     info_data = pickle.load(open(info_file, 'rb'))
@@ -308,7 +308,8 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
         tag_name = experiment_name + '_' + hybridization_name + '_' + channel
     
         # Save the fov_coords
-        fname = experiment_fpath / 'tmp' / 'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
+        new_exp_location = parsed_raw_data_fpath.parent
+        fname = new_exp_location / 'tmp' / 'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
         np.save(fname, fov_coords)
 
 
