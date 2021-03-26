@@ -291,7 +291,7 @@ for fov,sorted_grp in sorted_grps.items():
         
 
     all_futures.append(future)
-wait(parsing_futures)
+wait(all_futures)
 # _ = client.gather(all_futures)
 # tracebacks = {}
 # for future in as_completed(all_futures):
