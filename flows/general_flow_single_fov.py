@@ -291,8 +291,8 @@ for fov,sorted_grp in sorted_grps.items():
         
 
     all_futures.append(future)
-wait(all_futures)
-# _ = client.gather(all_futures)
+# wait(all_futures)
+_ = client.gather(all_futures)
 # tracebacks = {}
 # for future in as_completed(all_futures):
 #     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
