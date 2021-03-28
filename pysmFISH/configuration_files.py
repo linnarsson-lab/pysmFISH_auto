@@ -432,6 +432,10 @@ def create_function_runner(experiment_fpath,experiment_info):
                             'barcode_extraction': 'extract_barcodes_NN_test'}
 
     elif running_type == 'smfish-serial-adult-human':
+        running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
+                            'fish_channels_dots_calling':'osmFISH_peak_based_detection_test',
+                            'registration_reference':'calculate_shift_hybridization_fov_nuclei',
+                            'registration_fish': 'register_fish_on_nuclei'}
 
         logger.info(f'selected functions for {running_type}')
     else:
@@ -449,9 +453,7 @@ def create_function_runner(experiment_fpath,experiment_info):
     elif stitching_type == 'both-beads':
         running_functions['reference_channels_preprocessing'] = 'both_beads_preprocessing'
     elif stitching_type == 'nuclei':
-        pass
-
-
+        running_functions['reference_channels_preprocessing'] = 'nuclei_registration_filtering'
 
     try:
         analysis_config_fpath = experiment_fpath / 'pipeline_config' / 'running_functions.yaml'
