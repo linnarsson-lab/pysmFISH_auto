@@ -119,13 +119,12 @@ def transfer_data_to_storage(experiment_fpath:str,storage_fpath:str,):
     experiment_fpath = Path(experiment_fpath)
     storage_fpath = Path(storage_fpath)
 
-    folders_to_transfer = ['raw_data']
+    folders_to_transfer = ['raw_data','extra_files','original_robofish_logs']
     folders_to_copy = ['extra_processing_data',
                         'pipeline_config',
                         'codebook',
                         'probes',
-                        'fresh_nuclei',
-                        'original_robofish_logs']
+                        'fresh_nuclei']
 
     try:
         config_file_fpath = list(storage_experiment_fpath.glob('*.yaml'))[0]
@@ -146,10 +145,16 @@ def transfer_data_to_storage(experiment_fpath:str,storage_fpath:str,):
             src = (experiment_fpath / folder_name).as_posix()
             dst = (stored_experiment_fpath / folder_name).as_posix()
             copytree(src,dst)
-            
-            dst_config = (stored_experiment_fpath / config_file_fpath.name).as_posix()
-            _ = shutil.copy2(config_file_fpath,dst_config)
+        
+        # Copy configuration file
+        dst_config = (stored_experiment_fpath / config_file_fpath.name).as_posix()
+        _ = shutil.copy2(config_file_fpath,dst_config)
 
+        # move the pkl files
+        pkl_fpaths = experiment_fpath.glob('*.pkl')
+        for pkl_path in pkl_fpaths:
+            dst = stored_experiment_fpath / pkl_path.name
+            shutil.move(pkl_path.as_posix(),dst.as_posix())
 
 
 def transfer_files_from_storage(storage_experiment_fpath:str,experiment_fpath:str):
