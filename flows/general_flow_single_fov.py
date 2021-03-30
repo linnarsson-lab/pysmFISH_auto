@@ -62,7 +62,6 @@ from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
 
 
-
 # def general_flow(experiment_fpath:str, run_type:str='new', parsing_type:str='original'):
 
 #     """
@@ -92,7 +91,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/fish/work_std/JJEXP20201231_SL002'
+experiment_fpath = '/fish/work_std/AMEXP20210320_EEL_SL006'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -264,35 +263,35 @@ dark_img = load_dark_image(experiment_fpath)
 
 logger_print.info(f'check if the logger is printing')
 
-all_futures = []
-start = time.time()
+# all_futures = []
+# start = time.time()
 
-fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
-pickle.dump(sorted_grps, open(fname,'wb'))
+# fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
+# pickle.dump(sorted_grps, open(fname,'wb'))
 
-for fov,sorted_grp in sorted_grps.items():
-    future = client.submit(fov_processing_eel_barcoded_dev,
-                                        fov=fov,
-                                        sorted_grp=sorted_grp,
-                                        experiment_info=experiment_info,
-                                        analysis_parameters=analysis_parameters,
-                                        experiment_fpath=experiment_fpath,
-                                        parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                        running_functions=running_functions,
-                                        img_width=img_width,
-                                        img_height=img_height,
-                                        tile_corners_coords_pxl= tile_corners_coords_pxl,
-                                        codebook=codebook,
-                                        selected_genes=selected_genes,
-                                        correct_hamming_distance=correct_hamming_distance,
-                                        dark_img = dark_img,
-                                        save_steps_output=False,
-                                        key= ('processing-fov-'+str(fov)))
+# for fov,sorted_grp in sorted_grps.items():
+#     future = client.submit(fov_processing_eel_barcoded_dev,
+#                                         fov=fov,
+#                                         sorted_grp=sorted_grp,
+#                                         experiment_info=experiment_info,
+#                                         analysis_parameters=analysis_parameters,
+#                                         experiment_fpath=experiment_fpath,
+#                                         parsed_raw_data_fpath=parsed_raw_data_fpath,
+#                                         running_functions=running_functions,
+#                                         img_width=img_width,
+#                                         img_height=img_height,
+#                                         tile_corners_coords_pxl= tile_corners_coords_pxl,
+#                                         codebook=codebook,
+#                                         selected_genes=selected_genes,
+#                                         correct_hamming_distance=correct_hamming_distance,
+#                                         dark_img = dark_img,
+#                                         save_steps_output=False,
+#                                         key= ('processing-fov-'+str(fov)))
         
 
-    all_futures.append(future)
-# wait(all_futures)
-_ = client.gather(all_futures)
+#     all_futures.append(future)
+# # wait(all_futures)
+# _ = client.gather(all_futures)
 # tracebacks = {}
 # for future in as_completed(all_futures):
 #     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
@@ -322,47 +321,47 @@ _ = client.gather(all_futures)
 # # ----------------------------------------------------------------
 
 # # ----------------------------------------------------------------
-# # REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
-# start = time.time()
-# logger.info(f'start removal of duplicated dots')
+# REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
+start = time.time()
+logger.info(f'start removal of duplicated dots')
 
-# unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
-# corrected_overlapping_regions_dict = {}
-# for key, value in unfolded_overlapping_regions_dict.items():
-#     corrected_overlapping_regions_dict[key] = np.array(value)-img_width
+unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+corrected_overlapping_regions_dict = {}
+for key, value in unfolded_overlapping_regions_dict.items():
+    corrected_overlapping_regions_dict[key] = np.array(value)-img_width
 
-# # Prepare the dataframe
-# select_genes = 'below3Hdistance_genes'
-# stitching_selected = 'microscope_stitched'
-# same_dot_radius = 10
-# r_tag = 'r_px_' + stitching_selected
-# c_tag = 'c_px_' + stitching_selected
+# Prepare the dataframe
+select_genes = 'below3Hdistance_genes'
+stitching_selected = 'microscope_stitched'
+same_dot_radius = 10
+r_tag = 'r_px_' + stitching_selected
+c_tag = 'c_px_' + stitching_selected
 
-# # counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',
-# #                                                 engine='pyarrow')
+# counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',
+#                                                 engine='pyarrow')
 
-# all_files = (Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*decoded*.parquet')
-# counts_dd_list = [dd.read_parquet(counts_file) for counts_file in all_files]
-# counts_dd = dd.concat(counts_dd_list, axis=0)
-# counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
-# counts_df = counts_dd.dropna(subset=[select_genes]).compute()
-# grpd = counts_df.groupby(select_genes)
+all_files = (Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*decoded*.parquet')
+counts_dd_list = [dd.read_parquet(counts_file) for counts_file in all_files]
+counts_dd = dd.concat(counts_dd_list, axis=0)
+counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
+counts_df = counts_dd.dropna(subset=[select_genes]).compute()
+grpd = counts_df.groupby(select_genes)
 
-# all_futures = []
+all_futures = []
 
-# for gene, count_df in grpd:
-#     future = client.submit(remove_overlapping_dots_from_gene,
-#                             experiment_fpath = experiment_fpath,
-#                             counts_df=counts_df,
-#                             unfolded_overlapping_regions_dict=corrected_overlapping_regions_dict,
-#                             stitching_selected=stitching_selected,
-#                             gene = gene,
-#                             same_dot_radius = same_dot_radius)
+for gene, count_df in grpd:
+    future = client.submit(remove_overlapping_dots_from_gene,
+                            experiment_fpath = experiment_fpath,
+                            counts_df=counts_df,
+                            unfolded_overlapping_regions_dict=corrected_overlapping_regions_dict,
+                            stitching_selected=stitching_selected,
+                            gene = gene,
+                            same_dot_radius = same_dot_radius)
     
-#     all_futures.append(future)
+    all_futures.append(future)
 
-# _ = client.gather(all_futures)
-# logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
+_ = client.gather(all_futures)
+logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
 
 
