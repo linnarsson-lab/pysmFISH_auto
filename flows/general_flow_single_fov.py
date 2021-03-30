@@ -109,7 +109,7 @@ run_type = 'new'
 # reparsing_from_storage 
 # no_parsing if parsing not to be performed
 
-parsing_type = 'original'
+parsing_type = 'no_parsing'
 
 
 fresh_nuclei_processing = False
