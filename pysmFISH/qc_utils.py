@@ -54,6 +54,7 @@ class QC_registration_error():
 
     def plot_error(self):
     
+
         scale_value = 5
         self.tiles_coords = self.tiles_coords / scale_value
         
@@ -73,11 +74,6 @@ class QC_registration_error():
         to_zero_r_coords = r_coords - r_coords_min
         to_zero_c_coords = c_coords - c_coords_min
 
-        ax.plot(to_zero_c_coords,to_zero_r_coords,'xk')
-
-
-        width = self.img_width / scale_value
-        height = self.img_height / scale_value
 
         RegistrationMinMatchingBeads = self.analysis_parameters['RegistrationMinMatchingBeads']
         # create colormap for error in the registration
@@ -89,40 +85,27 @@ class QC_registration_error():
         cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colors)))
         cmap.set_under("black")
         
-        
-        rectangles = {}
-        # to change after I corrected the error with the '10'
-        for idx,fov in enumerate(fovs):
-        
-            round_num = rounds_num[idx]
-            min_error = min_errors[idx]
+
+        sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
+        for fov, round_num, match, x, y in zip(fovs,rounds_num, min_errors, to_zero_c_coords,to_zero_r_coords):
             
-            tag = 'fov_' + str(fov) + '\n' + 'match: '+ str(min_error) + '\n' + 'round: ' + str(round_num)
-            rectangles.update({tag : mpatch.Rectangle( xy=(to_zero_c_coords[idx],to_zero_r_coords[idx] ),  # point of origin.
-                                            width=width,
-                                            height=height,
-                                            linewidth=0.5,
-                                            edgecolor='k',
-                                            fill=True,
-                                            alpha = 0.8,
-                                            facecolor=cmap(errors_normalized[idx]))})
+            ax.annotate(
+                fov,
+                xy=(x,y), xytext=(-0, 15),
+                textcoords='offset points', ha='center', va='bottom',fontsize=12)
+            
+            ax.annotate(round_num, (x, y), color='white', weight='bold', 
+                            fontsize=10, ha='center', va='center')
+            
+            ax.annotate('m' + str(match), xy=(x, y), xytext=(0, -10), color='white', weight='bold', 
+                            textcoords='offset points', fontsize=5, ha='center', va='center')
+            
 
-        for r in rectangles:
-            ax.add_artist(rectangles[r])
-            rx, ry = rectangles[r].get_xy()
-            cx = rx + rectangles[r].get_width()/2.0
-            cy = ry + rectangles[r].get_height()/2.0
-
-            ax.annotate(r, (cx, cy), color='white', weight='bold', 
-                        fontsize=10, ha='center', va='center')
-
-
-        ax.set_xlim((-width, to_zero_c_coords.max()+ width + (0.05*width)))
-        ax.set_ylim((-height, to_zero_r_coords.max()+ height + (0.05*height)))
         ax.set_aspect('equal')
         ax.axis('off')
         plt.gca().invert_yaxis()
         plt.tight_layout()
+
         plt.savefig(self.experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
 
     def run_qc(self):
