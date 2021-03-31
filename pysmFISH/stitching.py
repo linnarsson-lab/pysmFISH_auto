@@ -409,6 +409,7 @@ def identify_duplicated_dots(channel_df,ref_tiles_df,comp_tiles_df,stitching_sel
 def remove_overlapping_dots_from_gene(experiment_fpath,counts_df,unfolded_overlapping_regions_dict,
                                     stitching_selected,gene,same_dot_radius):
 
+    experiment_fpath = Path(experiment_fpath)
     ref_tiles_df, comp_tiles_df = get_dots_in_overlapping_regions(counts_df,unfolded_overlapping_regions_dict, 
                        stitching_selected, gene)
     dots_id_to_remove = identify_duplicated_dots(counts_df,ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius)
