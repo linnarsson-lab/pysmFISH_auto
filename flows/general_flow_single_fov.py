@@ -307,17 +307,17 @@ logger_print.info(f'check if the logger is printing')
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
-# # QC REGISTRATION ERROR
-# start = time.time()
-# logger.info(f'plot registration error')
+# QC REGISTRATION ERROR
+start = time.time()
+logger.info(f'plot registration error')
 
-# registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
-#                                             tiles_org.tile_corners_coords_pxl, 
-#                                             tiles_org.img_width, tiles_org.img_height)
+registration_error = QC_registration_error(client, experiment_fpath, analysis_parameters, 
+                                            tiles_org.tile_corners_coords_pxl, 
+                                            tiles_org.img_width, tiles_org.img_height)
 
-# registration_error.run_qc()
+registration_error.run_qc()
 
-# logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
+logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
 
 # # ----------------------------------------------------------------
