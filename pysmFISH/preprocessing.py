@@ -325,8 +325,7 @@ def both_beads_preprocessing(zarr_grp_name,
 
 def nuclei_registration_filtering(zarr_grp_name,
         parsed_raw_data_fpath,
-        processing_parameters,
-        dark_img):
+        processing_parameters):
         
         """
         This function remove the background from large structures like nuclei
@@ -354,6 +353,7 @@ def nuclei_registration_filtering(zarr_grp_name,
 
         """
 
+        logger = selected_logger()
         parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
         experiment_fpath = parsed_raw_data_fpath.parent
         FlatFieldKernel=processing_parameters['PreprocessingNucleiFlatFieldKernel']
@@ -371,19 +371,28 @@ def nuclei_registration_filtering(zarr_grp_name,
             img_metadata = raw_fish_images_meta[1]
             img = convert_from_uint16_to_float64(img)
 
-            img -= dark_img
-            # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
-            img[img<0] = 0
 
-            background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
-            img -= background
-            img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
-            img = np.abs(img) # to avoid -0.0 issues
-            img /= background
+            # Clean the image from the background
+            img = img-filters.gaussian(img,sigma=FlatFieldKernel)
+            # Remove the negative values        
+            img[img<0] = 0
+            # Flatten the image
+            flattened_img = np.amax(img,axis=0)
+
+
+            # img -= dark_img
+            # # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+            # img[img<0] = 0
+
+            # background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+            # img -= background
+            # img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
+            # img = np.abs(img) # to avoid -0.0 issues
+            # img /= background
             
-            img = img.max(axis=0)
+            # img = img.max(axis=0)
         
-            return img, img_metadata
+            return flattened_img, img_metadata
 
 
 def fresh_nuclei_filtering(
