@@ -363,6 +363,8 @@ for fov in fovs:
     if fov not in removed_dot_dict.keys():
         removed_dot_dict.update({fov:[]})
 
+logger_print.info(f'{removed_dot_dict.keys()}')
+
 for fov,dots_id_to_remove in removed_dot_dict.items():
     future = client.submit(clean_from_duplicated_dots,
                             fov = fov,
