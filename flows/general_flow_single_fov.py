@@ -6,6 +6,7 @@ import zarr
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from itertools import groupby
 from dask.distributed import Client
 from dask.distributed import as_completed, wait
 from dask import dataframe as dd
@@ -53,7 +54,8 @@ from flow_steps.fov_processing import fov_processing_eel_barcoded_dev
 
 from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
-from pysmFISH.stitching import remove_overlapping_dots_from_gene
+from pysmFISH.stitching import remove_overlapping_dots_fov
+from pysmFISH.stitching import clean_from_duplicated_dots
 
 
 from pysmFISH.preprocessing import fresh_nuclei_filtering
@@ -337,32 +339,39 @@ same_dot_radius = 10
 r_tag = 'r_px_' + stitching_selected
 c_tag = 'c_px_' + stitching_selected
 
-# counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',
-#                                                 engine='pyarrow')
-
-all_files = (Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*decoded*.parquet')
-counts_dd_list = [dd.read_parquet(counts_file) for counts_file in all_files]
-counts_dd = dd.concat(counts_dd_list, axis=0)
-counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,['barcode_reference_dot_id',
-                                                                                    r_tag, c_tag, select_genes, 
-                                                                                    'fov_num']]
-counts_df = counts_dd.dropna(subset=[select_genes]).compute()
-grpd = counts_df.groupby(select_genes)
 
 all_futures = []
 
-for gene, count_df in grpd:
-    future = client.submit(remove_overlapping_dots_from_gene,
-                            experiment_fpath = experiment_fpath,
-                            counts_df=counts_df,
-                            unfolded_overlapping_regions_dict=corrected_overlapping_regions_dict,
+for cpl,chunk_coords in corrected_overlapping_regions_dict.items():
+    future = client.submit(remove_overlapping_dots_fov,
+                            cpl = cpl,
+                            chunk_coords=chunk_coords,
+                            experiment_fpath=experiment_fpath,
                             stitching_selected=stitching_selected,
-                            gene = gene,
                             same_dot_radius = same_dot_radius)
-    
+
+    all_futures.append(future)
+
+to_remove = client.gather(all_futures)  
+to_remove = [el for tg in to_remove for el in tg]
+removed_dot_dict = {}
+for k, g in groupby(to_remove, key=lambda x: int(x.split('_')[0])):
+    removed_dot_dict.update({k:list(g)})
+
+for fov in fovs:
+    if fov not in removed_dot_dict.keys():
+        removed_dot_dict.update({fov:[]})
+
+for fov,dots_id_to_remove in removed_dot_dict.items():
+    future = client.submit(clean_from_duplicated_dots,
+                            fov = fov,
+                            dots_id_to_remove=dots_id_to_remove)
+
     all_futures.append(future)
 
 _ = client.gather(all_futures)
+
+
 logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
 

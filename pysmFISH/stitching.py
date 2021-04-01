@@ -353,6 +353,31 @@ def stitch_using_microscope_fov_coords_test(decoded_df,fov,tile_corners_coords_p
     return decoded_df
 
 
+# REMOVE OVERLAPPING DOTS ACCORDING TO GENE
+# preprocessing and removal part to put in the flow file
+
+# all_files = (Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*decoded*.parquet')
+# counts_dd_list = [dd.read_parquet(counts_file) for counts_file in all_files]
+# counts_dd = dd.concat(counts_dd_list, axis=0)
+# counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,['barcode_reference_dot_id',
+#                                                                                     r_tag, c_tag, select_genes, 
+#                                                                                     'fov_num']]
+# counts_df = counts_dd.dropna(subset=[select_genes]).compute()
+# grpd = counts_df.groupby(select_genes)
+
+# all_futures = []
+
+# for gene, count_df in grpd:
+#     future = client.submit(remove_overlapping_dots_from_gene,
+#                             experiment_fpath = experiment_fpath,
+#                             counts_df=counts_df,
+#                             unfolded_overlapping_regions_dict=corrected_overlapping_regions_dict,
+#                             stitching_selected=stitching_selected,
+#                             gene = gene,
+#                             same_dot_radius = same_dot_radius)
+    
+#     all_futures.append(future)
+
 def get_dots_in_overlapping_regions(counts_df, unfolded_overlapping_regions_dict, 
                        stitching_selected, gene):    
     r_tag = 'r_px_' + stitching_selected
@@ -390,7 +415,7 @@ def get_dots_in_overlapping_regions(counts_df, unfolded_overlapping_regions_dict
     return ref_tiles_df, comp_tiles_df
 
 
-def identify_duplicated_dots(channel_df,ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius):
+def identify_duplicated_dots(ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius):
     
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
@@ -412,7 +437,7 @@ def remove_overlapping_dots_from_gene(experiment_fpath,counts_df,unfolded_overla
     experiment_fpath = Path(experiment_fpath)
     ref_tiles_df, comp_tiles_df = get_dots_in_overlapping_regions(counts_df,unfolded_overlapping_regions_dict, 
                        stitching_selected, gene)
-    dots_id_to_remove = identify_duplicated_dots(counts_df,ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius)
+    dots_id_to_remove = identify_duplicated_dots(ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius)
     cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
     fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_' + gene +'_counts.parquet')
     cleaned_df.to_parquet(fpath,index=False)
@@ -420,7 +445,105 @@ def remove_overlapping_dots_from_gene(experiment_fpath,counts_df,unfolded_overla
     pass
 
 
+# REMOVED OVERLAPPING DOTS ACCORDING TO FOV (MUCH FASTER THAN FOR GENE)
+# EXPECIALLY FOR LARGE AREAS WITH A LOT OF COUNTS
 
+def get_all_dots_in_overlapping_regions(counts_df, chunk_coords, 
+                       stitching_selected):    
+    
+    r_tag = 'r_px_' + stitching_selected
+    c_tag = 'c_px_' + stitching_selected
+    
+    subset_df = counts_df.loc[counts_df.dot_id == counts_df.barcode_reference_dot_id, :]
+    
+    
+    r_tl = chunk_coords[0]
+    r_br = chunk_coords[1]
+    c_tl = chunk_coords[2]
+    c_br = chunk_coords[3]
+    
+    overlapping_ref_df = subset_df.loc[(subset_df[r_tag] > r_tl) & (subset_df[r_tag] < r_br) 
+                                               & (subset_df[c_tag] > c_tl) & (subset_df[c_tag] < c_br),:]
+        
+    return overlapping_ref_df
+
+def identify_duplicated_dots_NNDescend(ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius):
+    
+    r_tag = 'r_px_' + stitching_selected
+    c_tag = 'c_px_' + stitching_selected
+
+    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
+    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
+    dots_ids = comp_tiles_df.loc[:, ['dot_id']].to_numpy()
+    index = NNDescent(overlapping_ref_coords,metric='euclidean',n_neighbors=1)
+    indices, dists = index.query(overlapping_comp_coords,k=1)
+    idx_dists = np.where(dists < same_dot_radius)[0]
+    dots_id_to_remove = dots_ids[idx_dists]
+    dots_id_to_remove = list(dots_id_to_remove.reshape(dots_id_to_remove.shape[0],))
+    return dots_id_to_remove
+
+def identify_duplicated_dots_sklearn(ref_tiles_df,comp_tiles_df, stitching_selected,same_dot_radius):
+    
+    nn = NearestNeighbors(n_neighbors=1,radius=same_dot_radius, metric='euclidean')
+    
+    r_tag = 'r_px_' + stitching_selected
+    c_tag = 'c_px_' + stitching_selected
+    
+    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
+    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
+    dots_ids = comp_tiles_df.loc[:, ['dot_id']].to_numpy()
+    nn.fit(overlapping_ref_coords)
+    dists, indices = nn.kneighbors(overlapping_comp_coords, return_distance=True)
+    idx_dists = np.where(dists < same_dot_radius)[0]
+    dots_id_to_remove = dots_ids[idx_dists]
+    dots_id_to_remove = list(dots_id_to_remove.reshape(dots_id_to_remove.shape[0],))
+    
+    return dots_id_to_remove
+
+def remove_overlapping_dots_fov(cpl, chunk_coords, experiment_fpath,
+                                    stitching_selected,same_dot_radius):
+
+    all_dots_id_to_remove = []
+    experiment_fpath = Path(experiment_fpath)
+    
+    counts1_fpath = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
+    counts2_fpath = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
+    
+    counts1_df = pd.read_parquet(counts1_fpath)
+    counts2_df = pd.read_parquet(counts2_fpath)
+    
+    overlap_count1 = get_all_dots_in_overlapping_regions(counts1_df, chunk_coords, 
+                       stitching_selected)
+    overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
+                       stitching_selected)
+    
+    count1_grp = overlap_count1.groupby(select_genes)
+    count2_grp = overlap_count2.groupby(select_genes)
+    
+    for gene, over_c1_df in count1_grp:
+        try:
+            over_c2_df = count2_grp.get_group(gene)
+        except:
+            pass
+        else:
+            dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
+                                                         stitching_selected,same_dot_radius)
+            if len(dots_id_to_remove):
+                all_dots_id_to_remove.append(dots_id_to_remove)
+    all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
+    return all_dots_id_to_remove
+
+def clean_from_duplicated_dots(experiment_fpath, fov, dots_id_to_remove):
+    experiment_fpath = Path(experiment_fpath)
+    fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_fpath.stem + '_decoded_fov_' + str(fov) + '.parquet')
+    save_name = fname = experiment_fpath / 'results' / (experiment_fpath.stem + '_cleaned_df_fov_' + str(fov) + '.parquet')
+    if len(dots_id_to_remove):
+        counts_df = pd.read_parquet(fname)
+        cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
+        cleaned_df.to_parquet(save_name,index=False)
+    else:
+        copy_name = 
+        _ = shutil.copy2(fname.as_posix(),save_name.posix())
 
 
 
