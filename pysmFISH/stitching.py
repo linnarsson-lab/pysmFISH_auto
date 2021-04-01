@@ -501,7 +501,8 @@ def identify_duplicated_dots_sklearn(ref_tiles_df,comp_tiles_df, stitching_selec
     return dots_id_to_remove
 
 def remove_overlapping_dots_fov(cpl, chunk_coords, experiment_fpath,
-                                    stitching_selected,same_dot_radius):
+                                    stitching_selected,
+                                    select_genes,same_dot_radius):
 
     all_dots_id_to_remove = []
     experiment_fpath = Path(experiment_fpath)

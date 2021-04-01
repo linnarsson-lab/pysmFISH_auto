@@ -348,6 +348,7 @@ for cpl,chunk_coords in corrected_overlapping_regions_dict.items():
                             chunk_coords=chunk_coords,
                             experiment_fpath=experiment_fpath,
                             stitching_selected=stitching_selected,
+                            select_genes=select_genes,
                             same_dot_radius = same_dot_radius)
 
     all_futures.append(future)
