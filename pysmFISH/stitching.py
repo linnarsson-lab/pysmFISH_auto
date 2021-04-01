@@ -504,46 +504,64 @@ def remove_overlapping_dots_fov(cpl, chunk_coords, experiment_fpath,
                                     stitching_selected,
                                     select_genes,same_dot_radius):
 
+    logger = selected_logger()
     all_dots_id_to_remove = []
     experiment_fpath = Path(experiment_fpath)
     
-    counts1_fpath = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
-    counts2_fpath = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
+    try:
+        counts1_fpath = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
+    except:
+        logger.error(f'count file missing for fov {cpl[0]}')
     
-    counts1_df = pd.read_parquet(counts1_fpath)
-    counts2_df = pd.read_parquet(counts2_fpath)
-    
-    overlap_count1 = get_all_dots_in_overlapping_regions(counts1_df, chunk_coords, 
-                       stitching_selected)
-    overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
-                       stitching_selected)
-    
-    count1_grp = overlap_count1.groupby(select_genes)
-    count2_grp = overlap_count2.groupby(select_genes)
-    
-    for gene, over_c1_df in count1_grp:
+    else:
         try:
-            over_c2_df = count2_grp.get_group(gene)
+            counts2_fpath = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
         except:
-            pass
+            logger.error(f'count file missing for fov {cpl[1]}')
         else:
-            dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
-                                                         stitching_selected,same_dot_radius)
-            if len(dots_id_to_remove):
-                all_dots_id_to_remove.append(dots_id_to_remove)
-    all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
-    return all_dots_id_to_remove
+    
+            counts1_df = pd.read_parquet(counts1_fpath)
+            counts2_df = pd.read_parquet(counts2_fpath)
+            
+            overlap_count1 = get_all_dots_in_overlapping_regions(counts1_df, chunk_coords, 
+                            stitching_selected)
+            overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
+                            stitching_selected)
+            
+            count1_grp = overlap_count1.groupby(select_genes)
+            count2_grp = overlap_count2.groupby(select_genes)
+            
+            for gene, over_c1_df in count1_grp:
+                try:
+                    over_c2_df = count2_grp.get_group(gene)
+                except:
+                    pass
+                else:
+                    dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
+                                                                stitching_selected,same_dot_radius)
+                    if len(dots_id_to_remove):
+                        all_dots_id_to_remove.append(dots_id_to_remove)
+            all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
+            return all_dots_id_to_remove
 
-def clean_from_duplicated_dots(experiment_fpath, fov, dots_id_to_remove):
+def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
+    logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_fpath.stem + '_decoded_fov_' + str(fov) + '.parquet')
     save_name = fname = experiment_fpath / 'results' / (experiment_fpath.stem + '_cleaned_df_fov_' + str(fov) + '.parquet')
     if len(dots_id_to_remove):
-        counts_df = pd.read_parquet(fname)
-        cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
-        cleaned_df.to_parquet(save_name,index=False)
+        try:
+            counts_df = pd.read_parquet(fname)
+        except:
+            logger.error(f'missing {fname}')
+        else:
+            cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
+            cleaned_df.to_parquet(save_name,index=False)
     else:
-        _ = shutil.copy2(fname.as_posix(),save_name.posix())
+        try:
+            _ = shutil.copy2(fname.as_posix(),save_name.posix())
+        except:
+            logger.error(f'cannot copy {fname}')
 
 
 

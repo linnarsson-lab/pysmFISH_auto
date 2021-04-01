@@ -366,7 +366,8 @@ for fov in fovs:
 for fov,dots_id_to_remove in removed_dot_dict.items():
     future = client.submit(clean_from_duplicated_dots,
                             fov = fov,
-                            dots_id_to_remove=dots_id_to_remove)
+                            dots_id_to_remove=dots_id_to_remove,
+                            experiment_fpath=experiment_fpath)
 
     all_futures.append(future)
 
