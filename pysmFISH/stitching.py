@@ -1,5 +1,6 @@
 from typing import *
 import logging
+import shutil
 import itertools
 import math
 import sys
@@ -567,10 +568,10 @@ def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
                 logger.error(f'saved {fname}')
         else:
             try:
-                _ = shutil.copy2(fname.as_posix(),save_name.posix())
+            _ = shutil.copy2(fname.as_posix(),save_name.posix())
                 logger.error(f'copied {fname}')
             except:
-                logger.error(f'cannot copy {fname}')
+                logger.error(f'cannot copy {fname} to {save_name}')
 
 
 
