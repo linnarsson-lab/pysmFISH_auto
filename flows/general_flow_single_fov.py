@@ -343,7 +343,9 @@ c_tag = 'c_px_' + stitching_selected
 all_files = (Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*decoded*.parquet')
 counts_dd_list = [dd.read_parquet(counts_file) for counts_file in all_files]
 counts_dd = dd.concat(counts_dd_list, axis=0)
-counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
+counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,['barcode_reference_dot_id',
+                                                                                    r_tag, c_tag, select_genes, 
+                                                                                    'fov_num']]
 counts_df = counts_dd.dropna(subset=[select_genes]).compute()
 grpd = counts_df.groupby(select_genes)
 
