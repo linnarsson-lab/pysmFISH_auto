@@ -102,7 +102,7 @@ parsed_image_tag = 'img_data'
 # run type can be:
 # new
 # re-run
-run_type = 'new'
+run_type = 're-run'
 
 # parsing type (str) can be:
 # original
