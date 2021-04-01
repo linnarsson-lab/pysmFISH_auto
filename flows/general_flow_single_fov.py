@@ -335,7 +335,7 @@ for key, value in unfolded_overlapping_regions_dict.items():
 # Prepare the dataframe
 select_genes = 'below3Hdistance_genes'
 stitching_selected = 'microscope_stitched'
-same_dot_radius = 10
+same_dot_radius = 100
 r_tag = 'r_px_' + stitching_selected
 c_tag = 'c_px_' + stitching_selected
 
