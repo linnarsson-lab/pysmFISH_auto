@@ -7,6 +7,7 @@ from typing import *
 import os
 import zarr
 import sys
+import time
 # import shoji
 import numpy as np
 from pathlib import Path
@@ -146,6 +147,8 @@ def simple_output_plotting(experiment_fpath, stitching_selected, select_genes, c
     experiment_fpath = Path(experiment_fpath)
     counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*_cleaned_df*.parquet')
 
+    date_tag = time.strftime("%y%m%d_%H_%M_%S")
+
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
 
@@ -153,7 +156,7 @@ def simple_output_plotting(experiment_fpath, stitching_selected, select_genes, c
                                 ['fov_num',r_tag,c_tag, select_genes]]
 
     counts_df=counts_df.dropna(subset=[select_genes]).compute()
-    fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_data_summary_simple_plotting.parquet')
+    fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting.parquet')
     counts_df.to_parquet(fpath,index=False)
 # def connect_to_shoji_smfish_experiment(experiment_name: str):
     
