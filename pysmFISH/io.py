@@ -144,15 +144,15 @@ def load_zarr_fov(zarr_fpath:str, fov:int):
 def simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client):
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*_counts*.parquet')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*_cleaned_df*.parquet')
 
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
 
     counts_df = counts_dd.loc[(counts_dd.dot_id == counts_dd.barcode_reference_dot_id),
-                                ['fov_num',r_tag,c_tag, select_genes]].compute()
+                                ['fov_num',r_tag,c_tag, select_genes]]
 
-    counts_df=counts_df.dropna(subset=[select_genes])
+    counts_df=counts_df.dropna(subset=[select_genes]).compute()
     fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_data_summary_simple_plotting.parquet')
     counts_df.to_parquet(fpath,index=False)
 # def connect_to_shoji_smfish_experiment(experiment_name: str):
