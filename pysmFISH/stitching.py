@@ -548,7 +548,7 @@ def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_fpath.stem + '_decoded_fov_' + str(fov) + '.parquet')
-    save_name = fname = experiment_fpath / 'results' / (experiment_fpath.stem + '_cleaned_df_fov_' + str(fov) + '.parquet')
+    save_name = experiment_fpath / 'results' / (experiment_fpath.stem + '_cleaned_df_fov_' + str(fov) + '.parquet')
     if len(dots_id_to_remove):
         try:
             counts_df = pd.read_parquet(fname)
