@@ -568,7 +568,7 @@ def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
                 logger.error(f'saved {fname}')
         else:
             try:
-                _ = shutil.copy(fname.as_posix(),save_name.as_posix())
+                _ = shutil.copy2(fname.as_posix(),save_name.as_posix())
                 logger.error(f'copied {fname}')
             except:
                 logger.error(f'cannot copy {fname} to {save_name}')
