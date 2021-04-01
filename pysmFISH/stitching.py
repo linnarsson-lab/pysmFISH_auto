@@ -547,25 +547,30 @@ def remove_overlapping_dots_fov(cpl, chunk_coords, experiment_fpath,
 def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
-    fname = experiment_fpath / 'tmp' / 'registered_counts' / (experiment_fpath.stem + '_decoded_fov_' + str(fov) + '.parquet')
-    save_name = experiment_fpath / 'results' / (experiment_fpath.stem + '_cleaned_df_fov_' + str(fov) + '.parquet')
-    if len(dots_id_to_remove):
-        try:
-            counts_df = pd.read_parquet(fname)
-            logger.error(f'loaded {fname}')
-            
-        except:
-            logger.error(f'missing {fname}')
-        else:
-            cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
-            cleaned_df.to_parquet(save_name,index=False)
-            logger.error(f'saved {fname}')
+    try:
+        fname = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*_decoded_fov_' + str(fov) + '.parquet'))[0]
+    except:
+        logger.error(f'missing decoded file for fov {fov}')
     else:
-        try:
-            _ = shutil.copy2(fname.as_posix(),save_name.posix())
-            logger.error(f'copied {fname}')
-        except:
-            logger.error(f'cannot copy {fname}')
+        save_name = fname.stem.split('_decoded_fov_')[0] + '_cleaned_df_fov_' + str(fov) + '.parquet'
+        save_name = experiment_fpath / 'results' / save_name
+        if len(dots_id_to_remove):
+            try:
+                counts_df = pd.read_parquet(fname)
+                logger.error(f'loaded {fname}')
+                
+            except:
+                logger.error(f'missing {fname}')
+            else:
+                cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
+                cleaned_df.to_parquet(save_name,index=False)
+                logger.error(f'saved {fname}')
+        else:
+            try:
+                _ = shutil.copy2(fname.as_posix(),save_name.posix())
+                logger.error(f'copied {fname}')
+            except:
+                logger.error(f'cannot copy {fname}')
 
 
 
