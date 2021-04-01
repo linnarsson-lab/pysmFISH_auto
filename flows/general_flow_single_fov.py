@@ -322,7 +322,7 @@ logger_print.info(f'check if the logger is printing')
 # logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
 
-# # ----------------------------------------------------------------
+# ----------------------------------------------------------------
 # REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
 start = time.time()
 logger.info(f'start removal of duplicated dots')
@@ -340,49 +340,49 @@ r_tag = 'r_px_' + stitching_selected
 c_tag = 'c_px_' + stitching_selected
 
 
-all_futures = []
+# all_futures = []
 
-for cpl,chunk_coords in corrected_overlapping_regions_dict.items():
-    future = client.submit(remove_overlapping_dots_fov,
-                            cpl = cpl,
-                            chunk_coords=chunk_coords,
-                            experiment_fpath=experiment_fpath,
-                            stitching_selected=stitching_selected,
-                            select_genes=select_genes,
-                            same_dot_radius = same_dot_radius)
+# for cpl,chunk_coords in corrected_overlapping_regions_dict.items():
+#     future = client.submit(remove_overlapping_dots_fov,
+#                             cpl = cpl,
+#                             chunk_coords=chunk_coords,
+#                             experiment_fpath=experiment_fpath,
+#                             stitching_selected=stitching_selected,
+#                             select_genes=select_genes,
+#                             same_dot_radius = same_dot_radius)
 
-    all_futures.append(future)
+#     all_futures.append(future)
 
-to_remove = client.gather(all_futures)  
-to_remove = [el for tg in to_remove for el in tg]
-removed_dot_dict = {}
-for k, g in groupby(to_remove, key=lambda x: int(x.split('_')[0])):
-    removed_dot_dict.update({k:list(g)})
+# to_remove = client.gather(all_futures)  
+# to_remove = [el for tg in to_remove for el in tg]
+# removed_dot_dict = {}
+# for k, g in groupby(to_remove, key=lambda x: int(x.split('_')[0])):
+#     removed_dot_dict.update({k:list(g)})
 
-for fov in fovs:
-    if fov not in removed_dot_dict.keys():
-        removed_dot_dict.update({fov:[]})
+# for fov in fovs:
+#     if fov not in removed_dot_dict.keys():
+#         removed_dot_dict.update({fov:[]})
 
-logger_print.info(f'{removed_dot_dict.keys()}')
+# logger_print.info(f'{removed_dot_dict.keys()}')
 
-for fov,dots_id_to_remove in removed_dot_dict.items():
-    future = client.submit(clean_from_duplicated_dots,
-                            fov = fov,
-                            dots_id_to_remove=dots_id_to_remove,
-                            experiment_fpath=experiment_fpath)
+# for fov,dots_id_to_remove in removed_dot_dict.items():
+#     future = client.submit(clean_from_duplicated_dots,
+#                             fov = fov,
+#                             dots_id_to_remove=dots_id_to_remove,
+#                             experiment_fpath=experiment_fpath)
 
-    all_futures.append(future)
+#     all_futures.append(future)
 
-_ = client.gather(all_futures)
+# _ = client.gather(all_futures)
 
 
-logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
+# logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
-# # GENERATE OUTPUT FOR PLOTTING
-# simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
+# ----------------------------------------------------------------
+# GENERATE OUTPUT FOR PLOTTING
+simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
 
 # ----------------------------------------------------------------
 # # PROCESS FRESH NUCLEI
