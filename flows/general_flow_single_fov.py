@@ -222,8 +222,8 @@ else:
                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
                                 experiment_info=experiment_info)
 
-        # _ = client.gather(parsing_futures)
-    wait(parsing_futures)
+    _ = client.gather(parsing_futures)
+    # wait(parsing_futures)
     consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
     del parsing_futures
 
