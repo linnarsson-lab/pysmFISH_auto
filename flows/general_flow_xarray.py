@@ -38,6 +38,8 @@ from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector_general
 from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector
 from pysmFISH.microscopy_file_parsers import nikon_nd2_autoparser_xarray_zarr
 from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_xarray_zarr
+from pysmFISH.microscopy_file_parsers import nikon_nd2_autoparser_zarr
+from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_zarr
 from pysmFISH.microscopy_file_parsers import single_nikon_nd2_parser_simple
 
 
@@ -198,15 +200,15 @@ if parsing_type == 'no_parsing':
     consolidated_grp = open_consolidated_metadata(parsed_raw_data_fpath.as_posix())
 else:
     # Create empty zarr file for the parse data
-    # parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
-    #                                     tag=parsed_image_tag)
-    exp_path = Path(experiment_fpath)
-    parsed_raw_data_fpath = exp_path / (exp_path.stem + '_' + parsed_image_tag) 
-    create_dir(parsed_raw_data_fpath)
+    parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
+                                        tag=parsed_image_tag)
+    # exp_path = Path(experiment_fpath)
+    # parsed_raw_data_fpath = exp_path / (exp_path.stem + '_' + parsed_image_tag) 
+    # create_dir(parsed_raw_data_fpath)
     if parsing_type == 'original':
         all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
 
-        parsing_futures = client.map(nikon_nd2_autoparser_xarray_zarr,
+        parsing_futures = client.map(nikon_nd2_autoparser_zarr,
                                 all_raw_nd2,
                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
                                 experiment_info=experiment_info)
@@ -221,7 +223,7 @@ else:
             raw_files_fpath = storage_experiment_fpath + '/raw_data'
 
         all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
-        parsing_futures = client.map(nikon_nd2_reparser_xarray_zarr,
+        parsing_futures = client.map(nikon_nd2_reparser_zarr,
                                 all_raw_nd2,
                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
                                 experiment_info=experiment_info)
