@@ -26,6 +26,7 @@ from pysmFISH.utils import create_folder_structure
 from pysmFISH.utils import collect_processing_files
 from pysmFISH.utils import sort_data_into_folders
 from pysmFISH.utils import create_dark_img
+from pysmFISH.utils import create_dir
 
 
 from pysmFISH.io import create_empty_zarr_file
@@ -199,6 +200,7 @@ else:
     # Create empty zarr file for the parse data
     parsed_raw_data_fpath = create_empty_zarr_file(experiment_fpath=experiment_fpath,
                                         tag=parsed_image_tag)
+    # create_dir(parsed_raw_data_fpath)
     if parsing_type == 'original':
         all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
 
