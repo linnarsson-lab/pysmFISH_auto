@@ -513,7 +513,7 @@ def nikon_nd2_autoparser_xarray_zarr(nd2_file_path, parsed_raw_data_fpath, exper
 
             fov_arr = np.array([fov])
             arr = np.array(nd2fh[fov],dtype=np.uint16)
-            arr = arr[np.newaxis,np.newaxis,np.newaxis, :,:,:]
+            arr = arr[np.newaxis,np.newaxis,np.newaxis,np.newaxis, :,:,:]
             arr = da.from_array(arr, chunks=(None,None,None,None,None,None,None))
             data_xr =  xr.DataArray(arr,
                                    coords = {
@@ -684,7 +684,7 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
 
             fov_arr = np.array([fov])
             arr = np.array(nd2fh[fov],dtype=np.uint16)
-            arr = arr[np.newaxis,np.newaxis,np.newaxis, :,:,:]
+            arr = arr[np.newaxis,np.newaxis,np.newaxis,np.newaxis, :,:,:]
             arr = da.from_array(arr, chunks=(None,None,None,None,None,None,None))
             data_xr =  xr.DataArray(arr,
                                    coords = {
