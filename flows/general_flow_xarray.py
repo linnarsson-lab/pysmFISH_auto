@@ -208,7 +208,7 @@ else:
     if parsing_type == 'original':
         all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
 
-        parsing_futures = client.map(nikon_nd2_autoparser_zarr,
+        parsing_futures = client.map(nikon_nd2_autoparser_xarray_zarr,
                                 all_raw_nd2,
                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
                                 experiment_info=experiment_info)
@@ -223,7 +223,7 @@ else:
             raw_files_fpath = storage_experiment_fpath + '/raw_data'
 
         all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
-        parsing_futures = client.map(nikon_nd2_reparser_zarr,
+        parsing_futures = client.map(nikon_nd2_reparser_xarray_zarr,
                                 all_raw_nd2,
                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
                                 experiment_info=experiment_info)
