@@ -74,6 +74,7 @@ def create_folder_structure(experiment_fpath:str):
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     folders_list = ['raw_data',
+                    'microscope_tiles_coords',
                     'original_robofish_logs',
                     'extra_processing_data',
                     'extra_files',
@@ -87,8 +88,6 @@ def create_folder_structure(experiment_fpath:str):
     subfolders_tmp = ['raw_counts','filtered_images',
                         'registered_counts','combined_rounds_images']
 
-    subfolders_results = ['raw_counts','filtered_images','registered_counts',
-                    'microscope_tiles_coords','combined_rounds_images']
 
     for folder_name in folders_list:
         try:

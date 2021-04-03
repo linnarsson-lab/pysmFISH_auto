@@ -124,7 +124,8 @@ def transfer_data_to_storage(experiment_fpath:str,storage_fpath:str,):
                         'pipeline_config',
                         'codebook',
                         'probes',
-                        'fresh_nuclei']
+                        'fresh_nuclei',
+                        'microscope_tiles_coords']
 
     try:
         config_file_fpath = list(storage_experiment_fpath.glob('*.yaml'))[0]
@@ -181,7 +182,8 @@ def transfer_files_from_storage(storage_experiment_fpath:str,experiment_fpath:st
         'extra_processing_data',
         'pipeline_config',
         'codebook',
-        'probes'
+        'probes',
+        'microscope_tiles_coords'
     ]
     
     list_dir = [x[0] for x in os.walk(storage_experiment_fpath)]
