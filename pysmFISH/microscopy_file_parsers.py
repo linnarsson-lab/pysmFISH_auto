@@ -497,7 +497,6 @@ def nikon_nd2_autoparser_xarray_zarr(nd2_file_path, parsed_raw_data_fpath, exper
             attrs['stitching_channel'] = experiment_info['StitchingChannel']
             attrs['stitching_type'] = experiment_info['Stitching_type']
             attrs['experiment_type'] = experiment_info['Experiment_type']
-            attrs['chunks_dict'] = chunks_dict
             attrs['hybridization_num'] = hybridization_num
             attrs['experiment_name'] = experiment_name
             attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
@@ -650,7 +649,7 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
         channel_arr = np.array([channel])
         round_num = np.array([round_num])
         experiment_name_arr = np.array([experiment_name])
-        chunks_dict = {'experiment_name':1,'channel':1,'fov':1,'round_num':1,
+        chunks_dict = {['experiment_name']:1,'channel':1,'fov':1,'round_num':1,
                        'zstack':nd2fh.sizes['z'],'rows':nd2fh.sizes['y'],'columns':nd2fh.sizes['x']}
         chunks_tuple = (1,1,1,1,nd2fh.sizes['z'],nd2fh.sizes['y'],nd2fh.sizes['x'])
         
@@ -674,11 +673,9 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
             attrs['experiment_type'] = experiment_info['Experiment_type']
             attrs['hybridization_num'] = hybridization_num
             attrs['experiment_name'] = experiment_name
-            attrs['chunks_dict'] = chunks_dict
             attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
             attrs['fov_acquisition_coords_y'] = fov_coords[fov,2]
             attrs['fov_acquisition_coords_z'] = fov_coords[fov,0]
-
 
             if info_data['StitchingChannel'] == channel:
                 attrs['processing_type'] = attrs['stitching_type']
