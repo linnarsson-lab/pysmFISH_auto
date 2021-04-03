@@ -634,8 +634,8 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
 
 
         # Save the file as zarr
-        store = zarr.DirectoryStore(parsed_raw_data_fpath)
-        root = zarr.group(store=store,overwrite=False)
+        # store = zarr.DirectoryStore(parsed_raw_data_fpath)
+        # root = zarr.group(store=store,overwrite=False)
 
         
         nd2fh.bundle_axes = 'zyx'
