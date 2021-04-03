@@ -689,7 +689,7 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
             fov_arr = np.array([fov])
             arr = np.array(nd2fh[fov],dtype=np.uint16)
             arr = arr[np.newaxis,np.newaxis,np.newaxis,np.newaxis, :,:,:]
-            # arr = da.from_array(arr, chunks=(None,None,None,None,None,None,None))
+            arr = da.from_array(arr, chunks=(None,None,None,None,None,None,None))
             data_xr =  xr.DataArray(arr,
                                    coords = {
                                        'experiment_name':experiment_name_arr,
@@ -708,7 +708,7 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
             data_dset_path = (parsed_raw_data_fpath / (data_dset_name + '.nc')).as_posix()
 #             data_dset = xr.Dataset({data_dset_name: data_xr})
             data_dset = xr.Dataset({'raw_data': data_xr},attrs=attrs)
-            data_dset.to_zarr(chunk_store=data_dset_path,mode='w')
+            # data_dset.to_zarr(chunk_store=data_dset_path,mode='w')
             # data_dset.to_netcdf(data_dset_path,mode='w')
 
 
