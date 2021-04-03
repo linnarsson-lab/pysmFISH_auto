@@ -186,7 +186,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view:
             output_attrs = {}
-            output_fname = parsed_raw_data_fpath / (tag_name + '_' + str(fov) + '.pkl')
+            output_fname = parsed_raw_data_fpath / ('Attrs_' + tag_name + '_fov_' + str(fov) + '.pkl')
             img = np.array(nd2fh[fov],dtype=np.uint16)      
             array_name = tag_name + '_fov_' + str(fov)
             dgrp = root.create_group(array_name)
@@ -352,7 +352,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view:
             output_attrs = {}
-            output_fname = parsed_raw_data_fpath / (tag_name + '_' + str(fov) + '.pkl')
+            output_fname = parsed_raw_data_fpath / ('Attrs_' + tag_name + '_fov_' + str(fov) + '.pkl')
             img = np.array(nd2fh[fov],dtype=np.uint16)      
             array_name = tag_name + '_fov_' + str(fov)
             dgrp = root.create_group(array_name)
