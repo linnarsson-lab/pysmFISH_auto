@@ -16,7 +16,6 @@ from dask import dataframe as dd
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-import matplotlib.patches as mpatch
 
 from pysmFISH.logger_utils import json_logger
 from pysmFISH.configuration_files import load_experiment_config_file
