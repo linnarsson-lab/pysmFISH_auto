@@ -173,7 +173,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
 
 
         # Save the fov_coords
-        fname = experiment_fpath / 'tmp' / 'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
+        fname = experiment_fpath / 'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
         np.save(fname, fov_coords)
 
         nd2fh.bundle_axes = 'zyx'
@@ -309,7 +309,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
     
         # Save the fov_coords
         new_exp_location = parsed_raw_data_fpath.parent
-        fname = new_exp_location / 'tmp' / 'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
+        fname = new_exp_location / 'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
         np.save(fname, fov_coords)
 
 
