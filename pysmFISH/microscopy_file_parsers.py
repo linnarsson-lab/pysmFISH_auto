@@ -242,7 +242,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
                 output_attrs['processing_type'] = 'fish'
 
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
-            pickle.dump(output_attrs,open(output_fname, 'w'))
+            pickle.dump(output_attrs,open(output_fname, 'wb'))
 
         # Rename the nd2 files
         new_file_name = tag_name + '.nd2'
@@ -409,7 +409,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
 
 
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
-            pickle.dump(output_attrs,open(output_fname, 'w'))
+            pickle.dump(output_attrs,open(output_fname, 'wb'))
 
 
 def nikon_nd2_reparser_zarr_custom_dataset(nd2_file_path,parsed_raw_data_fpath,experiment_info):
