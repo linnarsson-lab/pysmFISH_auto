@@ -502,9 +502,9 @@ def nikon_nd2_reparser_zarr_custom_dataset(nd2_file_path,parsed_raw_data_fpath,e
             output_attrs['fov_acquisition_coords_z'] = fov_coords[fov,0]
 
             if info_data['StitchingChannel'] == channel:
-                root.attrs['processing_type'] = dgrp.attrs['stitching_type']
-                output_attrs['processing_type'] = dgrp.attrs['stitching_type']
-            elif '_ST' in dgrp.attrs['target_name']:
+                root.attrs['processing_type'] = root.attrs['stitching_type']
+                output_attrs['processing_type'] = root.attrs['stitching_type']
+            elif '_ST' in root.attrs['target_name']:
                 root.attrs['processing_type'] = 'staining'
                 output_attrs['processing_type'] = 'staining'
             else:
@@ -513,12 +513,6 @@ def nikon_nd2_reparser_zarr_custom_dataset(nd2_file_path,parsed_raw_data_fpath,e
 
             dset = root.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
             pickle.dump(output_attrs,open(data_info_fname,'wb'))
-
-
-
-
-
-
 
 
 
