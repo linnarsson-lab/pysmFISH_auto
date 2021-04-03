@@ -40,6 +40,7 @@ from pysmFISH.microscopy_file_parsers import nikon_nd2_autoparser_xarray_zarr
 from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_xarray_zarr
 from pysmFISH.microscopy_file_parsers import nikon_nd2_autoparser_zarr
 from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_zarr
+from pysmFISH.microscopy_file_parsers import nikon_nd2_reparser_zarr_custom_dataset
 from pysmFISH.microscopy_file_parsers import single_nikon_nd2_parser_simple
 
 
@@ -223,7 +224,7 @@ else:
             raw_files_fpath = storage_experiment_fpath + '/raw_data'
 
         all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
-        parsing_futures = client.map(nikon_nd2_reparser_xarray_zarr,
+        parsing_futures = client.map(nikon_nd2_reparser_zarr_custom_dataset,
                                 all_raw_nd2,
                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
                                 experiment_info=experiment_info)
