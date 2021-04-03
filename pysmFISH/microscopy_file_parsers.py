@@ -186,7 +186,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view:
             output_attrs = {}
-            output_fname = parsed_raw_data_fpath / (tag + '_' + str(fov))
+            output_fname = parsed_raw_data_fpath / (tag_name + '_' + str(fov) + '.pkl')
             img = np.array(nd2fh[fov],dtype=np.uint16)      
             array_name = tag_name + '_fov_' + str(fov)
             dgrp = root.create_group(array_name)
@@ -243,7 +243,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
 
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
             pickle.dump(output_attrs,open(output_fname, 'w'))
-            
+
         # Rename the nd2 files
         new_file_name = tag_name + '.nd2'
         logger.debug(f'.nd2 file renamed {new_file_name}')
@@ -352,7 +352,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view:
             output_attrs = {}
-            output_fname = parsed_raw_data_fpath / (tag + '_' + str(fov))
+            output_fname = parsed_raw_data_fpath / (tag_name + '_' + str(fov) + '.pkl')
             img = np.array(nd2fh[fov],dtype=np.uint16)      
             array_name = tag_name + '_fov_' + str(fov)
             dgrp = root.create_group(array_name)
