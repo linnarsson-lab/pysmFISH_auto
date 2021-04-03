@@ -497,6 +497,7 @@ def nikon_nd2_autoparser_xarray_zarr(nd2_file_path, parsed_raw_data_fpath, exper
             attrs['stitching_channel'] = experiment_info['StitchingChannel']
             attrs['stitching_type'] = experiment_info['Stitching_type']
             attrs['experiment_type'] = experiment_info['Experiment_type']
+            attrs['chunks_dict'] = chunks_dict
             attrs['hybridization_num'] = hybridization_num
             attrs['experiment_name'] = experiment_name
             attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
@@ -515,7 +516,7 @@ def nikon_nd2_autoparser_xarray_zarr(nd2_file_path, parsed_raw_data_fpath, exper
             fov_arr = np.array([fov])
             arr = np.array(nd2fh[fov],dtype=np.uint16)
             arr = arr[np.newaxis,np.newaxis,np.newaxis,np.newaxis, :,:,:]
-            arr = da.from_array(arr, chunks=(None,None,None,None,None,None,None))
+            # arr = da.from_array(arr, chunks=(None,None,None,None,None,None,None))
             data_xr =  xr.DataArray(arr,
                                    coords = {
                                        'experiment_name':experiment_name_arr,
@@ -529,9 +530,9 @@ def nikon_nd2_autoparser_xarray_zarr(nd2_file_path, parsed_raw_data_fpath, exper
                                           'zstack','rows','columns'],
                                     attrs= attrs
                                   )
-            data_xr = data_xr.chunk(chunks_dict)
+            # data_xr = data_xr.chunk(chunks_dict)
             data_dset_name = tag_name + '_fov_' + str(fov)
-            data_dset_path = (parsed_raw_data_fpath / (data_dset_name + '.nc')).as_posix()
+            data_dset_path = (parsed_raw_data_fpath / (data_dset_name + '.zarr')).as_posix()
 #             data_dset = xr.Dataset({data_dset_name: data_xr})
             data_dset = xr.Dataset({'raw_data': data_xr},attrs=attrs)
             data_dset.to_zarr(store=data_dset_path,mode='w')
@@ -673,6 +674,7 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
             attrs['experiment_type'] = experiment_info['Experiment_type']
             attrs['hybridization_num'] = hybridization_num
             attrs['experiment_name'] = experiment_name
+            attrs['chunks_dict'] = chunks_dict
             attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
             attrs['fov_acquisition_coords_y'] = fov_coords[fov,2]
             attrs['fov_acquisition_coords_z'] = fov_coords[fov,0]
@@ -705,7 +707,7 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
                                   )
             # data_xr = data_xr.chunk(chunks_dict)
             data_dset_name = tag_name + '_fov_' + str(fov)
-            data_dset_path = (parsed_raw_data_fpath / (data_dset_name + '.nc')).as_posix()
+            data_dset_path = (parsed_raw_data_fpath / (data_dset_name + '.zarr')).as_posix()
 #             data_dset = xr.Dataset({data_dset_name: data_xr})
             data_dset = xr.Dataset({'raw_data': data_xr},attrs=attrs)
             data_dset.to_zarr(store=data_dset_path,mode='w')
