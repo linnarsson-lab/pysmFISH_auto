@@ -564,6 +564,10 @@ def register_fish_test(fov:int,
     return registered_fish_df, status
 
 
+
+
+
+
 def calculate_shift_hybridization_fov_nuclei(processing_files:List,analysis_parameters:dict, save=True):
     """
     Function used to run the registration of a single fov
@@ -649,6 +653,123 @@ def calculate_shift_hybridization_fov_nuclei(processing_files:List,analysis_para
 
         return all_rounds_shifts, all_rounds_shifts_RMS, file_tags, status
 
+
+
+def calculate_shift_hybridization_fov_nuclei_test(fov:int,
+                                            img_stack:np.ndarray,
+                                            sorted_grp:Dict,
+                                            analysis_parameters:Dict, 
+                                            experiment_info:Dict):
+    """
+    Function used to run the registration of a single fov
+    through all hybridization. The registration is done using the dots
+    coords determined in each image
+
+    Args:
+        processing_files: List
+            list of the files with the counts to register
+        analysis_parameters: Dict
+            dict that contains the settings for the analysis 
+    """
+    
+    logger = selected_logger()
+    
+    registration_errors = Registration_errors()
+    data_models = Output_models()
+    all_rounds_shifts = {}
+    output_registration_df = data_models.output_registration_df
+    status = 'SUCCESS'
+
+    reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
+    ref_round_num = int(reference_hybridization) - 1
+    reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
+    channel = experiment_info['StitchingChannel']
+    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
+
+    all_rounds = np.arange(img_stack.shape[0])
+    all_rounds = all_rounds[all_rounds != ref_round_num]
+
+
+    ref_img = img_stack[ref_round_num,:,:]
+    output_registration_df = output_registration_df.append({'fov_num':fov,
+                                                            'round_num':ref_round_num + 1,
+                                                             'r_shift_px': 0,
+                                                             'c_shift_px':0,
+                                                             'min_number_matching_dots_registration':0,
+                                                             'RMS':0},ignore_index=True)
+
+    all_rounds_shifts[ref_round_num+1] = np.array([0,0])
+
+    for r_num in all_rounds:
+        shift, error, diffphase = phase_cross_correlation(ref_img, img_stack[r_num,:,:],return_error=True)    
+        tran_counts_df = pd.DataFrame({'fov_num':[fov],
+                                        'round_num':[r_num + 1],
+                                        'r_shift_px': [shift[0]],
+                                        'c_shift_px':[shift[1]],
+                                        'min_number_matching_dots_registration':[1000],
+                                        'RMS':[error]})
+
+        all_rounds_shifts[r_num + 1] = shift
+
+        output_registration_df = pd.concat([output_registration_df,tran_counts_df],axis=0,ignore_index=True)
+
+
+    return output_registration_df, all_rounds_shifts, status
+
+
+
+
+
+def register_fish_on_nuclei_test(fov:int,
+                        counts_output:Dict,
+                        registered_reference_channel_df,
+                        all_rounds_shifts:Dict,
+                        analysis_parameters:Dict,
+                        status:str):
+
+    logger = selected_logger()
+    registration_errors = Registration_errors()
+    data_models = Output_models()
+
+    registered_fish_df = data_models.output_registration_df
+
+    if status == 'FAILED':
+        error = registered_reference_channel_df['min_number_matching_dots_registration'].values[0]
+        round_num = registered_reference_channel_df['round_num'].values[0]
+        registered_fish_df = registered_fish_df.append({'min_number_matching_dots_registration':error,
+                                                           'fov_num':int(fov),'dot_channel':channel,'round_num':int(round_num) },ignore_index=True)
+    elif status == 'SUCCESS':
+        reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
+        reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
+        
+        for channel, all_counts_dict in counts_output['fish'].items():
+            for zarr_name, fish_counts_tpl in all_counts_dict.items():
+                round_num = int(zarr_name.split('_')[-4].split('Hybridization')[-1])
+                
+                fish_counts, fish_img_metadata = fish_counts_tpl
+
+                fish_counts_df = pd.DataFrame(fish_counts)
+                shift = all_rounds_shifts[round_num]
+                fish_counts_df['r_px_registered'] = fish_counts['r_px_original'] + shift[0]
+                fish_counts_df['c_px_registered'] = fish_counts['c_px_original'] + shift[1]
+                fish_counts_df['r_shift_px'] = shift[0]
+                fish_counts_df['c_shift_px'] = shift[1]
+                # fish_counts_df['min_number_matching_dots_registration'] = fish_counts['min_number_matching_dots_registration']
+                fish_counts_df['reference_hyb'] = reference_hybridization
+                # fish_counts_df['experiment_type'] = fish_counts['experiment_type']
+                # fish_counts_df['experiment_name'] = fish_counts['experiment_name']
+                # fish_counts_df['pxl_um'] = fish_counts['pxl_um']
+                # fish_counts_df['stitching_type'] = fish_counts['stitching_type']
+                # fish_counts_df['fov_acquisition_coords_x'] = fish_counts['fov_acquisition_coords_x']
+                # fish_counts_df['fov_acquisition_coords_y'] = fish_counts['fov_acquisition_coords_y']
+                # fish_counts_df['fov_acquisition_coords_z'] = fish_counts['fov_acquisition_coords_z']
+                # fish_counts_df['img_width_px'] = fish_img_metadata['img_width']
+                # fish_counts_df['img_height_px'] = fish_img_metadata['img_height']
+                
+                registered_fish_df = pd.concat([registered_fish_df,fish_counts_df],axis=0,ignore_index=True)
+        status = 'SUCCESS'
+
+    return registered_fish_df, status
 
 
 def register_fish_on_nuclei(processing_files:List,analysis_parameters:Dict,

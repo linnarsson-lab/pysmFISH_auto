@@ -363,6 +363,22 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def single_nikon_nd2_parser_simple(nd2_file_path):
     """
     Utility class used to parse a single .nd2 file
