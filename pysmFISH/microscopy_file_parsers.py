@@ -460,7 +460,7 @@ def nikon_nd2_reparser_zarr_custom_dataset(nd2_file_path,parsed_raw_data_fpath,e
             output_attrs = {}
             img = np.array(nd2fh[fov],dtype=np.uint16)      
             array_name = tag_name + '_fov_' + str(fov)
-            fov_name = 'raw_data_fov_' + str(fov)
+            fov_name = tag + '_' + str(fov)
             # Remember that attrs must be JSON-serializable to be stored
             # in zarr
             root.attrs['grp_name'] = array_name
