@@ -531,9 +531,10 @@ def nikon_nd2_autoparser_xarray_zarr(nd2_file_path, parsed_raw_data_fpath, exper
                                   )
             data_xr = data_xr.chunk(chunks_dict)
             data_dset_name = tag_name + '_fov_' + str(fov)
+            data_dset_path = (parsed_raw_data_fpath / (data_dset_name + '.zarr')).as_posix()
 #             data_dset = xr.Dataset({data_dset_name: data_xr})
             data_dset = xr.Dataset({'raw_data': data_xr},attrs=attrs)
-            data_dset.to_zarr(parsed_raw_data_fpath / ( data_dset_name + '.zarr'),consolidated=True)
+            data_dset.to_zarr(data_dset_path,consolidated=True)
 #             data_dset.to_netcdf(parsed_raw_data_fpath + '/' + data_dset_name + '.nc')
 
         # Rename the nd2 files
@@ -704,9 +705,10 @@ def nikon_nd2_reparser_xarray_zarr(nd2_file_path,parsed_raw_data_fpath,experimen
                                   )
             data_xr = data_xr.chunk(chunks_dict)
             data_dset_name = tag_name + '_fov_' + str(fov)
+            data_dset_path = (parsed_raw_data_fpath / (data_dset_name + '.zarr')).as_posix()
 #             data_dset = xr.Dataset({data_dset_name: data_xr})
             data_dset = xr.Dataset({'raw_data': data_xr},attrs=attrs)
-            data_dset.to_zarr(parsed_raw_data_fpath / (data_dset_name + '.zarr'),consolidated=True)
+            data_dset.to_zarr(data_dset_path,consolidated=True)
 
 
 
