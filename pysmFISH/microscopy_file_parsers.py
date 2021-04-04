@@ -173,7 +173,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
 
 
         # Save the fov_coords
-        fname = experiment_fpath / 'tmp'/'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
+        fname = experiment_fpath / 'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
         np.save(fname, fov_coords)
 
         nd2fh.bundle_axes = 'zyx'
@@ -185,8 +185,6 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
         cols = np.arange(parsed_metadata['height'])
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view:
-            output_attrs = {}
-            output_fname = parsed_raw_data_fpath / ('Attrs_' + tag_name + '_fov_' + str(fov) + '.pkl')
             img = np.array(nd2fh[fov],dtype=np.uint16)      
             array_name = tag_name + '_fov_' + str(fov)
             dgrp = root.create_group(array_name)
@@ -200,49 +198,27 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
             dgrp.attrs['img_width'] = parsed_metadata['width']
             dgrp.attrs['img_height'] = parsed_metadata['height']
             dgrp.attrs['pixel_microns'] = pixel_microns
-            dgrp.attrs['z_levels'] = list(z_levels)
+            dgrp.attrs['zstack'] = len(list(z_levels))
             dgrp.attrs['fields_of_view'] = list(fields_of_view)
             dgrp.attrs['fov_num'] = fov
             dgrp.attrs['stitching_channel'] = info_data['StitchingChannel']
             dgrp.attrs['stitching_type'] = experiment_info['Stitching_type']
             dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']
-            dgrp.attrs['hybridization_num'] = hybridization_num
+            dgrp.attrs['round_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
             dgrp.attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
             dgrp.attrs['fov_acquisition_coords_y'] = fov_coords[fov,2]
             dgrp.attrs['fov_acquisition_coords_z'] = fov_coords[fov,0]
 
-            output_attrs['grp_name'] = array_name
-            output_attrs['fov_name'] = fov_name
-            output_attrs['channel'] = channel
-            output_attrs['target_name'] = info_data['channels'][channel]
-            output_attrs['img_width'] = parsed_metadata['width']
-            output_attrs['img_height'] = parsed_metadata['height']
-            output_attrs['pixel_microns'] = pixel_microns
-            output_attrs['zstack'] = len(list(z_levels))
-            output_attrs['total_fovs'] = max(list(fields_of_view))
-            output_attrs['fov_num'] = fov
-            output_attrs['stitching_channel'] = info_data['StitchingChannel']
-            output_attrs['stitching_type'] = experiment_info['Stitching_type']
-            output_attrs['experiment_type'] = experiment_info['Experiment_type']
-            output_attrs['round_num'] = hybridization_num
-            output_attrs['experiment_name'] = experiment_name
-            output_attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
-            output_attrs['fov_acquisition_coords_y'] = fov_coords[fov,2]
-            output_attrs['fov_acquisition_coords_z'] = fov_coords[fov,0]
 
             if info_data['StitchingChannel'] == channel:
                 dgrp.attrs['processing_type'] = dgrp.attrs['stitching_type']
-                output_attrs['processing_type'] = dgrp.attrs['stitching_type']
             elif '_ST' in dgrp.attrs['target_name']:
                 dgrp.attrs['processing_type'] = 'staining'
-                output_attrs['processing_type'] = 'staining'
             else:
                 dgrp.attrs['processing_type'] = 'fish'
-                output_attrs['processing_type'] = 'fish'
 
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
-            pickle.dump(output_attrs,open(output_fname, 'wb'))
 
         # Rename the nd2 files
         new_file_name = tag_name + '.nd2'
@@ -333,7 +309,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
     
         # Save the fov_coords
         new_exp_location = parsed_raw_data_fpath.parent
-        fname = new_exp_location / 'tmp'/'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
+        fname = new_exp_location /'microscope_tiles_coords' / (tag_name + '_fovs_coords.npy')
         np.save(fname, fov_coords)
 
 
@@ -351,8 +327,6 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
         cols = np.arange(parsed_metadata['height'])
         hybridization_num = int(hybridization_name.split('Hybridization')[-1])
         for fov in fields_of_view:
-            output_attrs = {}
-            output_fname = parsed_raw_data_fpath / ('Attrs_' + tag_name + '_fov_' + str(fov) + '.pkl')
             img = np.array(nd2fh[fov],dtype=np.uint16)      
             array_name = tag_name + '_fov_' + str(fov)
             dgrp = root.create_group(array_name)
@@ -366,50 +340,26 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
             dgrp.attrs['img_width'] = parsed_metadata['width']
             dgrp.attrs['img_height'] = parsed_metadata['height']
             dgrp.attrs['pixel_microns'] = pixel_microns
-            dgrp.attrs['z_levels'] = list(z_levels)
+            dgrp.attrs['zstack'] = len(list(z_levels))
             dgrp.attrs['fields_of_view'] = list(fields_of_view)
             dgrp.attrs['fov_num'] = fov
             dgrp.attrs['stitching_channel'] = info_data['StitchingChannel']
             dgrp.attrs['stitching_type'] = experiment_info['Stitching_type']
             dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']
-            dgrp.attrs['hybridization_num'] = hybridization_num
+            dgrp.attrs['round_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
             dgrp.attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
             dgrp.attrs['fov_acquisition_coords_y'] = fov_coords[fov,2]
             dgrp.attrs['fov_acquisition_coords_z'] = fov_coords[fov,0]
 
-            output_attrs['grp_name'] = array_name
-            output_attrs['fov_name'] = fov_name
-            output_attrs['channel'] = channel
-            output_attrs['target_name'] = info_data['channels'][channel]
-            output_attrs['img_width'] = parsed_metadata['width']
-            output_attrs['img_height'] = parsed_metadata['height']
-            output_attrs['pixel_microns'] = pixel_microns
-            output_attrs['zstack'] = len(list(z_levels))
-            output_attrs['total_fovs'] = max(list(fields_of_view))
-            output_attrs['fov_num'] = fov
-            output_attrs['stitching_channel'] = info_data['StitchingChannel']
-            output_attrs['stitching_type'] = experiment_info['Stitching_type']
-            output_attrs['experiment_type'] = experiment_info['Experiment_type']
-            output_attrs['round_num'] = hybridization_num
-            output_attrs['experiment_name'] = experiment_name
-            output_attrs['fov_acquisition_coords_x'] = fov_coords[fov,1]
-            output_attrs['fov_acquisition_coords_y'] = fov_coords[fov,2]
-            output_attrs['fov_acquisition_coords_z'] = fov_coords[fov,0]
-
             if info_data['StitchingChannel'] == channel:
                 dgrp.attrs['processing_type'] = dgrp.attrs['stitching_type']
-                output_attrs['processing_type'] = dgrp.attrs['stitching_type']
             elif '_ST' in dgrp.attrs['target_name']:
                 dgrp.attrs['processing_type'] = 'staining'
-                output_attrs['processing_type'] = 'staining'
             else:
                 dgrp.attrs['processing_type'] = 'fish'
-                output_attrs['processing_type'] = 'fish'
-
 
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
-            pickle.dump(output_attrs,open(output_fname, 'wb'))
 
 
 def nikon_nd2_reparser_zarr_custom_dataset(nd2_file_path,parsed_raw_data_fpath,experiment_info):
