@@ -238,18 +238,22 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
-# CREATE DATASET
-start = time.time()
-logger.info(f'start dataset creation')
-ds = Dataset()
-ds.create_full_dataset_from_zmetadata(experiment_fpath, 
-             experiment_info,
-             parsed_raw_data_fpath)
+# # CREATE DATASET
+# start = time.time()
+# logger.info(f'start dataset creation')
+# ds = Dataset()
+# ds.create_full_dataset_from_zmetadata(experiment_fpath, 
+#              experiment_info,
+#              parsed_raw_data_fpath)
 
-logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
+# logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
 
 # ----------------------------------------------------------------
 # IMAGE PREPROCESSING, DOTS COUNTING,
+
+ds = Dataset()
+ds.load_dataset('/wsfish/smfish_ssd/test_new_dataset/JJEXP20201123_hGBM_Amine_test/210405_14_41_49_JJEXP20201123_hGBM_Amine_test_dataset.parquet')
+
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
 dark_img = load_dark_image(experiment_fpath)
