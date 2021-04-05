@@ -2,6 +2,7 @@ from typing import *
 import yaml
 # import shoji
 import numpy as np
+import sys
 from pathlib import Path
 import pandas as pd
 
@@ -45,7 +46,7 @@ class Dataset():
             self.dataset.to_parquet(self.dataset_fpath, index=False)
         
         else:
-            logger.error(f'there are no files with the metadata dictionary')
+            self.logger.error(f'there are no files with the metadata dictionary')
             sys.exit(f'there are no files with the metadata dictionary')
     
     def create_full_dataset_from_zmetadata(self,experiment_fpath, 
@@ -55,7 +56,7 @@ class Dataset():
         try:
             consolidated_metadata = open_consolidated_metadata(parsed_raw_data_fpath)
         except:
-            logger.error(f'consolidated zarr metadata missing or broken')
+            self.logger.error(f'consolidated zarr metadata missing or broken')
             sys.exit(f'consolidated zarr metadata missing or broken')
         else:
             self.experiment_fpath = Path(experiment_fpath)
