@@ -211,6 +211,7 @@ else:
         _ = client.gather(parsing_futures)
     
     else:
+        # add error if not correct parsing type
         if parsing_type == 'reparsing_from_processing_folder':
             raw_files_fpath = experiment_fpath + '/raw_data'
         elif parsing_type == 'reparsing_from_storage':
