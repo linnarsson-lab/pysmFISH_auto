@@ -279,6 +279,7 @@ for index_value, fov_subdataset in all_imgs_fov.iterrows():
 
 d = dask.delayed(cane)(all_futures_filtering_counting)
 z = client.compute(d)
+_ = client.gather(z)
 
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
