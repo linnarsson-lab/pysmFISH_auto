@@ -2,6 +2,7 @@ import time
 import traceback
 import pickle
 import zarr
+import dask
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ from itertools import groupby
 from dask.distributed import Client
 from dask.distributed import as_completed, wait
 from dask import dataframe as dd
+from dask.base import tokenize
 
 from pysmFISH.logger_utils import json_logger
 from pysmFISH.logger_utils import selected_logger
@@ -248,11 +250,29 @@ logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
 
 # ----------------------------------------------------------------
 # IMAGE PREPROCESSING, DOTS COUNTING,
-# start = time.time()
-# logger.info(f'start preprocessing and dots counting')
+start = time.time()
+logger.info(f'start preprocessing and dots counting')
+dark_img = load_dark_image(experiment_fpath)
+all_futures_filtering_counting = []
+for index_value, fov_subdataset in ds.dataset.iterrows():
+    round_num = fov_subdataset.round_num
+    channel = fov_subdataset.channel
+    fov = fov_subdataset.fov_num
+    experiment_name = fov_subdataset.experiment_name
+    dask_delayed_name = experiment_name + '_' + channel + \
+                    '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+    future = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
+                                   analysis_parameters,
+                                   running_functions,
+                                   dark_img,
+                                   experiment_fpath,
+                                   save_steps_output=False,
+                                            dask_key_name = dask_delayed_name )
+    all_futures_filtering_counting.append(future)
 
+_ = dask.dask.compute(all_futures_filtering_counting)
 
-# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
 
 
