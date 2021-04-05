@@ -270,7 +270,7 @@ for index_value, fov_subdataset in ds.dataset.iterrows():
                                             dask_key_name = dask_delayed_name )
     all_futures_filtering_counting.append(future)
 
-_ = dask.dask.compute(all_futures_filtering_counting)
+_ = dask.compute(all_futures_filtering_counting)
 
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
