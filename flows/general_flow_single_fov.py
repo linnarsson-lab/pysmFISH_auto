@@ -208,7 +208,7 @@ else:
                                 experiment_info=experiment_info)
 
         # wait(parsing_futures)
-        # _ = client.gather(parsing_futures)
+        _ = client.gather(parsing_futures)
     
     else:
         if parsing_type == 'reparsing_from_processing_folder':
@@ -225,7 +225,7 @@ else:
     _ = client.gather(parsing_futures)
     # wait(parsing_futures)
     consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-    del parsing_futures
+    # del parsing_futures
 
 logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
