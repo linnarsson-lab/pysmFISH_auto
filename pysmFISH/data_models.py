@@ -5,6 +5,124 @@ import numpy as np
 from pathlib import Path
 import pandas as pd
 
+class Dataset():
+    
+    def __init__(self):
+        
+        self.experiment_fpath = Path(experiment_fpath)
+        self.experiment_info = experiment_info
+        self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+        self.logger = selected_logger()
+        
+        date_tag = time.strftime("%y%m%d_%H_%M_%S")
+        experiment_name = self.experiment_fpath.stem
+        self.dataset_fpath = self.experiment_fpath / (date_tag + '_' + experiment_name + '_dataset.parquet')
+        
+        
+    def load_dataset(self, dataset_fpath):
+        self.dataset = pd.read_parquet(dataset_fpath)
+        
+    def create_full_dataset_from_files(self, experiment_fpath, 
+                                       experiment_info,
+                                       parsed_raw_data_fpath,ftype='pkl'): 
+        """
+        Starting point if you want to work with another type of storage
+        but want to use the same dataset structure for downstream
+        processing
+        """
+        
+        self.experiment_fpath = Path(experiment_fpath)
+        self.experiment_info = experiment_info
+        self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+        
+        self.dataset = pd.DataFrame()
+        all_pickle_list = list(self.parsed_raw_data_fpath.glob('*.' + ftype))
+        if len(all_pickle_list):
+            for fdata in all_pickle_list:
+                single = pickle.load(open(fdata,'rb'))
+                fdata_loc = fdata.parent / fdata.stem
+                single['raw_data_location'] = fdata_loc.as_posix()
+                single_df = pd.DataFrame(single,index=[0])
+                self.dataset = pd.concat([self.dataset,single_df],axis=0,ignore_index=True)
+            self.dataset.to_parquet(self.dataset_fpath, index=False)
+        
+        else:
+            logger.error(f'there are no files with the metadata dictionary')
+            sys.exit(f'there are no files with the metadata dictionary')
+    
+    def create_full_dataset_from_zmetadata(self,experiment_fpath, 
+                                       experiment_info,
+                                       parsed_raw_data_fpath):  
+        
+        try:
+            consolidated_metadata = open_consolidated_metadata(parsed_raw_data_fpath)
+        except:
+            logger.error(f'consolidated zarr metadata missing or broken')
+            sys.exit(f'consolidated zarr metadata missing or broken')
+        else:
+            self.experiment_fpath = Path(experiment_fpath)
+            self.experiment_info = experiment_info
+            self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+            
+            
+            self.dataset = pd.DataFrame()
+            for name, grp in consolidated_metadata.items():
+                attrs_dict = dict(grp.attrs)
+                fdata_loc = self.parsed_raw_data_fpath / attrs_dict['grp_name']
+                attrs_dict['raw_data_location'] = fdata_loc.as_posix()
+                attrs_df = pd.DataFrame(attrs_dict,index=[0])
+                self.dataset = pd.concat([self.dataset,attrs_df],axis=0,ignore_index=True)
+            self.dataset.to_parquet(self.dataset_fpath, index=False)
+        
+            
+    def collect_info(self):
+        self.list_all_fovs = self.dataset.fov_num.unique()
+        self.list_all_channels = self.dataset.channel.unique()
+        self.total_rounds = self.dataset.round_num.max()
+        # may not be needed
+        self.img_width = self.dataset.iloc[0]['img_width']
+        self.img_height = self.dataset.iloc[0]['img_height']
+        self.img_zstack = self.dataset.iloc[0]['zstack']
+        
+    
+    def grp_by_channel(self,df):
+        subset_df = self.dataset.groupby('channel')
+    
+    
+    def select_fovs_subset(self, df, min_fov, max_fov):
+        subset_df = df.loc[(df.fov_num >= min_fov) & (df.fov_num <= max_fov),:]
+        return subset_df
+    
+    
+    def select_channel_subset(self,df, channel):
+        subset_df = df.loc[(df.channel == channel),:]
+        return subset_df
+    
+    
+    def select_round_subset(self,df, round_num):
+        subset_df = df.loc[(df.round_num == round_num),:]
+        return subset_df
+    
+    
+    def select_specific_fov(self,df, channel,round_num, fov_num):
+        subset_df = df.loc[(df.channel == channel) & 
+                           (df.round_num == round_num) & 
+                           (df.fov_num == fov_num),:]
+        return subset_df.squeeze()
+
+    def select_all_imgs_fov(self,df, fov_num):
+        subset_df = df.loc[(df.fov_num == fov_num),:]
+        return subset_df
+    
+    def load_to_numpy(self):
+        pass
+    
+    def load_to_xarray(self):
+        pass
+    
+    
+
+
 class Output_models():
     """
     Class containing the definition of the output data
