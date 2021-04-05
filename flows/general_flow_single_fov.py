@@ -217,6 +217,7 @@ else:
         elif parsing_type == 'reparsing_from_storage':
             raw_files_fpath = storage_experiment_fpath + '/raw_data'
 
+        logger.info(f'parsing type {parsing_type}')
         all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
         parsing_futures = client.map(nikon_nd2_reparser_zarr,
                                 all_raw_nd2,
