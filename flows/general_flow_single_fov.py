@@ -93,7 +93,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/fish/work_std/JJEXP20210318_EEL_SL007'
+experiment_fpath = '/wsfish/smfish_ssd/JJEXP20201123_hGBM_Amine_test'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -102,7 +102,7 @@ parsed_image_tag = 'img_data'
 # run type can be:
 # new
 # re-run
-run_type = 'new'
+run_type = 're-run'
 
 # parsing type (str) can be:
 # original
@@ -110,7 +110,7 @@ run_type = 'new'
 # reparsing_from_storage 
 # no_parsing if parsing not to be performed
 
-parsing_type = 'original'
+parsing_type = 'reparsing_from_storage '
 
 
 fresh_nuclei_processing = False
@@ -231,81 +231,81 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 
-# ----------------------------------------------------------------
-# IMAGE PREPROCESSING, DOTS COUNTING, REGISTRATION TO MICROSCOPE COORDS
-start = time.time()
-logger.info(f'start preprocessing and dots counting')
+# # ----------------------------------------------------------------
+# # IMAGE PREPROCESSING, DOTS COUNTING, REGISTRATION TO MICROSCOPE COORDS
+# start = time.time()
+# logger.info(f'start preprocessing and dots counting')
 
-codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
-sorted_grps = sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters)
+# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
+# sorted_grps = sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters)
 
-# PROCESSING PARAMETERS
-registration_channel = experiment_info['StitchingChannel']
-key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-fovs = consolidated_grp[key].attrs['fields_of_view']
-img_width = consolidated_grp[key].attrs['img_width']
-img_height = consolidated_grp[key].attrs['img_height']
-registration_reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
-selected_genes = 'below3Hdistance_genes'
-correct_hamming_distance = 'zeroHdistance_genes' 
+# # PROCESSING PARAMETERS
+# registration_channel = experiment_info['StitchingChannel']
+# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
+# fovs = consolidated_grp[key].attrs['fields_of_view']
+# img_width = consolidated_grp[key].attrs['img_width']
+# img_height = consolidated_grp[key].attrs['img_height']
+# registration_reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
+# selected_genes = 'below3Hdistance_genes'
+# correct_hamming_distance = 'zeroHdistance_genes' 
 
-tiles_org = organize_square_tiles(experiment_fpath,experiment_info,
-                                    consolidated_grp,
-                                    registration_reference_hybridization)
-tiles_org.run_tiles_organization()
-tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
+# tiles_org = organize_square_tiles(experiment_fpath,experiment_info,
+#                                     consolidated_grp,
+#                                     registration_reference_hybridization)
+# tiles_org.run_tiles_organization()
+# tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
 
-dark_img = load_dark_image(experiment_fpath)
+# dark_img = load_dark_image(experiment_fpath)
 
-# Scattering will be beneficial but causes error on HTCondor
-# scatter the data to different workers to save timr
-# remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
-# remote_codebook = client.scatter(codebook)
-# remote_dark_img = client.scatter(dark_img)
+# # Scattering will be beneficial but causes error on HTCondor
+# # scatter the data to different workers to save timr
+# # remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
+# # remote_codebook = client.scatter(codebook)
+# # remote_dark_img = client.scatter(dark_img)
 
-logger_print.info(f'check if the logger is printing')
+# logger_print.info(f'check if the logger is printing')
 
-all_futures = []
-start = time.time()
+# all_futures = []
+# start = time.time()
 
-fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
-pickle.dump(sorted_grps, open(fname,'wb'))
+# fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
+# pickle.dump(sorted_grps, open(fname,'wb'))
 
-for fov,sorted_grp in sorted_grps.items():
-    future = client.submit(fov_processing_eel_barcoded_dev,
-                                        fov=fov,
-                                        sorted_grp=sorted_grp,
-                                        experiment_info=experiment_info,
-                                        analysis_parameters=analysis_parameters,
-                                        experiment_fpath=experiment_fpath,
-                                        parsed_raw_data_fpath=parsed_raw_data_fpath,
-                                        running_functions=running_functions,
-                                        img_width=img_width,
-                                        img_height=img_height,
-                                        tile_corners_coords_pxl= tile_corners_coords_pxl,
-                                        codebook=codebook,
-                                        selected_genes=selected_genes,
-                                        correct_hamming_distance=correct_hamming_distance,
-                                        dark_img = dark_img,
-                                        save_steps_output=False,
-                                        key= ('processing-fov-'+str(fov)))
+# for fov,sorted_grp in sorted_grps.items():
+#     future = client.submit(fov_processing_eel_barcoded_dev,
+#                                         fov=fov,
+#                                         sorted_grp=sorted_grp,
+#                                         experiment_info=experiment_info,
+#                                         analysis_parameters=analysis_parameters,
+#                                         experiment_fpath=experiment_fpath,
+#                                         parsed_raw_data_fpath=parsed_raw_data_fpath,
+#                                         running_functions=running_functions,
+#                                         img_width=img_width,
+#                                         img_height=img_height,
+#                                         tile_corners_coords_pxl= tile_corners_coords_pxl,
+#                                         codebook=codebook,
+#                                         selected_genes=selected_genes,
+#                                         correct_hamming_distance=correct_hamming_distance,
+#                                         dark_img = dark_img,
+#                                         save_steps_output=False,
+#                                         key= ('processing-fov-'+str(fov)))
         
 
-    all_futures.append(future)
-# wait(all_futures)
-_ = client.gather(all_futures)
-# tracebacks = {}
-# for future in as_completed(all_futures):
-#     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
-#     tracebacks[future.key] = traceback.format_tb(future.traceback())
-#     del future
+#     all_futures.append(future)
+# # wait(all_futures)
+# _ = client.gather(all_futures)
+# # tracebacks = {}
+# # for future in as_completed(all_futures):
+# #     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
+# #     tracebacks[future.key] = traceback.format_tb(future.traceback())
+# #     del future
 
-# wait(all_futures)
-# fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
-# pickle.dump(tracebacks, open(fname,'wb'))
-logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+# # wait(all_futures)
+# # fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
+# # pickle.dump(tracebacks, open(fname,'wb'))
+# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
-# del all_futures
+# # del all_futures
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -323,66 +323,66 @@ logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/
 # # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
-# REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
-start = time.time()
-logger.info(f'start removal of duplicated dots')
+# # REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
+# start = time.time()
+# logger.info(f'start removal of duplicated dots')
 
-unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
-corrected_overlapping_regions_dict = {}
-for key, value in unfolded_overlapping_regions_dict.items():
-    corrected_overlapping_regions_dict[key] = np.array(value)-img_width
+# unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+# corrected_overlapping_regions_dict = {}
+# for key, value in unfolded_overlapping_regions_dict.items():
+#     corrected_overlapping_regions_dict[key] = np.array(value)-img_width
 
-# Prepare the dataframe
-select_genes = 'below3Hdistance_genes'
-stitching_selected = 'microscope_stitched'
-same_dot_radius = 100
-r_tag = 'r_px_' + stitching_selected
-c_tag = 'c_px_' + stitching_selected
-
-
-all_futures = []
-
-for cpl,chunk_coords in corrected_overlapping_regions_dict.items():
-    future = client.submit(remove_overlapping_dots_fov,
-                            cpl = cpl,
-                            chunk_coords=chunk_coords,
-                            experiment_fpath=experiment_fpath,
-                            stitching_selected=stitching_selected,
-                            select_genes=select_genes,
-                            same_dot_radius = same_dot_radius)
-
-    all_futures.append(future)
-
-to_remove = client.gather(all_futures)  
-to_remove = [el for tg in to_remove for el in tg]
-removed_dot_dict = {}
-for k, g in groupby(to_remove, key=lambda x: int(x.split('_')[0])):
-    removed_dot_dict.update({k:list(g)})
-
-for fov in fovs:
-    if fov not in removed_dot_dict.keys():
-        removed_dot_dict.update({fov:[]})
-
-logger_print.info(f'{removed_dot_dict.keys()}')
-
-for fov,dots_id_to_remove in removed_dot_dict.items():
-    future = client.submit(clean_from_duplicated_dots,
-                            fov = fov,
-                            dots_id_to_remove=dots_id_to_remove,
-                            experiment_fpath=experiment_fpath)
-
-    all_futures.append(future)
-
-_ = client.gather(all_futures)
+# # Prepare the dataframe
+# select_genes = 'below3Hdistance_genes'
+# stitching_selected = 'microscope_stitched'
+# same_dot_radius = 100
+# r_tag = 'r_px_' + stitching_selected
+# c_tag = 'c_px_' + stitching_selected
 
 
-logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+# all_futures = []
+
+# for cpl,chunk_coords in corrected_overlapping_regions_dict.items():
+#     future = client.submit(remove_overlapping_dots_fov,
+#                             cpl = cpl,
+#                             chunk_coords=chunk_coords,
+#                             experiment_fpath=experiment_fpath,
+#                             stitching_selected=stitching_selected,
+#                             select_genes=select_genes,
+#                             same_dot_radius = same_dot_radius)
+
+#     all_futures.append(future)
+
+# to_remove = client.gather(all_futures)  
+# to_remove = [el for tg in to_remove for el in tg]
+# removed_dot_dict = {}
+# for k, g in groupby(to_remove, key=lambda x: int(x.split('_')[0])):
+#     removed_dot_dict.update({k:list(g)})
+
+# for fov in fovs:
+#     if fov not in removed_dot_dict.keys():
+#         removed_dot_dict.update({fov:[]})
+
+# logger_print.info(f'{removed_dot_dict.keys()}')
+
+# for fov,dots_id_to_remove in removed_dot_dict.items():
+#     future = client.submit(clean_from_duplicated_dots,
+#                             fov = fov,
+#                             dots_id_to_remove=dots_id_to_remove,
+#                             experiment_fpath=experiment_fpath)
+
+#     all_futures.append(future)
+
+# _ = client.gather(all_futures)
 
 
-# # ----------------------------------------------------------------
-# GENERATE OUTPUT FOR PLOTTING
-simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
+# logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
+# # # ----------------------------------------------------------------
+
+
+# # # ----------------------------------------------------------------
+# # GENERATE OUTPUT FOR PLOTTING
+# simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
 
 # ----------------------------------------------------------------
 # # PROCESS FRESH NUCLEI
