@@ -278,7 +278,7 @@ for index_value, fov_subdataset in all_imgs_fov.iterrows():
 
 
 
-_ = client.compute(all_futures_filtering_counting)
+_ = client.gather(all_futures_filtering_counting)
 
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
