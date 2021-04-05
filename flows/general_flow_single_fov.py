@@ -267,19 +267,27 @@ for index_value, fov_subdataset in all_imgs_fov.iterrows():
     experiment_name = fov_subdataset.experiment_name
     dask_delayed_name = experiment_name + '_' + channel + \
                     '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-    future = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
-                                   analysis_parameters,
-                                   running_functions,
-                                   dark_img,
-                                   experiment_fpath,
-                                   save_steps_output=False,
-                                            dask_key_name = dask_delayed_name )
+    # future = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
+    #                                analysis_parameters,
+    #                                running_functions,
+    #                                dark_img,
+    #                                experiment_fpath,
+    #                                save_steps_output=False,
+    #                                         dask_key_name = dask_delayed_name )
+    
+    future = client.submit(single_fov_round_processing_eel,fov_subdataset,
+                                    analysis_parameters,
+                                    running_functions,
+                                    dark_img,
+                                    experiment_fpath,
+                                    save_steps_output=False)
+    
     all_futures_filtering_counting.append(future)
 
 
 # d = dask.delayed(cane)(all_futures_filtering_counting)
-z = client.compute(all_futures_filtering_counting)
-_ = client.gather(z)
+# z = client.compute(all_futures_filtering_counting)
+_ = client.gather(all_futures_filtering_counting)
 
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
