@@ -9,15 +9,7 @@ class Dataset():
     
     def __init__(self):
         
-        self.experiment_fpath = Path(experiment_fpath)
-        self.experiment_info = experiment_info
-        self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
         self.logger = selected_logger()
-        
-        date_tag = time.strftime("%y%m%d_%H_%M_%S")
-        experiment_name = self.experiment_fpath.stem
-        self.dataset_fpath = self.experiment_fpath / (date_tag + '_' + experiment_name + '_dataset.parquet')
-        
         
     def load_dataset(self, dataset_fpath):
         self.dataset = pd.read_parquet(dataset_fpath)
@@ -34,7 +26,11 @@ class Dataset():
         self.experiment_fpath = Path(experiment_fpath)
         self.experiment_info = experiment_info
         self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-        
+    
+        date_tag = time.strftime("%y%m%d_%H_%M_%S")
+        experiment_name = self.experiment_fpath.stem
+        self.dataset_fpath = self.experiment_fpath / (date_tag + '_' + experiment_name + '_dataset.parquet')
+
         self.dataset = pd.DataFrame()
         all_pickle_list = list(self.parsed_raw_data_fpath.glob('*.' + ftype))
         if len(all_pickle_list):
@@ -64,6 +60,9 @@ class Dataset():
             self.experiment_info = experiment_info
             self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
             
+            date_tag = time.strftime("%y%m%d_%H_%M_%S")
+            experiment_name = self.experiment_fpath.stem
+            self.dataset_fpath = self.experiment_fpath / (date_tag + '_' + experiment_name + '_dataset.parquet')
             
             self.dataset = pd.DataFrame()
             for name, grp in consolidated_metadata.items():
