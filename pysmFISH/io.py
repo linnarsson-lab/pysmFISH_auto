@@ -101,7 +101,7 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
 
     metadata = root[zarr_grp_name].attrs
     img = root[zarr_grp_name][metadata['fov_name']][...]
-    return (img, dict(metadata))
+    return img
 
 
 

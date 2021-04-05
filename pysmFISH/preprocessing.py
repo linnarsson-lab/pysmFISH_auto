@@ -88,15 +88,13 @@ def standard_not_norm_preprocessing(
     
 
     try:
-        raw_fish_images_meta = load_raw_images(zarr_grp_name,
+        img = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
     except:
         logger.error(f'cannot load {zarr_grp_name} raw fish image')
         sys.exit(f'cannot load {zarr_grp_name} raw fish image')
     else:
         logger.info(f'loaded {zarr_grp_name} raw fish image')
-        img = raw_fish_images_meta[0]
-        img_metadata = raw_fish_images_meta[1]
         img = convert_from_uint16_to_float64(img)
 
         img -= dark_img
@@ -111,7 +109,7 @@ def standard_not_norm_preprocessing(
 
         img = img.max(axis=0)
 
-        return img, img_metadata
+        return img
 
 
 
@@ -145,7 +143,7 @@ def standard_norm_preprocessing(
 
 
     try:
-        raw_fish_images_meta = load_raw_images(zarr_grp_name,
+        img = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
     except:
         logger.error(f'cannot load {zarr_grp_name} raw fish image')
@@ -153,8 +151,6 @@ def standard_norm_preprocessing(
     else:
         logger.info(f'loaded {zarr_grp_name} raw fish image')
             
-        img = raw_fish_images_meta[0]
-        img_metadata = raw_fish_images_meta[1]
         img = convert_from_uint16_to_float64(img)
 
         img -= dark_img
@@ -175,7 +171,7 @@ def standard_norm_preprocessing(
         img_nn = img_nn.max(axis=0)
         img_nn[img_nn<=0] = 0 # All negative values set to zero
 
-        return img_nn, img_metadata
+        return img_nn
 
 
 
@@ -214,7 +210,7 @@ def filter_remove_large_objs(
 
 
     try:
-        raw_fish_images_meta = load_raw_images(zarr_grp_name,
+        img = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
     except:
         logger.error(f'cannot load {zarr_grp_name} raw fish image')
@@ -222,8 +218,6 @@ def filter_remove_large_objs(
     else:
         logger.info(f'loaded {zarr_grp_name} raw fish image')
 
-        img = raw_fish_images_meta[0]
-        img_metadata = raw_fish_images_meta[1]
         img = img_as_float64(img)
 
         img -= dark_img
@@ -256,7 +250,7 @@ def filter_remove_large_objs(
         masked_img = img*mask
 
         
-        return img, masked_img, img_metadata
+        return img, masked_img
 
 
 def large_beads_preprocessing(zarr_grp_name,
@@ -273,8 +267,6 @@ def large_beads_preprocessing(zarr_grp_name,
     raw_fish_images_meta = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
 
-    img = raw_fish_images_meta[0]
-    img_metadata = raw_fish_images_meta[1]
     img = convert_from_uint16_to_float64(img)
     img -= dark_img
     img[img<0] = 0
@@ -285,7 +277,7 @@ def large_beads_preprocessing(zarr_grp_name,
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
 
-    return img, img_metadata
+    return img
 
 
 def both_beads_preprocessing(zarr_grp_name,
@@ -304,12 +296,10 @@ def both_beads_preprocessing(zarr_grp_name,
     experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
 
-    raw_fish_images_meta = load_raw_images(zarr_grp_name,
-                                    parsed_raw_data_fpath)
+    img = load_raw_images(zarr_grp_name,
+                            parsed_raw_data_fpath)
 
     logger.info(f'loaded {zarr_grp_name} raw fish image')
-    img = raw_fish_images_meta[0]
-    img_metadata = raw_fish_images_meta[1]
     img = convert_from_uint16_to_float64(img)
     img -= dark_img
     img[img<0] = 0
@@ -320,7 +310,7 @@ def both_beads_preprocessing(zarr_grp_name,
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
 
-    return img, img_metadata
+    return img
 
 
 def nuclei_registration_filtering(zarr_grp_name,
@@ -359,7 +349,7 @@ def nuclei_registration_filtering(zarr_grp_name,
         FlatFieldKernel=processing_parameters['PreprocessingNucleiFlatFieldKernel']
     
         try:
-            raw_fish_images_meta = load_raw_images(zarr_grp_name,
+            img = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
         except:
             logger.error(f'cannot load {zarr_grp_name} raw fish image')
@@ -367,8 +357,7 @@ def nuclei_registration_filtering(zarr_grp_name,
         else:
             logger.info(f'loaded {zarr_grp_name} raw fish image')
 
-            img = raw_fish_images_meta[0]
-            img_metadata = raw_fish_images_meta[1]
+            
             img = convert_from_uint16_to_float64(img)
 
 
@@ -392,7 +381,7 @@ def nuclei_registration_filtering(zarr_grp_name,
             
             # img = img.max(axis=0)
         
-            return flattened_img, img_metadata
+            return flattened_img
 
 
 def fresh_nuclei_filtering(
