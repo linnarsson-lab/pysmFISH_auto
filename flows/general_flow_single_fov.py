@@ -17,6 +17,8 @@ from pysmFISH.logger_utils import selected_logger
 from pysmFISH.data_organization import transfer_data_to_storage
 from pysmFISH.data_organization import transfer_files_from_storage
 
+from pysmFISH.data_models import Dataset
+
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.configuration_files import create_specific_analysis_config_file
@@ -51,6 +53,7 @@ from flow_steps.filtering_counting import load_dark_image
 
 from flow_steps.fov_processing import fov_processing_eel_barcoded
 from flow_steps.fov_processing import fov_processing_eel_barcoded_dev
+from flow_steps.fov_processing import single_fov_round_processing_eel
 
 from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
@@ -231,6 +234,26 @@ else:
 
 logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+# CREATE DATASET
+start = time.time()
+logger.info(f'start dataset creation')
+ds = Dataset()
+ds.create_full_dataset_from_zmetadata(experiment_fpath, 
+             experiment_info,
+             parsed_raw_data_fpath)
+
+logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
+
+# ----------------------------------------------------------------
+# IMAGE PREPROCESSING, DOTS COUNTING,
+# start = time.time()
+# logger.info(f'start preprocessing and dots counting')
+
+
+# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+
 
 
 # # ----------------------------------------------------------------
