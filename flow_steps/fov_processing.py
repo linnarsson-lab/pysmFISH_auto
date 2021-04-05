@@ -58,6 +58,9 @@ def single_fov_round_processing_eel(fov_subdataset,
     processing_type = fov_subdataset.processing_type
     zarr_grp_name = fov_subdataset.grp_name
     
+    raw_data_location = Path(fov_subdataset.raw_data_location)
+    parsed_raw_data_fpath = raw_data_location.parent
+
     if processing_type == 'fish':
         
         processing_parameters = analysis_parameters['fish']
