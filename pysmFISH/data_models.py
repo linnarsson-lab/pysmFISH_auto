@@ -5,6 +5,8 @@ import numpy as np
 from pathlib import Path
 import pandas as pd
 
+from pysmFISH.logger_utils import selected_logger
+
 class Dataset():
     
     def __init__(self):
