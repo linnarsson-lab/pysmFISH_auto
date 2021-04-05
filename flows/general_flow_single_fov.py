@@ -260,7 +260,7 @@ logger.info(f'start preprocessing and dots counting')
 dark_img = load_dark_image(experiment_fpath)
 all_futures_filtering_counting = []
 all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,100)
-for index_value, fov_subdataset in all_imgs_fov.iterrows():
+for index_value, fov_subdataset in ds.dataset.iterrows():
     round_num = fov_subdataset.round_num
     channel = fov_subdataset.channel
     fov = fov_subdataset.fov_num
