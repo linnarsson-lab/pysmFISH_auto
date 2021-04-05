@@ -299,7 +299,8 @@ def osmFISH_peak_based_detection(img_meta:Tuple[np.ndarray, Dict],
     return (counts_dict, img_metadata)
 
 
-def osmFISH_peak_based_detection_test(img_meta:Tuple[np.ndarray, Dict],
+def osmFISH_peak_based_detection_test(img:np.ndarray,
+                                    fov_subdataset,
                                     processing_parameters:Dict):
     
     """
@@ -327,14 +328,13 @@ def osmFISH_peak_based_detection_test(img_meta:Tuple[np.ndarray, Dict],
     
     logger = selected_logger()
 
-    img = img_meta[0]
-    img_metadata = img_meta[1]
-    fov = img_metadata['fov_num']
-    hybridization = img_metadata['hybridization_num']
-    target_name = img_metadata['target_name']
+    fov = fov_subdataset.fov_num
+    round_num = fov_subdataset.round_num
+    channel = fov_subdataset.channel
+    target_name = fov_subdataset.target_name
+
     
     logger.info(f'logging osmFISH_peak_based_detection fov {fov}')
-    hybridization_num = img_metadata['hybridization_num']
 
     counting_parameters_dict = {
                             'min_distance': processing_parameters['CountingFishMinObjDistance'],
@@ -356,23 +356,23 @@ def osmFISH_peak_based_detection_test(img_meta:Tuple[np.ndarray, Dict],
     counts_dict['c_px_original'] = np.array([fill_value])
     counts_dict['dot_id'] = np.array([fill_value])
     counts_dict['fov_num'] = np.array(fov)
-    counts_dict['round_num'] = np.array([img_metadata['hybridization_num']])
+    counts_dict['round_num'] = np.array([round_num])
     counts_dict['dot_intensity'] = np.array([fill_value])
     counts_dict['selected_thr'] = np.array([fill_value])
-    counts_dict['dot_channel'] = np.array([img_metadata['channel']])
-    counts_dict['target_name'] = np.array([img_metadata['target_name']])
+    counts_dict['dot_channel'] = np.array([channel])
+    counts_dict['target_name'] = np.array([target_name])
                     
     if not np.isnan(counts.selected_thr):
             dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
             if isinstance(dots.selected_peaks,np.ndarray):
                 # Peaks have been identified
                 total_dots = dots.selected_peaks.shape[0]
-                dot_id_array = np.array([str(fov)+'_'+str(hybridization_num)+'_'+ img_metadata['channel'] +'_'+str(nid) for nid in range(total_dots)])
+                dot_id_array = np.array([str(fov)+'_'+str(round_num)+'_'+ channel +'_'+str(nid) for nid in range(total_dots)])
                 fov_array = np.repeat(fov,total_dots)
                 thr_array = np.repeat(counts.selected_thr,total_dots)
-                channel_array = np.repeat(img_metadata['channel'],total_dots)
-                hybridization_num_array = np.repeat(img_metadata['hybridization_num'],total_dots)
-                target_name_array = np.repeat(img_metadata['target_name'],total_dots)
+                channel_array = np.repeat(channel,total_dots)
+                hybridization_num_array = np.repeat(round_num,total_dots)
+                target_name_array = np.repeat(target_name,total_dots)
 
                 counts_dict['r_px_original']  = dots.selected_peaks[:,0]
                 counts_dict['c_px_original'] = dots.selected_peaks[:,1]
@@ -389,7 +389,7 @@ def osmFISH_peak_based_detection_test(img_meta:Tuple[np.ndarray, Dict],
     else:
         logger.info(f' fov {fov} does not have counts (thr)')
     
-    return (counts_dict, img_metadata)
+    return counts_dict
 
 
 def osmFISH_barcoded_peak_based_detection_masked_thr_test(img_meta:Tuple[np.ndarray, Dict],
