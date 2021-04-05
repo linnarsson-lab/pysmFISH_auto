@@ -68,7 +68,8 @@ from pysmFISH.preprocessing import fresh_nuclei_filtering
 from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
 
-
+def cane(x):
+    return x
 # def general_flow(experiment_fpath:str, run_type:str='new', parsing_type:str='original'):
 
 #     """
@@ -275,7 +276,9 @@ for index_value, fov_subdataset in all_imgs_fov.iterrows():
                                             dask_key_name = dask_delayed_name )
     all_futures_filtering_counting.append(future)
 
-_ = dask.compute(all_futures_filtering_counting)
+
+
+_ = client.compute(all_futures_filtering_counting)
 
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
