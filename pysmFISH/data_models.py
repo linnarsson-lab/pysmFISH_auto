@@ -85,6 +85,7 @@ class Dataset():
         self.list_all_fovs = self.dataset.fov_num.unique()
         self.list_all_channels = self.dataset.channel.unique()
         self.total_rounds = self.dataset.round_num.max()
+        self.stitching_channel = self.dataset.iloc[0]['stitching_channel']
         # may not be needed
         self.img_width = self.dataset.iloc[0]['img_width']
         self.img_height = self.dataset.iloc[0]['img_height']
