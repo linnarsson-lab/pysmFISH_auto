@@ -102,8 +102,8 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict,experim
         minimum_jobs = 32
         maximum_jobs = 300
 
-        # cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
-        cluster.adapt(minimum_jobs=minimum_jobs)
+        cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
+        # cluster.adapt(minimum_jobs=minimum_jobs)
         logger.info(f'adaptive dask cluster with {minimum_jobs} minimum jobs')
         return cluster
     elif processing_engine == 'local':
