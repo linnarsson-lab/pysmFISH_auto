@@ -258,36 +258,37 @@ ds.load_dataset('/wsfish/smfish_ssd/test_new_dataset/JJEXP20201123_hGBM_Amine_te
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
 dark_img = load_dark_image(experiment_fpath)
+dark_img = dask.delayed(dark_img)
 all_futures_filtering_counting = []
 all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,100)
-for index_value, fov_subdataset in ds.dataset.iterrows():
+for index_value, fov_subdataset in all_imgs_fov.iterrows():
     round_num = fov_subdataset.round_num
     channel = fov_subdataset.channel
     fov = fov_subdataset.fov_num
     experiment_name = fov_subdataset.experiment_name
     dask_delayed_name = experiment_name + '_' + channel + \
                     '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-    # future = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
-    #                                analysis_parameters,
-    #                                running_functions,
-    #                                dark_img,
-    #                                experiment_fpath,
-    #                                save_steps_output=False,
-    #                                         dask_key_name = dask_delayed_name )
-    
-    future = client.submit(single_fov_round_processing_eel,fov_subdataset,
+    future = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
                                     analysis_parameters,
                                     running_functions,
                                     dark_img,
                                     experiment_fpath,
-                                    save_steps_output=False)
+                                    save_steps_output=False,
+                                            dask_key_name = dask_delayed_name )
+    
+    # future = client.submit(single_fov_round_processing_eel,fov_subdataset,
+    #                                 analysis_parameters,
+    #                                 running_functions,
+    #                                 dark_img,
+    #                                 experiment_fpath,
+    #                                 save_steps_output=False)
     
     all_futures_filtering_counting.append(future)
 
 
 # d = dask.delayed(cane)(all_futures_filtering_counting)
-# z = client.compute(all_futures_filtering_counting)
-_ = client.gather(all_futures_filtering_counting)
+z = client.compute(all_futures_filtering_counting)
+# _ = client.gather(all_futures_filtering_counting)
 
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
