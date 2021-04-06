@@ -99,8 +99,8 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict,experim
         cluster = htcondor_cluster_setup(cluster_config_parameters)
         cluster.scale(jobs=5)
         # Always put a minimum to avoid the cluster to shut down
-        minimum_jobs = 32
-        maximum_jobs = 300
+        minimum_jobs = 10
+        maximum_jobs = 50
 
         cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
         # cluster.adapt(minimum_jobs=minimum_jobs)
