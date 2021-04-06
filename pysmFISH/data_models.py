@@ -116,8 +116,11 @@ class Dataset():
                            (df.fov_num == fov_num),:]
         return subset_df.squeeze()
 
-    def select_all_imgs_fov(self,df, fov_num):
-        subset_df = df.loc[(df.fov_num == fov_num),:]
+    def select_all_imgs_fov(self,df, fovs_list):
+        """
+        fov is a list
+        """
+        subset_df = df.loc[(df.fov_num.isin(fovs_list)),:]
         return subset_df
     
     def load_to_numpy(self):
