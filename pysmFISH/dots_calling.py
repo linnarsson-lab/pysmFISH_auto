@@ -604,9 +604,6 @@ def osmFISH_peak_based_detection_fast(img:np.ndarray,
                 counts_dict['dot_intensity'] = dots.intensity_array
                 counts_dict['selected_thr'] = thr_array
                 
-                counts_df = pd.DataFrame(counts_dict)
-                fov_subdataset_df = pd.concat([fov_subdataset_df]*counts_df.shape[0],axis=0).sort_index().reset_index(drop=True)
-            
             else:
                 logger.info(f' fov {fov} does not have counts (mapping)')
                 
@@ -614,7 +611,8 @@ def osmFISH_peak_based_detection_fast(img:np.ndarray,
         logger.info(f' fov {fov} does not have counts (thr)')
     
     counts_df = pd.DataFrame(counts_dict)
-    counts_df = pd.concat([counts_df,fov_subdataset_df],axis=1)
+    fov_subdataset_df = pd.concat([fov_subdataset_df]*counts_df.shape[0],axis=0).sort_index().reset_index(drop=True)
+    counts_df = pd.concat([fov_subdataset_df,counts_df],axis=1)
     return counts_df
 
 
