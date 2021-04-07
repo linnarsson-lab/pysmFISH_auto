@@ -20,6 +20,7 @@ from pysmFISH.preprocessing import nuclei_registration_filtering
 
 from pysmFISH.dots_calling import osmFISH_peak_based_detection_test
 from pysmFISH.dots_calling import osmFISH_barcoded_peak_based_detection_masked_thr_test
+from pysmFISH.dots_calling import osmFISH_peak_based_detection_fast
 
 from pysmFISH.fovs_registration import calculate_shift_hybridization_fov_test
 from pysmFISH.fovs_registration import register_fish_test
@@ -115,9 +116,9 @@ def single_fov_round_processing_eel(fov_subdataset,
     if save_steps_output:
         fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
         np.save(filtered_img_path / (fname + '.npy'),img )
-        pickle.dump(counts, open(raw_counts_path / (fname + '.pkl'), 'wb')) 
+        counts.to_parquet((fname + '.parquet'),index=False)
 
-    # return (fov_subdataset, counts)
+    return counts
 
 
 
