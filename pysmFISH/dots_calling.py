@@ -572,9 +572,8 @@ def osmFISH_peak_based_detection_fast(img:np.ndarray,
 
 
     fill_value = np.nan
-    counts = Thr_calculator_np(img,counting_parameters_dict)
-    counts.counting_graph()
-    counts.thr_identification()
+    selected_thr = Thr_calculator_np(img,counting_parameters_dict)
+   
     data_models = Output_models()
     counts_dict = data_models.dots_counts_dict
 
@@ -585,14 +584,14 @@ def osmFISH_peak_based_detection_fast(img:np.ndarray,
     counts_dict['dot_intensity'] = np.array([fill_value])
     counts_dict['selected_thr'] = np.array([fill_value])
                     
-    if not np.isnan(counts.selected_thr):
-            dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
+    if not np.isnan(selected_thr):
+            dots = osmFISH_dots_mapping(img,selected_thr,counting_parameters_dict)
             if isinstance(dots.selected_peaks,np.ndarray):
                 # Peaks have been identified
                 total_dots = dots.selected_peaks.shape[0]
                 dot_id_array = np.array([str(fov)+'_'+str(round_num)+'_'+ channel +'_'+str(nid) for nid in range(total_dots)])
                 fov_array = np.repeat(fov,total_dots)
-                thr_array = np.repeat(counts.selected_thr,total_dots)
+                thr_array = np.repeat(selected_thr,total_dots)
                 channel_array = np.repeat(channel,total_dots)
                 hybridization_num_array = np.repeat(round_num,total_dots)
                 target_name_array = np.repeat(target_name,total_dots)
