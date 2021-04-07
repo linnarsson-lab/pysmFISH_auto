@@ -338,11 +338,11 @@ def peak_thrs_local_max_fast(image, min_distance=1, threshold_abs=None,
 
     # Non maximum filter
     if footprint is not None:
-        image_max = ndi.maximum_filter(image, footprint=footprint,
+        image_max = nd.maximum_filter(image, footprint=footprint,
                                        mode='constant')
     else:
         size = 2 * min_distance + 1
-        image_max = ndi.maximum_filter(image, size=size, mode='constant')
+        image_max = nd.maximum_filter(image, size=size, mode='constant')
     mask = image == image_max
 
     if exclude_border:
