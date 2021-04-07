@@ -396,7 +396,7 @@ def Thr_calculator_np(img:np.ndarray, parameters_dict:Dict,
     if min_peaks == False:
         min_peaks = 3
 
-    min_distance = self.parameters_dict['min_distance']
+    min_distance = parameters_dict['min_distance']
 
     fill_value = 9999
 
