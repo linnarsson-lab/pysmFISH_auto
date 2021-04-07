@@ -524,14 +524,11 @@ def Thr_calculator_np(img:np.ndarray, parameters_dict:Dict,
         trimmed_thr_array = fill_value
     
     return selected_thr
-    
 
-# @task(name='peak-based-detection')
-def osmFISH_peak_based_detection_fast(img_meta:Tuple[np.ndarray, Dict],
-                                        min_distance: np.float64,
-                                        min_obj_size: np.uint16,
-                                        max_obj_size: np.uint16,
-                                        num_peaks_per_label: np.uint16):
+
+def osmFISH_peak_based_detection_fast(img:np.ndarray,
+                                    fov_subdataset,
+                                    processing_parameters:Dict):
     
     """
     This funtion apply the same peak based detection strategy used for 
@@ -558,21 +555,22 @@ def osmFISH_peak_based_detection_fast(img_meta:Tuple[np.ndarray, Dict],
     
     logger = selected_logger()
 
-    img = img_meta[0]
-    img_metadata = img_meta[1]
-    fov = img_metadata['fov_num']
-    hybridization = img_metadata['hybridization_num']
-    target_name = img_metadata['target_name']
+    fov = fov_subdataset.fov_num
+    round_num = fov_subdataset.round_num
+    channel = fov_subdataset.channel
+    target_name = fov_subdataset.target_name
+
     
     logger.info(f'logging osmFISH_peak_based_detection fov {fov}')
-    hybridization_num = img_metadata['hybridization_num']
 
     counting_parameters_dict = {
-                            'min_distance': min_distance,
-                            'min_obj_size': min_obj_size,
-                            'max_obj_size': max_obj_size,
-                            'num_peaks_per_label': num_peaks_per_label,
+                            'min_distance': processing_parameters['CountingFishMinObjDistance'],
+                            'min_obj_size': processing_parameters['CountingFishMinObjSize'],
+                            'max_obj_size': processing_parameters['CountingFishMaxObjSize'],
+                            'num_peaks_per_label': processing_parameters['CountingFishNumPeaksPerLabel'],
                                 }
+
+
     fill_value = np.nan
     counts = Thr_calculator_np(img,counting_parameters_dict)
     counts.counting_graph()
@@ -584,43 +582,37 @@ def osmFISH_peak_based_detection_fast(img_meta:Tuple[np.ndarray, Dict],
     counts_dict['r_px_original'] = np.array([fill_value])
     counts_dict['c_px_original'] = np.array([fill_value])
     counts_dict['dot_id'] = np.array([fill_value])
-    counts_dict['fov_num'] = np.array(fov)
-    counts_dict['round_num'] = np.array([img_metadata['hybridization_num']])
     counts_dict['dot_intensity'] = np.array([fill_value])
     counts_dict['selected_thr'] = np.array([fill_value])
-    counts_dict['dot_channel'] = np.array([img_metadata['channel']])
-    counts_dict['target_name'] = np.array([img_metadata['target_name']])
                     
     if not np.isnan(counts.selected_thr):
             dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
             if isinstance(dots.selected_peaks,np.ndarray):
                 # Peaks have been identified
                 total_dots = dots.selected_peaks.shape[0]
-                dot_id_array = np.array([str(fov)+'_'+str(hybridization_num)+'_'+ img_metadata['channel'] +'_'+str(nid) for nid in range(total_dots)])
+                dot_id_array = np.array([str(fov)+'_'+str(round_num)+'_'+ channel +'_'+str(nid) for nid in range(total_dots)])
                 fov_array = np.repeat(fov,total_dots)
                 thr_array = np.repeat(counts.selected_thr,total_dots)
-                channel_array = np.repeat(img_metadata['channel'],total_dots)
-                hybridization_num_array = np.repeat(img_metadata['hybridization_num'],total_dots)
-                target_name_array = np.repeat(img_metadata['target_name'],total_dots)
+                channel_array = np.repeat(channel,total_dots)
+                hybridization_num_array = np.repeat(round_num,total_dots)
+                target_name_array = np.repeat(target_name,total_dots)
 
                 counts_dict['r_px_original']  = dots.selected_peaks[:,0]
                 counts_dict['c_px_original'] = dots.selected_peaks[:,1]
                 counts_dict['dot_id'] = dot_id_array
-                counts_dict['fov_num'] = fov_array
-                counts_dict['round_num'] = hybridization_num_array
                 counts_dict['dot_intensity'] = dots.intensity_array
                 counts_dict['selected_thr'] = thr_array
-                counts_dict['dot_channel'] = channel_array
-                counts_dict['target_name'] = target_name_array
             else:
                 logger.info(f' fov {fov} does not have counts (mapping)')
                 
     else:
         logger.info(f' fov {fov} does not have counts (thr)')
     
-    return (counts_dict, img_metadata)
-
-
+    counts_df = pd.DataFrame(counts_dict)
+    fov_subdataset_df = pd.DataFrame(fov_subdataset).T
+    fov_subdataset_df = pd.concat([fov_subdataset_df]*counts_df.shape[0],axis=0).sort_index().reset_index(drop=True)
+    counts_df = pd.concat([counts_df,fov_subdataset_df],axis=1)
+    return counts_df
 
 
 # @task(name='peak-based-detection')
