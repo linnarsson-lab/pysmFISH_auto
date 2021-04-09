@@ -267,7 +267,7 @@ dark_img = dask.delayed(dark_img)
 codebook_df = dask.delayed(codebook)
 
 all_processing = []
-all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(200))
+all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(10))
 grpd_fovs = all_imgs_fov.groupby('fov_num')
 
 for fov_num, group in grpd_fovs:
@@ -289,7 +289,7 @@ for fov_num, group in grpd_fovs:
         all_counts_fov.append(counts)
     dask_delayed_name = 'concat_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize()
-    all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True,dask_delayed_name=dask_delayed_name)
+    all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
     
     dask_delayed_name = 'register_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize()

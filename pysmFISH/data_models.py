@@ -133,6 +133,8 @@ class Dataset():
     def merge_datasets(self):
         pass
 
+    def save_dataset(self, df, fpath):
+        df.to_parquet(fpath)
 
 class Output_models():
     """
