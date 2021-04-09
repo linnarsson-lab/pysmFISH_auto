@@ -39,8 +39,7 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
                         log_directory=log_directory,
                         processes=1,
                         extra = ["--lifetime", "500m",
-                        "-- death_timeout","5000",
-                        "--resources", "process=1"])
+                        "-- death_timeout","5000" ])
     logger.info(f'created cluster with {cores} cores and {memory} memory')
     # make cluster more resilient
     cluster.scheduler.allowed_failures = 1000
