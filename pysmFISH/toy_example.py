@@ -1,4 +1,4 @@
-from dask import distributed, Client
+from dask.distributed import Client
 from pysmFISH.logger_utils import selected_logger
 import time
 
