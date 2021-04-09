@@ -1,3 +1,4 @@
+#!/home/simone/mini/envs/test_d/bin/python
 from dask.distributed import Client
 from pysmFISH.logger_utils import selected_logger
 import time
