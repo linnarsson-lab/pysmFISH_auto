@@ -695,7 +695,8 @@ class extract_barcodes_NN_new():
                     self.all_combine_df_list.append(group_df)
                 
                 self.all_combine_df = pd.concat(self.all_combine_df_list, axis=0,copy=False) 
-                
+            else:
+                self.all_combine_df = self.fish_counts   # add the missing column and control error for stitching
 
 
 def decoder_fun(registered_counts, analysis_parameters,experiment_info,codebook_df):
