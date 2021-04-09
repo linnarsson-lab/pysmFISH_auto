@@ -267,7 +267,7 @@ dark_img = dask.delayed(dark_img)
 codebook_df = dask.delayed(codebook)
 
 all_processing = []
-all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(5))
+all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(10))
 grpd_fovs = all_imgs_fov.groupby('fov_num')
 
 for fov_num, group in grpd_fovs:
