@@ -614,12 +614,12 @@ class extract_barcodes_NN_new():
 
         if not self.counts_df[self.counts_df['dot_id'].isnull()].empty:
             print('shitty FOV')
-            self.counts_df = pd.concat([self.counts_df,self.barcoded_spec],axis=1)
+            self.all_combine_df = pd.concat([self.counts_df,self.barcoded_spec],axis=1)
 
         elif (min(self.counts_df['min_number_matching_dots_registration']) < self.RegistrationMinMatchingBeads):
 
             self.counts_df['min_number_matching_dots_registration'] = registration_errors.registration_below_extraction_resolution
-            self.counts_df = pd.concat([self.counts_df,self.barcoded_spec],axis=1)
+            self.all_combine_df = pd.concat([self.counts_df,self.barcoded_spec],axis=1)
 
         else:
             self.counts_df = pd.concat([self.counts_df,self.barcoded_spec],axis=1)
