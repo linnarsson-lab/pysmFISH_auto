@@ -130,7 +130,8 @@ class Dataset():
     def load_to_xarray(self):
         pass
     
-    
+    def merge_datasets(self):
+        pass
 
 
 class Output_models():
