@@ -40,13 +40,13 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
                         processes=1,
                         extra = ["--lifetime", "500m",
                         "-- death_timeout","5000",
-                        "--lifetime-stagger", "10m",
                         "--resources", "process=1"])
     logger.info(f'created cluster with {cores} cores and {memory} memory')
     # make cluster more resilient
     cluster.scheduler.allowed_failures = 1000
     return cluster
 
+#  "--lifetime-stagger", "10m",
 # death_timeout=5000,
 
 def local_cluster_setup():
