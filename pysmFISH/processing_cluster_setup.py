@@ -38,8 +38,8 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
                         disk=disk,local_directory=local_directory,
                         log_directory=log_directory,
                         processes=1,
-                        # "--lifetime", "500m",
-                        extra = [
+                        extra = ["--lifetime", "500m",
+                        "-- death_timeout","5000",
                         "--lifetime-stagger", "10m",
                         "--resources", "process=1"])
     logger.info(f'created cluster with {cores} cores and {memory} memory')
