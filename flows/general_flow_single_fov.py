@@ -262,13 +262,13 @@ codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info
 
 start = time.time()
 logger.info(f'start preprocessing and dots counting')
-# dark_img = load_dark_image(experiment_fpath)
-# dark_img = dask.delayed(dark_img)
-# codebook_df = dask.delayed(codebook)
+dark_img = load_dark_image(experiment_fpath)
+dark_img = dask.delayed(dark_img)
+codebook_df = dask.delayed(codebook)
 
-# all_processing = []
-# all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(10))
-# grpd_fovs = all_imgs_fov.groupby('fov_num')
+all_processing = []
+all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(10))
+grpd_fovs = all_imgs_fov.groupby('fov_num')
 
 # for fov_num, group in grpd_fovs:
 #     all_counts_fov = []
