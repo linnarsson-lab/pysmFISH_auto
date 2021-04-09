@@ -506,7 +506,207 @@ def define_flip_direction(codebook,experiment_fpath,output_df, selected_genes, c
 
 
 
+class extract_barcodes_NN_new():
+    """
+    Class used to extract the barcodes from the registered
+    counts using nearest neighbour
 
+    Parameters:
+    -----------
+    counts: pandas.DataFrame
+        pandas file with the fov counts after
+        registration
+    analysis_parameters: dict
+        parameters for data processing
+    experiment_config: Dict
+        dictionary with the experimental data 
+    codebook_df: pandas.DataFrame
+        pandas file with the codebook used to
+        deconvolve the barcode
+
+    NB: if there is a problem with the registration the barcode assigned 
+        will be 0*barcode_length
+    
+    """
+
+    def __init__(self, registered_counts, analysis_parameters:Dict,experiment_config:Dict,codebook_df):
+        
+        self.counts_df = registered_counts
+        self.analysis_parameters = analysis_parameters
+        self.experiment_config = experiment_config
+        self.codebook_df = codebook_df
+        
+        self.logger = selected_logger()
+        
+        self.barcodes_extraction_resolution = analysis_parameters['BarcodesExtractionResolution']
+        self.RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
+        self.barcode_length = self.counts_df.loc[0]['barcode_length']
+        self.registration_errors = Registration_errors()
+
+        self.stitching_channel = self.counts_df['stitching_channel'].iloc[0]
+        
+    @staticmethod
+    def convert_str_codebook(codebook_df,column_name):
+        codebook_df[column_name] = codebook_df[column_name].map(lambda x: np.frombuffer(x, np.int8))
+        return codebook_df
+
+    @staticmethod
+    def make_codebook_array(codebook_df,column_name):
+        codebook_array = np.zeros((len(codebook_df[column_name]),codebook_df[column_name][0].shape[0]))
+        for idx, el in enumerate(codebook_df[column_name]):
+            row = codebook_df[column_name][idx]
+            row = row[np.newaxis,:]
+            codebook_array[idx,:] = row
+        return codebook_array
+
+    
+    @staticmethod
+    def barcode_nn(counts_df, ref_round_number, barcodes_extraction_resolution):
+        column_names = list(counts_df.columns.values)
+        column_names = column_names.append('barcode_reference_dot_id')
+        barcoded_df = pd.DataFrame(columns=column_names)
+
+        
+        reference_array = counts_df.loc[counts_df.round_num == ref_round_number, ['r_px_registered','c_px_registered']].to_numpy()
+        reference_round_df = counts_df.loc[counts_df.round_num == ref_round_number,:].reset_index(drop=True)
+    
+        # Step one (all dots not in round 1)
+        coords_compare = counts_df.loc[counts_df.round_num != ref_round_number, ['r_px_registered','c_px_registered']].to_numpy()
+        compare_df = counts_df.loc[counts_df.round_num != ref_round_number,:].reset_index(drop=True)
+        
+        if (reference_array.shape[0] >0) and (coords_compare.shape[0] >0):
+            # initialize network
+            nn = NearestNeighbors(1, metric="euclidean")
+            nn.fit(reference_array)
+
+            # Get the nn
+            dists, indices = nn.kneighbors(coords_compare, return_distance=True)
+
+            # select only the nn that are below barcodes_extraction_resolution distance
+            idx_selected_coords_compare = np.where(dists <= barcodes_extraction_resolution)[0]
+
+            compare_selected_df = compare_df.loc[idx_selected_coords_compare,:]
+            compare_selected_df['barcode_reference_dot_id'] = np.nan
+            
+            
+            # ref_idx = indices[idx_selected_coords_compare].squeeze()
+            # compare_selected_df.loc[compare_selected_df.index.isin(idx_selected_coords_compare),'barcode_reference_dot_id'] = reference_round_df.loc[ref_idx,'dot_id'].values[0]
+
+            for idx in idx_selected_coords_compare:
+                ref_idx = indices[idx]
+                compare_selected_df.loc[idx,'barcode_reference_dot_id'] = reference_round_df.loc[ref_idx,'dot_id'].values[0]
+
+            reference_round_df['barcode_reference_dot_id'] = reference_round_df.dot_id
+
+            barcoded_df = barcoded_df.append([compare_selected_df, reference_round_df], ignore_index=True)
+
+            compare_df = compare_df.drop(compare_selected_df.index)
+            compare_df = compare_df.reset_index(drop=True)
+
+        return compare_df, barcoded_df
+
+        
+    def run_extraction(self):
+
+        data_models = Output_models()
+        registration_errors = Registration_errors()
+        self.barcoded_spec = data_models.barcode_analysis_df
+
+        if not self.counts_df[self.counts_df['dot_id'].isnull()].empty:
+            print('shitty FOV')
+            self.counts_df = pd.concat([self.counts_df,self.barcoded_spec],axis=1)
+
+        elif (min(self.counts_df['min_number_matching_dots_registration']) < self.RegistrationMinMatchingBeads):
+
+            self.counts_df['min_number_matching_dots_registration'] = registration_errors.registration_below_extraction_resolution
+            self.counts_df = pd.concat([self.counts_df,self.barcoded_spec],axis=1)
+
+        else:
+            self.counts_df = pd.concat([self.counts_df,self.barcoded_spec],axis=1)
+            self.fish_counts = self.counts_df.loc[self.counts_df.channel != self.stitching_channel,:]
+            
+            hd_2 = 2 / self.barcode_length
+            hd_3 = 3 / self.barcode_length
+            rounds = np.arange(1,self.barcode_length+1)
+            self.codebook_df = self.convert_str_codebook(self.codebook_df,'Code')
+            codebook_array = self.make_codebook_array(self.codebook_df,'Code')
+            nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
+            nn_sklearn.fit(codebook_array)
+            
+    
+            self.index_df = pd.DataFrame(index=self.fish_counts.index,
+                                        columns = ['barcode_reference_dot_id','raw_barcodes'])
+            
+            
+            self.barcoded_fov_df = pd.DataFrame()
+            for round_num in rounds:
+                compare_df, barcoded_df = self.barcode_nn(self.fish_counts, round_num, self.barcodes_extraction_resolution)
+                self.barcoded_fov_df = self.barcoded_fov_df.append(barcoded_df, ignore_index=True)
+                self.fish_counts = compare_df
+                
+            self.fish_counts['barcode_reference_dot_id'] = self.fish_counts.dot_id
+            self.barcoded_fov_df = self.barcoded_fov_df.append(self.fish_counts, ignore_index=True)
+            self.barcoded_fov_df['barcodes_extraction_resolution'] = self.barcodes_extraction_resolution        
+            self.grpd = self.barcoded_fov_df.groupby('barcode_reference_dot_id')
+
+            barcode_reference_dot_id_list = []
+            num_unique_dots = np.unique(self.barcoded_fov_df.loc[:,'barcode_reference_dot_id']).shape[0]
+
+            # There are no dots is the df
+            if num_unique_dots > 0:
+
+                all_barcodes = np.zeros([num_unique_dots,self.barcode_length],dtype=np.int8)
+                for idx, (name, group) in enumerate(self.grpd):
+                    barcode_reference_dot_id_list.append(name)
+                    barcode = np.zeros([self.barcode_length],dtype=np.int8)
+                    rounds_num = group.round_num.values
+                    rounds_num = rounds_num.astype(int)
+                    barcode[(rounds_num-1)] += 1
+                    all_barcodes[idx,:] = barcode
+
+                dists_arr, index_arr = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
+                genes=self.codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()
+                
+                self.all_combine_df_list = []
+                self.all_combine_df = pd.DataFrame()
+                
+                for idx, (name, group) in enumerate(self.grpd):
+                    barcode = all_barcodes[idx,:]
+                    gene = genes[idx]
+                    hd = dists_arr[idx][0]
+
+                    group_df = group
+                    
+                    group_df['raw_barcodes'] = barcode.tostring()
+                    group_df['all_Hdistance_genes'] = gene
+                    group_df['number_positive_bits'] = barcode.sum()
+                    group_df['hamming_distance'] = hd
+                    group_df['zeroHdistance_genes'] = np.nan
+                    group_df['below2Hdistance_genes'] = np.nan
+                    group_df['below3Hdistance_genes'] = np.nan
+                    
+                    if hd == 0:
+                        group_df['zeroHdistance_genes'] = gene
+                    if hd < hd_2:
+                        group_df['below2Hdistance_genes'] = gene
+                    if hd < hd_3:
+                        group_df['below3Hdistance_genes'] = gene
+                    
+                    self.all_combine_df_list.append(group_df)
+                
+                self.all_combine_df = pd.concat(self.all_combine_df_list, axis=0,copy=False) 
+                
+
+
+def decoder_fun(registered_counts, analysis_parameters,experiment_info,codebook_df):
+    dc = extract_barcodes_NN_new(registered_counts, analysis_parameters,experiment_info,codebook_df)
+    dc.run_extraction()
+    return dc.all_combine_df
+
+
+#                 chunk_size = 100
+#                 self.all_combine_df = merge_with_concat((merge_with_concat(dfs) for dfs in chunk_dfs(self.all_combine_df_list, chunk_size)))
+                
 
 
 

@@ -354,6 +354,15 @@ def stitch_using_microscope_fov_coords_test(decoded_df,fov,tile_corners_coords_p
     return decoded_df
 
 
+def stitch_using_microscope_fov_coords_new(decoded_df):
+    if decoded_df['r_px_registered'].isnull().values.all():
+        decoded_df['r_px_microscope_stitched'] = np.nan
+        decoded_df['c_px_microscope_stitched'] = np.nan
+    else:
+        decoded_df['r_px_microscope_stitched'] =  decoded_df['fov_acquisition_coords_y'] - decoded_df['r_px_registered']
+        decoded_df['c_px_microscope_stitched'] =  decoded_df['fov_acquisition_coords_x'] - decoded_df['c_px_registered']
+    return decoded_df
+
 # REMOVE OVERLAPPING DOTS ACCORDING TO GENE
 # preprocessing and removal part to put in the flow file
 

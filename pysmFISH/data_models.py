@@ -81,15 +81,15 @@ class Dataset():
             self.dataset.to_parquet(self.dataset_fpath, index=False)
         
             
-    def collect_info(self):
-        self.list_all_fovs = self.dataset.fov_num.unique()
-        self.list_all_channels = self.dataset.channel.unique()
-        self.total_rounds = self.dataset.round_num.max()
-        self.stitching_channel = self.dataset.iloc[0]['stitching_channel']
+    def collect_info(self,df):
+        self.list_all_fovs = df.fov_num.unique()
+        self.list_all_channels = df.channel.unique()
+        self.total_rounds = df.round_num.max()
+        self.stitching_channel = df.iloc[0]['stitching_channel']
         # may not be needed
-        self.img_width = self.dataset.iloc[0]['img_width']
-        self.img_height = self.dataset.iloc[0]['img_height']
-        self.img_zstack = self.dataset.iloc[0]['zstack']
+        self.img_width = df.iloc[0]['img_width']
+        self.img_height = df.iloc[0]['img_height']
+        self.img_zstack = df.iloc[0]['zstack']
         
     
     def grp_by_channel(self,df):
@@ -141,9 +141,7 @@ class Output_models():
     def __init__(self):
 
         self.output_variables_dot_calling = ['r_px_original','c_px_original',
-                                        'dot_id','fov_num','round_num',
-                                        'dot_intensity','selected_thr','dot_channel',
-                                        'target_name']
+                                        'dot_id','dot_intensity','selected_thr']
 
         self.output_variables_specific_registration = ['r_px_registered', 'c_px_registered',
                             'r_shift_px','c_shift_px','min_number_matching_dots_registration',
@@ -159,11 +157,13 @@ class Output_models():
         self.dots_counts_dict = dict.fromkeys(self.output_variables_dot_calling)
         self.dots_counts_df = pd.DataFrame(columns=self.output_variables_dot_calling)
 
-        self.output_variables_registration = self.output_variables_dot_calling + self.output_variables_specific_registration
-        self.output_registration_df = pd.DataFrame(columns=self.output_variables_registration)
+        # self.output_variables_registration = self.output_variables_dot_calling + self.output_variables_specific_registration
+        # self.output_registration_df = pd.DataFrame(columns=self.output_variables_registration)
 
-        self.output_variables_barcodes = self.output_variables_registration + self.output_variables_specific_barcodes
-        self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_barcodes)
+        # self.output_variables_barcodes = self.output_variables_registration + self.output_variables_specific_barcodes
+        # self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_barcodes)
+
+        self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_specific_barcodes)
 
 
 

@@ -452,7 +452,7 @@ def osmFISH_peak_based_detection_fast(ImgStack,
     elif min_int:
         ThrArray = np.linspace(min_int,ImgStack.max(),num=binning)
     elif max_int:
-        ThrArray = np.linspace(np.min(ImgStack[np.nonzero(img)]),max_int,num=binning)
+        ThrArray = np.linspace(np.min(ImgStack[np.nonzero(ImgStack)]),max_int,num=binning)
     else:
         ThrArray = np.linspace(np.min(ImgStack[np.nonzero(ImgStack)]),ImgStack.max(),num=binning)
     
@@ -462,9 +462,6 @@ def osmFISH_peak_based_detection_fast(ImgStack,
     channel = fov_subdataset.channel
     target_name = fov_subdataset.target_name
     
-    # List with the total peaks calculated for each threshold
-    TotalPeaks = []
-
     fill_value = np.nan
     data_models = Output_models()
     counts_dict = data_models.dots_counts_dict
@@ -502,7 +499,7 @@ def osmFISH_peak_based_detection_fast(ImgStack,
                                      num_peaks=np.inf, footprint=None, labels=None)
     lists = sorted(thrs_peaks.items())  # sorted by key, return a list of tuples. tuple[0]: threshold, tuple[1]: coords
     x, PeaksCoords = zip(*lists)  # unpack a list of pairs into two tuples
-    TotalPeaks = ()
+    TotalPeaks = []
     for j in range(len(PeaksCoords)):
         TotalPeaks += (len(PeaksCoords[j]),)  # get number of peaks
     # print("Thresholds distribution %.3f seconds" % (timings['thrs_dist']))
@@ -548,7 +545,7 @@ def osmFISH_peak_based_detection_fast(ImgStack,
 
             # To determine the threshold we will determine the Thr with the biggest
             # distance to the segment that join the end points of the calculated
-            # gradient
+            # # gradient
 
             # Calculate the coords of the end points of the gradient
             p1 = np.array([trimmed_thr_array[0],trimmed_grad[0]])
@@ -568,6 +565,32 @@ def osmFISH_peak_based_detection_fast(ImgStack,
             trimmed_grad = trimmed_grad[1:-1]
             trimmed_total_peaks = trimmed_total_peaks[1:-1]
             trimmed_distances = distances[1:-1]
+
+
+            # # Distances list
+            # distances = []
+
+            # # Calculate the coords of the end points of the gradient
+            # p1 = Point(trimmed_thr_array[0],trimmed_grad[0])
+            # p2 = Point(trimmed_thr_array[-1],trimmed_grad[-1])
+            
+            # # Create a line that join the points
+            # s = Line(p1,p2)
+            # allpoints = np.arange(0,len(trimmed_thr_array))
+            
+            # # Calculate the distance between all points and the line
+            # for p in allpoints:
+            #     dst = s.distance(Point(trimmed_thr_array[p],trimmed_grad[p]))
+            #     distances.append(dst.evalf())
+
+            # # Remove the end points from the lists
+            # trimmed_thr_array = trimmed_thr_array[1:-1]
+            # trimmed_grad = trimmed_grad[1:-1]
+            # trimmed_total_peaks = trimmed_total_peaks[1:-1]
+            # trimmed_distances = distances[1:-1]
+
+
+
 
             # Determine the coords of the selected Thr
             # Converted Trimmed_distances to array because it crashed
@@ -602,19 +625,23 @@ def osmFISH_peak_based_detection_fast(ImgStack,
 
                 Labels = nd.label(ImgMask)[0]
 
-                # calling peak_local_max without Labels argument
-                Selected_Peaks2_mask = feature.peak_local_max(ImgStack, min_distance=min_distance, 
-                                threshold_abs=Selected_Thr, exclude_border=True, indices=False,
-                                footprint=None,num_peaks=np.inf).astype(int)                         
+                # # calling peak_local_max without Labels argument
+                # Selected_Peaks2_mask = feature.peak_local_max(ImgStack, min_distance=min_distance, 
+                #                 threshold_abs=Selected_Thr, exclude_border=True, indices=False,
+                #                 footprint=None,num_peaks=np.inf).astype(int)                         
                 
-#                 Selected_Peaks2 = feature.peak_local_max(ImgStack, min_distance=min_distance, 
-#                                 threshold_abs=Selected_Thr, exclude_border=True, indices=True,
-#                                 footprint=None,labels=Labels,num_peaks=np.inf).astype(int)        
+             
+                # # instead, make sure the selected peaks does not meet zeros at labels (background)
+                # Labels_mask = (Labels > 0).astype(int)
+                # Selected_Peaks2_mask = Selected_Peaks2_mask * Labels_mask
+                # Selected_Peaks2 = np.vstack(np.where(Selected_Peaks2_mask)).T
                 
-                # instead, make sure the selected peaks does not meet zeros at labels (background)
-                Labels_mask = (Labels > 0).astype(int)
-                Selected_Peaks2_mask = Selected_Peaks2_mask * Labels_mask
-                Selected_Peaks2 = np.vstack(np.where(Selected_Peaks2_mask)).T
+                Selected_Peaks2 = feature.peak_local_max(ImgStack, min_distance=min_distance, 
+                                threshold_abs=Selected_Thr, exclude_border=True, indices=True,
+                                footprint=None,labels=Labels,num_peaks=np.inf).astype(int)        
+   
+
+
                 
                 if Selected_Peaks2.size:
                     # Intensity counting of the max peaks
