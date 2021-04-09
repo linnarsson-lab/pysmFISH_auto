@@ -265,6 +265,8 @@ logger.info(f'start preprocessing and dots counting')
 dark_img = load_dark_image(experiment_fpath)
 dark_img = dask.delayed(dark_img)
 codebook_df = dask.delayed(codebook)
+analysis_parameters = dask.delayed(analysis_parameters)
+running_functions = dask.delayed(running_functions)
 
 all_processing = []
 all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(5))
@@ -290,26 +292,26 @@ for fov_num, group in grpd_fovs:
     
     name = 'concat_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize()
-    all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True,name=name)
+    all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
     
     name = 'register_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize()
     registered_counts = dask.delayed(beads_based_registration)(all_counts_fov,
-                                          analysis_parameters,name=name)
+                                          analysis_parameters)
 
     name = 'decode_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize()                                    
     all_decoded_df = dask.delayed(decoder_fun)(registered_counts, analysis_parameters,experiment_info,
-                                codebook_df,name=name)
+                                codebook_df)
 
     name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize()  
-    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(all_decoded_df,name=name)
+    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(all_decoded_df)
     
     name = 'save_file_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize() 
     saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
-                    '_' + channel + '_decoded_fov' + str(fov) + '.parquet'),name=name)
+                    '_' + channel + '_decoded_fov' + str(fov) + '.parquet'))
 
     all_processing.append(saved_file) 
 
