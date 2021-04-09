@@ -270,46 +270,46 @@ all_processing = []
 all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(10))
 grpd_fovs = all_imgs_fov.groupby('fov_num')
 
-# for fov_num, group in grpd_fovs:
-#     all_counts_fov = []
-#     for index_value, fov_subdataset in group.iterrows():
-#         round_num = fov_subdataset.round_num
-#         channel = fov_subdataset.channel
-#         fov = fov_subdataset.fov_num
-#         experiment_name = fov_subdataset.experiment_name
-#         dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-#                         '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-#         counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
-#                                        analysis_parameters,
-#                                        running_functions,
-#                                        dark_img,
-#                                        experiment_fpath,
-#                                        save_steps_output=False,
-#                                                 dask_key_name = dask_delayed_name )
-#         all_counts_fov.append(counts)
+for fov_num, group in grpd_fovs:
+    all_counts_fov = []
+    for index_value, fov_subdataset in group.iterrows():
+        round_num = fov_subdataset.round_num
+        channel = fov_subdataset.channel
+        fov = fov_subdataset.fov_num
+        experiment_name = fov_subdataset.experiment_name
+        dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
+                        '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+        counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
+                                       analysis_parameters,
+                                       running_functions,
+                                       dark_img,
+                                       experiment_fpath,
+                                       save_steps_output=False,
+                                                dask_key_name = dask_delayed_name )
+        all_counts_fov.append(counts)
     
-#     all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
+    # all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
     
-#     dask_delayed_name = 'register_' +experiment_name + '_' + channel + '_' \
-#                          + '_fov_' +str(fov) + '-' + tokenize()
-#     registered_counts = dask.delayed(beads_based_registration)(all_counts_fov,
-#                                           analysis_parameters,dask_delayed_name=dask_delayed_name)
+    # dask_delayed_name = 'register_' +experiment_name + '_' + channel + '_' \
+    #                      + '_fov_' +str(fov) + '-' + tokenize()
+    # registered_counts = dask.delayed(beads_based_registration)(all_counts_fov,
+    #                                       analysis_parameters,dask_delayed_name=dask_delayed_name)
 
-#     dask_delayed_name = 'decode_' +experiment_name + '_' + channel + '_' \
-#                          + '_fov_' +str(fov) + '-' + tokenize()                                    
-#     all_decoded_df = dask.delayed(decoder_fun)(registered_counts, analysis_parameters,experiment_info,
-#                                 codebook_df,dask_delayed_name=dask_delayed_name)
+    # dask_delayed_name = 'decode_' +experiment_name + '_' + channel + '_' \
+    #                      + '_fov_' +str(fov) + '-' + tokenize()                                    
+    # all_decoded_df = dask.delayed(decoder_fun)(registered_counts, analysis_parameters,experiment_info,
+    #                             codebook_df,dask_delayed_name=dask_delayed_name)
 
-#     dask_delayed_name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
-#                          + '_fov_' +str(fov) + '-' + tokenize()  
-#     stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(all_decoded_df,dask_delayed_name=dask_delayed_name)
+    # dask_delayed_name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
+    #                      + '_fov_' +str(fov) + '-' + tokenize()  
+    # stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(all_decoded_df,dask_delayed_name=dask_delayed_name)
     
-#     dask_delayed_name = 'save_file_' +experiment_name + '_' + channel + '_' \
-#                          + '_fov_' +str(fov) + '-' + tokenize() 
-#     saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
-#                     '_' + channel + '_decoded_fov' + str(fov) + '.parquet'))
+    # dask_delayed_name = 'save_file_' +experiment_name + '_' + channel + '_' \
+    #                      + '_fov_' +str(fov) + '-' + tokenize() 
+    # saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
+    #                 '_' + channel + '_decoded_fov' + str(fov) + '.parquet'))
 
-#     all_processing.append(saved_file) 
+    all_processing.append(all_counts_fov) 
 
 
 
