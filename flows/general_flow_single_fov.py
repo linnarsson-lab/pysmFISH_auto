@@ -307,8 +307,8 @@ for fov_num, group in grpd_fovs:
     
     dask_delayed_name = 'save_file_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize() 
-    saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ experiment_name + \
-                    '_' + channel + '_decoded_fov' + str(fov) + '.parquet',dask_delayed_name=dask_delayed_name )
+    saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
+                    '_' + channel + '_decoded_fov' + str(fov) + '.parquet'),dask_delayed_name=dask_delayed_name )
 
     all_processing.append(saved_file) 
 
