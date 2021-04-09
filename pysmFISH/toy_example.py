@@ -1,5 +1,5 @@
 from dask import distributed, Client
-from pysmFISH import selected_logger
+from pysmFISH.logger_utils import selected_logger
 
 logger = selected_logger()
 
