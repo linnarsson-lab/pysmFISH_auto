@@ -269,7 +269,7 @@ analysis_parameters = dask.delayed(analysis_parameters)
 running_functions = dask.delayed(running_functions)
 
 all_processing = []
-all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,np.arange(5))
+all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235]))
 grpd_fovs = all_imgs_fov.groupby('fov_num')
 
 for fov_num, group in grpd_fovs:
@@ -311,7 +311,7 @@ for fov_num, group in grpd_fovs:
     name = 'save_file_' +experiment_name + '_' + channel + '_' \
                          + '_fov_' +str(fov) + '-' + tokenize() 
     saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
-                    '_' + channel + '_decoded_fov' + str(fov) + '.parquet'))
+                     '_decoded_fov_' + str(fov) + '.parquet'))
 
     all_processing.append(saved_file) 
 
