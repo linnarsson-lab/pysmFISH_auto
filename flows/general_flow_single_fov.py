@@ -271,8 +271,8 @@ running_functions = dask.delayed(running_functions)
 all_processing = []
 # all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
 # grpd_fovs = all_imgs_fov.groupby('fov_num')
-ds.collect_info()
-ds.dataset.loc[all_imgs_fov.channel == 'Europium','processing_type'] = 'large-beads'
+ds.collect_info(ds.dataset)
+ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
 chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
 
