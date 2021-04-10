@@ -269,7 +269,7 @@ analysis_parameters = dask.delayed(analysis_parameters)
 running_functions = dask.delayed(running_functions)
 
 all_processing = []
-all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235]))
+all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
 grpd_fovs = all_imgs_fov.groupby('fov_num')
 
 for fov_num, group in grpd_fovs:
