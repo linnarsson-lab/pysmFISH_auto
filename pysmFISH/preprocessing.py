@@ -263,7 +263,7 @@ def large_beads_preprocessing(zarr_grp_name,
     experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
 
-    raw_fish_images_meta = load_raw_images(zarr_grp_name,
+    img = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
 
     img = convert_from_uint16_to_float64(img)

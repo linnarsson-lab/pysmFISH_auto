@@ -92,9 +92,14 @@ def single_fov_round_processing_eel(fov_subdataset,
                                                                             fov_subdataset,
                                                                             processing_parameters)
 
+
+    elif processing_type == 'staining':
+            pass
     
-    elif processing_type == 'registration':
-        processing_parameters = analysis_parameters['registration']
+
+    # process all type of registration
+    else:
+        processing_parameters = analysis_parameters[processing_type]
         
         img = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
                                                                         zarr_grp_name,
@@ -108,17 +113,14 @@ def single_fov_round_processing_eel(fov_subdataset,
                                                                             img,
                                                                             fov_subdataset,
                                                                             processing_parameters)
-        
-    
-    elif processing_type == 'staining':
-            pass
+
     
     if save_steps_output:
         fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
         np.save(filtered_img_path / (fname + '.npy'),img )
         counts.to_parquet((fname + '.parquet'),index=False)
 
-    # return counts, (fov_subdataset.round_num,img)
+    # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
     return counts
 
 
