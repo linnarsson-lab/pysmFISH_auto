@@ -335,12 +335,7 @@ for chunk in chunks:
     # # d = dask.delayed(cane)(all_futures_filtering_counting)
     z = dask.compute(all_processing)
     # # _ = client.gather(all_futures_filtering_counting)
-    del all_processing
-    del all_counts_fov
-    del registered_counts
-    del all_decoded_df
-    del stitched_coords
-    del saved_file
+
 
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
