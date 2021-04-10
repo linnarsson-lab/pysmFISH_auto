@@ -335,7 +335,7 @@ for chunk in chunks:
     # # d = dask.delayed(cane)(all_futures_filtering_counting)
     z = dask.compute(all_processing)
     # # _ = client.gather(all_futures_filtering_counting)
-
+    del z
 
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
