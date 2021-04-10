@@ -269,9 +269,10 @@ analysis_parameters = dask.delayed(analysis_parameters)
 running_functions = dask.delayed(running_functions)
 
 all_processing = []
-all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
-grpd_fovs = all_imgs_fov.groupby('fov_num')
+# all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
+# grpd_fovs = all_imgs_fov.groupby('fov_num')
 
+grpd_fovs = ds.dataset.groupby('fov_num')
 for fov_num, group in grpd_fovs:
     all_counts_fov = []
     for index_value, fov_subdataset in group.iterrows():
@@ -330,83 +331,6 @@ z = dask.compute(all_processing)
 logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
 
-
-# # ----------------------------------------------------------------
-# # IMAGE PREPROCESSING, DOTS COUNTING, REGISTRATION TO MICROSCOPE COORDS
-# start = time.time()
-# logger.info(f'start preprocessing and dots counting')
-
-# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
-# sorted_grps = sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters)
-
-# # PROCESSING PARAMETERS
-# registration_channel = experiment_info['StitchingChannel']
-# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-# fovs = consolidated_grp[key].attrs['fields_of_view']
-# img_width = consolidated_grp[key].attrs['img_width']
-# img_height = consolidated_grp[key].attrs['img_height']
-# registration_reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
-# selected_genes = 'below3Hdistance_genes'
-# correct_hamming_distance = 'zeroHdistance_genes' 
-
-# tiles_org = organize_square_tiles(experiment_fpath,experiment_info,
-#                                     consolidated_grp,
-#                                     registration_reference_hybridization)
-# tiles_org.run_tiles_organization()
-# tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
-
-# dark_img = load_dark_image(experiment_fpath)
-
-# # Scattering will be beneficial but causes error on HTCondor
-# # scatter the data to different workers to save timr
-# # remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
-# # remote_codebook = client.scatter(codebook)
-# # remote_dark_img = client.scatter(dark_img)
-
-# logger_print.info(f'check if the logger is printing')
-
-# all_futures = []
-# start = time.time()
-
-# fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
-# pickle.dump(sorted_grps, open(fname,'wb'))
-
-# for fov,sorted_grp in sorted_grps.items():
-#     future = client.submit(fov_processing_eel_barcoded_dev,
-#                                         fov=fov,
-#                                         sorted_grp=sorted_grp,
-#                                         experiment_info=experiment_info,
-#                                         analysis_parameters=analysis_parameters,
-#                                         experiment_fpath=experiment_fpath,
-#                                         parsed_raw_data_fpath=parsed_raw_data_fpath,
-#                                         running_functions=running_functions,
-#                                         img_width=img_width,
-#                                         img_height=img_height,
-#                                         tile_corners_coords_pxl= tile_corners_coords_pxl,
-#                                         codebook=codebook,
-#                                         selected_genes=selected_genes,
-#                                         correct_hamming_distance=correct_hamming_distance,
-#                                         dark_img = dark_img,
-#                                         save_steps_output=False,
-#                                         key= ('processing-fov-'+str(fov)))
-        
-
-#     all_futures.append(future)
-# # wait(all_futures)
-# _ = client.gather(all_futures)
-# # tracebacks = {}
-# # for future in as_completed(all_futures):
-# #     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
-# #     tracebacks[future.key] = traceback.format_tb(future.traceback())
-# #     del future
-
-# # wait(all_futures)
-# # fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
-# # pickle.dump(tracebacks, open(fname,'wb'))
-# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
-
-# # del all_futures
-# ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # # QC REGISTRATION ERROR
@@ -480,9 +404,11 @@ logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/
 # # # ----------------------------------------------------------------
 
 
-# # # ----------------------------------------------------------------
-# # GENERATE OUTPUT FOR PLOTTING
-# simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
+# # ----------------------------------------------------------------
+# GENERATE OUTPUT FOR PLOTTING
+select_genes = 'below3Hdistance_genes'
+stitching_selected = 'microscope_stitched'
+simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
 
 # ----------------------------------------------------------------
 # # PROCESS FRESH NUCLEI
