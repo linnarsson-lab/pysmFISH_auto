@@ -65,7 +65,7 @@ from pysmFISH.stitching import remove_overlapping_dots_fov
 from pysmFISH.stitching import clean_from_duplicated_dots
 from pysmFISH.stitching import stitch_using_microscope_fov_coords_new
 
-from barcodes_analysis import extract_barcodes_NN_fast
+from pysmFISH.barcodes_analysis import extract_barcodes_NN_fast
 from pysmFISH.preprocessing import fresh_nuclei_filtering
 
 from pysmFISH.qc_utils import QC_registration_error
@@ -324,7 +324,7 @@ for fov_num, group in grpd_fovs:
     saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                     '_decoded_fov_' + str(fov) + '.parquet'))
 
-    saved_file = dask.delayed(barcoded_round.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+    saved_file = dask.delayed(  .to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                     '_all_dots_decoded_fov_' + str(fov) + '.parquet'))
 
     # all_counts_combined = dask.delayed(pd.concat)(stitched_coords,axis=0,ignore_index=True)
