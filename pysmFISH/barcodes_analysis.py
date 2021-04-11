@@ -785,9 +785,9 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
     for ref_round_number in np.arange(1,barcode_length+1):
 
         #ref_round_number = 1
-        reference_round_df = dropping_counts.loc[dropping_counts.round_num == ref_round_number,:]
+        reference_round_df = dropping_counts.loc[dropping_counts.round_num == ref_round_number,:].reset_index()
         # Step one (all dots not in round 1)
-        compare_df = dropping_counts.loc[dropping_counts.round_num != ref_round_number,:]
+        compare_df = dropping_counts.loc[dropping_counts.round_num != ref_round_number,:].reset_index()
 
         if (not reference_round_df.empty) and (not compare_df.empty):
             nn = NearestNeighbors(1, metric="euclidean")
@@ -816,7 +816,7 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
             barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates], axis=0,ignore_index=False)
             barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
             for brdi, grp in barcoded_round_grouped:
-                barcode = np.zeros([16],dtype=np.int8)
+                barcode = np.zeros([barcode_length],dtype=np.int8)
                 barcode[grp.round_num.values.astype(np.int8)-1] = 1
                 #hamming_dist, index_gene = nn_sklearn.kneighbors(barcode.reshape(1, -1), return_distance=True)
                 #gene= codebook_df.loc[index_gene.reshape(index_gene.shape[0]),'Gene'].tolist()
