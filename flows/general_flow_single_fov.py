@@ -65,7 +65,7 @@ from pysmFISH.stitching import remove_overlapping_dots_fov
 from pysmFISH.stitching import clean_from_duplicated_dots
 from pysmFISH.stitching import stitch_using_microscope_fov_coords_new
 
-
+from barcodes_analysis import extract_barcodes_NN_fast
 from pysmFISH.preprocessing import fresh_nuclei_filtering
 
 from pysmFISH.qc_utils import QC_registration_error
@@ -310,18 +310,21 @@ for fov_num, group in grpd_fovs:
                                         analysis_parameters)
 
     name = 'decode_' +experiment_name + '_' + channel + '_' \
-                        + '_fov_' +str(fov) + '-' + tokenize()                                    
-    all_decoded_df = dask.delayed(decoder_fun)(registered_counts, analysis_parameters,experiment_info,
-                                codebook_df)
+                        + '_fov_' +str(fov) + '-' + tokenize()
 
+    barcoded_round, all_decoded_dots_df = dask.delayed(extract_barcodes_NN_fast)(registered_fast_counts, analysis_parameters,codebook_df)                                                        
+    
     name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize()  
-    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(all_decoded_df)
+    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(all_decoded_dots_df)
     
     name = 'save_file_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize() 
-    saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
+    saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                     '_decoded_fov_' + str(fov) + '.parquet'))
+
+    saved_file = dask.delayed(barcoded_round.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                    '_all_dots_decoded_fov_' + str(fov) + '.parquet'))
 
     # all_counts_combined = dask.delayed(pd.concat)(stitched_coords,axis=0,ignore_index=True)
 
@@ -419,9 +422,9 @@ logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/
 
 # # ----------------------------------------------------------------
 # GENERATE OUTPUT FOR PLOTTING
-select_genes = 'below3Hdistance_genes'
-stitching_selected = 'microscope_stitched'
-simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
+# select_genes = 'below3Hdistance_genes'
+# stitching_selected = 'microscope_stitched'
+# simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
 
 # ----------------------------------------------------------------
 # # PROCESS FRESH NUCLEI
