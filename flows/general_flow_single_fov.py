@@ -324,7 +324,7 @@ for fov_num, group in grpd_fovs:
     saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                     '_decoded_fov_' + str(fov) + '.parquet'))
 
-    saved_file = dask.delayed(  .to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+    saved_file = dask.delayed(barcoded_round.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                     '_all_dots_decoded_fov_' + str(fov) + '.parquet'))
 
     # all_counts_combined = dask.delayed(pd.concat)(stitched_coords,axis=0,ignore_index=True)
