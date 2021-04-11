@@ -339,12 +339,12 @@ for fov_num, group in grpd_fovs:
     all_processing.append(saved_file) 
 
 
-chunks = [all_processing[x:x+50] for x in range(0, len(all_processing), 50)]
-for chunk in chunks:
-    z = dask.compute(*chunk)
+# chunks = [all_processing[x:x+50] for x in range(0, len(all_processing), 50)]
+# for chunk in chunks:
+#     z = dask.compute(*chunk)
 
     # # d = dask.delayed(cane)(all_futures_filtering_counting)
-    # z = dask.compute(*all_processing)
+z = dask.compute(*all_processing)
     # # _ = client.gather(all_futures_filtering_counting)
     # del z
 
