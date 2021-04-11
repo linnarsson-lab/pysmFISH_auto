@@ -312,23 +312,23 @@ for fov_num, group in grpd_fovs:
     saved_register_counts = dask.delayed(registered_counts.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
                     '_registered_fov_' + str(fov) + '.parquet'))
 
-    name = 'decode_' +experiment_name + '_' + channel + '_' \
-                        + '_fov_' +str(fov) + '-' + tokenize()
+    # name = 'decode_' +experiment_name + '_' + channel + '_' \
+    #                     + '_fov_' +str(fov) + '-' + tokenize()
 
-    decoded = dask.delayed(extract_barcodes_NN_fast)(registered_counts, 
-                                                                analysis_parameters,codebook_df)                                                        
+    # decoded = dask.delayed(extract_barcodes_NN_fast)(registered_counts, 
+    #                                                             analysis_parameters,codebook_df)                                                        
     
-    name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
-                        + '_fov_' +str(fov) + '-' + tokenize()  
-    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1])
+    # name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
+    #                     + '_fov_' +str(fov) + '-' + tokenize()  
+    # stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1])
     
-    name = 'save_file_' +experiment_name + '_' + channel + '_' \
-                        + '_fov_' +str(fov) + '-' + tokenize() 
-    saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                    '_decoded_fov_' + str(fov) + '.parquet'))
+    # name = 'save_file_' +experiment_name + '_' + channel + '_' \
+    #                     + '_fov_' +str(fov) + '-' + tokenize() 
+    # saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+    #                 '_decoded_fov_' + str(fov) + '.parquet'))
 
-    saved_file_all = dask.delayed(decoded[0].to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                    '_all_dots_decoded_fov_' + str(fov) + '.parquet'))
+    # saved_file_all = dask.delayed(decoded[0].to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+    #                 '_all_dots_decoded_fov_' + str(fov) + '.parquet'))
 
     # all_counts_combined = dask.delayed(pd.concat)(stitched_coords,axis=0,ignore_index=True)
 
@@ -336,7 +336,7 @@ for fov_num, group in grpd_fovs:
     #                  '_decoded_fov_' + str(fov) + '.parquet'))
 
     
-    all_processing.append(saved_file) 
+    all_processing.append(saved_register_counts) 
 
 
 chunks = [all_processing[x:x+5] for x in range(0, len(all_processing), 5)]
