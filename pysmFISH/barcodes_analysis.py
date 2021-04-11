@@ -789,7 +789,7 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
         # Step one (all dots not in round 1)
         compare_df = dropping_counts.loc[dropping_counts.round_num != ref_round_number,:]
 
-        if (reference_round_df.shape[0] >0) and (compare_df.shape[0] >0):
+        if (not reference_round_df.empty) and (not compare_df.empty):
             nn = NearestNeighbors(1, metric="euclidean")
             nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
             dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
