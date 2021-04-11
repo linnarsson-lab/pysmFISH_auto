@@ -791,8 +791,8 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
 
         if (not reference_round_df.empty) and (not compare_df.empty):
             nn = NearestNeighbors(1, metric="euclidean")
-            nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
-            dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
+            nn.fit(reference_round_df[['r_px_registered','c_px_registered']].to_numpy())
+            dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']].to_numpy(), return_distance=True)
 
             # select only the nn that are below barcodes_extraction_resolution distance
             idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
