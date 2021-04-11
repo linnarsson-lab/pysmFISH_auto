@@ -776,7 +776,7 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
     stitching_channel = registered_counts_df['stitching_channel'].iloc[0]
     
     fish_counts = registered_counts_df.loc[registered_counts_df.channel != stitching_channel,:]
-    
+    fish_counts.dropna(subset=['dot_id'],inplace=True)
     # Starting level for selection of dots
     dropping_counts = fish_counts.copy(deep=True)
 
