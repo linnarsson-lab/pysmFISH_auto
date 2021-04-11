@@ -782,7 +782,7 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
 
     all_decoded_dots_list = []
 
-    for ref_round_number in np.arange(1,17):
+    for ref_round_number in np.arange(1,barcode_length+1):
 
         #ref_round_number = 1
         reference_round_df = dropping_counts.loc[dropping_counts.round_num == ref_round_number,:]
@@ -832,32 +832,34 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
 
             all_decoded_dots_list.append(ref_selected_df_no_duplicates)
 
-
-    all_decoded_dots_df = pd.concat(all_decoded_dots_list,ignore_index=False)
+            all_decoded_dots_df = pd.concat(all_decoded_dots_list,ignore_index=False)
     
-    codebook_df = convert_str_codebook(codebook_df,'Code')
-    codebook_array = make_codebook_array(codebook_df,'Code')
-    nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
-    nn_sklearn.fit(codebook_array)
+            codebook_df = convert_str_codebook(codebook_df,'Code')
+            codebook_array = make_codebook_array(codebook_df,'Code')
+            nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
+            nn_sklearn.fit(codebook_array)
+            
+            all_barcodes = np.vstack(all_decoded_dots_df.raw_barcodes.map(lambda x: np.frombuffer(x, np.int8)).values)
+            dists_arr, index_arr = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
+            genes=codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()
+
+            all_decoded_dots_df.loc[:,'decoded_genes'] = genes
+            all_decoded_dots_df.loc[:,'hamming_distance'] = dists_arr
+            all_decoded_dots_df.loc[:,'number_positive_bits'] = all_barcodes.sum(axis=1)
+
+            # Save barcoded_round and all_decoded_dots_df
+            return barcoded_round, all_decoded_dots_df
+
+        else:
+
+            all_decoded_dots_df = pd.DataFrame(columns = fish_counts.columns)
+            all_decoded_dots_df['decoded_genes'] = np.nan
+            all_decoded_dots_df['hamming_distance'] = np.nan
+            all_decoded_dots_df['number_positive_bits'] = np.nan
+
+            # Save barcoded_round and all_decoded_dots_df
+            return fish_counts, all_decoded_dots_df
     
-    all_barcodes = np.vstack(all_decoded_dots_df.raw_barcodes.map(lambda x: np.frombuffer(x, np.int8)).values)
-    dists_arr, index_arr = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
-    genes=codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()
-
-    all_decoded_dots_df.loc[:,'decoded_genes'] = genes
-    all_decoded_dots_df.loc[:,'hamming_distance'] = dists_arr
-    all_decoded_dots_df.loc[:,'number_positive_bits'] = all_barcodes.sum(axis=1)
-
-
-    # Save barcoded_round and all_decoded_dots_df
-    return barcoded_round, all_decoded_dots_df
-
-
-
-
-
-
-
 
 
 #                 chunk_size = 100
