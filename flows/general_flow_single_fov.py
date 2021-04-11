@@ -312,7 +312,8 @@ for fov_num, group in grpd_fovs:
     name = 'decode_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize()
 
-    barcoded_round, all_decoded_dots_df = dask.delayed(extract_barcodes_NN_fast)(registered_fast_counts, analysis_parameters,codebook_df)                                                        
+    barcoded_round, all_decoded_dots_df = dask.delayed(extract_barcodes_NN_fast)(registered_counts, 
+                                                                analysis_parameters,codebook_df)                                                        
     
     name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize()  
