@@ -143,20 +143,22 @@ def load_zarr_fov(zarr_fpath:str, fov:int):
 
 
 
-def simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client):
+def simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client):
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*_cleaned_df*.parquet')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*decoded*.parquet')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
 
-    counts_df = counts_dd.loc[(counts_dd.dot_id == counts_dd.barcode_reference_dot_id),
-                                ['fov_num',r_tag,c_tag, select_genes]].compute()
+    counts_dd_below  = counts_dd.loc[counts_dd.hamming_distance < selected_Hdistance, :]
 
-    counts_df=counts_df.dropna(subset=[select_genes])
+    counts_df = counts_dd.loc[(counts_dd_below.dot_id == counts_dd_below.barcode_reference_dot_id),
+                                ['fov_num',r_tag,c_tag, 'decoded_genes']].compute()
+
+    counts_df=counts_df.dropna(subset=['decoded_genes'])
     fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting.parquet')
     counts_df.to_parquet(fpath,index=False)
 

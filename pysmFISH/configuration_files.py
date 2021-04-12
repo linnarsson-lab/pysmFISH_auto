@@ -50,8 +50,8 @@ def create_processing_env_config_file(config_db_path:str):
     processing_env_config['htcondor']['smfish-barcoded']['local_directory'] = '/tmp'
 
     processing_env_config['htcondor']['eel-barcoded'] = {}
-    processing_env_config['htcondor']['eel-barcoded']['cores'] = 1
-    processing_env_config['htcondor']['eel-barcoded']['memory'] = '10GB'
+    processing_env_config['htcondor']['eel-barcoded']['cores'] = 20
+    processing_env_config['htcondor']['eel-barcoded']['memory'] = '200GB'
     processing_env_config['htcondor']['eel-barcoded']['disk'] = '0.1GB'
     processing_env_config['htcondor']['eel-barcoded']['local_directory'] = '/tmp'
 
@@ -160,8 +160,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishMaxObjSize'] = 200
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishNumPeaksPerLabel'] = 20
-    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalPercentile'] = 97
-    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalPercentile'] = 95
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 100
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 3
 
     analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
