@@ -335,7 +335,7 @@ for fov_num, group in grpd_fovs:
     
     name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize()  
-    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1])
+    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1],tile_corners_coords_pxl)
     
     name = 'save_file_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize() 
