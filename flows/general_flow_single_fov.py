@@ -242,21 +242,34 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
-# # CREATE DATASET
-# start = time.time()
-# logger.info(f'start dataset creation')
-# ds = Dataset()
-# ds.create_full_dataset_from_zmetadata(experiment_fpath, 
-#              experiment_info,
-#              parsed_raw_data_fpath)
+# CREATE DATASET
+start = time.time()
+logger.info(f'start dataset creation')
+ds = Dataset()
+ds.create_full_dataset_from_zmetadata(experiment_fpath, 
+             experiment_info,
+             parsed_raw_data_fpath)
 
-# logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
+metadata = ds.collect_metadata(ds.dataset)
+
+logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
+
 
 # ----------------------------------------------------------------
-# IMAGE PREPROCESSING, DOTS COUNTING,
+# DETERMINE TILES ORGANIZATION
+start = time.time()
+logger.info(f'start calculation of tiles organization')
+reference_round = analysis_parameters['RegistrationReferenceHybridization']
+tiles_org = organize_square_tiles(experiment_fpath,metadata,
+                                reference_round)
+tiles_org.run_tiles_organization()
+tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
 
-# ds = Dataset()
-# ds.load_dataset('/wsfish/smfish_ssd/test_new_dataset/JJEXP20201123_hGBM_Amine_test/210405_14_41_49_JJEXP20201123_hGBM_Amine_test_dataset.parquet')
+logger.info(f'calculation of tiles organization completed in {(time.time()-start)/60} min')
+
+
+# # ----------------------------------------------------------------
+# # IMAGE PREPROCESSING, DOTS COUNTING,
 
 # codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
 
@@ -267,11 +280,11 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # codebook_df = dask.delayed(codebook)
 # analysis_parameters = dask.delayed(analysis_parameters)
 # running_functions = dask.delayed(running_functions)
+# tile_corners_coords_pxl = dask.delayed(tile_corners_coords_pxl)
 
 # all_processing = []
 # # all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
 # # grpd_fovs = all_imgs_fov.groupby('fov_num')
-# ds.collect_info(ds.dataset)
 # ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
 # # chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
@@ -325,10 +338,10 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 #     name = 'save_file_' +experiment_name + '_' + channel + '_' \
 #                         + '_fov_' +str(fov) + '-' + tokenize() 
 #     saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-#                     '_decoded_fov_' + str(fov) + '.parquet'))
+#                     '_decoded_fov_' + str(fov) + '.parquet'),index=False)
 
 #     saved_file_all = dask.delayed(decoded[0].to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-#                     '_all_dots_decoded_fov_' + str(fov) + '.parquet'))
+#                     '_all_dots_decoded_fov_' + str(fov) + '.parquet'),index=False)
 
 #     # all_counts_combined = dask.delayed(pd.concat)(stitched_coords,axis=0,ignore_index=True)
 
@@ -349,7 +362,6 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 #     # del z
 
 # logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
-
 
 
 # ----------------------------------------------------------------
