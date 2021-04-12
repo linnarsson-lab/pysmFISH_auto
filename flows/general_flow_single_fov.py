@@ -102,7 +102,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/fish/work_std/AMEXP20210320_EEL_SL006'
+experiment_fpath = '/fish/work_std/JJEXP20210323_EEL_SL005'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -111,7 +111,7 @@ parsed_image_tag = 'img_data'
 # run type can be:
 # new
 # re-run
-run_type = 're-run'
+run_type = 'new'
 
 # parsing type (str) can be:
 # original
@@ -119,7 +119,7 @@ run_type = 're-run'
 # reparsing_from_storage 
 # no_parsing if parsing not to be performed
 
-parsing_type = 'no_parsing'
+parsing_type = 'original'
 
 
 fresh_nuclei_processing = False
@@ -251,8 +251,8 @@ ds.create_full_dataset_from_zmetadata(experiment_fpath,
              parsed_raw_data_fpath)
 
 metadata = ds.collect_metadata(ds.dataset)
-ds.dataset.loc[:,'stitching_channel'] = 'Europium'
-ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
+# ds.dataset.loc[:,'stitching_channel'] = 'Europium'
+# ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
 logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
 
