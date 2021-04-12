@@ -251,6 +251,8 @@ ds.create_full_dataset_from_zmetadata(experiment_fpath,
              parsed_raw_data_fpath)
 
 metadata = ds.collect_metadata(ds.dataset)
+ds.dataset.loc[:,'stitching_channel'] = 'Europium'
+ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
 logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
 
@@ -268,100 +270,95 @@ tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
 logger.info(f'calculation of tiles organization completed in {(time.time()-start)/60} min')
 
 
-# # ----------------------------------------------------------------
-# # IMAGE PREPROCESSING, DOTS COUNTING,
+# ----------------------------------------------------------------
+# IMAGE PREPROCESSING, DOTS COUNTING,
 
-# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
+codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
 
-# start = time.time()
-# logger.info(f'start preprocessing and dots counting')
-# dark_img = load_dark_image(experiment_fpath)
-# dark_img = dask.delayed(dark_img)
-# codebook_df = dask.delayed(codebook)
-# analysis_parameters = dask.delayed(analysis_parameters)
-# running_functions = dask.delayed(running_functions)
-# tile_corners_coords_pxl = dask.delayed(tile_corners_coords_pxl)
+start = time.time()
+logger.info(f'start preprocessing and dots counting')
+dark_img = load_dark_image(experiment_fpath)
+dark_img = dask.delayed(dark_img)
+codebook_df = dask.delayed(codebook)
+analysis_parameters = dask.delayed(analysis_parameters)
+running_functions = dask.delayed(running_functions)
+tile_corners_coords_pxl = dask.delayed(tile_corners_coords_pxl)
 
-# all_processing = []
-# # all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
-# # grpd_fovs = all_imgs_fov.groupby('fov_num')
-# ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
+all_processing = []
+# all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
+# grpd_fovs = all_imgs_fov.groupby('fov_num')
+ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
-# # chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
+# chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
 
-# # for chunk in chunks:
-# #     img_dataset = ds.select_all_imgs_fov(ds.dataset,chunk)
-# #     grpd_fovs = img_dataset.groupby('fov_num')
+# for chunk in chunks:
+#     img_dataset = ds.select_all_imgs_fov(ds.dataset,chunk)
+#     grpd_fovs = img_dataset.groupby('fov_num')
 
-# grpd_fovs = ds.dataset.groupby('fov_num')
+grpd_fovs = ds.dataset.groupby('fov_num')
 
-# for fov_num, group in grpd_fovs:
-#     all_counts_fov = []
-#     for index_value, fov_subdataset in group.iterrows():
-#         round_num = fov_subdataset.round_num
-#         channel = fov_subdataset.channel
-#         fov = fov_subdataset.fov_num
-#         experiment_name = fov_subdataset.experiment_name
-#         dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-#                         '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-#         counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
-#                                     analysis_parameters,
-#                                     running_functions,
-#                                     dark_img,
-#                                     experiment_fpath,
-#                                     save_steps_output=False,
-#                                                 dask_key_name = dask_delayed_name )
-#         all_counts_fov.append(counts)
+for fov_num, group in grpd_fovs:
+    all_counts_fov = []
+    for index_value, fov_subdataset in group.iterrows():
+        round_num = fov_subdataset.round_num
+        channel = fov_subdataset.channel
+        fov = fov_subdataset.fov_num
+        experiment_name = fov_subdataset.experiment_name
+        dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
+                        '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+        counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
+                                    analysis_parameters,
+                                    running_functions,
+                                    dark_img,
+                                    experiment_fpath,
+                                    save_steps_output=False,
+                                                dask_key_name = dask_delayed_name )
+        all_counts_fov.append(counts)
     
-#     name = 'concat_' +experiment_name + '_' + channel + '_' \
-#                         + '_fov_' +str(fov) + '-' + tokenize()
-#     all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
+    name = 'concat_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize()
+    all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
     
-#     name = 'register_' +experiment_name + '_' + channel + '_' \
-#                         + '_fov_' +str(fov) + '-' + tokenize()
-#     registered_counts = dask.delayed(beads_based_registration)(all_counts_fov,
-#                                         analysis_parameters)
+    name = 'register_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize()
+    registered_counts = dask.delayed(beads_based_registration)(all_counts_fov,
+                                        analysis_parameters)
 
-#     # saved_register_counts = dask.delayed(registered_counts.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
-#     #                 '_registered_fov_' + str(fov) + '.parquet'))
+    # saved_register_counts = dask.delayed(registered_counts.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
+    #                 '_registered_fov_' + str(fov) + '.parquet'))
 
-#     name = 'decode_' +experiment_name + '_' + channel + '_' \
-#                         + '_fov_' +str(fov) + '-' + tokenize()
+    name = 'decode_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize()
 
-#     decoded = dask.delayed(extract_barcodes_NN_fast)(registered_counts, 
-#                                                                 analysis_parameters,codebook_df)                                                        
+    decoded = dask.delayed(extract_barcodes_NN_fast)(registered_counts, 
+                                                                analysis_parameters,codebook_df)                                                        
     
-#     name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
-#                         + '_fov_' +str(fov) + '-' + tokenize()  
-#     stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1])
+    name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize()  
+    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1])
     
-#     name = 'save_file_' +experiment_name + '_' + channel + '_' \
-#                         + '_fov_' +str(fov) + '-' + tokenize() 
-#     saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-#                     '_decoded_fov_' + str(fov) + '.parquet'),index=False)
+    name = 'save_file_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize() 
+    saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                    '_decoded_fov_' + str(fov) + '.parquet'),index=False)
 
-#     saved_file_all = dask.delayed(decoded[0].to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-#                     '_all_dots_decoded_fov_' + str(fov) + '.parquet'),index=False)
+    saved_file_all = dask.delayed(decoded[0].to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                    '_all_dots_decoded_fov_' + str(fov) + '.parquet'),index=False)
 
-#     # all_counts_combined = dask.delayed(pd.concat)(stitched_coords,axis=0,ignore_index=True)
-
-#     # saved_file = dask.delayed(all_counts_combined.to_parquet)(Path(experiment_fpath) / 'results' / (experiment_name + \
-#     #                  '_decoded_fov_' + str(fov) + '.parquet'))
-
-    
-#     all_processing.append(saved_file) 
+ 
+    all_processing.append(saved_file) 
 
 
-# # chunks = [all_processing[x:x+50] for x in range(0, len(all_processing), 50)]
-# # for chunk in chunks:
-# #     z = dask.compute(*chunk)
+# chunks = [all_processing[x:x+50] for x in range(0, len(all_processing), 50)]
+# for chunk in chunks:
+#     z = dask.compute(*chunk)
 
-#     # # d = dask.delayed(cane)(all_futures_filtering_counting)
-# z = dask.compute(*all_processing)
-#     # # _ = client.gather(all_futures_filtering_counting)
-#     # del z
+    # # d = dask.delayed(cane)(all_futures_filtering_counting)
+z = dask.compute(*all_processing)
+    # # _ = client.gather(all_futures_filtering_counting)
+    # del z
 
-# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
 
 # ----------------------------------------------------------------
@@ -438,9 +435,9 @@ logger.info(f'calculation of tiles organization completed in {(time.time()-start
 
 # # ----------------------------------------------------------------
 # GENERATE OUTPUT FOR PLOTTING
-# select_genes = 'below3Hdistance_genes'
-# stitching_selected = 'microscope_stitched'
-# simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
+selected_Hdistance = 3 / metadata['barcode_length']
+stitching_selected = 'microscope_stitched'
+simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client)
 
 # ----------------------------------------------------------------
 # # PROCESS FRESH NUCLEI
