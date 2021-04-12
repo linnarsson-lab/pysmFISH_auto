@@ -81,15 +81,22 @@ class Dataset():
             self.dataset.to_parquet(self.dataset_fpath, index=False)
         
             
-    def collect_info(self,df):
-        self.list_all_fovs = df.fov_num.unique()
-        self.list_all_channels = df.channel.unique()
-        self.total_rounds = df.round_num.max()
-        self.stitching_channel = df.iloc[0]['stitching_channel']
-        # may not be needed
-        self.img_width = df.iloc[0]['img_width']
-        self.img_height = df.iloc[0]['img_height']
-        self.img_zstack = df.iloc[0]['zstack']
+    def collect_metadata(self,df):
+        self.metadata = {}
+        self.metadata['list_all_fovs'] = df.fov_num.unique()
+        self.metadata['list_all_channels'] = df.channel.unique()
+        self.metadata['total_rounds'] = df.round_num.max()
+        self.metadata['stitching_channel'] = df.iloc[0]['stitching_channel']
+        self.metadata['img_width'] = df.iloc[0]['img_width']
+        self.metadata['img_height'] = df.iloc[0]['img_height']
+        self.metadata['img_zstack'] = df.iloc[0]['zstack']
+        self.metadata['pixel_microns'] = df.iloc[0]['pixel_microns']
+        self.metadata['experiment_name'] = df.iloc[0]['experiment_name']
+        self.metadata['overlapping_percentage'] = df.iloc[0]['overlapping_percentage']
+        self.metadata['machine'] = df.iloc[0]['machine']
+        return self.metadata
+        
+
         
     
     def grp_by_channel(self,df):

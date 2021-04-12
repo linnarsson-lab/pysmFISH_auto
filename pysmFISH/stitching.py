@@ -36,7 +36,7 @@ class organize_square_tiles():
 
     """
 
-    def __init__(self, experiment_fpath:str,experiment_info:Dict,consolidated_grp,round_num:int):
+    def __init__(self, experiment_fpath:str, metadata:Dict,round_num:int):
         """
         round_num = int
             reference channel
@@ -44,18 +44,16 @@ class organize_square_tiles():
         
         self.logger = selected_logger()
         self.experiment_fpath = Path(experiment_fpath)
-        self.experiment_info = experiment_info
-        self.consolidated_grp = consolidated_grp
+        self.metadata = metadata
         self.round_num = round_num
         
-        self.experiment_name = self.experiment_info['EXP_name']
-        self.stitching_channel = self.experiment_info['StitchingChannel']
-        self.overlapping_percentage = int(self.experiment_info['Overlapping_percentage']) / 100
-        
-        name  = next(iter(consolidated_grp)) 
-        self.pixel_size = consolidated_grp[name].attrs['pixel_microns'] #0.18133716158784
-        self.img_width = consolidated_grp[name].attrs['img_width']
-        self.img_height = consolidated_grp[name].attrs['img_height']
+        self.experiment_name = self.metadata['experiment_name']
+        self.stitching_channel = self.metadata['stitching_channel']
+        self.overlapping_percentage = int(self.metadata['Overlapping_percentage']) / 100
+         
+        self.pixel_size = self.metadata['pixel_microns']
+        self.img_width = self.metadata['img_width']
+        self.img_height = self.metadata['img_height']
         
         
         if  self.img_width ==  self.img_height:
@@ -75,7 +73,7 @@ class organize_square_tiles():
     
     def normalize_coords(self):
 
-        if self.experiment_info['Machine'] == 'ROBOFISH2':
+        if self.metadata['machine'] == 'ROBOFISH2':
             # RobofishII has stage with reference point
             # in the center (0,0)
             # consider that we get the top-right corner of the image as well
@@ -108,7 +106,7 @@ class organize_square_tiles():
             adjusted_coords[:,0] = self.y_coords
             adjusted_coords[:,1] = self.x_coords
 
-        elif self.experiment_info['machine'] == 'ROBOFISH1':
+        elif self.metadata['machine'] == 'ROBOFISH1':
             # The current system has stage ref coords BOTTOM-RIGH
            
             # Normalize to (0,0) still BOTTOM-RIGHT
@@ -130,7 +128,7 @@ class organize_square_tiles():
             adjusted_coords[:,0] = self.y_coords
             adjusted_coords[:,1] = self.x_coords
         
-        elif self.experiment_info['machine'] == 'NOT_DEFINED':
+        elif self.metadata['machine'] == 'NOT_DEFINED':
             self.logger.error(f'Need to define the specs for stitching NOT_DEFINED machine')
             sys.exit(f'Need to define the specs for stitching NOT_DEFINED machine')
             
@@ -212,7 +210,7 @@ class organize_square_tiles():
             only_new_cpls = [cpl for cpl in adj_cpls if (cpl[1],cpl[0]) not in self.overlapping_regions[cpl[1]].keys()]
             
 
-            if self.experiment_info['Machine'] == 'ROBOFISH2':
+            if self.metadata['machine'] == 'ROBOFISH2':
                 # If tile coords are top left
                 for cpl in only_new_cpls:
 
@@ -259,7 +257,7 @@ class organize_square_tiles():
 
                 
 
-            elif self.experiment_info['Machine'] == 'ROBOFISH1':
+            elif self.metadata['machine'] == 'ROBOFISH1':
                 # If tile coords are bottom right
                 for cpl in only_new_cpls:
 
@@ -354,13 +352,19 @@ def stitch_using_microscope_fov_coords_test(decoded_df,fov,tile_corners_coords_p
     return decoded_df
 
 
-def stitch_using_microscope_fov_coords_new(decoded_df):
+def stitch_using_microscope_fov_coords_new(decoded_df,tile_corners_coords_pxl):
+    fov = decoded_df.iloc[0]['fov_num']
+    r_microscope_coords = tile_corners_coords_pxl[fov,0]
+    c_microscope_coords = tile_corners_coords_pxl[fov,1]
     if decoded_df['r_px_registered'].isnull().values.all():
         decoded_df['r_px_microscope_stitched'] = np.nan
         decoded_df['c_px_microscope_stitched'] = np.nan
     else:
-        decoded_df['r_px_microscope_stitched'] =  decoded_df['fov_acquisition_coords_y'] - decoded_df['r_px_registered']
-        decoded_df['c_px_microscope_stitched'] =  decoded_df['fov_acquisition_coords_x'] - decoded_df['c_px_registered']
+        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
+        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
+
+        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
+        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
     return decoded_df
 
 # REMOVE OVERLAPPING DOTS ACCORDING TO GENE
