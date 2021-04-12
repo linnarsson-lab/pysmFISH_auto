@@ -49,7 +49,7 @@ class organize_square_tiles():
         
         self.experiment_name = self.metadata['experiment_name']
         self.stitching_channel = self.metadata['stitching_channel']
-        self.overlapping_percentage = int(self.metadata['Overlapping_percentage']) / 100
+        self.overlapping_percentage = int(self.metadata['overlapping_percentage']) / 100
          
         self.pixel_size = self.metadata['pixel_microns']
         self.img_width = self.metadata['img_width']
