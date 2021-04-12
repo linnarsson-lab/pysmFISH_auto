@@ -848,7 +848,6 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
 
                 all_decoded_dots_df = pd.concat(all_decoded_dots_list,ignore_index=False)
                 
-                all_decoded_dots_list.append(ref_selected_df_no_duplicates)
                 compare_df = compare_df.drop(comp_selected_df.index)
                 dropping_counts = compare_df
 
