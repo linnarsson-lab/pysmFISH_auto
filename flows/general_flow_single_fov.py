@@ -119,7 +119,7 @@ run_type = 're-run'
 # reparsing_from_storage 
 # no_parsing if parsing not to be performed
 
-parsing_type = 'reparsing_from_storage'
+parsing_type = 'no_parsing'
 
 
 fresh_nuclei_processing = False
@@ -141,12 +141,12 @@ if (run_type == 'new') or (parsing_type == 'reparsing_from_storage'):
 # # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
+# ----------------------------------------------------------------
 # TRANSFER REQUIRED FILES FOR THE PROCESSING IF THE ANALYSIS START
 # FROM RAW DATA IN THE STORAGE HD
-# if parsing_type == 'reparsing_from_storage':
-#     transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
-# # # ----------------------------------------------------------------
+if parsing_type == 'reparsing_from_storage':
+    transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
+# # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # LOAD CONFIGURATION FILES
