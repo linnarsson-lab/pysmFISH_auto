@@ -94,6 +94,7 @@ class Dataset():
         self.metadata['experiment_name'] = df.iloc[0]['experiment_name']
         self.metadata['overlapping_percentage'] = df.iloc[0]['overlapping_percentage']
         self.metadata['machine'] = df.iloc[0]['machine']
+        self.metadata['barcode_length'] = df.iloc[0]['barcode_length']
         return self.metadata
         
 
