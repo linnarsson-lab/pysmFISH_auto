@@ -111,7 +111,7 @@ parsed_image_tag = 'img_data'
 # run type can be:
 # new
 # re-run
-run_type = 'new'
+run_type = 're-run'
 
 # parsing type (str) can be:
 # original
@@ -119,7 +119,7 @@ run_type = 'new'
 # reparsing_from_storage 
 # no_parsing if parsing not to be performed
 
-parsing_type = 'original'
+parsing_type = 'no_parsing'
 
 
 fresh_nuclei_processing = False
