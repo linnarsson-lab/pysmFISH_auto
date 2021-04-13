@@ -155,7 +155,7 @@ def simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdista
 
     counts_dd_below  = counts_dd.loc[counts_dd.hamming_distance < selected_Hdistance, :]
 
-    counts_df = counts_dd.loc[(counts_dd_below.dot_id == counts_dd_below.barcode_reference_dot_id),
+    counts_df = counts_dd_below.loc[(counts_dd_below.dot_id == counts_dd_below.barcode_reference_dot_id),
                                 ['fov_num',r_tag,c_tag, 'decoded_genes']].compute()
 
     counts_df=counts_df.dropna(subset=['decoded_genes'])

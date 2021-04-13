@@ -65,7 +65,7 @@ class organize_square_tiles():
     
     def extract_microscope_coords(self): 
         
-        fname = self.experiment_fpath / 'tmp' / 'microscope_tiles_coords'/(self.experiment_name + '_Hybridization'+  \
+        fname = self.experiment_fpath / 'microscope_tiles_coords'/(self.experiment_name + '_Hybridization'+  \
                             str(self.round_num).zfill(2) + '_' + self.stitching_channel + '_fovs_coords.npy')
         coords = np.load(fname) 
         self.x_coords = coords[:,1]
