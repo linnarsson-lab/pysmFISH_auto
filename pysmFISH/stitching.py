@@ -353,7 +353,7 @@ def stitch_using_microscope_fov_coords_test(decoded_df,fov,tile_corners_coords_p
 
 
 def stitch_using_microscope_fov_coords_new(decoded_df,tile_corners_coords_pxl):
-    if decoded_df['r_px_registered'].isnull().values.all():
+    if decoded_df['r_px_registered'].empty:
         decoded_df['r_px_microscope_stitched'] = np.nan
         decoded_df['c_px_microscope_stitched'] = np.nan
     else:
