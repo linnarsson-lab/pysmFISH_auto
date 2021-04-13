@@ -146,7 +146,7 @@ def load_zarr_fov(zarr_fpath:str, fov:int):
 def simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client):
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*decoded*.parquet')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*decoded*.parquet',engine='pyarrow')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 
