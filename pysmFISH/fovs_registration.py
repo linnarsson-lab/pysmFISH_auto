@@ -655,11 +655,12 @@ def calculate_shift_hybridization_fov_nuclei(processing_files:List,analysis_para
 
 
 
-def calculate_shift_hybridization_fov_nuclei_test(fov:int,
+
+
+
+def calculate_shift_hybridization_fov_nuclei_test(
                                             img_stack:np.ndarray,
-                                            sorted_grp:Dict,
-                                            analysis_parameters:Dict, 
-                                            experiment_info:Dict):
+                                            analysis_parameters:Dict):
     """
     Function used to run the registration of a single fov
     through all hybridization. The registration is done using the dots
@@ -670,51 +671,45 @@ def calculate_shift_hybridization_fov_nuclei_test(fov:int,
             list of the files with the counts to register
         analysis_parameters: Dict
             dict that contains the settings for the analysis 
+
+
+    MUST ADD THE CONSIDERATION OF POTENTIAL ERRORS
     """
     
     logger = selected_logger()
     
     registration_errors = Registration_errors()
-    data_models = Output_models()
-    all_rounds_shifts = {}
-    output_registration_df = data_models.output_registration_df
-    status = 'SUCCESS'
-
-    reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
-    ref_round_num = int(reference_hybridization) - 1
-    reference_hybridization_str = 'Hybridization' + str(reference_hybridization).zfill(2)
-    channel = experiment_info['StitchingChannel']
+  
+    ref_round_num = analysis_parameters['RegistrationReferenceHybridization'] - 1
     registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
 
     all_rounds = np.arange(img_stack.shape[0])
     all_rounds = all_rounds[all_rounds != ref_round_num]
 
-
     ref_img = img_stack[ref_round_num,:,:]
-    output_registration_df = output_registration_df.append({'fov_num':fov,
-                                                            'round_num':ref_round_num + 1,
-                                                             'r_shift_px': 0,
-                                                             'c_shift_px':0,
-                                                             'min_number_matching_dots_registration':0,
-                                                             'RMS':0},ignore_index=True)
 
-    all_rounds_shifts[ref_round_num+1] = np.array([0,0])
+    all_rounds_reg = []
+    ref_df = pd.DataFrame({'round_num':ref_round_num + 1,
+                                            'r_shift_px': 0,
+                                            'c_shift_px':0,
+                                            'min_number_matching_dots_registration':1000,
+                                            'RMS':0})
 
+    all_rounds_reg.append(ref_df)
     for r_num in all_rounds:
         shift, error, diffphase = phase_cross_correlation(ref_img, img_stack[r_num,:,:],return_error=True)    
-        tran_counts_df = pd.DataFrame({'fov_num':[fov],
-                                        'round_num':[r_num + 1],
+        tran_df = pd.DataFrame({'round_num':[r_num + 1],
                                         'r_shift_px': [shift[0]],
                                         'c_shift_px':[shift[1]],
-                                        'min_number_matching_dots_registration':[1000],
-                                        'RMS':[error]})
+                                        'min_number_matching_dots_registration':error,
+                                        'RMS':error})
 
-        all_rounds_shifts[r_num + 1] = shift
+        all_rounds_reg.append(tran_df)
 
-        output_registration_df = pd.concat([output_registration_df,tran_counts_df],axis=0,ignore_index=True)
+    output_registration_df = pd.concat([all_rounds_reg],axis=0,ignore_index=True)
 
 
-    return output_registration_df, all_rounds_shifts, status
+    return output_registration_df
 
 
 
@@ -839,6 +834,10 @@ def register_fish_on_nuclei(processing_files:List,analysis_parameters:Dict,
 
 
 
+
+
+
+
 def beads_based_registration(all_counts_fov,
                                           analysis_parameters):
     
@@ -931,7 +930,6 @@ def beads_based_registration(all_counts_fov,
                         'min_number_matching_dots_registration'] =  min_num_matching_dots
             
             
-            status = 'SUCCESS'
     else:
         
         all_counts_fov['r_px_registered'] = np.nan
@@ -939,12 +937,96 @@ def beads_based_registration(all_counts_fov,
         all_counts_fov['r_shift_px'] = np.nan
         all_counts_fov['c_shift_px'] = np.nan
         all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
-        
-        status = 'FAILED'
+     
     return all_counts_fov
 
 
 
+def nuclei_based_registration(all_counts_fov,
+                            img_stack:np.ndarray,
+                            analysis_parameters:Dict):
+    """
+    Function used to run the registration of a single fov
+    through all hybridization. The registration is done using the dots
+    coords determined in each image
+
+    Args:
+        processing_files: List
+            list of the files with the counts to register
+        analysis_parameters: Dict
+            dict that contains the settings for the analysis 
+
+
+    MUST ADD THE CONSIDERATION OF POTENTIAL ERRORS
+    """
+    
+    logger = selected_logger()
+    
+    # Used index to avoid to remake the output dataframe
+    
+    stitching_channel = all_counts_fov['stitching_channel'].iloc[0]
+    stitching_channel_df = all_counts_fov.loc[all_counts_fov.channel == stitching_channel, :]
+    fish_df = all_counts_fov.loc[all_counts_fov.channel != stitching_channel,:]
+    
+    reference_round_num = analysis_parameters['RegistrationReferenceHybridization']
+    ref_round_num_img = reference_round_num -1
+    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
+    
+    registration_errors = Registration_errors()
+    
+    
+    # Determine if there are any round with missing counts in the registration
+    if stitching_channel_df[stitching_channel_df['dot_id'].isnull()].empty :
+    
+        all_counts_fov['r_px_registered'] = np.nan
+        all_counts_fov['c_px_registered'] = np.nan
+        all_counts_fov['r_shift_px'] = np.nan
+        all_counts_fov['c_shift_px'] = np.nan
+        all_counts_fov['min_number_matching_dots_registration'] = np.nan
+        all_counts_fov['RMS'] = np.nan
+
+
+        # Register fish and enter ref round info
+        fish_ref_round = fish_df.loc[fish_df.reference_round_num == reference_round_num,:]
+
+        all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  \
+                fish_ref_round.loc[fish_ref_round.index,'r_px_original']
+        all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  \
+                fish_ref_round.loc[fish_ref_round.index,'c_px_original']
+        all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  0
+        all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  0
+        all_counts_fov.loc[fish_ref_round.index,'min_number_matching_dots_registration'] =  1000
+        all_counts_fov.loc[fish_ref_round.index,'RMS'] =  0
+
+        all_rounds = np.arange(img_stack.shape[0])
+        all_rounds = all_rounds[all_rounds != ref_round_num_img]
+
+        ref_img = img_stack[ref_round_num_img,:,:]
+    
+        for r_num in all_rounds:
+            # Register fish
+            fish_ref_round = fish_df.loc[fish_df.reference_round_num == (r_num+1),:]
+
+            shift, error, diffphase = phase_cross_correlation(ref_img, img_stack[r_num,:,:],return_error=True)    
+            
+            all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  fish_ref_round['r_px_original'] + shift[0] 
+            all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  fish_ref_round['c_px_original'] + shift[1]
+            all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  shift[0] 
+            all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  shift[1]
+            all_counts_fov.loc[fish_ref_round.index,
+                        'min_number_matching_dots_registration'] =  error
+            all_counts_fov.loc[fish_ref_round.index,'RMS'] =  0
+
+    else:
+        
+        all_counts_fov['r_px_registered'] = np.nan
+        all_counts_fov['c_px_registered'] = np.nan
+        all_counts_fov['r_shift_px'] = np.nan
+        all_counts_fov['c_shift_px'] = np.nan
+        all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
+        all_counts_fov['RMS'] = np.nan
+     
+    return all_counts_fov
 
 
 

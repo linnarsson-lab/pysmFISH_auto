@@ -226,7 +226,7 @@ def transfer_files_from_storage(storage_experiment_fpath:str,experiment_fpath:st
 
     folders_to_copy=[
         'extra_processing_data',
-        'pipeline_config',
+        'microscope_tiles_coords',
         'codebook',
         'probes'
     ]

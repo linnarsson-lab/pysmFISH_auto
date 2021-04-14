@@ -96,6 +96,7 @@ class Dataset():
         self.metadata['machine'] = df.iloc[0]['machine']
         self.metadata['barcode_length'] = df.iloc[0]['barcode_length']
         self.metadata['processing_type'] = df.iloc[0]['processing_type']
+        self.metadata['experiment_type'] = df.iloc[0]['experiment_type']
         return self.metadata
         
 
