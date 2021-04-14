@@ -16,7 +16,7 @@ from dask.base import tokenize
 from pysmFISH.logger_utils import json_logger
 from pysmFISH.logger_utils import selected_logger
 
-from pysmFISH.data_organization import transfer_data_to_storage
+from pysmFISH.data_organization import reorganize_processing_dir
 from pysmFISH.data_organization import transfer_files_from_storage
 
 from pysmFISH.data_models import Dataset
@@ -104,7 +104,7 @@ pipeline_start = time.time()
 experiment_fpath = '/fish/work_std/JJEXP20210318_EEL_SL007'
 
 raw_data_folder_storage_path = '/fish/rawdata'
-results_data_folder_storage_path = '/fish/results'
+dataset_folder_storage_path = '/fish/fish_datasets'
 parsed_image_tag = 'img_data'
 
 # run type can be:
@@ -480,12 +480,13 @@ simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance,
 
 
 # # ----------------------------------------------------------------
-# # TRANSFER THE RAW DATA TO STORAGE FOLDER
+# # REORGANIZE PROCESSING DIRECTORY
 # start = time.time()
-# logger.info(f'start data transfer to storage folder')
 
-# if parsing_type != 'reparsing_from_storage':
-#     transfer_data_to_storage(experiment_fpath,raw_data_folder_storage_path)
+reorganize_processing_dir(experiment_fpath,
+                            raw_data_folder_storage_path,
+                            store_dataset=True,
+                            dataset_storage_fpath=dataset_folder_storage_path)
 
 # logger.info(f'data transfer to storage folder completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------

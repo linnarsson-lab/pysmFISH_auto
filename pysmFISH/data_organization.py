@@ -103,6 +103,53 @@ def experiment_transfer_to_processing_hd(path_source:str,path_destination:str,
 
 
 
+def reorganize_processing_dir(experiment_fpath:str,
+                            storage_fpath:str,
+                            store_dataset=False,
+                            dataset_storage_fpath=None):
+    """
+    Function to transfer and copy the data in the data storage HD
+
+    Args:
+    ----
+    experiment_fpath: str
+        path to the folder where the processing will be run
+
+    storage_fpath: str
+        path of the experiment in the storage HD that contains the raw data
+    """
+    logger = selected_logger()
+    experiment_fpath = Path(experiment_fpath)
+    storage_fpath = Path(storage_fpath)
+
+    experiment_name = experiment_fpath.stem
+
+
+
+    # Remove the tmp data
+    folders_to_remove = ['tmp','logs']
+    for folder_name in folders_to_remove:
+        shutil.rmtree((experiment_path / folder_name).as_posix())
+    
+    
+    # removed or store parsed data
+    parsed_data_fpath = experiment_fpath / (experiment_name + '_img_data.zarr')
+    if store_dataset:
+        if dataset_storage_fpath:
+            dataset_storage_fpath = Path(dataset_storage_fpath) / 'experiment_name'
+            shutil.copytree(parsed_data_fpath,dataset_storage_fpath)
+        else:
+            logger.error(f'the dataset_storage_fpath is missing')
+            sys.exit(f'the dataset_storage_fpath is missing')
+
+    else:
+        shutil.rmtree(parsed_data_fpath.as_posix())
+
+
+    # Transfer the remaining folder to the raw data folder
+    _ = shutil.move(experiment_path.as_posix(),storage_fpath.as_posix())
+   
+
 def transfer_data_to_storage(experiment_fpath:str,storage_fpath:str,):
     """
     Function to transfer and copy the data in the data storage HD
@@ -127,7 +174,7 @@ def transfer_data_to_storage(experiment_fpath:str,storage_fpath:str,):
                         'fresh_nuclei']
 
     try:
-        config_file_fpath = list(storage_experiment_fpath.glob('*.yaml'))[0]
+        config_file_fpath = list(experiment_fpath.glob('*.yaml'))[0]
     except:
         logger.error(f'The experiment .yaml config file is missing')
         sys.exit(f'The experiment .yaml config file is missing')
