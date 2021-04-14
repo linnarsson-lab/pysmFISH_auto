@@ -322,22 +322,22 @@ def general_flow(experiment_fpath:str,
 
         for fov_num, group in grpd_fovs:
             if fov_num not in already_done_fovs:
-            all_counts_fov = []
-            for index_value, fov_subdataset in group.iterrows():
-                round_num = fov_subdataset.round_num
-                channel = fov_subdataset.channel
-                fov = fov_subdataset.fov_num
-                experiment_name = fov_subdataset.experiment_name
-                dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-                                '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-                counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
-                                            analysis_parameters,
-                                            running_functions,
-                                            dark_img,
-                                            experiment_fpath,
-                                            save_steps_output=save_intermediate_steps,
-                                                        dask_key_name = dask_delayed_name )
-                all_counts_fov.append(counts)
+                all_counts_fov = []
+                for index_value, fov_subdataset in group.iterrows():
+                    round_num = fov_subdataset.round_num
+                    channel = fov_subdataset.channel
+                    fov = fov_subdataset.fov_num
+                    experiment_name = fov_subdataset.experiment_name
+                    dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
+                                    '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+                    counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
+                                                analysis_parameters,
+                                                running_functions,
+                                                dark_img,
+                                                experiment_fpath,
+                                                save_steps_output=save_intermediate_steps,
+                                                            dask_key_name = dask_delayed_name )
+                    all_counts_fov.append(counts)
             
             name = 'concat_' +experiment_name + '_' + channel + '_' \
                                 + '_fov_' +str(fov) + '-' + tokenize()
