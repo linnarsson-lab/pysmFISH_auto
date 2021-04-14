@@ -55,8 +55,7 @@ from pysmFISH.fovs_registration import create_registration_grps
 from flow_steps.create_processing_cluster import create_processing_cluster
 from flow_steps.filtering_counting import load_dark_image
 
-from flow_steps.fov_processing import fov_processing_eel_barcoded
-from flow_steps.fov_processing import fov_processing_eel_barcoded_dev
+
 from flow_steps.fov_processing import single_fov_round_processing_eel
 
 from pysmFISH.stitching import organize_square_tiles
@@ -119,7 +118,7 @@ run_type = 're-run'
 # reparsing_from_storage 
 # no_parsing if parsing not to be performed
 
-parsing_type = 'reparsing_from_processing_folder'
+parsing_type = 'no_parsing'
 
 
 fresh_nuclei_processing = False
@@ -129,11 +128,11 @@ storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment
 
 # ----------------------------------------------------------------
 
-if (run_type == 'new') or (parsing_type == 'reparsing_from_storage'): 
-    # ----------------------------------------------------------------
-    # CREATE FOLDERS STRUCTURE
-    create_folder_structure(experiment_fpath)
-    # ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+# CREATE FOLDERS STRUCTURE
+create_folder_structure(experiment_fpath,run_type)
+# ----------------------------------------------------------------
 
 # # ----------------------------------------------------------------
 # # QC Experiment info file
