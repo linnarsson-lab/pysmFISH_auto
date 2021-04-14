@@ -288,7 +288,7 @@ def general_flow(experiment_fpath:str,
     # ----------------------------------------------------------------
 
 
-    if metadata.experiment_type == 'eel-barcoded':
+    if metadata['experiment_type'] == 'eel-barcoded':
 
         # ----------------------------------------------------------------
         # PROCESSING EEL BARCODED
@@ -392,7 +392,7 @@ def general_flow(experiment_fpath:str,
         simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client)
         # ----------------------------------------------------------------  
 
-    elif metadata.experiment_type == 'smfish-serial':
+    elif metadata['experiment_type'] == 'smfish-serial':
 
         # ----------------------------------------------------------------
         # PROCESSING SERIAL smFISH
