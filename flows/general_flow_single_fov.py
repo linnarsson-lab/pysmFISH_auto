@@ -119,7 +119,7 @@ def general_flow(experiment_fpath:str,
     # run type can be:
     # new
     # re-run
-    run_type = 're-run'
+    # run_type = 're-run'
 
     # parsing type (str) can be:
     # original
@@ -127,10 +127,10 @@ def general_flow(experiment_fpath:str,
     # reparsing_from_storage 
     # no_parsing if parsing not to be performed
 
-    parsing_type = 'no_parsing'
+    # parsing_type = 'no_parsing'
 
 
-    fresh_nuclei_processing = False
+    # fresh_nuclei_processing = False
 
 
     storage_experiment_fpath = (Path(raw_data_folder_storage_path) / Path(experiment_fpath).stem).as_posix()
