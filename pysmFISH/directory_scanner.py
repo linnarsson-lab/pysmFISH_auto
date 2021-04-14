@@ -1,5 +1,6 @@
-from pathlib import Path
 import os
+import time
+from pathlib import Path
 
 from flows.general_flow_single_fov import general_flow
 from pysmFISH.utils import free_space
@@ -87,3 +88,5 @@ def experiment_processing_runner(path_source:str,
         pass
         # log output
 
+
+if __main__ == __name__:
