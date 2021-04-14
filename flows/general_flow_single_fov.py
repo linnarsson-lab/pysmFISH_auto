@@ -312,16 +312,16 @@ def general_flow(experiment_fpath:str,
         #     img_dataset = ds.select_all_imgs_fov(ds.dataset,chunk)
         #     grpd_fovs = img_dataset.groupby('fov_num')
 
-        already_processed = (Path(experiment_fpath) / 'results').glob('*.parquet')
-        already_done_fovs = []
-        for fname in already_processed:
-            fov_num = int(fname.stem.split('_')[-1])
-            already_done_fovs.append(fov_num)
+        # already_processed = (Path(experiment_fpath) / 'results').glob('*.parquet')
+        # already_done_fovs = []
+        # for fname in already_processed:
+        #     fov_num = int(fname.stem.split('_')[-1])
+        #     already_done_fovs.append(fov_num)
 
         grpd_fovs = ds.dataset.groupby('fov_num')
 
         for fov_num, group in grpd_fovs:
-            if fov_num not in already_done_fovs:
+            # if fov_num not in already_done_fovs:
                 all_counts_fov = []
                 for index_value, fov_subdataset in group.iterrows():
                     round_num = fov_subdataset.round_num
