@@ -63,8 +63,16 @@ def experiment_processing_runner(path_source:str,
                             experiment_fpath = flagged_file_path.parent / experiment_name
                             os.remove(completion_file[0].as_posix())
                             try:
-                                print(f'RUN PROCESSING {experiment_fpath.stem}')
-                                chuparana()
+                                logger.info(f'RUN PROCESSING {experiment_fpath.stem}')
+                                general_flow(experiment_fpath,
+                                            run_type='new',
+                                            parsing_type='original',
+                                            fresh_nuclei_processing= False,
+                                            raw_data_folder_storage_path= '/fish/rawdata',
+                                            dataset_folder_storage_path= '/fish/fish_datasets',
+                                            save_intermediate_steps= False,
+                                            store_dataset= True)
+
                                 status = 'SUCCESS'
                             except:
                                 logger.error(f'Broken processing')
