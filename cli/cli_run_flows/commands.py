@@ -65,10 +65,10 @@ def run_general_flow(experiment_fpath:str,
     click.echo('--------------------------------------------------------------')
     
     general_flow(experiment_fpath, 
-                run_type = 'new', 
-                parsing_type='original',
-                fresh_nuclei_processing= False,
-                raw_data_folder_storage_path= '/fish/rawdata',
-                dataset_folder_storage_path= '/fish/fish_datasets',
-                save_intermediate_steps = False,
-                store_dataset=True)
+                run_type = run_type, 
+                parsing_type=parsing_type,
+                fresh_nuclei_processing= fresh_nuclei_processing,
+                raw_data_folder_storage_path= raw_data_folder_storage_path,
+                dataset_folder_storage_path= dataset_folder_storage_path,
+                save_intermediate_steps = save_intermediate_steps,
+                store_dataset=store_dataset)
