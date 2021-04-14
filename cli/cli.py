@@ -11,7 +11,6 @@ def pysmFISH_cli():
 
 pysmFISH_cli.add_command(data_organization_utilities)
 pysmFISH_cli.add_command(setup_processing_env)
-pysmFISH_cli.add_command(flows_runner)
 pysmFISH_cli.add_command(folder_monitoring_utilities)
 
 
