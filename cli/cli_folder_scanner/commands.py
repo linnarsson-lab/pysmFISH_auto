@@ -52,5 +52,5 @@ def dir_monitoring(path_source,
     click.echo('--------------------------------------------------------------')
     click.echo('monitor directory')
     click.echo('--------------------------------------------------------------')
-    experiment_processing_runner(path_source,path_destination,
+    experiment_processing_runner(path_source,
                     flag_file_key,completion_pattern,min_free_space,monitor_frequency)
