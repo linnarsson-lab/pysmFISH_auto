@@ -287,7 +287,7 @@ tile_corners_coords_pxl = dask.delayed(tile_corners_coords_pxl)
 all_processing = []
 # all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
 # grpd_fovs = all_imgs_fov.groupby('fov_num')
-ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
+#ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
 # chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
 
