@@ -322,55 +322,55 @@ def general_flow(experiment_fpath:str,
 
         for fov_num, group in grpd_fovs:
             if fov_num not in already_done_fovs:
-                all_counts_fov = []
-                for index_value, fov_subdataset in group.iterrows():
-                    round_num = fov_subdataset.round_num
-                    channel = fov_subdataset.channel
-                    fov = fov_subdataset.fov_num
-                    experiment_name = fov_subdataset.experiment_name
-                    dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-                                    '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-                    counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
-                                                analysis_parameters,
-                                                running_functions,
-                                                dark_img,
-                                                experiment_fpath,
-                                                save_steps_output=save_intermediate_steps,
-                                                            dask_key_name = dask_delayed_name )
-                    all_counts_fov.append(counts)
-                
-                name = 'concat_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
-                
-                name = 'register_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                registered_counts = dask.delayed(beads_based_registration)(all_counts_fov,
-                                                    analysis_parameters)
-
-                # saved_register_counts = dask.delayed(registered_counts.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
-                #                 '_registered_fov_' + str(fov) + '.parquet'))
-
-                name = 'decode_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-
-                decoded = dask.delayed(extract_barcodes_NN_fast)(registered_counts, 
-                                                                            analysis_parameters,codebook_df)                                                        
-                
-                name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()  
-                stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1],tile_corners_coords_pxl)
-                
-                name = 'save_file_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize() 
-                saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                                '_decoded_fov_' + str(fov) + '.parquet'),index=False)
-
-                saved_file_all = dask.delayed(decoded[0].to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                                '_all_dots_decoded_fov_' + str(fov) + '.parquet'),index=False)
-
+            all_counts_fov = []
+            for index_value, fov_subdataset in group.iterrows():
+                round_num = fov_subdataset.round_num
+                channel = fov_subdataset.channel
+                fov = fov_subdataset.fov_num
+                experiment_name = fov_subdataset.experiment_name
+                dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
+                                '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+                counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
+                                            analysis_parameters,
+                                            running_functions,
+                                            dark_img,
+                                            experiment_fpath,
+                                            save_steps_output=save_intermediate_steps,
+                                                        dask_key_name = dask_delayed_name )
+                all_counts_fov.append(counts)
             
-                all_processing.append(saved_file) 
+            name = 'concat_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+            all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
+            
+            name = 'register_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+            registered_counts = dask.delayed(beads_based_registration)(all_counts_fov,
+                                                analysis_parameters)
+
+            # saved_register_counts = dask.delayed(registered_counts.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
+            #                 '_registered_fov_' + str(fov) + '.parquet'))
+
+            name = 'decode_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+
+            decoded = dask.delayed(extract_barcodes_NN_fast)(registered_counts, 
+                                                                        analysis_parameters,codebook_df)                                                        
+            
+            name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()  
+            stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1],tile_corners_coords_pxl)
+            
+            name = 'save_file_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize() 
+            saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                            '_decoded_fov_' + str(fov) + '.parquet'),index=False)
+
+            saved_file_all = dask.delayed(decoded[0].to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                            '_all_dots_decoded_fov_' + str(fov) + '.parquet'),index=False)
+
+        
+            all_processing.append(saved_file) 
 
 
         # chunks = [all_processing[x:x+50] for x in range(0, len(all_processing), 50)]
