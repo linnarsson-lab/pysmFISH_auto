@@ -88,5 +88,3 @@ def experiment_processing_runner(path_source:str,
         pass
         # log output
 
-
-if __main__ == __name__:
