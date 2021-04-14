@@ -2,19 +2,24 @@ import time
 import traceback
 import pickle
 import zarr
+import dask
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from itertools import groupby
 from dask.distributed import Client
 from dask.distributed import as_completed, wait
 from dask import dataframe as dd
+from dask.base import tokenize
 
 from pysmFISH.logger_utils import json_logger
 from pysmFISH.logger_utils import selected_logger
 
 from pysmFISH.data_organization import transfer_data_to_storage
 from pysmFISH.data_organization import transfer_files_from_storage
+
+from pysmFISH.data_models import Dataset
 
 from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
@@ -43,6 +48,8 @@ from pysmFISH.utils import sorting_grps
 from pysmFISH.utils import not_run_counting_sorted_grps
 from pysmFISH.utils import sorting_grps_for_fov_processing
 
+from pysmFISH.fovs_registration import beads_based_registration
+from pysmFISH.barcodes_analysis import decoder_fun
 from pysmFISH.fovs_registration import create_registration_grps
 
 from flow_steps.create_processing_cluster import create_processing_cluster
@@ -50,19 +57,22 @@ from flow_steps.filtering_counting import load_dark_image
 
 from flow_steps.fov_processing import fov_processing_eel_barcoded
 from flow_steps.fov_processing import fov_processing_eel_barcoded_dev
+from flow_steps.fov_processing import single_fov_round_processing_eel
 
 from pysmFISH.stitching import organize_square_tiles
 from pysmFISH.stitching import stitch_using_microscope_fov_coords
-from pysmFISH.stitching import remove_overlapping_dots_from_gene
+from pysmFISH.stitching import remove_overlapping_dots_fov
+from pysmFISH.stitching import clean_from_duplicated_dots
+from pysmFISH.stitching import stitch_using_microscope_fov_coords_new
 
-
+from pysmFISH.barcodes_analysis import extract_barcodes_NN_fast
 from pysmFISH.preprocessing import fresh_nuclei_filtering
 
 from pysmFISH.qc_utils import QC_registration_error
 from pysmFISH.qc_utils import check_experiment_yaml_file
 
-
-
+def cane(x):
+    return x
 # def general_flow(experiment_fpath:str, run_type:str='new', parsing_type:str='original'):
 
 #     """
@@ -92,7 +102,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/wsfish/smfish_ssd/AMEXP20200826_SpaceTX_Human_Inhibitory1'
+experiment_fpath = '/fish/work_std/JJEXP20210318_EEL_SL007'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 results_data_folder_storage_path = '/fish/results'
@@ -107,9 +117,9 @@ run_type = 're-run'
 # original
 # reparsing_from_processing_folder
 # reparsing_from_storage 
-# None if parsing not to be performed
+# no_parsing if parsing not to be performed
 
-parsing_type = 'reparsing_from_storage'
+parsing_type = 'reparsing_from_processing_folder'
 
 
 fresh_nuclei_processing = False
@@ -131,11 +141,11 @@ if (run_type == 'new') or (parsing_type == 'reparsing_from_storage'):
 # # ----------------------------------------------------------------
 
 
-# # ----------------------------------------------------------------
-# # TRANSFER REQUIRED FILES FOR THE PROCESSING IF THE ANALYSIS START
-# # FROM RAW DATA IN THE STORAGE HD
-# if parsing_type == 'reparsing_from_storage':
-#     transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
+# ----------------------------------------------------------------
+# TRANSFER REQUIRED FILES FOR THE PROCESSING IF THE ANALYSIS START
+# FROM RAW DATA IN THE STORAGE HD
+if parsing_type == 'reparsing_from_storage':
+    transfer_files_from_storage(storage_experiment_fpath, experiment_fpath)
 # # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
@@ -207,14 +217,16 @@ else:
                                 experiment_info=experiment_info)
 
         # wait(parsing_futures)
-        # _ = client.gather(parsing_futures)
+        _ = client.gather(parsing_futures)
     
     else:
+        # add error if not correct parsing type
         if parsing_type == 'reparsing_from_processing_folder':
             raw_files_fpath = experiment_fpath + '/raw_data'
+            logger.info(f'raw_files_fpath {raw_files_fpath}')
         elif parsing_type == 'reparsing_from_storage':
             raw_files_fpath = storage_experiment_fpath + '/raw_data'
-
+        
         all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
         parsing_futures = client.map(nikon_nd2_reparser_zarr,
                                 all_raw_nd2,
@@ -224,88 +236,130 @@ else:
     _ = client.gather(parsing_futures)
     # wait(parsing_futures)
     consolidated_grp = consolidate_zarr_metadata(parsed_raw_data_fpath)
-    del parsing_futures
+    # del parsing_futures
 
 logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # ----------------------------------------------------------------
 
-
-# # ----------------------------------------------------------------
-# # IMAGE PREPROCESSING, DOTS COUNTING, REGISTRATION TO MICROSCOPE COORDS
-# start = time.time()
-# logger.info(f'start preprocessing and dots counting')
-
-# codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
-# sorted_grps = sorting_grps_for_fov_processing(consolidated_grp, experiment_info, analysis_parameters)
-
-# # PROCESSING PARAMETERS
-# registration_channel = experiment_info['StitchingChannel']
-# key = Path(experiment_fpath).stem + '_Hybridization01_' + registration_channel + '_fov_0'
-# fovs = consolidated_grp[key].attrs['fields_of_view']
-# img_width = consolidated_grp[key].attrs['img_width']
-# img_height = consolidated_grp[key].attrs['img_height']
-# registration_reference_hybridization = analysis_parameters['RegistrationReferenceHybridization']
-# selected_genes = 'below3Hdistance_genes'
-# correct_hamming_distance = 'zeroHdistance_genes' 
-
-# tiles_org = organize_square_tiles(experiment_fpath,experiment_info,
-#                                     consolidated_grp,
-#                                     registration_reference_hybridization)
-# tiles_org.run_tiles_organization()
-# tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
-
-# dark_img = load_dark_image(experiment_fpath)
-
-# # Scattering will be beneficial but causes error on HTCondor
-# # scatter the data to different workers to save timr
-# # remote_tile_corners_coords_pxl = client.scatter(tile_corners_coords_pxl)
-# # remote_codebook = client.scatter(codebook)
-# # remote_dark_img = client.scatter(dark_img)
-
-# logger_print.info(f'check if the logger is printing')
-
-# all_futures = []
-# start = time.time()
-
-# fname = Path(experiment_fpath) / 'tmp' / 'sorted_groups.pkl'
-# pickle.dump(sorted_grps, open(fname,'wb'))
-
-# for fov,sorted_grp in sorted_grps.items():
-#     future = client.submit(fov_processing_eel_barcoded_dev,
-#                                         fov=fov,
-#                                         sorted_grp=sorted_grp,
-#                                         experiment_info=experiment_info,
-#                                         analysis_parameters=analysis_parameters,
-#                                         experiment_fpath=experiment_fpath,
-#                                         parsed_raw_data_fpath=parsed_raw_data_fpath,
-#                                         running_functions=running_functions,
-#                                         img_width=img_width,
-#                                         img_height=img_height,
-#                                         tile_corners_coords_pxl= tile_corners_coords_pxl,
-#                                         codebook=codebook,
-#                                         selected_genes=selected_genes,
-#                                         correct_hamming_distance=correct_hamming_distance,
-#                                         dark_img = dark_img,
-#                                         save_steps_output=False,
-#                                         key= ('processing-fov-'+str(fov)))
-        
-
-#     all_futures.append(future)
-
-# _ = client.gather(all_futures)
-# tracebacks = {}
-# for future in as_completed(all_futures):
-#     logger_print.info(f'processed {future.key} in {time.time()-start} sec')
-#     tracebacks[future.key] = traceback.format_tb(future.traceback())
-#     del future
-
-# wait(all_futures)
-# fname = Path(experiment_fpath) / 'tmp' / 'tracebacks_processing_decoding.pkl'
-# pickle.dump(tracebacks, open(fname,'wb'))
-# logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
-
-# del all_futures
 # ----------------------------------------------------------------
+# CREATE DATASET
+start = time.time()
+logger.info(f'start dataset creation')
+ds = Dataset()
+ds.create_full_dataset_from_zmetadata(experiment_fpath, 
+             experiment_info,
+             parsed_raw_data_fpath)
+
+metadata = ds.collect_metadata(ds.dataset)
+# ds.dataset.loc[:,'stitching_channel'] = 'Europium'
+# ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
+
+logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
+
+
+# ----------------------------------------------------------------
+# DETERMINE TILES ORGANIZATION
+start = time.time()
+logger.info(f'start calculation of tiles organization')
+reference_round = analysis_parameters['RegistrationReferenceHybridization']
+tiles_org = organize_square_tiles(experiment_fpath,metadata,
+                                reference_round)
+tiles_org.run_tiles_organization()
+tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
+
+logger.info(f'calculation of tiles organization completed in {(time.time()-start)/60} min')
+
+
+# ----------------------------------------------------------------
+# IMAGE PREPROCESSING, DOTS COUNTING,
+
+codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
+
+start = time.time()
+logger.info(f'start preprocessing and dots counting')
+dark_img = load_dark_image(experiment_fpath)
+dark_img = dask.delayed(dark_img)
+codebook_df = dask.delayed(codebook)
+analysis_parameters = dask.delayed(analysis_parameters)
+running_functions = dask.delayed(running_functions)
+tile_corners_coords_pxl = dask.delayed(tile_corners_coords_pxl)
+
+all_processing = []
+# all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
+# grpd_fovs = all_imgs_fov.groupby('fov_num')
+#ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
+
+# chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
+
+# for chunk in chunks:
+#     img_dataset = ds.select_all_imgs_fov(ds.dataset,chunk)
+#     grpd_fovs = img_dataset.groupby('fov_num')
+
+grpd_fovs = ds.dataset.groupby('fov_num')
+
+for fov_num, group in grpd_fovs:
+    all_counts_fov = []
+    for index_value, fov_subdataset in group.iterrows():
+        round_num = fov_subdataset.round_num
+        channel = fov_subdataset.channel
+        fov = fov_subdataset.fov_num
+        experiment_name = fov_subdataset.experiment_name
+        dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
+                        '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+        counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
+                                    analysis_parameters,
+                                    running_functions,
+                                    dark_img,
+                                    experiment_fpath,
+                                    save_steps_output=False,
+                                                dask_key_name = dask_delayed_name )
+        all_counts_fov.append(counts)
+    
+    name = 'concat_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize()
+    all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
+    
+    name = 'register_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize()
+    registered_counts = dask.delayed(beads_based_registration)(all_counts_fov,
+                                        analysis_parameters)
+
+    # saved_register_counts = dask.delayed(registered_counts.to_parquet)(Path(experiment_fpath) / 'tmp'/ 'registered_counts'/ (experiment_name + \
+    #                 '_registered_fov_' + str(fov) + '.parquet'))
+
+    name = 'decode_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize()
+
+    decoded = dask.delayed(extract_barcodes_NN_fast)(registered_counts, 
+                                                                analysis_parameters,codebook_df)                                                        
+    
+    name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize()  
+    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(decoded[1],tile_corners_coords_pxl)
+    
+    name = 'save_file_' +experiment_name + '_' + channel + '_' \
+                        + '_fov_' +str(fov) + '-' + tokenize() 
+    saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                    '_decoded_fov_' + str(fov) + '.parquet'),index=False)
+
+    saved_file_all = dask.delayed(decoded[0].to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                    '_all_dots_decoded_fov_' + str(fov) + '.parquet'),index=False)
+
+ 
+    all_processing.append(saved_file) 
+
+
+# chunks = [all_processing[x:x+50] for x in range(0, len(all_processing), 50)]
+# for chunk in chunks:
+#     z = dask.compute(*chunk)
+
+    # # d = dask.delayed(cane)(all_futures_filtering_counting)
+z = dask.compute(*all_processing)
+    # # _ = client.gather(all_futures_filtering_counting)
+    # del z
+
+logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+
 
 # ----------------------------------------------------------------
 # # QC REGISTRATION ERROR
@@ -321,7 +375,7 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # logger.info(f'plotting of the registration error completed in {(time.time()-start)/60} min')
 # # ----------------------------------------------------------------
 
-# # ----------------------------------------------------------------
+# ----------------------------------------------------------------
 # # REMOVE DUPLICATED DOTS FROM THE OVERLAPPING REGIONS
 # start = time.time()
 # logger.info(f'start removal of duplicated dots')
@@ -334,41 +388,56 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 # # Prepare the dataframe
 # select_genes = 'below3Hdistance_genes'
 # stitching_selected = 'microscope_stitched'
-# same_dot_radius = 10
+# same_dot_radius = 100
 # r_tag = 'r_px_' + stitching_selected
 # c_tag = 'c_px_' + stitching_selected
 
-# # counts_dd = dd.read_parquet(Path(experiment_fpath) / 'tmp' / 'registered_counts' / '*decoded*.parquet',
-# #                                                 engine='pyarrow')
-
-# all_files = (Path(experiment_fpath) / 'tmp' / 'registered_counts').glob('*decoded*.parquet')
-# counts_dd_list = [dd.read_parquet(counts_file) for counts_file in all_files]
-# counts_dd = dd.concat(counts_dd_list, axis=0)
-# counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,:]
-# counts_df = counts_dd.dropna(subset=[select_genes]).compute()
-# grpd = counts_df.groupby(select_genes)
 
 # all_futures = []
 
-# for gene, count_df in grpd:
-#     future = client.submit(remove_overlapping_dots_from_gene,
-#                             experiment_fpath = experiment_fpath,
-#                             counts_df=counts_df,
-#                             unfolded_overlapping_regions_dict=corrected_overlapping_regions_dict,
+# for cpl,chunk_coords in corrected_overlapping_regions_dict.items():
+#     future = client.submit(remove_overlapping_dots_fov,
+#                             cpl = cpl,
+#                             chunk_coords=chunk_coords,
+#                             experiment_fpath=experiment_fpath,
 #                             stitching_selected=stitching_selected,
-#                             gene = gene,
+#                             select_genes=select_genes,
 #                             same_dot_radius = same_dot_radius)
-    
+
+#     all_futures.append(future)
+
+# to_remove = client.gather(all_futures)  
+# to_remove = [el for tg in to_remove for el in tg]
+# removed_dot_dict = {}
+# for k, g in groupby(to_remove, key=lambda x: int(x.split('_')[0])):
+#     removed_dot_dict.update({k:list(g)})
+
+# for fov in fovs:
+#     if fov not in removed_dot_dict.keys():
+#         removed_dot_dict.update({fov:[]})
+
+# logger_print.info(f'{removed_dot_dict.keys()}')
+
+# for fov,dots_id_to_remove in removed_dot_dict.items():
+#     future = client.submit(clean_from_duplicated_dots,
+#                             fov = fov,
+#                             dots_id_to_remove=dots_id_to_remove,
+#                             experiment_fpath=experiment_fpath)
+
 #     all_futures.append(future)
 
 # _ = client.gather(all_futures)
+
+
 # logger.info(f'removal of duplicated dots completed in {(time.time()-start)/60} min')
-# # ----------------------------------------------------------------
+# # # ----------------------------------------------------------------
 
 
 # # ----------------------------------------------------------------
-# # GENERATE OUTPUT FOR PLOTTING
-# simple_output_plotting(experiment_fpath, stitching_selected, select_genes, client)
+# GENERATE OUTPUT FOR PLOTTING
+selected_Hdistance = 3 / metadata['barcode_length']
+stitching_selected = 'microscope_stitched'
+simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client)
 
 # ----------------------------------------------------------------
 # # PROCESS FRESH NUCLEI
