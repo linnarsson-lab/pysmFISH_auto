@@ -129,7 +129,7 @@ def reorganize_processing_dir(experiment_fpath:str,
     # Remove the tmp data
     folders_to_remove = ['tmp','logs']
     for folder_name in folders_to_remove:
-        shutil.rmtree((experiment_fpath / folder_name).as_posix())
+        shutil.rmtree((experiment_fpath / folder_name).as_posix(),ignore_errors=False)
     
     
     # removed or store parsed data
