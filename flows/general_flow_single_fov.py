@@ -250,45 +250,45 @@ def general_flow(experiment_fpath:str,
     # ----------------------------------------------------------------
 
     # ----------------------------------------------------------------
-    # CREATE DATASET
-    start = time.time()
-    logger.info(f'start dataset creation')
-    ds = Dataset()
-    ds.create_full_dataset_from_zmetadata(experiment_fpath, 
-                experiment_info,
-                parsed_raw_data_fpath)
+    # # CREATE DATASET
+    # start = time.time()
+    # logger.info(f'start dataset creation')
+    # ds = Dataset()
+    # ds.create_full_dataset_from_zmetadata(experiment_fpath, 
+    #             experiment_info,
+    #             parsed_raw_data_fpath)
 
-    metadata = ds.collect_metadata(ds.dataset)
-    # ds.dataset.loc[:,'stitching_channel'] = 'Europium'
-    # ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
+    # metadata = ds.collect_metadata(ds.dataset)
+    # # ds.dataset.loc[:,'stitching_channel'] = 'Europium'
+    # # ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
-    logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
+    # logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
 
 
-    # ----------------------------------------------------------------
-    # DETERMINE TILES ORGANIZATION
-    start = time.time()
-    logger.info(f'start calculation of tiles organization')
-    reference_round = analysis_parameters['RegistrationReferenceHybridization']
-    tiles_org = organize_square_tiles(experiment_fpath,metadata,
-                                    reference_round)
-    tiles_org.run_tiles_organization()
-    tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
+    # # ----------------------------------------------------------------
+    # # DETERMINE TILES ORGANIZATION
+    # start = time.time()
+    # logger.info(f'start calculation of tiles organization')
+    # reference_round = analysis_parameters['RegistrationReferenceHybridization']
+    # tiles_org = organize_square_tiles(experiment_fpath,metadata,
+    #                                 reference_round)
+    # tiles_org.run_tiles_organization()
+    # tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
 
-    logger.info(f'calculation of tiles organization completed in {(time.time()-start)/60} min')
+    # logger.info(f'calculation of tiles organization completed in {(time.time()-start)/60} min')
 
-    dark_img = load_dark_image(experiment_fpath)
-    dark_img = dask.delayed(dark_img)
-    analysis_parameters = dask.delayed(analysis_parameters)
-    running_functions = dask.delayed(running_functions)
-    tile_corners_coords_pxl = dask.delayed(tile_corners_coords_pxl)
+    # dark_img = load_dark_image(experiment_fpath)
+    # dark_img = dask.delayed(dark_img)
+    # analysis_parameters = dask.delayed(analysis_parameters)
+    # running_functions = dask.delayed(running_functions)
+    # tile_corners_coords_pxl = dask.delayed(tile_corners_coords_pxl)
 
     # ----------------------------------------------------------------
     # SPLIT PROCESSING BETWEEN SERIAL AND BARCODED
     # ----------------------------------------------------------------
 
 
-    if metadata['experiment_type'] == 'eel-barcoded':
+    # if metadata['experiment_type'] == 'eel-barcoded':
 
         # ----------------------------------------------------------------
         # PROCESSING EEL BARCODED
@@ -613,7 +613,7 @@ def general_flow(experiment_fpath:str,
 
 
 
-    logger.info(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')
+    # logger.info(f'pipeline run completed in {(time.time()-pipeline_start)/60} min')
 
     client.close()
     cluster.close()
