@@ -149,6 +149,8 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
     raw_data_location = Path(fov_subdataset.raw_data_location)
     parsed_raw_data_fpath = raw_data_location.parent
 
+    processing_parameters = analysis_parameters[processing_type]
+
     img = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
                                                                         zarr_grp_name,
                                                                         parsed_raw_data_fpath,
