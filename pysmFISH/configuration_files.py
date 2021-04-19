@@ -40,8 +40,8 @@ def create_processing_env_config_file(config_db_path:str):
     processing_env_config['htcondor'] = {}
 
     processing_env_config['htcondor']['smfish-serial'] = {}
-    processing_env_config['htcondor']['smfish-serial']['cores'] = 1
-    processing_env_config['htcondor']['smfish-serial']['memory'] = '10GB'
+    processing_env_config['htcondor']['smfish-serial']['cores'] = 20
+    processing_env_config['htcondor']['smfish-serial']['memory'] = '300GB'
     processing_env_config['htcondor']['smfish-serial']['disk'] = '0.1GB'
     processing_env_config['htcondor']['smfish-serial']['local_directory'] = '/tmp'
 
