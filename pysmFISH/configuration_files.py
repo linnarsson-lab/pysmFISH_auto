@@ -432,6 +432,7 @@ def create_function_runner(experiment_fpath,experiment_info):
     elif running_type == 'smfish-serial-adult-human':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
+                            'reference_channels_preprocessing':'nuclei_registration_filtering',
                             'registration_reference':'calculate_shift_hybridization_fov_nuclei',
                             'registration_fish': 'register_fish_on_nuclei'}
 
