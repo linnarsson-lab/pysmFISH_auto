@@ -477,7 +477,7 @@ def combine_rounds_images(images_path_list,experiment_fpath, experiment_info,all
 
 
 
-def combine_filtered_images(output_list,experiment_fpath,metadata, save=True):
+def combine_filtered_images(output_list,experiment_fpath,metadata, save=False):
     experiment_fpath = Path(experiment_fpath)
      
     img_stack = np.zeros([metadata['total_rounds'],metadata['img_width'],metadata['img_height']])
