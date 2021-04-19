@@ -162,6 +162,24 @@ def simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdista
     counts_df.to_parquet(fpath,index=False)
 
 
+def simple_output_plotting_serial(experiment_fpath, stitching_selected, client):
+
+    experiment_fpath = Path(experiment_fpath)
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*decoded*.parquet',engine='pyarrow')
+
+    date_tag = time.strftime("%y%m%d_%H_%M_%S")
+
+    r_tag = 'r_px_' + stitching_selected
+    c_tag = 'c_px_' + stitching_selected
+
+
+    counts_df = counts_dd.loc[:,['fov_num',r_tag,c_tag, 'target_name']].compute()
+
+    counts_df=counts_df.dropna(subset=['target_name'])
+    fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting.parquet')
+    counts_df.to_parquet(fpath,index=False)
+
+
 
 # def connect_to_shoji_smfish_experiment(experiment_name: str):
     
