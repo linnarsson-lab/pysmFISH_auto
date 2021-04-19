@@ -987,7 +987,7 @@ def nuclei_based_registration(all_counts_fov,
 
 
         # Register fish and enter ref round info
-        fish_ref_round = fish_df.loc[fish_df.reference_round_num == reference_round_num,:]
+        fish_ref_round = fish_df.loc[fish_df.round_num == reference_round_num,:]
 
         all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  \
                 fish_ref_round.loc[fish_ref_round.index,'r_px_original']
@@ -1005,7 +1005,7 @@ def nuclei_based_registration(all_counts_fov,
     
         for r_num in all_rounds:
             # Register fish
-            fish_ref_round = fish_df.loc[fish_df.reference_round_num == (r_num+1),:]
+            fish_ref_round = fish_df.loc[fish_df.round_num == (r_num+1),:]
 
             shift, error, diffphase = phase_cross_correlation(ref_img, img_stack[r_num,:,:],return_error=True)    
             
