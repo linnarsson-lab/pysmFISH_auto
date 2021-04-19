@@ -298,7 +298,7 @@ def filter_remove_large_objs_gpu(
 
 
     try:
-        raw_fish_images_meta = load_raw_images(zarr_grp_name,
+        img = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
     except:
         logger.error(f'cannot load {zarr_grp_name} raw fish image')
@@ -306,8 +306,6 @@ def filter_remove_large_objs_gpu(
     else:
         logger.info(f'loaded {zarr_grp_name} raw fish image')
 
-        img = raw_fish_images_meta[0]
-        img_metadata = raw_fish_images_meta[1]
         img = img_as_float64(img)
 
         img -= dark_img
@@ -344,7 +342,7 @@ def filter_remove_large_objs_gpu(
         masked_img = img*mask
 
         
-        return img, masked_img, img_metadata
+        return img, masked_img
 
 
 def large_beads_preprocessing_gpu(zarr_grp_name,
