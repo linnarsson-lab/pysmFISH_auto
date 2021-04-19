@@ -488,6 +488,7 @@ def combine_filtered_images(output_list,experiment_fpath,metadata, save=True):
 
     if save:
         # Add conversion to more compress ftype
+        img_meta = output_list[0][1]
         channel = img_meta.channel
         fov = img_meta.fov_num
         fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_combined_img_fov_' + fov + '.npy')
