@@ -13,19 +13,31 @@ from pysmFISH.errors import Registration_errors
 
 
 
-class convert_xlsx_barcode():
+class convert_barcode():
     """
-    Class use to conver handy .xlsx with barcodes.
-    The .xlsx files must have the follwing columns:
-
-    Count|Code|N|CORE/EXTENDED|DYE|TAIL1|TAIL2|TAIL3|TAIL4|TAIL5|TAIL6|Gene
-
-
-
+    Class use to convert parquet files with codebook info
+    in smaller size better for passing around during processing
     """
-    def __init__(self, xlsx_barcode_fpath, barcode_name):
+    def __init__(self, barcode_fpath):
         
-        self.xlsx_barcode_fpath = Path(xlsx_barcode_fpath)
+        self.barcode_fpath = Path(barcode_fpath)
+        self.barcode_fname = self.barcode_fpath.stem
+
+    @staticmethod
+    def format_codeword(codeword):
+        str_num = codeword.split('[')[-1].split(']')[0]
+        converted_codeword = np.array([int(el) for el in list(str_num)]).astype(np.int8)
+        converted_codeword = converted_codeword.tobytes()
+        return converted_codeword
+
+    def convert_barcode(self):
+        used_gene_codebook_df = pd.read_parquet(self.barcode_fpath)
+        self.codebook_df = used_gene_codebook.loc[:,['Barcode','Gene']]
+        self.codebook_df.rename(columns = {'Barcode':'Code'}, inplace = True)
+        self.codebook_df.Code = self.codebook_df.Code.apply(lambda x: self.format_codeword(x))
+        self.codebook_df.to_parquet(self.barcode_fpath)
+
+
 
 
 
