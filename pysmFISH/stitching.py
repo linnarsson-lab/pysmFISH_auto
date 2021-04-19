@@ -55,6 +55,7 @@ class organize_square_tiles():
         self.img_width = self.metadata['img_width']
         self.img_height = self.metadata['img_height']
         
+        logging.getLogger('matplotlib.font_manager').disabled = True
         
         if  self.img_width ==  self.img_height:
             self.img_size = self.img_width
