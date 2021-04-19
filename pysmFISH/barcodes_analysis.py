@@ -32,7 +32,7 @@ class simplify_barcodes_reference():
 
     def convert_barcode(self):
         used_gene_codebook_df = pd.read_parquet(self.barcode_fpath)
-        self.codebook_df = used_gene_codebook.loc[:,['Barcode','Gene']]
+        self.codebook_df = used_gene_codebook_df.loc[:,['Barcode','Gene']]
         self.codebook_df.rename(columns = {'Barcode':'Code'}, inplace = True)
         self.codebook_df.Code = self.codebook_df.Code.apply(lambda x: self.format_codeword(x))
         self.codebook_df.to_parquet(self.barcode_fpath)
