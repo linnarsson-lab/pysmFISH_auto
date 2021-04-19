@@ -154,8 +154,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
     img = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
                                                                         zarr_grp_name,
                                                                         parsed_raw_data_fpath,
-                                                                        processing_parameters,
-                                                                        dark_img)
+                                                                        processing_parameters)
 
     if save_steps_output:
         fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
