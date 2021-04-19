@@ -288,6 +288,24 @@ def general_flow(experiment_fpath:str,
     # ----------------------------------------------------------------
 
 
+    all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[100,50,25])
+    grpd_fovs = all_imgs_fov.groupby('fov_num')
+    #ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
+
+    # chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
+
+    # for chunk in chunks:
+    #     img_dataset = ds.select_all_imgs_fov(ds.dataset,chunk)
+    #     grpd_fovs = img_dataset.groupby('fov_num')
+
+    # already_processed = (Path(experiment_fpath) / 'results').glob('*.parquet')
+    # already_done_fovs = []
+    # for fname in already_processed:
+    #     fov_num = int(fname.stem.split('_')[-1])
+    #     already_done_fovs.append(fov_num)
+
+    # grpd_fovs = ds.dataset.groupby('fov_num')
+
     if metadata['experiment_type'] == 'eel-barcoded':
 
         # ----------------------------------------------------------------
@@ -302,24 +320,7 @@ def general_flow(experiment_fpath:str,
         
 
         all_processing = []
-        all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[100,50,25])
-        grpd_fovs = all_imgs_fov.groupby('fov_num')
-        #ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
-
-        # chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
-
-        # for chunk in chunks:
-        #     img_dataset = ds.select_all_imgs_fov(ds.dataset,chunk)
-        #     grpd_fovs = img_dataset.groupby('fov_num')
-
-        # already_processed = (Path(experiment_fpath) / 'results').glob('*.parquet')
-        # already_done_fovs = []
-        # for fname in already_processed:
-        #     fov_num = int(fname.stem.split('_')[-1])
-        #     already_done_fovs.append(fov_num)
-
-        # grpd_fovs = ds.dataset.groupby('fov_num')
-
+        
         for fov_num, group in grpd_fovs:
             # if fov_num not in already_done_fovs:
                 all_counts_fov = []
@@ -385,104 +386,93 @@ def general_flow(experiment_fpath:str,
         logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
 
-    #     # # ----------------------------------------------------------------
-    #     # GENERATE OUTPUT FOR PLOTTING
-    #     selected_Hdistance = 3 / metadata['barcode_length']
-    #     stitching_selected = 'microscope_stitched'
-    #     simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client)
-    #     # ----------------------------------------------------------------  
+        # # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / metadata['barcode_length']
+        stitching_selected = 'microscope_stitched'
+        simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client)
+        # ----------------------------------------------------------------  
 
-    # elif metadata['experiment_type'] == 'smfish-serial':
+    elif metadata['experiment_type'] == 'smfish-serial':
 
-    #     # ----------------------------------------------------------------
-    #     # PROCESSING SERIAL smFISH
-    #     # ----------------------------------------------------------------
+        # ----------------------------------------------------------------
+        # PROCESSING SERIAL smFISH
+        # ----------------------------------------------------------------
 
-    #     start = time.time()
-    #     logger.info(f'start preprocessing and dots counting')
+        start = time.time()
+        logger.info(f'start preprocessing and dots counting')
         
-    #     all_processing = []
-    #     # all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[222,243,235])
-    #     # grpd_fovs = all_imgs_fov.groupby('fov_num')
-    #     #ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
+        all_processing = []
 
-    #     # chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
+        for fov_num, group in grpd_fovs:
+            all_counts_fov = []
+            all_nuclei_fov = []
+            for index_value, fov_subdataset in group.iterrows():
+                round_num = fov_subdataset.round_num
+                channel = fov_subdataset.channel
+                fov = fov_subdataset.fov_num
+                experiment_name = fov_subdataset.experiment_name
+                processing_type = fov_subdataset.processing_type
 
-    #     # for chunk in chunks:
-    #     #     img_dataset = ds.select_all_imgs_fov(ds.dataset,chunk)
-    #     #     grpd_fovs = img_dataset.groupby('fov_num')
+                if processing_type == 'nuclei':
+                    dask_delayed_name = 'filt_' +experiment_name + '_' + channel + \
+                                    '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
 
-    #     grpd_fovs = ds.dataset.groupby('fov_num')
+                    out_nuclei = dask.delayed(single_fov_round_processing_serial_nuclei)(fov_subdataset,
+                                            analysis_parameters,
+                                            running_functions,
+                                            dark_img,
+                                            experiment_fpath,
+                                            save_steps_output=save_intermediate_steps,
+                                                        dask_key_name = dask_delayed_name )
+                    all_nuclei_fov.append(out_nuclei)
 
-    #     for fov_num, group in grpd_fovs:
-    #         all_counts_fov = []
-    #         all_nuclei_fov = []
-    #         for index_value, fov_subdataset in group.iterrows():
-    #             round_num = fov_subdataset.round_num
-    #             channel = fov_subdataset.channel
-    #             fov = fov_subdataset.fov_num
-    #             experiment_name = fov_subdataset.experiment_name
-    #             processing_type = fov_subdataset.processing_type
-
-    #             if processing_type == 'nuclei':
-    #                 dask_delayed_name = 'filt_' +experiment_name + '_' + channel + \
-    #                                 '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-
-    #                 out_nuclei = dask.delayed(single_fov_round_processing_serial_nuclei)(fov_subdataset,
-    #                                         analysis_parameters,
-    #                                         running_functions,
-    #                                         dark_img,
-    #                                         experiment_fpath,
-    #                                         save_steps_output=save_intermediate_steps,
-    #                                                     dask_key_name = dask_delayed_name )
-    #                 all_nuclei_fov.append(out_nuclei)
-
-    #             else:
-    #                 dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-    #                                 '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-    #                 counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
-    #                                             analysis_parameters,
-    #                                             running_functions,
-    #                                             dark_img,
-    #                                             experiment_fpath,
-    #                                             save_steps_output=save_intermediate_steps,
-    #                                                         dask_key_name = dask_delayed_name )
-    #                 all_counts_fov.append(counts)
+                else:
+                    dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
+                                    '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+                    counts = dask.delayed(single_fov_round_processing_eel)(fov_subdataset,
+                                                analysis_parameters,
+                                                running_functions,
+                                                dark_img,
+                                                experiment_fpath,
+                                                save_steps_output=save_intermediate_steps,
+                                                            dask_key_name = dask_delayed_name )
+                    all_counts_fov.append(counts)
             
-    #         name = 'concat_fish_' +experiment_name + '_' + channel + '_' \
-    #                             + '_fov_' +str(fov) + '-' + tokenize()
-    #         all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
+            name = 'concat_fish_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+            all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
             
-    #         name = 'create_nuclei_stack' +experiment_name + '_' + channel + '_' \
-    #                             + '_fov_' +str(fov) + '-' + tokenize()
+            name = 'create_nuclei_stack' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
             
-    #         filtered_nuclei_stack = dask.delayed(combine_filtered_images)(all_nuclei_fov,experiment_fpath,metadata)
+            filtered_nuclei_stack = dask.delayed(combine_filtered_images)(all_nuclei_fov,experiment_fpath,metadata)
 
 
-    #         name = 'register_' +experiment_name + '_' + channel + '_' \
-    #                             + '_fov_' +str(fov) + '-' + tokenize()
+            name = 'register_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
             
-    #         registered_counts = dask.delayed(nuclei_based_registration)(all_counts_fov,
-    #                                             filtered_nuclei_stack,
-    #                                             analysis_parameters)
+            registered_counts = dask.delayed(nuclei_based_registration)(all_counts_fov,
+                                                filtered_nuclei_stack,
+                                                analysis_parameters)
                                                                                                 
             
-    #         name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
-    #                             + '_fov_' +str(fov) + '-' + tokenize()  
-    #         stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(registered_counts,tile_corners_coords_pxl)
+            name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()  
+            stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(registered_counts,tile_corners_coords_pxl)
             
-    #         name = 'save_file_' +experiment_name + '_' + channel + '_' \
-    #                             + '_fov_' +str(fov) + '-' + tokenize() 
-    #         saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-    #                         '_decoded_fov_' + str(fov) + '.parquet'),index=False)
+            name = 'save_file_' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize() 
+            saved_file = dask.delayed(stitched_coords.to_parquet)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                            '_decoded_fov_' + str(fov) + '.parquet'),index=False)
         
-    #         all_processing.append(saved_file) 
+            all_processing.append(saved_file) 
 
             
-    #     _ = dask.compute(*all_processing)
+        _ = dask.compute(*all_processing)
             
 
-    # logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
+    logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
     # ----------------------------------------------------------------
     # # QC REGISTRATION ERROR
