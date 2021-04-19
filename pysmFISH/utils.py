@@ -484,7 +484,7 @@ def combine_filtered_images(output_list,experiment_fpath,metadata, save=False):
 
     for img, img_meta in output_list:
         round_num = img_meta.round_num
-        img_stack[round_num-1,:,:] = shifted_img
+        img_stack[round_num-1,:,:] = img
 
     if save:
         # Add conversion to more compress ftype
