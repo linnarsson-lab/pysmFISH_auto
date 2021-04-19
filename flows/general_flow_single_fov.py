@@ -289,8 +289,8 @@ def general_flow(experiment_fpath:str,
     # ----------------------------------------------------------------
 
 
-    all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[100,50,25])
-    grpd_fovs = all_imgs_fov.groupby('fov_num')
+    # all_imgs_fov = ds.select_all_imgs_fov(ds.dataset,[100,50,25])
+    # grpd_fovs = all_imgs_fov.groupby('fov_num')
     #ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
     # chunks = [ds.list_all_fovs[x:x+10] for x in range(0, len(ds.list_all_fovs), 10)]
@@ -305,7 +305,7 @@ def general_flow(experiment_fpath:str,
     #     fov_num = int(fname.stem.split('_')[-1])
     #     already_done_fovs.append(fov_num)
 
-    # grpd_fovs = ds.dataset.groupby('fov_num')
+    grpd_fovs = ds.dataset.groupby('fov_num')
 
     if metadata['experiment_type'] == 'eel-barcoded':
 
