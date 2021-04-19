@@ -13,7 +13,7 @@ from pysmFISH.errors import Registration_errors
 
 
 
-class convert_barcode():
+class simplify_barcodes_reference():
     """
     Class use to convert parquet files with codebook info
     in smaller size better for passing around during processing
