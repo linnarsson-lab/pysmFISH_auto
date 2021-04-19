@@ -35,6 +35,8 @@ def create_processing_env_config_file(config_db_path:str):
     processing_env_config_fpath = config_db_path / 'processing_env_config.yaml'
     processing_env_config = OrderedDict()
 
+    processing_env_config['processing_engine'] = 'htcondor'
+    
     processing_env_config['htcondor'] = {}
 
     processing_env_config['htcondor']['smfish-serial'] = {}
