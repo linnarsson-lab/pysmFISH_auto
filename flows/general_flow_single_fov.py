@@ -37,6 +37,7 @@ from pysmFISH.io import create_empty_zarr_file
 from pysmFISH.io import consolidate_zarr_metadata
 from pysmFISH.io import open_consolidated_metadata
 from pysmFISH.io import simple_output_plotting
+from pysmFISH.io import simple_output_plotting_serial
 
 from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector_general
 from pysmFISH.microscopy_file_parsers import nd2_raw_files_selector
@@ -258,7 +259,7 @@ def general_flow(experiment_fpath:str,
                 experiment_info,
                 parsed_raw_data_fpath)
 
-    # ds.load_dataset('/fish/work_std/AMEXP20200826_SpaceTX_Human_Inhibitory1/210419_12_48_54_AMEXP20200826_SpaceTX_Human_Inhibitory1_dataset_corrected.parquet')
+    ds.load_dataset('/fish/work_std/AMEXP20200826_SpaceTX_Human_Inhibitory1/210419_12_48_54_AMEXP20200826_SpaceTX_Human_Inhibitory1_dataset_corrected.parquet')
     metadata = ds.collect_metadata(ds.dataset)
     # ds.dataset.loc[:,'stitching_channel'] = 'Europium'
     # ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
@@ -471,7 +472,13 @@ def general_flow(experiment_fpath:str,
 
             
         _ = dask.compute(*all_processing)
-            
+
+        # # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        stitching_selected = 'microscope_stitched'
+        simple_output_plotting_serial(experiment_fpath, stitching_selected, client)
+        # ----------------------------------------------------------------  
+  
 
     logger.info(f'preprocessing and dots counting completed in {(time.time()-start)/60} min')
 
