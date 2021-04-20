@@ -53,7 +53,7 @@ class Dataset():
             self.logger.error(f'there are no files with the metadata dictionary')
             sys.exit(f'there are no files with the metadata dictionary')
     
-    def create_full_dataset_from_zmetadata(self,experiment_fpath,
+    def create_full_dataset_from_zmetadata(self,
                                        parsed_raw_data_fpath):  
         
         try:
@@ -62,12 +62,10 @@ class Dataset():
             self.logger.error(f'consolidated zarr metadata missing or broken')
             sys.exit(f'consolidated zarr metadata missing or broken')
         else:
-            self.experiment_fpath = Path(experiment_fpath)
-            self.experiment_info = experiment_info
             self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
             
             date_tag = time.strftime("%y%m%d_%H_%M_%S")
-            experiment_name = self.experiment_fpath.stem
+            experiment_name = self.self.parsed_raw_data_fpath.stem
             self.dataset_fpath = self.experiment_fpath / (date_tag + '_' + experiment_name + '_dataset.parquet')
             
             self.dataset = pd.DataFrame()

@@ -255,8 +255,7 @@ def general_flow(experiment_fpath:str,
     start = time.time()
     logger.info(f'start dataset creation')
     ds = Dataset()
-    ds.create_full_dataset_from_zmetadata(experiment_fpath,
-                parsed_raw_data_fpath)
+    ds.create_full_dataset_from_zmetadata(parsed_raw_data_fpath)
 
     # ds.load_dataset('/fish/work_std/AMEXP20200826_SpaceTX_Human_Inhibitory1/210419_12_48_54_AMEXP20200826_SpaceTX_Human_Inhibitory1_dataset_corrected.parquet')
     metadata = ds.collect_metadata(ds.dataset)
