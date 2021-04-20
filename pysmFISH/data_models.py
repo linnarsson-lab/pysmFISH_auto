@@ -65,7 +65,7 @@ class Dataset():
             self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
             
             date_tag = time.strftime("%y%m%d_%H_%M_%S")
-            experiment_name = self.self.parsed_raw_data_fpath.stem
+            experiment_name = self.parsed_raw_data_fpath.stem
             self.dataset_fpath = self.experiment_fpath / (date_tag + '_' + experiment_name + '_dataset.parquet')
             
             self.dataset = pd.DataFrame()
