@@ -53,8 +53,7 @@ class Dataset():
             self.logger.error(f'there are no files with the metadata dictionary')
             sys.exit(f'there are no files with the metadata dictionary')
     
-    def create_full_dataset_from_zmetadata(self,experiment_fpath, 
-                                       experiment_info,
+    def create_full_dataset_from_zmetadata(self,experiment_fpath,
                                        parsed_raw_data_fpath):  
         
         try:
