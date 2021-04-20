@@ -66,7 +66,7 @@ class Dataset():
             
             date_tag = time.strftime("%y%m%d_%H_%M_%S")
             experiment_name = self.parsed_raw_data_fpath.stem
-            self.dataset_fpath = self.experiment_fpath / (date_tag + '_' + experiment_name + '_dataset.parquet')
+            self.dataset_fpath = self.parsed_raw_data_fpath.parent / (date_tag + '_' + experiment_name + '_dataset.parquet')
             
             self.dataset = pd.DataFrame()
             for name, grp in consolidated_metadata.items():
