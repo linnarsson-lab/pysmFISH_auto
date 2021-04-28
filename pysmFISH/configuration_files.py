@@ -284,7 +284,7 @@ def create_general_analysis_config_file(config_db_path:str):
 
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFilteringLaplacianKernel'] = (0.2,0.01,0.01)
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFilteringLaplacianKernel'] = (0.2,0.0,0.1)
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMinObjDistance'] = 2
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMaxObjSize'] = 200
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMinObjSize'] = 3
