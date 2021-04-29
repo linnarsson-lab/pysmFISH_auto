@@ -507,7 +507,7 @@ def osmFISH_peak_based_detection_fast(ImgStack,
     # Consider the case of no detectected peaks or if there is only one Thr
     # that create peaks (list TotalPeaks have only one element and )
     # if np.array(TotalPeaks).sum()>0 or len(TotalPeaks)>1:
-    if len(TotalPeaks) > 1:
+    if len(TotalPeaks) >= 2:
 
         # Trim the threshold array in order to match the stopping point
         # used the [0][0] to get the first number and then take it out from list
