@@ -255,9 +255,12 @@ def general_flow(experiment_fpath:str,
     start = time.time()
     logger.info(f'start dataset creation')
     ds = Dataset()
-    # ds.create_full_dataset_from_zmetadata(parsed_raw_data_fpath)
+    ds.create_full_dataset_from_zmetadata(parsed_raw_data_fpath)
 
-    ds.load_dataset('/fish/work_std/JJEXP20200818_SpaceTX_Human_Excitatory_5/210428_20_42_17_JJEXP20200818_SpaceTX_Human_Excitatory_5_img_data_dataset_corrected.parquet')
+    # ds.load_dataset('/fish/work_std/JJEXP20200818_SpaceTX_Human_Excitatory_5/210428_20_42_17_JJEXP20200818_SpaceTX_Human_Excitatory_5_img_data_dataset_corrected.parquet')
+    
+    ds.dataset = ds.dataset.loc[(ds.dataset.channel == 'Europium') & (ds.dataset.round_num == 1),:]
+    
     metadata = ds.collect_metadata(ds.dataset)
     # ds.dataset.loc[:,'stitching_channel'] = 'Europium'
     # ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
@@ -315,7 +318,7 @@ def general_flow(experiment_fpath:str,
         # IMAGE PREPROCESSING, DOTS COUNTING, DECODING and STITCHING TO MICROSCOPE COORDS
         start = time.time()
         logger.info(f'start preprocessing and dots counting')
-        codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / experiment_info['Codebook'])
+        codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / ds.dataset.iloc[0]['codebook'])
         codebook_df = dask.delayed(codebook)
         
 
