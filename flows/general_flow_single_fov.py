@@ -25,6 +25,8 @@ from pysmFISH.configuration_files import load_experiment_config_file
 from pysmFISH.configuration_files import load_analysis_config_file
 from pysmFISH.configuration_files import create_specific_analysis_config_file
 from pysmFISH.configuration_files import create_function_runner
+from pysmFISH.configuration_files import load_codebook
+
 
 from pysmFISH.utils import create_folder_structure
 from pysmFISH.utils import collect_processing_files
@@ -324,7 +326,7 @@ def general_flow(experiment_fpath:str,
         # IMAGE PREPROCESSING, DOTS COUNTING, DECODING and STITCHING TO MICROSCOPE COORDS
         start = time.time()
         logger.info(f'start preprocessing and dots counting')
-        codebook = pd.read_parquet(Path(experiment_fpath) / 'codebook' / ds.dataset.iloc[0]['codebook'])
+        codebook = load_codebook(experiment_fpath,metadata)
         codebook_df = dask.delayed(codebook)
         
 

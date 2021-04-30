@@ -6,6 +6,7 @@ from typing import *
 import yaml
 import sys
 import shutil
+import pandas as pd
 from pathlib import Path
 from collections import OrderedDict
 
@@ -587,6 +588,33 @@ def load_processing_env_config_file(experiment_fpath:str):
             return processing_env_config
     else:
         return processing_env_config
+
+
+def load_codebook(experiment_fpath:str, metadata:str):
+    """
+    Function used to load the codebook
+
+    Args:
+        config_db_fpath; str
+            path to the folder containing the data_transfer_config.yaml
+    """
+    logger = selected_logger()
+    codebook_name = metadata['']
+    codebook_fpath = Path(experiment_fpath) / 'pipeline_config' / codebook_name
+    try:
+        codebook = pd.read_parquet(codebook_fpath)
+    except (FileExistsError,NameError,FileNotFoundError) as e:
+        logger.debug(f'{codebook_name} missing in the pipeline_config folder')
+        try:
+            codebooks_db_fpath = (Path(experiment_fpath)).parent / 'codebooks' / codebook_name
+            codebook = pd.read_parquet(codebooks_db_fpath)
+            _ = shutil.copy2(codebooks_db_fpath,codebook_fpath)
+            return codebook
+        except:
+            logger.error('cannot create the codebook')
+    else:
+        return codebook
+
 
 
 def load_analysis_config_file(experiment_fpath:str):
