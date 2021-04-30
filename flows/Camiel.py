@@ -111,7 +111,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/datb/sl/camiel/Simone/CMEXP20210226'
+experiment_fpath = '/datb/sl/camiel/Simone/CMEXP20210311'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 dataset_folder_storage_path = '/fish/fish_datasets'
