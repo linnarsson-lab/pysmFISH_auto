@@ -392,9 +392,9 @@ def general_flow(experiment_fpath:str,
 
         # # ----------------------------------------------------------------
         # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / metadata['barcode_length']
-        stitching_selected = 'microscope_stitched'
-        simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client)
+        # selected_Hdistance = 3 / metadata['barcode_length']
+        # stitching_selected = 'microscope_stitched'
+        # simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client)
         # ----------------------------------------------------------------  
 
     elif metadata['experiment_type'] == 'smfish-serial':
