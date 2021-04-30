@@ -116,7 +116,7 @@ def single_fov_round_processing_eel(fov_subdataset,
 
     
     if save_steps_output:
-        fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
+        fname = raw_counts_path / (experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num))
         np.save(filtered_img_path / (fname + '.npy'),img )
         counts.to_parquet((fname + '.parquet'),index=False)
 
