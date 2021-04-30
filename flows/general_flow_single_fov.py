@@ -383,7 +383,7 @@ def general_flow(experiment_fpath:str,
 
             # # d = dask.delayed(cane)(all_futures_filtering_counting)
         # _ = dask.compute(*all_processing)
-        _ = dask.compute(*all_counts)
+        _ = dask.compute(*all_counts_fov)
             # # _ = client.gather(all_futures_filtering_counting)
             # del z
 
