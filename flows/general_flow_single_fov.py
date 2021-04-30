@@ -165,12 +165,6 @@ def general_flow(experiment_fpath:str,
     analysis_parameters = load_analysis_config_file(experiment_fpath)
     # ----------------------------------------------------------------
 
-    # ----------------------------------------------------------------
-    # CREATE RUNNING FUNCTIONS
-    # used to select the sets of functions to run preprocessing and dots
-    # calling according to the type of processing and sample
-    running_functions = create_function_runner(experiment_fpath,experiment_info)
-    # ----------------------------------------------------------------
 
     if run_type == 'new': 
         # ----------------------------------------------------------------
@@ -257,6 +251,7 @@ def general_flow(experiment_fpath:str,
     ds = Dataset()
     ds.create_full_dataset_from_zmetadata(parsed_raw_data_fpath)
 
+
     # ds.load_dataset('/fish/work_std/JJEXP20200818_SpaceTX_Human_Excitatory_5/210428_20_42_17_JJEXP20200818_SpaceTX_Human_Excitatory_5_img_data_dataset_corrected.parquet')
     
     ds.dataset = ds.dataset.loc[(ds.dataset.channel == 'Europium') & (ds.dataset.round_num == 1),:]
@@ -266,6 +261,17 @@ def general_flow(experiment_fpath:str,
     # ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
 
     logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
+
+    # ----------------------------------------------------------------
+
+    # ----------------------------------------------------------------
+    # CREATE RUNNING FUNCTIONS
+    # used to select the sets of functions to run preprocessing and dots
+    # calling according to the type of processing and sample
+    running_functions = create_function_runner(experiment_fpath,metadata)
+    # ----------------------------------------------------------------
+
+
 
 
     # ----------------------------------------------------------------

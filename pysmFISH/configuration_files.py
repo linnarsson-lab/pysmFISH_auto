@@ -404,15 +404,15 @@ def create_general_analysis_config_file(config_db_path:str):
         logger.error(f'cannot save the analysis_config_file')
 
 
-def create_function_runner(experiment_fpath,experiment_info):
+def create_function_runner(experiment_fpath,pipeline,metadata):
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     running_functions = OrderedDict()
 
-    running_type = experiment_info['Pipeline']
-    stitching_type = experiment_info['Stitching_type']
+    pipeline = metadata['pipeline']
+    stitching_type = metadata['stitching_type']
 
-    if running_type == 'eel-human-GBM':
+    if pipeline == 'eel-human-GBM':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
                             'reference_channels_dots_calling': 'osmFISH_peak_based_detection_fast'}  
@@ -420,23 +420,23 @@ def create_function_runner(experiment_fpath,experiment_info):
             # osmFISH_peak_based_detection_test      
         logger.info(f'selected functions for {running_type}')
 
-    elif running_type == 'eel-human-adult-brain':
+    elif pipeline == 'eel-human-adult-brain':
         logger.info(f'selected functions for {running_type}')
         pass
 
-    elif running_type == 'eel-human-embryo':
+    elif pipeline == 'eel-human-embryo':
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
                             'reference_channels_dots_calling': 'osmFISH_peak_based_detection_fast'}
 
-    elif running_type == 'smfish-serial-adult-human':
+    elif pipeline == 'smfish-serial-adult-human':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
                             'reference_channels_preprocessing':'nuclei_registration_filtering',
                             'registration_reference':'calculate_shift_hybridization_fov_nuclei',
                             'registration_fish': 'register_fish_on_nuclei'}
 
-    elif running_type == 'smfish-serial-mouse':
+    elif pipeline == 'smfish-serial-mouse':
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
                             'reference_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
@@ -445,8 +445,6 @@ def create_function_runner(experiment_fpath,experiment_info):
     else:
         logger.error(f'The sample does not have a corresponding analysis pipeline')
         sys.exit(f'The sample does not have a corresponding analysis pipeline')
-
-    
 
 
     if stitching_type == 'large-beads':
