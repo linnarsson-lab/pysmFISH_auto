@@ -342,7 +342,7 @@ def general_flow(experiment_fpath:str,
                                                 save_steps_output=save_intermediate_steps,
                                                             dask_key_name = dask_delayed_name )
                     all_counts_fov.append(counts)
-            
+                    all_processing.append(counts)
                 # name = 'concat_' +experiment_name + '_' + channel + '_' \
                 #                     + '_fov_' +str(fov) + '-' + tokenize()
                 # all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
@@ -376,14 +376,12 @@ def general_flow(experiment_fpath:str,
             
                 # all_processing.append(saved_file) 
 
-
         # chunks = [all_processing[x:x+50] for x in range(0, len(all_processing), 50)]
         # for chunk in chunks:
         #     z = dask.compute(*chunk)
 
             # # d = dask.delayed(cane)(all_futures_filtering_counting)
-        # _ = dask.compute(*all_processing)
-        _ = dask.compute(*all_counts_fov)
+        _ = dask.compute(*all_processing)
             # # _ = client.gather(all_futures_filtering_counting)
             # del z
 
