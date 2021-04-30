@@ -404,7 +404,7 @@ def create_general_analysis_config_file(config_db_path:str):
         logger.error(f'cannot save the analysis_config_file')
 
 
-def create_function_runner(experiment_fpath,pipeline,metadata):
+def create_function_runner(experiment_fpath,metadata):
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     running_functions = OrderedDict()
