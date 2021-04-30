@@ -94,6 +94,8 @@ class Dataset():
         self.metadata['barcode_length'] = df.iloc[0]['barcode_length']
         self.metadata['processing_type'] = df.iloc[0]['processing_type']
         self.metadata['experiment_type'] = df.iloc[0]['experiment_type']
+        self.metadata['pipeline'] =  df.iloc[0]['pipeline']
+        self.metadata['stitching_type'] = df.iloc[0]['stitching_type']
         return self.metadata
         
 
