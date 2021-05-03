@@ -98,6 +98,9 @@ def single_fov_round_processing_eel(fov_subdataset,
             np.save(filtered_img_path / (fname + '.npy'),img )
             counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
 
+        # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
+        return counts
+
     elif processing_type == 'staining':
             pass
 
@@ -126,8 +129,8 @@ def single_fov_round_processing_eel(fov_subdataset,
             np.save(filtered_img_path / (fname + '.npy'),img )
             counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
 
-    # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
-    return counts
+        # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
+        return counts
 
 
 def single_fov_round_processing_serial_nuclei(fov_subdataset,
