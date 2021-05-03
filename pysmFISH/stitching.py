@@ -368,6 +368,22 @@ def stitch_using_microscope_fov_coords_new(decoded_df,tile_corners_coords_pxl):
         # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
     return decoded_df
 
+
+def stitch_using_microscope_fov_camiel_tmp(decoded_df,tile_corners_coords_pxl):
+    if decoded_df['r_px_original'].empty:
+        decoded_df['r_px_microscope_stitched'] = np.nan
+        decoded_df['c_px_microscope_stitched'] = np.nan
+    else:
+        fov = decoded_df.iloc[0]['fov_num']
+        r_microscope_coords = tile_corners_coords_pxl[fov,0]
+        c_microscope_coords = tile_corners_coords_pxl[fov,1]
+        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_original']
+        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_original']
+
+        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
+        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
+    return decoded_df
+
 # REMOVE OVERLAPPING DOTS ACCORDING TO GENE
 # preprocessing and removal part to put in the flow file
 

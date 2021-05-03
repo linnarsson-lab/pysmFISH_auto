@@ -67,6 +67,7 @@ from pysmFISH.stitching import stitch_using_microscope_fov_coords
 from pysmFISH.stitching import remove_overlapping_dots_fov
 from pysmFISH.stitching import clean_from_duplicated_dots
 from pysmFISH.stitching import stitch_using_microscope_fov_coords_new
+from pysmFISH.stitching import stitch_using_microscope_fov_camiel_tmp
 
 from pysmFISH.barcodes_analysis import extract_barcodes_NN_fast
 from pysmFISH.preprocessing import fresh_nuclei_filtering
@@ -310,7 +311,7 @@ for fov_num, group in grpd_fovs:
                                                                                      
     name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize()  
-    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(all_counts_fov,tile_corners_coords_pxl)
+    stitched_coords = dask.delayed(stitch_using_microscope_fov_camiel_tmp)(all_counts_fov,tile_corners_coords_pxl)
     
     name = 'save_file_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize() 
