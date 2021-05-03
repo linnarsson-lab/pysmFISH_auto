@@ -93,8 +93,14 @@ def single_fov_round_processing_eel(fov_subdataset,
                                                                             processing_parameters)
 
 
+        if save_steps_output:
+            fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
+            np.save(filtered_img_path / (fname + '.npy'),img )
+            counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
+
     elif processing_type == 'staining':
             pass
+
     
 
     # process all type of registration
@@ -115,10 +121,10 @@ def single_fov_round_processing_eel(fov_subdataset,
                                                                             processing_parameters)
 
     
-    if save_steps_output:
-        fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
-        np.save(filtered_img_path / (fname + '.npy'),img )
-        counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
+        if save_steps_output:
+            fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
+            np.save(filtered_img_path / (fname + '.npy'),img )
+            counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
 
     # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
     return counts
