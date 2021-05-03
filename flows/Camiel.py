@@ -307,24 +307,10 @@ for fov_num, group in grpd_fovs:
     name = 'concat_fish_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize()
     all_counts_fov = dask.delayed(pd.concat)(all_counts_fov,axis=0,ignore_index=True)
-    
-    name = 'create_nuclei_stack' +experiment_name + '_' + channel + '_' \
-                        + '_fov_' +str(fov) + '-' + tokenize()
-    
-    filtered_nuclei_stack = dask.delayed(combine_filtered_images)(all_nuclei_fov,experiment_fpath,metadata)
-
-
-    name = 'register_' +experiment_name + '_' + channel + '_' \
-                        + '_fov_' +str(fov) + '-' + tokenize()
-    
-    registered_counts = dask.delayed(nuclei_based_registration)(all_counts_fov,
-                                        filtered_nuclei_stack,
-                                        analysis_parameters)
-                                                                                        
-    
+                                                                                     
     name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize()  
-    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(registered_counts,tile_corners_coords_pxl)
+    stitched_coords = dask.delayed(stitch_using_microscope_fov_coords_new)(all_counts_fov,tile_corners_coords_pxl)
     
     name = 'save_file_' +experiment_name + '_' + channel + '_' \
                         + '_fov_' +str(fov) + '-' + tokenize() 
