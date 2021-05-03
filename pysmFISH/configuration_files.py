@@ -419,10 +419,10 @@ def create_function_runner(experiment_fpath,metadata):
                             'reference_channels_dots_calling': 'osmFISH_peak_based_detection_fast'}  
 
             # osmFISH_peak_based_detection_test      
-        logger.info(f'selected functions for {running_type}')
+        logger.info(f'selected functions for {pipeline}')
 
     elif pipeline == 'eel-human-adult-brain':
-        logger.info(f'selected functions for {running_type}')
+        logger.info(f'selected functions for {pipeline}')
         pass
 
     elif pipeline == 'eel-human-embryo':
@@ -442,7 +442,7 @@ def create_function_runner(experiment_fpath,metadata):
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
                             'reference_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
 
-        logger.info(f'selected functions for {running_type}')
+        logger.info(f'selected functions for {pipeline}')
     else:
         logger.error(f'The sample does not have a corresponding analysis pipeline')
         sys.exit(f'The sample does not have a corresponding analysis pipeline')
