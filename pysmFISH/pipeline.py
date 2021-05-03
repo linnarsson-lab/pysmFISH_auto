@@ -1,5 +1,7 @@
 from typing import *
 
+from pathlib import Path
+
 from datetime import datetime
 
 
@@ -29,10 +31,31 @@ def nice_deltastring(delta):
 
 
 class Pipleline():
+    """
 
-    def __init__(self, name, experiment_fpath):
-        self.logger = selected_logger()        
+    """
+
+
+
+    def __init__(self, pipeline_name:str, experiment_fpath:str,
+                run_type:str = 'new', parsing_type:str = 'original'):
+
+
+        self.logger = selected_logger()   
+        self.pipeline_name = pipeline_name
+        self.experiment_fpath = Path(experiment_fpath)
+        self.run_type = run_type
+        self.parsing_type = parsing_type
+
         self.parsed_image_tag = 'img_data'
+        
+        # dictionary to collect all the step that will be run
+        # sequentially in the pipeline
+        self.pipeline_recipe = {}
+
+
+    def load_config(self):
+
 
     def add_step(self):
         pass
@@ -40,8 +63,12 @@ class Pipleline():
     def start_dask_processing_env(self, engine:str = 'htcondor', **kwargs):
         if engine == 'local':
             self.cluster = local_cluster_setup()
-            logger = logger.debug(f'started local cluster at ')
+            logger = self.logger.debug(f'started local cluster at ')
         elif engine == 'htcondor':
+            cores = kwargs.pop('cores', '')
+            memory = kwargs.pop('memory', '')
+            disk = kwargs.pop('disk', '')
+            local_directory = kwargs.pop('local_directory', '')
             cluster = htcondor_cluster_setup(cluster_config_parameters)
             cluster.scale(jobs=1)
             minimum_jobs = 1
