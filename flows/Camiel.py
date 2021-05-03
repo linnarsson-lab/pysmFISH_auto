@@ -220,6 +220,9 @@ ds.create_full_dataset_from_zmetadata(parsed_raw_data_fpath)
 
 # ds.load_dataset('/datb/sl/camiel/Simone/CMEXP20210311/210503_06_58_44_CMEXP20210311_img_data_dataset_corrected.parquet')
 
+ds.dataset.iloc[ds.dataset.channel == 'DAPI','processing_type'] = 'staining'
+ds.dataset.iloc[ds.dataset.channel != 'DAPI','processing_type'] = 'fish'
+
 metadata = ds.collect_metadata(ds.dataset)
 # # ds.dataset.loc[:,'stitching_channel'] = 'Europium'
 # # ds.dataset.loc[ds.dataset.channel == 'Europium','processing_type'] = 'large-beads'
