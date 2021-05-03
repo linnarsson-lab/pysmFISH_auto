@@ -82,7 +82,7 @@ pipeline_start = time.time()
 # PARAMETERS DEFINITION
 # Experiment fpath will be loaded from the scanning function
 
-experiment_fpath = '/datb/sl/camiel/Simone/CMEXP20210311'
+experiment_fpath = '/datb/sl/camiel/Simone/CMEXP20210226'
 
 raw_data_folder_storage_path = '/fish/rawdata'
 dataset_folder_storage_path = '/fish/fish_datasets'
@@ -99,7 +99,7 @@ run_type = 're-run'
 # reparsing_from_storage 
 # no_parsing if parsing not to be performed
 
-parsing_type = 'no_parsing'
+parsing_type = 'reparsing_from_processing_folder'
 
 
 fresh_nuclei_processing = False
