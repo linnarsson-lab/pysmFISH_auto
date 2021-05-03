@@ -128,7 +128,7 @@ run_type = 're-run'
 # reparsing_from_storage 
 # no_parsing if parsing not to be performed
 
-parsing_type = 'no_parsing'
+parsing_type = 'reparsing_from_processing_folder'
 
 
 fresh_nuclei_processing = False
