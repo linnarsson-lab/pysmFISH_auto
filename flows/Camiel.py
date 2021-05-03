@@ -162,12 +162,6 @@ create_specific_analysis_config_file(experiment_fpath, experiment_info)
 analysis_parameters = load_analysis_config_file(experiment_fpath)
 # ----------------------------------------------------------------
 
-# ----------------------------------------------------------------
-# CREATE RUNNING FUNCTIONS
-# used to select the sets of functions to run preprocessing and dots
-# calling according to the type of processing and sample
-running_functions = create_function_runner(experiment_fpath,experiment_info)
-# ----------------------------------------------------------------
 
 if run_type == 'new': 
     # ----------------------------------------------------------------
@@ -261,7 +255,16 @@ ds.create_full_dataset_from_zmetadata(parsed_raw_data_fpath)
 # logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
 
 
+
 # # ----------------------------------------------------------------
+# # CREATE RUNNING FUNCTIONS
+# # used to select the sets of functions to run preprocessing and dots
+# # calling according to the type of processing and sample
+# running_functions = create_function_runner(experiment_fpath,experiment_info)
+# # ----------------------------------------------------------------
+
+
+# # # ----------------------------------------------------------------
 # # DETERMINE TILES ORGANIZATION
 # start = time.time()
 # logger.info(f'start calculation of tiles organization')
