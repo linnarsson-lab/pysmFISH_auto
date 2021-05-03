@@ -364,6 +364,7 @@ def stitch_using_microscope_fov_coords_new(decoded_df,tile_corners_coords_pxl):
         decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
         decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
 
+        # for Robofish1
         # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
         # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
     return decoded_df
