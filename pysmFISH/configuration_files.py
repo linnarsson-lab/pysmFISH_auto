@@ -599,7 +599,7 @@ def load_codebook(experiment_fpath:str, metadata:str):
             path to the folder containing the data_transfer_config.yaml
     """
     logger = selected_logger()
-    codebook_name = metadata['']
+    codebook_name = metadata['codebook']
     codebook_fpath = Path(experiment_fpath) / 'pipeline_config' / codebook_name
     try:
         codebook = pd.read_parquet(codebook_fpath)
