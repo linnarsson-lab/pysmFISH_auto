@@ -260,7 +260,7 @@ logger.info(f'dataset creation completed in {(time.time()-start)/60} min')
 # CREATE RUNNING FUNCTIONS
 # used to select the sets of functions to run preprocessing and dots
 # calling according to the type of processing and sample
-running_functions = create_function_runner(experiment_fpath,experiment_info)
+running_functions = create_function_runner(experiment_fpath,metadata)
 # ----------------------------------------------------------------
 
 
