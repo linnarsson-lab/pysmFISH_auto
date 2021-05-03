@@ -246,7 +246,9 @@ logger.info(f'reparsing completed in {(time.time()-start)/60} min')
 start = time.time()
 logger.info(f'start dataset creation')
 ds = Dataset()
-ds.create_full_dataset_from_zmetadata(parsed_raw_data_fpath)
+# ds.create_full_dataset_from_zmetadata(parsed_raw_data_fpath)
+
+ds.load_dataset('/datb/sl/camiel/Simone/CMEXP20210311/210428_20_42_17_JJEXP20200818_SpaceTX_Human_Excitatory_5_img_data_dataset_corrected.parquet')
 
 metadata = ds.collect_metadata(ds.dataset)
 # # ds.dataset.loc[:,'stitching_channel'] = 'Europium'
