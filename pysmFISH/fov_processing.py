@@ -63,70 +63,33 @@ def single_fov_round_processing_eel(fov_subdataset,
     parsed_raw_data_fpath = raw_data_location.parent
 
     if processing_type == 'fish':
-        
         processing_parameters = analysis_parameters['fish']
-        if running_functions['fish_channels_preprocessing'] == 'filter_remove_large_objs':
-
-            img, masked_img = getattr(pysmFISH.preprocessing,running_functions['fish_channels_preprocessing'])(
-                                                            zarr_grp_name,
-                                                            parsed_raw_data_fpath,
-                                                            processing_parameters,
-                                                            dark_img)
-
-            counts = getattr(pysmFISH.dots_calling,running_functions['fish_channels_dots_calling'])(
-                                                                masked_img,
-                                                                fov_subdataset,
-                                                                processing_parameters)                                              
-
-        else:
-
-            img = getattr(pysmFISH.preprocessing,running_functions['fish_channels_preprocessing'])(
-                                                            zarr_grp_name,
-                                                            parsed_raw_data_fpath,
-                                                            processing_parameters,
-                                                            dark_img)
-
-
-            counts = getattr(pysmFISH.dots_calling,running_functions['fish_channels_dots_calling'])(
-                                                                            img,
-                                                                            fov_subdataset,
-                                                                            processing_parameters)
-
-
-        if save_steps_output:
-            fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
-            np.save(filtered_img_path / (fname + '.npy'),img )
-            counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
-
-        # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
-        return counts
-
+        filtering_fun = running_functions['fish_channels_preprocessing']
+        counting_fun = running_functions['fish_channels_dots_calling']
+        
     elif processing_type == 'staining':
-            pass
+        pass
 
-    
-
-    # process all type of registration
     else:
         processing_parameters = analysis_parameters[processing_type]
-        
-        img = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
-                                                                        zarr_grp_name,
-                                                                        parsed_raw_data_fpath,
-                                                                        processing_parameters,
-                                                                        dark_img)
+        filtering_fun = running_functions['reference_channels_preprocessing']
+        counting_fun = running_functions['reference_channels_dots_calling']
 
 
+        filt_out = getattr(pysmFISH.preprocessing,filtering_fun)(
+                                                        zarr_grp_name,
+                                                        parsed_raw_data_fpath,
+                                                        processing_parameters,
+                                                        dark_img)
 
-        counts = getattr(pysmFISH.dots_calling,running_functions['reference_channels_dots_calling'])(
-                                                                            img,
-                                                                            fov_subdataset,
-                                                                            processing_parameters)
+        counts = getattr(pysmFISH.dots_calling,counting_fun)(
+                                                            filt_out[0],
+                                                            fov_subdataset,
+                                                            processing_parameters)                                              
 
-    
         if save_steps_output:
             fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
-            np.save(filtered_img_path / (fname + '.npy'),img )
+            np.save(filtered_img_path / (fname + '.npy'),filt_out[-1] )
             counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
 
         # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
