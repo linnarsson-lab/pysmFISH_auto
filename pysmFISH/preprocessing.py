@@ -1,5 +1,20 @@
 """ 
 Collection of functions to run filtering 
+
+All the filtering functions will return a tuple of different length with 
+in position 0 the image that will be used for downstream dots calling and 
+last position the filtered image that will be saved.
+Ex. 
+standard_not_norm_preprocessing -> (img,): in this case img will be fed to the
+counting algorithm and also saved
+
+filter_remove_large_objs -> (masked_img, img): in this case masked_img will be
+fed to the counting algorithm and img saved
+
+Hypotetical_filt -> (processed, X, X, X , img): in this case processed will be
+fed to the counting algorithm and img saved
+
+
 """
 from typing import *
 import pickle
@@ -58,6 +73,7 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
 
 
 
+
 def standard_not_norm_preprocessing(
         zarr_grp_name,
         parsed_raw_data_fpath,
@@ -109,7 +125,7 @@ def standard_not_norm_preprocessing(
 
         img = img.max(axis=0)
 
-        return img
+        return (img,)
 
 
 
@@ -171,7 +187,7 @@ def standard_norm_preprocessing(
         img_nn = img_nn.max(axis=0)
         img_nn[img_nn<=0] = 0 # All negative values set to zero
 
-        return img_nn
+        return (img_nn,)
 
 
 
@@ -249,7 +265,7 @@ def filter_remove_large_objs(
         masked_img = img*mask
 
         
-        return img, masked_img
+        return (masked_img,img)
 
 
 def large_beads_preprocessing(zarr_grp_name,
@@ -276,7 +292,7 @@ def large_beads_preprocessing(zarr_grp_name,
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
 
-    return img
+    return (img,)
 
 
 def both_beads_preprocessing(zarr_grp_name,
@@ -309,7 +325,7 @@ def both_beads_preprocessing(zarr_grp_name,
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
 
-    return img
+    return (img,)
 
 
 def nuclei_registration_filtering(zarr_grp_name,
