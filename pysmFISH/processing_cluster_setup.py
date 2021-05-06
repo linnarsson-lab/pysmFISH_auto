@@ -33,7 +33,7 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
     memory = htcondor_cluster_setup['memory']
     disk = htcondor_cluster_setup['disk']
     local_directory = htcondor_cluster_setup['local_directory']
-    log_directory = htcondor_cluster_setup['experiment_fpath'] + '/logs/'
+    log_directory = htcondor_cluster_setup['logs_directory']
     cluster = HTCondorCluster(cores=cores, memory=memory, 
                         disk=disk,local_directory=local_directory,
                         log_directory=log_directory,
@@ -72,7 +72,7 @@ def local_cluster_setup():
     return cluster
 
 
-def start_processing_env(processing_env_config:Dict,experiment_info:Dict,experiment_fpath:str):
+def start_processing_env(processing_env_config:Dict):
     """
     Function to start the processing env. In the current setup
     is set up to run on the local computer or in a HPC cluster 
@@ -93,15 +93,11 @@ def start_processing_env(processing_env_config:Dict,experiment_info:Dict,experim
     logger = selected_logger()
     processing_engine = processing_env_config['processing_engine']
     if processing_engine == 'htcondor':
-        experiment_type = experiment_info['Experiment_type']
-        cluster_config_parameters = processing_env_config[processing_engine][experiment_type]
-        cluster_config_parameters['experiment_fpath'] = experiment_fpath
-        cluster = htcondor_cluster_setup(cluster_config_parameters)
+        cluster = htcondor_cluster_setup(processing_env_config)
         cluster.scale(jobs=1)
         # Always put a minimum to avoid the cluster to shut down
         minimum_jobs = 1
         maximum_jobs = 15
-
         cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
         # cluster.adapt(minimum_jobs=minimum_jobs)
         logger.info(f'adaptive dask cluster with {minimum_jobs} minimum jobs')

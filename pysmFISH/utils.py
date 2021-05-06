@@ -258,11 +258,11 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
 
 
 
-def create_dark_img(experiment_fpath,experiment_info):
+def create_dark_img(experiment_fpath,metadata):
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
-    experiment_name = experiment_info['EXP_name']
-    machine = experiment_info['Machine']
+    experiment_name = metadata['experiment_name']
+    machine = metadata['machine']
     # Check if the dark image is already present
     try:
         pres = list((experiment_fpath / 'extra_processing_data').glob('*_dark_img.npy'))[0]
