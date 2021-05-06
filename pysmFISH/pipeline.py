@@ -100,7 +100,7 @@ class Pipleline():
         self.analysis_parameters = configuration_files.load_analysis_config_file(self.experiment_fpath)
         self.parsed_raw_data_fpath = self.experiment_fpath / (self.experiment_fpath.stem + '_' + self.parsed_image_tag + '.zarr') 
     
-    def processing_cluster_setup.start_processing_env(self):
+    def processing_cluster_init(self):
         # Start processing environment
         self.logger.info(f'Starting processing environment')
         self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
@@ -336,7 +336,7 @@ class Pipleline():
     
     def run_all(self):
         self.load_config_files()
-        self.processing_cluster_setup.start_processing_env()
+        self.processing_cluster_init.start_processing_env()
 
         utils.create_folder_structure(self.experiment_fpath)
         self.logger.info(f'Folder structure completed')
