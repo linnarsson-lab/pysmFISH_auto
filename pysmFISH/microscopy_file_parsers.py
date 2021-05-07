@@ -13,6 +13,9 @@ from dask import array as da
 from pathlib import Path
 
 
+from pysmFISH import io
+from pysmFISH import utils
+
 from pysmFISH.logger_utils import selected_logger
 
 
@@ -527,6 +530,68 @@ def nikon_nd2_parser_simple_mfov(nd2_file_path):
         new_file_path = experiment_fpath / new_file_name
         nd2_file_path.rename(new_file_path)
         nd2_file_path = new_file_path
+
+
+
+
+
+def nikon_nd2_parsing_graph(experiment_fpath,
+                                parsing_type,parsed_image_tag, 
+                                storage_experiment_fpath, raw_files_fpath,
+                                client):
+    """
+    explain all the steps that are run by this function
+    """
+    experiment_info = configuration_files.load_experiment_config_file(experiment_fpath)
+    configuration_files.create_specific_analysis_config_file(experiment_fpath, experiment_info)
+    
+    # Create empty zarr file for the parse data
+    parsed_raw_data_fpath = io.create_empty_zarr_file(experiment_fpath=experiment_fpath,
+                                        tag=parsed_image_tag)
+    if parsing_type == 'original':
+        utils.collect_processing_files(experiment_fpath, experiment_info)
+        utils.sort_data_into_folders(experiment_fpath, experiment_info)
+        all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
+
+        parsing_futures = client.map(nikon_nd2_autoparser_zarr,
+                                all_raw_nd2,
+                                parsed_raw_data_fpath=parsed_raw_data_fpath,
+                                experiment_info=experiment_info)
+
+        # wait(parsing_futures)
+        _ = client.gather(parsing_futures)
+    
+    else:
+        # add error if not correct parsing type
+        if parsing_type == 'reparsing_from_processing_folder':
+            raw_files_fpath = experiment_fpath + '/raw_data'
+            logger.info(f'raw_files_fpath {raw_files_fpath}')
+        elif parsing_type == 'reparsing_from_storage':
+            nd2_raw_files_selector(storage_experiment_fpath, experiment_fpath)
+            raw_files_fpath = storage_experiment_fpath + '/raw_data'
+        
+        all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
+        parsing_futures = client.map(nikon_nd2_reparser_zarr,
+                                all_raw_nd2,
+                                parsed_raw_data_fpath=parsed_raw_data_fpath,
+                                experiment_info=experiment_info)
+
+    _ = self.client.gather(parsing_futures)
+    consolidated_grp = io.consolidate_zarr_metadata(parsed_raw_data_fpath)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ----------------------------------------------------------------------------------
 

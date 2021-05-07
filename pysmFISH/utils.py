@@ -16,6 +16,28 @@ from scipy.ndimage import fourier_shift
 
 from pysmFISH.logger_utils import selected_logger
 
+
+# From Sten cytograph shoji
+# https://github.com/linnarsson-lab/cytograph-shoji/blob/6389e8864c755f056ab7c9b51892650e5ed4f040/cytograph/pipeline/workflow.py#L12
+def nice_deltastring(delta):
+	result = []
+	s = delta.total_seconds()
+	h = s // 60 // 60
+	if h >= 1:
+		result.append(f"{int(h)}h")
+		s -= h * 60 * 60
+	m = s // 60
+	if m >= 1:
+		result.append(f"{int(m)}m")
+		s -= m * 60
+	if s >= 1:
+		result.append(f"{int(s)}s")
+	if len(result) > 0:
+		return " ".join(result)
+	else:
+		return f"{delta.microseconds // 1000} ms"
+
+
 def free_space(hd_path:str, min_free_space:int):
     """
     Function used to determine if there is enough space in the
