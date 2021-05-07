@@ -104,7 +104,7 @@ def standard_not_norm_preprocessing(
     
 
     try:
-        img = load_raw_images(zarr_grp_name,
+        img, metadata = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
     except:
         logger.error(f'cannot load {zarr_grp_name} raw fish image')
@@ -125,7 +125,7 @@ def standard_not_norm_preprocessing(
 
         img = img.max(axis=0)
 
-        return (img,)
+        return ((img,),metadata)
 
 
 
@@ -159,7 +159,7 @@ def standard_norm_preprocessing(
 
 
     try:
-        img = load_raw_images(zarr_grp_name,
+        img, metadata = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
     except:
         logger.error(f'cannot load {zarr_grp_name} raw fish image')
@@ -187,7 +187,7 @@ def standard_norm_preprocessing(
         img_nn = img_nn.max(axis=0)
         img_nn[img_nn<=0] = 0 # All negative values set to zero
 
-        return (img_nn,)
+        return ((img_nn,),metadata)
 
 
 
@@ -226,7 +226,7 @@ def filter_remove_large_objs(
 
 
     try:
-        img = load_raw_images(zarr_grp_name,
+        img, metadata = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
     except:
         logger.error(f'cannot load {zarr_grp_name} raw fish image')
@@ -265,7 +265,7 @@ def filter_remove_large_objs(
         masked_img = img*mask
 
         
-        return (masked_img,img)
+        return ((masked_img,img),metadata)
 
 
 def large_beads_preprocessing(zarr_grp_name,
@@ -279,7 +279,7 @@ def large_beads_preprocessing(zarr_grp_name,
     experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
 
-    img = load_raw_images(zarr_grp_name,
+    img, metadata = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
 
     img = convert_from_uint16_to_float64(img)
@@ -292,7 +292,7 @@ def large_beads_preprocessing(zarr_grp_name,
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
 
-    return (img,)
+    return ((img,), metadata)
 
 
 def both_beads_preprocessing(zarr_grp_name,
@@ -311,7 +311,7 @@ def both_beads_preprocessing(zarr_grp_name,
     experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
 
-    img = load_raw_images(zarr_grp_name,
+    img, metadata = load_raw_images(zarr_grp_name,
                             parsed_raw_data_fpath)
 
     logger.info(f'loaded {zarr_grp_name} raw fish image')
@@ -325,7 +325,7 @@ def both_beads_preprocessing(zarr_grp_name,
     img /= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
 
 
-    return (img,)
+    return ((img,),metadata)
 
 
 def nuclei_registration_filtering(zarr_grp_name,
@@ -364,7 +364,7 @@ def nuclei_registration_filtering(zarr_grp_name,
         FlatFieldKernel=processing_parameters['PreprocessingNucleiFlatFieldKernel']
     
         try:
-            img = load_raw_images(zarr_grp_name,
+            img, metadata = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
         except:
             logger.error(f'cannot load {zarr_grp_name} raw fish image')

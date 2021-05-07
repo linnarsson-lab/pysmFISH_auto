@@ -3,6 +3,7 @@ import gc
 import dask
 import pandas as pd
 import numpy as np
+import zarr
 from pathlib import Path
 from dask import delayed
 from dask import dataframe as dd
@@ -16,6 +17,7 @@ from pysmFISH import barcodes_analysis
 from pysmFISH import stitching
 from pysmFISH import preprocessing
 from pysmFISH import configuration_files
+from pysmFISH import utils
 
 from pysmFISH.logger_utils import selected_logger
 
@@ -25,6 +27,7 @@ def single_fov_round_processing_eel(fov_subdataset,
                                    running_functions,
                                    dark_img,
                                    experiment_fpath,
+                                   preprocessed_zarr_fpath,
                                    save_steps_output=False):
 
     logger = selected_logger()
@@ -61,14 +64,25 @@ def single_fov_round_processing_eel(fov_subdataset,
                                                     dark_img)
 
     counts = getattr(pysmFISH.dots_calling,counting_fun)(
-                                                        filt_out[0],
+                                                        filt_out[0][0],
                                                         fov_subdataset,
                                                         processing_parameters)                                              
 
     if save_steps_output:
-        fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
-        np.save(filtered_img_path / (fname + '.npy'),filt_out[-1] )
-        counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
+
+        # Save the file as zarr
+        store = zarr.DirectoryStore(preprocessed_zarr_fpath)
+        root = zarr.group(store=store,overwrite=False)
+        tag_name = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
+        dgrp = root.create_group(tag_name)
+        for k, v in filt_out[1].items():
+            dgrp.attrs[k] = v
+        fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
+        dgrp.attrs['fov_name'] = fov_name
+        img = utils.convert_to_uint16(filt_out[0][-1])
+        dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=None,overwrite=True)
+
+        # counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
 
     # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
     return counts
@@ -79,6 +93,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
                                    running_functions,
                                    dark_img,
                                    experiment_fpath,
+                                   preprocessed_image_tag,
                                    save_steps_output=False):
 
     """
@@ -107,19 +122,36 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
                                                                         processing_parameters)
 
     if save_steps_output:
-        fname = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
-        np.save(filtered_img_path / (fname + '.npy'),img )
+
+        # Save the file as zarr
+        store = zarr.DirectoryStore(preprocessed_zarr_fpath)
+        root = zarr.group(store=store,overwrite=False)
+        tag_name = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
+        dgrp = root.create_group(tag_name)
+        for k, v in filt_out[1].items():
+            dgrp.attrs[k] = v
+        fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
+        dgrp.attrs['fov_name'] = fov_name
+        img = utils.convert_to_uint16(img)
+        dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=None,overwrite=True)
 
     return (img,fov_subdataset)
 
 
 def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                     running_functions, tile_corners_coords_pxl,metadata,
-                                    grpd_fovs,save_intermediate_steps, client):
+                                    grpd_fovs,save_intermediate_steps, 
+                                    preprocessed_image_tag, client ):
         """ 
         This method create a processing graph XXXXXXXXX
 
         """
+        experiment_fpath = Path(experiment_fpath)
+        io.create_empty_zarr_file(experiment_fpath, preprocessed_image_tag)
+        preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
+
+        utils.create_dark_img(experiment_fpath,metadata)
+
         dark_img = preprocessing.load_dark_image(experiment_fpath)
         
         # did this conversion to avoid to pass self to dask
@@ -152,6 +184,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                             running_functions,
                                             dark_img,
                                             experiment_fpath,
+                                            preprocessed_zarr_fpath,
                                             save_steps_output=save_intermediate_steps)
                 all_counts_fov.append(counts)
 
@@ -180,6 +213,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         
             all_processing.append(saved_file) 
         _ = dask.compute(*all_processing)
+
+        io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
  
         # ----------------------------------------------------------------
         # GENERATE OUTPUT FOR PLOTTING
@@ -191,11 +226,19 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 
 def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                     running_functions, tile_corners_coords_pxl,metadata,
-                                    grpd_fovs,save_intermediate_steps, client):
+                                    grpd_fovs,save_intermediate_steps, 
+                                    preprocessed_zarr_fpath, client):
         """ 
         This method create a processing graph XXXXXXXXX
 
         """
+
+        experiment_fpath = Path(experiment_fpath)
+        io.create_empty_zarr_file(experiment_fpath, preprocessed_image_tag)
+        preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
+
+        utils.create_dark_img(experiment_fpath,metadata)
+
 
         dark_img = preprocessing.load_dark_image(experiment_fpath)
         
@@ -230,6 +273,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                             running_functions,
                                             dark_img,
                                             experiment_fpath,
+                                            preprocessed_zarr_fpath,
                                             save_steps_output=save_intermediate_steps)
                     all_nuclei_fov.append(out_nuclei)
 
@@ -241,6 +285,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                                 running_functions,
                                                 dark_img,
                                                 experiment_fpath,
+                                                preprocessed_zarr_fpath,
                                                 save_steps_output=save_intermediate_steps)
                     all_counts_fov.append(counts)
             
@@ -269,6 +314,8 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
         
             all_processing.append(saved_file) 
         _ = dask.compute(*all_processing)
+
+        io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
 
         # # ----------------------------------------------------------------
         # GENERATE OUTPUT FOR PLOTTING

@@ -537,7 +537,7 @@ def nikon_nd2_parser_simple_mfov(nd2_file_path):
 
 def nikon_nd2_parsing_graph(experiment_fpath,
                                 parsing_type,parsed_image_tag, 
-                                storage_experiment_fpath, raw_files_fpath,
+                                storage_experiment_fpath,
                                 client):
     """
     explain all the steps that are run by this function

@@ -571,6 +571,7 @@ def create_analysis_config_file_from_dataset(experiment_fpath, metadata):
                 try:
                     with open(analysis_config_fpath, 'w') as new_config:
                         yaml.safe_dump(dict(analysis_config), new_config,default_flow_style=False,sort_keys=False)
+                    return dict(analysis_config)
                 except:
                     logger.error(f'cannot save the analysis_config_file')
 
