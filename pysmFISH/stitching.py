@@ -36,7 +36,7 @@ class organize_square_tiles():
 
     """
 
-    def __init__(self, experiment_fpath:str, metadata:Dict,round_num:int):
+    def __init__(self, experiment_fpath:str,dataset, metadata:Dict,round_num:int):
         """
         round_num = int
             reference channel
@@ -44,6 +44,7 @@ class organize_square_tiles():
         
         self.logger = selected_logger()
         self.experiment_fpath = Path(experiment_fpath)
+        self.dataset = dataset
         self.metadata = metadata
         self.round_num = round_num
         
@@ -66,11 +67,19 @@ class organize_square_tiles():
     
     def extract_microscope_coords(self): 
         
-        fname = self.experiment_fpath / 'microscope_tiles_coords'/(self.experiment_name + '_Hybridization'+  \
-                            str(self.round_num).zfill(2) + '_' + self.stitching_channel + '_fovs_coords.npy')
-        coords = np.load(fname) 
-        self.x_coords = coords[:,1]
-        self.y_coords = coords[:,2]
+
+        selected = self.dataset.loc[self.dataset.round_num == self.round_num, 
+                                    ['round_num','fov_num','fov_acquisition_coords_x','fov_acquisition_coords_y']]
+        selected.drop_duplicates(subset=['fov_num'],inplace=True)
+        selected.sort_values(by='fov_num', ascending=True, inplace=True)
+        self.x_coords = selected.loc[:,'fov_acquisition_coords_x'].to_numpy()
+        self.y_coords = selected.loc[:,'fov_acquisition_coords_y'].to_numpy()
+
+        # fname = self.experiment_fpath / 'microscope_tiles_coords'/(self.experiment_name + '_Hybridization'+  \
+        #                     str(self.round_num).zfill(2) + '_' + self.stitching_channel + '_fovs_coords.npy')
+        # coords = np.load(fname) 
+        # self.x_coords = coords[:,1]
+        # self.y_coords = coords[:,2]
     
     def normalize_coords(self):
 
