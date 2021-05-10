@@ -17,7 +17,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
-from pysmFISH.logger_utils import json_logger
+from pysmFISH.logger_utils import selected_logger
 from pysmFISH.configuration_files import load_experiment_config_file
 
 
@@ -52,17 +52,14 @@ class QC_registration_error():
         self.error_output_df.to_parquet(self.experiment_fpath / 'tmp' / 'registration_error.parquet')
 
     def plot_error(self):
-    
-
+        plt.ioff()
         scale_value = 5
         self.tiles_coords = self.tiles_coords / scale_value
         
         fovs = self.error_output_df['fov_num'].values
         rounds_num = self.error_output_df['round_num'].values
         min_errors = self.error_output_df['min_number_matching_dots_registration'].values
-        
-        
-        plt.ioff()
+
         fig = plt.figure(figsize=(30,20))
         ax = fig.add_subplot(111)
 
@@ -72,20 +69,9 @@ class QC_registration_error():
         c_coords_min = c_coords.min()
         to_zero_r_coords = r_coords - r_coords_min
         to_zero_c_coords = c_coords - c_coords_min
-
-
-        RegistrationMinMatchingBeads = self.analysis_parameters['RegistrationMinMatchingBeads']
-        # create colormap for error in the registration
-        errors_normalized = (min_errors -min(min_errors)) / (max(min_errors -min(min_errors)))
-        threshold = (RegistrationMinMatchingBeads-min(min_errors)) / (max(min_errors -min(min_errors)))
-        nodes = [0,threshold, threshold, 1.0]
-
-        colors = ["black", "black", "blue", "magenta"]
-        cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colors)))
-        cmap.set_under("black")
-        
-
+    
         sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
+        plt.gca().invert_yaxis()
         for fov, round_num, match, x, y in zip(fovs,rounds_num, min_errors, to_zero_c_coords,to_zero_r_coords):
             
             ax.annotate(
@@ -98,21 +84,55 @@ class QC_registration_error():
             
             ax.annotate('m' + str(match), xy=(x, y), xytext=(0, -10), color='white', weight='bold', 
                             textcoords='offset points', fontsize=5, ha='center', va='center')
-            
+    
 
         ax.set_aspect('equal')
         ax.axis('off')
-        plt.gca().invert_yaxis()
         plt.tight_layout()
 
-        plt.savefig(self.experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
+        plt.savefig(experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
+
+
+        # Old plotting with squares
+        # RegistrationMinMatchingBeads = self.analysis_parameters['RegistrationMinMatchingBeads']
+        # # create colormap for error in the registration
+        # errors_normalized = (min_errors -min(min_errors)) / (max(min_errors -min(min_errors)))
+        # threshold = (RegistrationMinMatchingBeads-min(min_errors)) / (max(min_errors -min(min_errors)))
+        # nodes = [0,threshold, threshold, 1.0]
+
+        # colors = ["black", "black", "blue", "magenta"]
+        # cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colors)))
+        # cmap.set_under("black")
+        
+
+        # sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
+        # for fov, round_num, match, x, y in zip(fovs,rounds_num, min_errors, to_zero_c_coords,to_zero_r_coords):
+            
+        #     ax.annotate(
+        #         fov,
+        #         xy=(x,y), xytext=(-0, 15),
+        #         textcoords='offset points', ha='center', va='bottom',fontsize=12)
+            
+        #     ax.annotate(round_num, (x, y), color='white', weight='bold', 
+        #                     fontsize=10, ha='center', va='center')
+            
+        #     ax.annotate('m' + str(match), xy=(x, y), xytext=(0, -10), color='white', weight='bold', 
+        #                     textcoords='offset points', fontsize=5, ha='center', va='center')
+            
+
+        # ax.set_aspect('equal')
+        # ax.axis('off')
+        # plt.gca().invert_yaxis()
+        # plt.tight_layout()
+
+        # plt.savefig(self.experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
 
     def run_qc(self):
         self.create_error_df()
         self.plot_error()
 
 
-def check_experiment_yaml_file(experiment_fpath:str):
+def QC_check_experiment_yaml_file(experiment_fpath:str):
     """
     This function is used to check that the parameter
     needed for processing are included in the experiment_name.yaml
@@ -123,7 +143,7 @@ def check_experiment_yaml_file(experiment_fpath:str):
             str with the path to the folder of the experiment to process
     """
     experiment_fpath = Path(experiment_fpath)
-    logger = json_logger((experiment_fpath / 'logs'),'qc_experiment_yaml')
+    logger = selected_logger()
     
     try:
         experiment_info = load_experiment_config_file(experiment_fpath)
@@ -170,7 +190,10 @@ def check_experiment_yaml_file(experiment_fpath:str):
             logger.error(f'Wrong machine name')
             sys.exit(f'Wrong machine name')
         
-
+        if 'Pipeline' not in experiment_info_keys:
+            logger.error(f'Pipeline keyword missing from the experiment file')
+            sys.exit(f'Pipeline keyword missing from the experiment file')
+       
         if 'Overlapping_percentage' not in experiment_info_keys:
             logger.error(f'Overlapping_percentage keyword in the experiment file')
             sys.exit(f'Overlapping_percentage keyword in the experiment file')
@@ -215,7 +238,7 @@ def check_experiment_yaml_file(experiment_fpath:str):
                 sys.exit(f'Specified probes set is missing from the database')
 
 
-def qc_matching_nd2_metadata_robofish(all_raw_files:list):
+def QC_matching_nd2_metadata_robofish(all_raw_files:list):
     """
     This function is used to check that each of the nd2 files
     generated by the microscope has a matching pkl metadata
@@ -227,7 +250,7 @@ def qc_matching_nd2_metadata_robofish(all_raw_files:list):
 
     """
 
-    logger = json_logger((experiment_fpath / 'logs'),'qc_matching_pkl')
+    logger = selected_logger()
     experiment_fpath = all_raw_files[0].parent
     all_info_files = list(experiment_fpath.glob('*.pkl'))
   
