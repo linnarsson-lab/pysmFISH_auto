@@ -147,7 +147,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 
         """
         experiment_fpath = Path(experiment_fpath)
-        io.create_empty_zarr_file(experiment_fpath, preprocessed_image_tag)
+        io.create_empty_zarr_file(experiment_fpath.as_posix(), preprocessed_image_tag)
         preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
 
         utils.create_dark_img(experiment_fpath,metadata)
@@ -185,7 +185,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                             dark_img,
                                             experiment_fpath,
                                             preprocessed_zarr_fpath,
-                                            save_steps_output=save_intermediate_steps)
+                                            save_steps_output=save_intermediate_steps,
+                                            dask_key_name=dask_delayed_name)
                 all_counts_fov.append(counts)
 
             name = 'concat_' +experiment_name + '_' + channel + '_' \
@@ -212,6 +213,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                             '_decoded_fov_' + str(fov) + '.parquet'),index=False)
         
             all_processing.append(saved_file) 
+        
         _ = dask.compute(*all_processing)
 
         io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
@@ -274,7 +276,8 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                             dark_img,
                                             experiment_fpath,
                                             preprocessed_zarr_fpath,
-                                            save_steps_output=save_intermediate_steps)
+                                            save_steps_output=save_intermediate_steps,
+                                            dask_key_name=dask_delayed_name)
                     all_nuclei_fov.append(out_nuclei)
 
                 else:
@@ -286,7 +289,8 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                                 dark_img,
                                                 experiment_fpath,
                                                 preprocessed_zarr_fpath,
-                                                save_steps_output=save_intermediate_steps)
+                                                save_steps_output=save_intermediate_steps,
+                                                dask_key_name=dask_delayed_name)
                     all_counts_fov.append(counts)
             
             name = 'concat_fish_' +experiment_name + '_' + channel + '_' \
