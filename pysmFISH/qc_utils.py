@@ -56,7 +56,7 @@ class QC_registration_error():
         plt.ioff()
         scale_value = 5
         self.tiles_coords = self.tiles_coords / scale_value
-        
+        RegistrationMinMatchingBeads = self.analysis_parameters['RegistrationMinMatchingBeads']
         fovs = self.error_output_df['fov_num'].values
         rounds_num = self.error_output_df['round_num'].values
         min_errors = self.error_output_df['min_number_matching_dots_registration'].values
@@ -101,7 +101,7 @@ class QC_registration_error():
         ax.axis('off')
         plt.tight_layout()
 
-        plt.savefig(experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
+        plt.savefig(self.experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
 
 
         # Old plotting with squares

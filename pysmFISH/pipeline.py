@@ -352,13 +352,6 @@ class Pipeline(object):
     # RUNNING OPTIONS
     # --------------------------------
     
-        
-        self.create_folders_step(self.experiment_fpath)
-        self.logger.info(f'Folder structure completed')
-        self.load_config_files_step()
-        
-        
-        self.processing_cluster_init_step.start_processing_env()
 
     def run_parsing_only(self):
         """
