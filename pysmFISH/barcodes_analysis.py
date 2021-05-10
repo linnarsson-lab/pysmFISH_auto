@@ -788,6 +788,8 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
     stitching_channel = registered_counts_df['stitching_channel'].iloc[0]
     
     fish_counts = registered_counts_df.loc[registered_counts_df.channel != stitching_channel,:]
+    stitching_channel_counts = registered_counts_df.loc[registered_counts_df.channel == stitching_channel,:]
+    
     fish_counts.dropna(subset=['dot_id'],inplace=True)
     # Starting level for selection of dots
     dropping_counts = fish_counts.copy(deep=True)
@@ -875,6 +877,8 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
         all_decoded_dots_df.loc[:,'decoded_genes'] = genes
         all_decoded_dots_df.loc[:,'hamming_distance'] = dists_arr
         all_decoded_dots_df.loc[:,'number_positive_bits'] = all_barcodes.sum(axis=1)
+
+        all_decoded_dots_df = pd.concat([all_decoded_dots_df,stitching_channel_counts])
 
         # Save barcoded_round and all_decoded_dots_df
         return barcoded_round, all_decoded_dots_df
