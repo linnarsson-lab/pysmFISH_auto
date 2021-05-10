@@ -337,7 +337,17 @@ class Pipeline(object):
     # --------------------------------
 
     def QC_registration_error_step(self):
+        """
+        Visualise the error in the registration. It plots the error for each fov and the number of matching
+        beads identified after the registration. The FOV number, the round number with the lowest number
+        of matching beads and the lowest number of matching beads.
 
+        The following attributes created by another step must be accessible:
+        - analysis_parameters
+        - tile_corners_coords_pxl
+        - client
+
+        """
         assert self.client, self.logger.error(f'cannot run QC on registration because missing client attr')
         assert self.analysis_parameters, self.logger.error(f'cannot run QC on registration because missing analysis_parameters attr')
         assert isinstance(self.tile_corners_coords_pxl, np.ndarray), self.logger.error(f'cannot run QC on registration because missing tile_corners_coords_pxl attr')
@@ -346,7 +356,6 @@ class Pipeline(object):
                     self.analysis_parameters, self.tile_corners_coords_pxl)
 
         qc_reg.run_qc()
-
     
     # --------------------------------
     # RUNNING OPTIONS
