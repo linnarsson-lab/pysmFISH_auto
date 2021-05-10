@@ -204,7 +204,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
             dgrp.attrs['zstack'] = len(list(z_levels))
             dgrp.attrs['total_fovs'] = len(list(fields_of_view))
             dgrp.attrs['fov_num'] = fov
-            dgrp.attrs['stitching_channel'] = info_data['StitchingChannel']
+            dgrp.attrs['stitching_channel'] = experiment_info['StitchingChannel']
             dgrp.attrs['stitching_type'] = experiment_info['Stitching_type']
             dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']     
             dgrp.attrs['barcode_length'] = experiment_info['Barcode_length']
@@ -358,7 +358,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
             dgrp.attrs['zstack'] = len(list(z_levels))
             dgrp.attrs['total_fovs'] = len(list(fields_of_view))
             dgrp.attrs['fov_num'] = fov
-            dgrp.attrs['stitching_channel'] = info_data['StitchingChannel']
+            dgrp.attrs['stitching_channel'] = experiment_info['StitchingChannel']
             dgrp.attrs['stitching_type'] = experiment_info['Stitching_type']
             dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']
             dgrp.attrs['round_num'] = hybridization_num
