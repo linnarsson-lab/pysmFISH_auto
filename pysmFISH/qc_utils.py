@@ -83,7 +83,7 @@ class QC_registration_error():
     
         sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
         plt.gca().invert_yaxis()
-        for fov, round_num, match, x, y in zip(fovs,rounds_num, min_errors, to_zero_c_coords,to_zero_r_coords):
+        for fov, round_num, match, x, y in zip(int(fovs),int(rounds_num), int(min_errors), to_zero_c_coords,to_zero_r_coords):
             
             ax.annotate(
                 fov,
@@ -169,79 +169,64 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
 
         experiment_info_keys = list(experiment_info.keys())
 
-        if 'Codebook' not in experiment_info_keys:
-            logger.error(f'Codebook keyword in the experiment file')
+        required_keys = ['Stitching_type',
+                            'Experiment_type',
+                            'Barcode_length',
+                            'Barcode',
+                            'Codebook',
+                            'Machine',
+                            'Operator',
+                            'Overlapping_percentage',
+                            'Probe_FASTA_name',
+                            'Species',
+                            'Start_date',
+                            'Strain',
+                            'Tissue',
+                            'Pipeline']
 
-        if 'Barcode' not in experiment_info_keys:
-            logger.error(f'Barcode keyword in the experiment file')
-        elif experiment_info['Barcode'] not in ['True', 'False']:
-            logger.error(f'Value corresponding to Barcode keyword must be True or False ')
-            sys.exit(f'Value corresponding to Barcode keyword must be True or False ')
+        for key in required_keys:
+            if key not in experiment_info_keys:
+                logger.error(f'{key} field is missing in the experiment file')
+                sys.exit(f'{key} field is missing in the experiment file')
         
-        if experiment_info['Barcode'] == 'True':
-            if 'Barcode_length' not in experiment_info_keys:
-                logger.error(f'Barcode_length keyword in the experiment file')
-                sys.exit(f'Barcode_length keyword in the experiment file')
-            elif experiment_info['Barcode_length'] != 16:
-                logger.error(f'Wrong barcode length')
-                sys.exit(f'Barcode_length keyword in the experiment file')
-            
-            if 'Codebook' not in experiment_info_keys:
-                logger.error(f'Codebook keyword in the experiment file')
-                sys.exit(f'Codebook keyword in the experiment file')
+
+        if 'serial' not in experiment_info['Experiment_type']:
+            if not experiment_info['Codebook']:
+                logger.error(f"The experiment type {experiment_info['Experiment_type']} needs a codebook")
+                sys.exit(f"The experiment type {experiment_info['Experiment_type']} needs a codebook")
             else:
                 present = [x.name for x in codebooks_list if experiment_info['Codebook'] == x.name]
                 if not present:
                     logger.error(f'Specified codebook is missing from the database')
                     sys.exit(f'Specified codebook is missing from the database')
 
-        if 'Machine' not in experiment_info_keys:
-            logger.error(f'Machine keyword in the experiment file')
-        elif experiment_info['Machine'] not in ['ROBOFISH1', 'ROBOFISH2', 'NOT-DEFINED']:
+            if experiment_info['Barcode'] not in ['True', 'False']:
+                logger.error(f'Value corresponding to Barcode keyword must be True or False ')
+                sys.exit(f'Value corresponding to Barcode keyword must be True or False ')
+        
+            if experiment_info['Barcode'] == 'True':
+                if 'Barcode_length' not in experiment_info_keys:
+                    logger.error(f'Barcode_length keyword in the experiment file')
+                    sys.exit(f'Barcode_length keyword in the experiment file')
+                elif experiment_info['Barcode_length'] != 16:
+                    logger.error(f'Wrong barcode length')
+                    sys.exit(f'Barcode_length keyword in the experiment file')
+            
+        if experiment_info['Machine'] not in ['ROBOFISH1', 'ROBOFISH2', 'NOT-DEFINED']:
             logger.error(f'Wrong machine name')
             sys.exit(f'Wrong machine name')
         
-        if 'Pipeline' not in experiment_info_keys:
-            logger.error(f'Pipeline keyword missing from the experiment file')
-            sys.exit(f'Pipeline keyword missing from the experiment file')
-       
-        if 'Overlapping_percentage' not in experiment_info_keys:
-            logger.error(f'Overlapping_percentage keyword in the experiment file')
-            sys.exit(f'Overlapping_percentage keyword in the experiment file')
-
-        if 'Species' not in experiment_info_keys:
-            logger.error(f'Species keyword in the experiment file')
-        elif experiment_info['Species'] not in ['Mus Musculus', 'Homo Sapiens']:
-            logger.error(f'Unknown Species selected')
-
-        if 'roi' not in experiment_info_keys:
-            logger.error(f'roi keyword in the experiment file')
-
-        if 'StitchingChannel' not in experiment_info_keys:
-            logger.error(f'StitchingChannel keyword in the experiment file')
-            sys.exit(f'StitchingChannel keyword in the experiment file')
-
-        if 'Stitching_type' not in experiment_info_keys:
-            logger.error(f'Stitching_type keyword in the experiment file')
-            sys.exit(f'Stitching_type keyword in the experiment file')
-        elif experiment_info['Stitching_type'] not in ['small-beads', 'large-beads','both-beads', 'nuclei',]:
+        if experiment_info['Stitching_type'] not in ['small-beads', 'large-beads','both-beads', 'nuclei']:
             logger.error(f'Wrong Stitching_type selected in the experiment file')
             sys.exit(f'Wrong Stitching_type selected in the experiment file')
-
-        if 'EXP_name' not in experiment_info_keys:
-            logger.error(f'EXP_name keyword in the experiment file')
-            sys.exit(f'EXP_name keyword in the experiment file')
         
-        if 'Experiment_type' not in experiment_info_keys:
-            logger.error(f'Experiment_type keyword in the experiment file')
-            sys.exit(f'Experiment_type keyword in the experiment file')
-        elif experiment_info['Experiment_type'] not in ['smfish-serial', 'smfish-barcoded', 'eel-barcoded']:
+        if experiment_info['Experiment_type'] not in ['smfish-serial', 'smfish-barcoded', 'eel-barcoded']:
             logger.error(f'Wrong Experiment_type selected in the experiment file')
             sys.exit(f'Wrong Experiment_type selected in the experiment file')
 
-        if 'Probe_FASTA_name' not in experiment_info_keys:
-            logger.error(f'Probes keyword in the experiment file')
-            sys.error(f'Probes keyword in the experiment file')
+        if not experiment_info['Probe_FASTA_name']:
+            logger.error(f'Experiment require the probes name')
+            sys.exit(f'Probes keyword in the experiment file')
         else:
             present = [x.name for x in probe_sets_list if experiment_info['Probe_FASTA_name'] == x.name]
             if not present:
