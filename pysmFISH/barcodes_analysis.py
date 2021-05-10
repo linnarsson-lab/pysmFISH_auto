@@ -862,6 +862,16 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
                 
                 compare_df = compare_df.drop(comp_selected_df.index)
                 dropping_counts = compare_df
+            else:
+                
+                all_decoded_dots_df = pd.DataFrame(columns = fish_counts.columns)
+                all_decoded_dots_df['decoded_genes'] = np.nan
+                all_decoded_dots_df['hamming_distance'] = np.nan
+                all_decoded_dots_df['number_positive_bits'] = np.nan
+                all_decoded_dots_df['barcode_reference_dot_id'] = np.nan
+                all_decoded_dots_df['raw_barcodes'] = np.nan
+                # Save barcoded_round and all_decoded_dots_df
+                return fish_counts, all_decoded_dots_df
 
         codebook_df = convert_str_codebook(codebook_df,'Code')
         codebook_array = make_codebook_array(codebook_df,'Code')
