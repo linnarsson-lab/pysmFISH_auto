@@ -19,6 +19,7 @@ from typing import *
 import os
 import dask
 import pandas as pd
+import numpy as np
 
 from pathlib import Path
 from datetime import datetime
@@ -44,6 +45,7 @@ from pysmFISH import fovs_registration
 from pysmFISH import barcodes_analysis
 from pysmFISH import fov_processing
 from pysmFISH import stitching
+from pysmFISH import qc_utils
 
 
 
@@ -137,7 +139,7 @@ class Pipeline(object):
     
 
     # -----------------------------------
-    # PIPELINE STEPS
+    # PROCESSING STEPS
     # ------------------------------------
 
     def create_folders_step(self):
@@ -294,7 +296,7 @@ class Pipeline(object):
         fov_processing.processing_barcoded_eel_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tile_corners_coords_pxl,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_zarr_fpath,self.client)
+                                    self.preprocessed_image_tag,self.client)
 
 
 
@@ -327,7 +329,23 @@ class Pipeline(object):
         fov_processing.processing_serial_fish_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tile_corners_coords_pxl,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_zarr_fpath,self.client)
+                                    self.preprocessed_image_tag,self.client)
+
+    
+    # --------------------------------
+    # QC STEPS
+    # --------------------------------
+
+    def QC_registration_error_step(self):
+
+        assert self.client, self.logger.error(f'cannot run QC on registration because missing client attr')
+        assert self.analysis_parameters, self.logger.error(f'cannot run QC on registration because missing analysis_parameters attr')
+        assert isinstance(self.tile_corners_coords_pxl, np.ndarray), self.logger.error(f'cannot run QC on registration because missing tile_corners_coords_pxl attr')
+        
+        qc_reg = qc_utils.QC_registration_error(self.client, self.experiment_fpath, 
+                    self.analysis_parameters, self.tile_corners_coords_pxl)
+
+        qc_reg.run_qc()
 
     
     # --------------------------------

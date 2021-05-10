@@ -23,17 +23,18 @@ from pysmFISH.configuration_files import load_experiment_config_file
 
 class QC_registration_error():
 
-    def __init__(self, client, experiment_fpath, analysis_parameters, tiles_coords, img_width, img_height):
+    def __init__(self, client, experiment_fpath, analysis_parameters, tiles_coords):
+    # def __init__(self, client, experiment_fpath, analysis_parameters, tiles_coords, img_width, img_height):
         self.client = client
         self.experiment_fpath = Path(experiment_fpath)
         self.analysis_parameters = analysis_parameters
         self.tiles_coords = tiles_coords
-        self.img_width = img_width
-        self.img_height = img_height
+        # self.img_width = img_width
+        # self.img_height = img_height
         matplotlib.use("Agg")
 
     def create_error_df(self):
-        all_counts_folder = self.experiment_fpath / 'tmp' / 'registered_counts'
+        all_counts_folder = self.experiment_fpath / 'results'
         search_key = '*decoded*'
         self.error_output_df= pd.DataFrame()
         all_counts_dd = dd.read_parquet(all_counts_folder / search_key)
@@ -69,6 +70,16 @@ class QC_registration_error():
         c_coords_min = c_coords.min()
         to_zero_r_coords = r_coords - r_coords_min
         to_zero_c_coords = c_coords - c_coords_min
+
+
+        errors_normalized = (min_errors -min(min_errors)) / (max(min_errors -min(min_errors)))
+        threshold = (RegistrationMinMatchingBeads-min(min_errors)) / (max(min_errors -min(min_errors)))
+        nodes = [0,threshold, threshold, 1.0]
+
+        colors = ["black", "black", "blue", "magenta"]
+        cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colors)))
+        cmap.set_under("black")
+
     
         sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
         plt.gca().invert_yaxis()
