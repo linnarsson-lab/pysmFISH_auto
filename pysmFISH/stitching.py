@@ -8,6 +8,7 @@ import operator
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from itertools import groupby
 from pathlib import Path
 from sklearn.neighbors import NearestNeighbors
 from scipy.optimize import minimize
@@ -488,6 +489,8 @@ def remove_overlapping_dots_from_gene(experiment_fpath,counts_df,unfolded_overla
 # REMOVED OVERLAPPING DOTS ACCORDING TO FOV (MUCH FASTER THAN FOR GENE)
 # EXPECIALLY FOR LARGE AREAS WITH A LOT OF COUNTS
 
+
+
 def get_all_dots_in_overlapping_regions(counts_df, chunk_coords, 
                        stitching_selected):    
     
@@ -542,34 +545,39 @@ def identify_duplicated_dots_sklearn(ref_tiles_df,comp_tiles_df, stitching_selec
 
 def remove_overlapping_dots_fov(cpl, chunk_coords, experiment_fpath,
                                     stitching_selected,
-                                    select_genes,same_dot_radius):
+                                    hamming_distance,same_dot_radius):
 
     logger = selected_logger()
     all_dots_id_to_remove = []
     experiment_fpath = Path(experiment_fpath)
     
     try:
-        counts1_fpath = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
+        counts1_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
     except:
         logger.error(f'count file missing for fov {cpl[0]}')
     
     else:
         try:
-            counts2_fpath = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
+            counts2_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
         except:
             logger.error(f'count file missing for fov {cpl[1]}')
         else:
     
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
+
+            count1_grp = counts1_df.loc[counts1_df.hamming_distance < hamming_distance,:]
+            count2_grp = counts2_df.loc[counts2_df.hamming_distance < hamming_distance,:]
             
             overlap_count1 = get_all_dots_in_overlapping_regions(counts1_df, chunk_coords, 
                             stitching_selected)
             overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
                             stitching_selected)
             
-            count1_grp = overlap_count1.groupby(select_genes)
-            count2_grp = overlap_count2.groupby(select_genes)
+
+
+            count1_grp = overlap_count1.groupby('decoded_genes')
+            count2_grp = overlap_count2.groupby('decoded_genes')
             
             for gene, over_c1_df in count1_grp:
                 try:
@@ -588,7 +596,7 @@ def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     try:
-        fname = list((experiment_fpath / 'tmp' / 'registered_counts').glob('*_decoded_fov_' + str(fov) + '.parquet'))[0]
+        fname = list((experiment_fpath / 'results').glob('*_decoded_fov_' + str(fov) + '.parquet'))[0]
     except:
         logger.error(f'missing decoded file for fov {fov}')
     else:
@@ -611,6 +619,80 @@ def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
                 logger.error(f'copied {fname}')
             except:
                 logger.error(f'cannot copy {fname} to {save_name}')
+
+
+def remove_duplicated_dots_graph(experiment_fpath,dataset,tiles_org,
+                                    hamming_distance,same_dot_radius, 
+                                    stitching_selected, client):
+
+    logger = selected_logger()
+    img_width = dataset.iloc[0].img_width
+    fovs = dataset.loc[:,'fov_num'].unique()
+    unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+    corrected_overlapping_regions_dict = {}
+    for key, value in unfolded_overlapping_regions_dict.items():
+        corrected_overlapping_regions_dict[key] = np.array(value)-img_width
+
+    # Prepare the dataframe
+    r_tag = 'r_px_' + stitching_selected
+    c_tag = 'c_px_' + stitching_selected
+
+    all_futures = []
+
+    for cpl,chunk_coords in corrected_overlapping_regions_dict.items():
+        future = client.submit(remove_overlapping_dots_fov,
+                                cpl = cpl,
+                                chunk_coords=chunk_coords,
+                                experiment_fpath=experiment_fpath,
+                                stitching_selected=stitching_selected,
+                                hamming_distance=hamming_distance,
+                                same_dot_radius = same_dot_radius)
+
+        all_futures.append(future)
+
+    to_remove = client.gather(all_futures)  
+    to_remove = [el for tg in to_remove for el in tg]
+    removed_dot_dict = {}
+    for k, g in groupby(to_remove, key=lambda x: int(x.split('_')[0])):
+        removed_dot_dict.update({k:list(g)})
+
+    for fov in fovs:
+        if fov not in removed_dot_dict.keys():
+            removed_dot_dict.update({fov:[]})
+
+    logger.info(f'{removed_dot_dict.keys()}')
+
+    for fov,dots_id_to_remove in removed_dot_dict.items():
+        future = client.submit(clean_from_duplicated_dots,
+                                fov = fov,
+                                dots_id_to_remove=dots_id_to_remove,
+                                experiment_fpath=experiment_fpath)
+
+        all_futures.append(future)
+
+    _ = client.gather(all_futures)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

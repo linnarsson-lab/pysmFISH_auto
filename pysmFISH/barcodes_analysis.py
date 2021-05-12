@@ -449,11 +449,11 @@ def dots_hoods(coords,pxl):
     return chunks_coords
 
 
-def extract_dots_images(barcoded_df,img_stack,experiment_fpath, save=True):
+def extract_dots_images(barcoded_df,img_stack,experiment_fpath):
     experiment_fpath = Path(experiment_fpath)
     fov = barcoded_df.fov_num.values[0]
     experiment_name = experiment_fpath.stem
-    channel = barcoded_df.dot_channel.values[0]
+    channel = barcoded_df.channel.values[0]
     
     trimmed_df = barcoded_df.loc[barcoded_df.dot_id == barcoded_df.barcode_reference_dot_id ,
                                ['barcode_reference_dot_id', 'r_px_registered', 'c_px_registered','barcodes_extraction_resolution']]
@@ -475,11 +475,11 @@ def extract_dots_images(barcoded_df,img_stack,experiment_fpath, save=True):
             all_regions[barcodes_names[idx]]= selected_region
             all_max[barcodes_names[idx]]= max_array
             # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
-    if save:
-        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_img_dict_fov_' + str(fov) + '.pkl')
-        pickle.dump(all_regions,open(fpath,'wb'))
-        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_max_array_dict_fov_' + str(fov) + '.pkl')
-        pickle.dump(all_max,open(fpath,'wb'))
+
+    # fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_img_dict_fov_' + str(fov) + '.pkl')
+    # pickle.dump(all_regions,open(fpath,'wb'))
+    fpath = experiment_fpath / 'results' / (experiment_name + '_' + channel + '_barcodes_max_array_dict_fov_' + str(fov) + '.pkl')
+    pickle.dump(all_max,open(fpath,'wb'))
     return all_max
 
 
@@ -496,24 +496,26 @@ def identify_flipped_bits(codebook, gene,raw_barcode):
     return flipped_positions,flipping_directions
 
 
-def define_flip_direction(codebook,experiment_fpath,output_df, selected_genes, correct_hamming_distance,save=True):
+def define_flip_direction(codebook,experiment_fpath,output_df):
+    correct_hamming_distance = 0
+    selected_hamming_distance = 3 / output_df.iloc[0].barcode_length
     experiment_fpath = Path(experiment_fpath)
     experiment_name = experiment_fpath.stem
-    channel = output_df.dot_channel.values[0]
+    channel = output_df.channel.values[0]
     fov = output_df.fov_num.values[0]
     trimmed_df = output_df.loc[(output_df.dot_id == output_df.barcode_reference_dot_id) &
-                           (output_df[correct_hamming_distance] != output_df[selected_genes]),
-                               ['barcode_reference_dot_id', selected_genes, 'raw_barcodes','hamming_distance']]
-    trimmed_df = trimmed_df.dropna(subset=[selected_genes])
+                           (output_df['hamming_distance'] > correct_hamming_distance) &
+                           (output_df['hamming_distance'] < selected_hamming_distance),
+                               ['barcode_reference_dot_id', 'decoded_genes', 'raw_barcodes','hamming_distance']]
+    trimmed_df = trimmed_df.dropna(subset=['decoded_genes'])
     trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,
-                                                                                x.below3Hdistance_genes,x.raw_barcodes),axis=1)
+                                                                                x.decoded_genes,x.raw_barcodes),axis=1)
     trimmed_df['flip_position'] = trimmed_df['flip_and_direction'].apply(lambda x: x[0])
     trimmed_df['flip_direction'] = trimmed_df['flip_and_direction'].apply(lambda x: x[1])
     trimmed_df.drop(columns=['flip_and_direction'],inplace=True)
     
-    if save:
-        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_df_flip_direction_fov' + str(fov) + '.parquet')
-        trimmed_df.to_parquet(fpath)
+    fpath = experiment_fpath / 'results' / (experiment_name + '_' + channel + '_df_flip_direction_fov' + str(fov) + '.parquet')
+    trimmed_df.to_parquet(fpath)
     return trimmed_df
 
 
@@ -804,7 +806,7 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
         all_decoded_dots_df['number_positive_bits'] = np.nan
         all_decoded_dots_df['barcode_reference_dot_id'] = np.nan
         all_decoded_dots_df['raw_barcodes'] = np.nan
-
+        all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
         # Save barcoded_round and all_decoded_dots_df
         return fish_counts, all_decoded_dots_df
         
@@ -879,6 +881,7 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
         all_decoded_dots_df.loc[:,'number_positive_bits'] = all_barcodes.sum(axis=1)
 
         all_decoded_dots_df = pd.concat([all_decoded_dots_df,stitching_channel_counts])
+        all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
 
         # Save barcoded_round and all_decoded_dots_df
         return barcoded_round, all_decoded_dots_df

@@ -21,6 +21,9 @@ from pysmFISH import utils
 
 from pysmFISH.logger_utils import selected_logger
 
+def combine_steps(*args):
+    pass
+
 
 def single_fov_round_processing_eel(fov_subdataset,
                                    analysis_parameters,
@@ -85,7 +88,7 @@ def single_fov_round_processing_eel(fov_subdataset,
         # counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
 
     # return counts, (fov_subdataset.channel,fov_subdataset.round_num,img)
-    return counts
+    return counts, filt_out
 
 
 def single_fov_round_processing_serial_nuclei(fov_subdataset,
@@ -169,7 +172,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         codebook_df = delayed(codebook)
         
         all_processing = []
-        
+        all_filtered_images = []
         for fov_num, group in grpd_fovs:
             all_counts_fov = []
             for index_value, fov_subdataset in group.iterrows():
@@ -179,7 +182,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                 experiment_name = fov_subdataset.experiment_name
                 dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
                                 '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-                counts = delayed(single_fov_round_processing_eel, name=dask_delayed_name)(fov_subdataset,
+                fov_out = delayed(single_fov_round_processing_eel, name=dask_delayed_name,nout=2)(fov_subdataset,
                                             analysis_parameters,
                                             running_functions,
                                             dark_img,
@@ -187,7 +190,12 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                             preprocessed_zarr_fpath,
                                             save_steps_output=save_intermediate_steps,
                                             dask_key_name=dask_delayed_name)
+                counts, filt_out = fov_out[0], fov_out[1]
                 all_counts_fov.append(counts)
+                if channel != fov_subdataset.stitching_channel:
+                    all_filtered_images.append(filt_out)
+            
+            # Modify for channels name
 
             name = 'concat_' +experiment_name + '_' + channel + '_' \
                                 + '_fov_' +str(fov) + '-' + tokenize()
@@ -212,7 +220,28 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
             saved_file = delayed(stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                             '_decoded_fov_' + str(fov) + '.parquet'),index=False)
         
-            all_processing.append(saved_file) 
+            name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize() 
+            
+            combined_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,stitched_coords,
+                                                                                            fov_subdataset.stitching_channel)
+
+
+            name = 'extract_barcodes_int' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+            barcodes_max = delayed(barcodes_analysis.extract_dots_images,name=name)(stitched_coords,combined_images,
+                                                                                    experiment_fpath)
+
+
+            name = 'extract_bit_flip_direction' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+            flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook,
+                                                                                    experiment_fpath,
+                                                                                    stitched_coords)
+
+            end = delayed(combine_steps)(saved_file,barcodes_max,flip_direction)
+
+            all_processing.append(end)
         
         _ = dask.compute(*all_processing)
 

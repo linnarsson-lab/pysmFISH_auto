@@ -31,6 +31,7 @@ from dask import delayed
 
 
 # Import from pysmFISH package
+import pysmFISH
 
 from pysmFISH import logger_utils
 from pysmFISH import utils
@@ -165,7 +166,7 @@ class Pipeline(object):
         utils.create_folder_structure(self.experiment_fpath, self.run_type)
 
     
-    def prepare_processing_dataset_step(self, zarr_file_path):
+    def prepare_processing_dataset_step(self):
         """
         If a path to an existing dataset is entered it will be loaded otherwise
         it will create a new dataset that will have all the info that characterize the
@@ -184,10 +185,10 @@ class Pipeline(object):
                 sys.exit(f"can't load the dataset from {self.dataset_path}")
         else:
             try:
-                self.data.create_full_dataset_from_zmetadata(zarr_file_path)
+                self.data.create_full_dataset_from_zmetadata(self.parsed_raw_data_fpath)
             except:
-                self.logger.error(f"can't create dataset from {zarr_file_path}")
-                sys.exit(f"can't create dataset from {zarr_file_path}")
+                self.logger.error(f"can't create dataset from {self.parsed_raw_data_fpath}")
+                sys.exit(f"can't create dataset from {self.parsed_raw_data_fpath}")
         
         self.metadata = self.data.collect_metadata(self.data.dataset)
         self.grpd_fovs = self.data.dataset.groupby('fov_num')
@@ -243,7 +244,7 @@ class Pipeline(object):
 
         """
         assert self.metadata, self.logger.error(f'cannot determine tiles organization because missing metadata attr')
-        assert self.data.dataset, self.logger.error(f'cannot determine tiles organization because missing dataset attr')
+        assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(f'cannot determine tiles organization because missing dataset attr')
         assert self.analysis_parameters, self.logger.error(f'cannot determine tiles organization because missing analysis_parameters attr')
         self.reference_round = self.analysis_parameters['RegistrationReferenceHybridization']
         self.tiles_org = stitching.organize_square_tiles(self.experiment_fpath,
@@ -332,6 +333,41 @@ class Pipeline(object):
                                     self.preprocessed_image_tag,self.client)
 
     
+
+    def remove_duplicated_dots_graph_step(self, hamming_distance:int=3,same_dot_radius:float=10,
+                                            stitching_selected:str= 'microscope_stitched'):
+
+        """
+        Function to remove the duplicated barcodes present in the overlapping regions of the
+        tiles
+
+        Args:
+        ----
+        hamming_distance (int): Value to select the barcodes that are passing the 
+            screening (< hamming_distance). Default = 3
+        same_dot_radius (int): Searching distance that define two dots as identical
+            Default = 10
+        stitching_selected (str): barcodes coords set where the duplicated dots will be
+            removed
+
+        The following attributes created by another step must be accessible:
+        - dataset
+        - tiles_org
+        - client
+
+        """
+        assert self.client, self.logger.error(f'cannot remove duplicated dots because missing client attr')
+        assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(f'cannot remove duplicated dots because missing dataset attr')
+        assert isinstance(self.tiles_org,pysmFISH.stitching.organize_square_tiles), \
+                            self.logger.error(f'cannot remove duplicated dots because tiles_org is missing attr')
+        
+        self.hamming_distance = hamming_distance / self.metadata['barcode_length']
+        self.same_dot_radius = same_dot_radius
+        self.stitching_selected = stitching_selected
+        stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
+                                    self.hamming_distance,self.same_dot_radius, 
+                                    self.stitching_selected, self.client)
+
     # --------------------------------
     # QC STEPS
     # --------------------------------

@@ -544,8 +544,9 @@ def create_analysis_config_file_from_dataset(experiment_fpath, metadata):
         general_analysis_config = yaml.safe_load(open(general_analysis_config_fpath, 'rb'))
 
         try:
-            yaml.safe_load(open(analysis_config_fpath,'rb')) 
+            analysis_config = yaml.safe_load(open(analysis_config_fpath,'rb')) 
             logger.debug(f'The analysis config file is already present')
+            return dict(analysis_config)
         except:
             try:
                 machine = metadata['machine']
