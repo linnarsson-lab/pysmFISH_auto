@@ -428,7 +428,7 @@ def nikon_nd2_parser_simple_mfov(nd2_file_path):
     logger.debug(f'processing file {nd2_fname}')
 
     experiment_fpath = nd2_file_path.parent
-    experiment_name = nd2_file_path.parent.stem
+    experiment_name = nd2_file_path.stem
     experiment_name = experiment_name.split('_auto')[0]
     
     parsed_raw_data_fpath = experiment_fpath / (experiment_name + '_img_data.zarr')

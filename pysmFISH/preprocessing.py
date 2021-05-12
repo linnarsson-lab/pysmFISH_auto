@@ -396,13 +396,12 @@ def nuclei_registration_filtering(zarr_grp_name,
             
             # img = img.max(axis=0)
         
-            return flattened_img
+            return ((flattened_img,),metadata)
 
 
-def fresh_nuclei_filtering(
+
+def fresh_nuclei_filtering(zarr_grp_name,
         parsed_raw_data_fpath,
-        filtered_raw_data_fpath,
-        fov,
         processing_parameters):
         
         """
@@ -413,34 +412,106 @@ def fresh_nuclei_filtering(
         link on stackoverflow: 
         http://stackoverflow.com/questions/25216382/gaussian-filter-in-scipy
 
-        Arguments
+        Parameters:
         -----------
 
         img_stack: np.array float64
-            3D numpy array with the image
+            raw image to filter
         
+        large_kernel_size_sigma: list
+            list with the kernel size used to remove large objects in the image
+            to identify the background
+
         Returns
         -----------
 
-        filtered_image: np.array float64 
-            2D flattened image 
+        img_stack: np.array float64 
+            img stack after filtering 
 
         """
-        PreprocessingFreshNucleiLargeKernelSize = processing_parameters['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize']
 
-        filtered_store = zarr.DirectoryStore(filtered_raw_data_fpath)
-        filtered_root = zarr.group(store=filtered_store,overwrite=False)
+        logger = selected_logger()
+        parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+        experiment_fpath = parsed_raw_data_fpath.parent
+        FlatFieldKernel = processing_parameters['PreprocessingFreshNucleiLargeKernelSize']
+    
+        try:
+            img, metadata = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+        except:
+            logger.error(f'cannot load {zarr_grp_name} raw fish image')
+            sys.exit(f'cannot load {zarr_grp_name} raw fish image')
+        else:
+            logger.info(f'loaded {zarr_grp_name} raw fish image')
 
-        img_stack = load_zarr_fov(parsed_raw_data_fpath,fov)
-        img_stack = convert_from_uint16_to_float64(img_stack)
+            
+            img = convert_from_uint16_to_float64(img)
 
-        # Clean the image from the background
-        img_stack = img_stack-filters.gaussian(img_stack,sigma=PreprocessingFreshNucleiLargeKernelSize)
-        # Remove the negative values        
-        img_stack[img_stack<0] = 0
-        # Flatten the image
-        flattened_img = np.amax(img_stack,axis=0)
 
-        # flattened_img = img_as_uint(flattened_img)
-        filtered_root.create_dataset(fov, data=flattened_img, shape=flattened_img.shape, chunks=(None,None),overwrite=True)
+            # Clean the image from the background
+            img = img-filters.gaussian(img,sigma=FlatFieldKernel)
+            # Remove the negative values        
+            img[img<0] = 0
+            # Flatten the image
+            flattened_img = np.amax(img,axis=0)
+
+
+            # img -= dark_img
+            # # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+            # img[img<0] = 0
+
+            # background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+            # img -= background
+            # img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
+            # img = np.abs(img) # to avoid -0.0 issues
+            # img /= background
+            
+            # img = img.max(axis=0)
+        
+            return ((flattened_img,),metadata)
+
+# def fresh_nuclei_filtering(
+#         parsed_raw_data_fpath,
+#         filtered_raw_data_fpath,
+#         fov,
+#         processing_parameters):
+        
+#         """
+#         This function remove the background from large structures like nuclei
+#         For the sigma I seleced a value quite bigger than
+#         the nuclei size in order to remove them from the 
+#         image. I used what showed on the gaussian filter code page and on this
+#         link on stackoverflow: 
+#         http://stackoverflow.com/questions/25216382/gaussian-filter-in-scipy
+
+#         Arguments
+#         -----------
+
+#         img_stack: np.array float64
+#             3D numpy array with the image
+        
+#         Returns
+#         -----------
+
+#         filtered_image: np.array float64 
+#             2D flattened image 
+
+#         """
+#         PreprocessingFreshNucleiLargeKernelSize = processing_parameters['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize']
+
+#         filtered_store = zarr.DirectoryStore(filtered_raw_data_fpath)
+#         filtered_root = zarr.group(store=filtered_store,overwrite=False)
+
+#         img_stack = load_zarr_fov(parsed_raw_data_fpath,fov)
+#         img_stack = convert_from_uint16_to_float64(img_stack)
+
+#         # Clean the image from the background
+#         img_stack = img_stack-filters.gaussian(img_stack,sigma=PreprocessingFreshNucleiLargeKernelSize)
+#         # Remove the negative values        
+#         img_stack[img_stack<0] = 0
+#         # Flatten the image
+#         flattened_img = np.amax(img_stack,axis=0)
+
+#         # flattened_img = img_as_uint(flattened_img)
+#         filtered_root.create_dataset(fov, data=flattened_img, shape=flattened_img.shape, chunks=(None,None),overwrite=True)
         

@@ -368,6 +368,30 @@ class Pipeline(object):
                                     self.hamming_distance,self.same_dot_radius, 
                                     self.stitching_selected, self.client)
 
+
+
+    def processing_fresh_tissue_step(self):
+        """
+        This function create and run a processing graph that parse and filter the nuclei staining in fresh tissue
+        and parse, filter and counts the Europium beads used for the registration with the smFISH images at high
+        power.
+
+        Args:
+        ----
+        tag_ref_beads (str): The tag reference of the .nd2 file containing the raw beads images. Default: '_ChannelEuropium_Cy3_'
+        tag_ref_nuclei (str): The tag reference of the .nd2 file containing the raw images of nuclei. Default: '_ChannelCy3_'
+
+        """
+        assert self.client, self.logger.error(f'cannot process fresh tissue because missing client attr')
+        assert self.analysis_parameters, self.logger.error(f'cannot process fresh tissue because missing analysis_parameters attr')
+        assert self.running_functions, self.logger.error(f'cannot process fresh tissue because missing running_functions attr')
+        fov_processing.process_fresh_sample_graph(self.experiment_fpath,self.running_functions,
+                                                self.analysis_parameters, self.client,
+                                                tag_ref_beads= '_ChannelEuropium_Cy3_',
+                                                tag_nuclei= '_ChannelCy3_',
+                                                parsing=True)
+
+
     # --------------------------------
     # QC STEPS
     # --------------------------------
