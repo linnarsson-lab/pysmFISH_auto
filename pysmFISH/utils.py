@@ -245,20 +245,24 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
     
     # Move the fresh nuclei file for eel
     if 'eel' in experiment_info['Experiment_type']:
-        nuclei_files = list(experiment_fpath.glob('*ChannelEuropium_Cy3*'))
-        if len(nuclei_files):
+        beads_files = list(experiment_fpath.glob('*ChannelEuropium_Cy3*'))
+        nuclei_files = list(experiment_fpath.glob('*ChannelCy3*'))
+        
+        if len(nuclei_files) or (len(beads_files)):
             try:
-                os.stat(experiment_fpath / 'fresh_nuclei' )
-                logger.debug(f'fresh_nuclei already exist')
+                os.stat(experiment_fpath / 'fresh_tissue' )
+                logger.debug(f'fresh_tissue already exist')
             except FileNotFoundError:
-                os.mkdir(experiment_fpath / 'fresh_nuclei')
-                os.chmod(experiment_fpath / 'fresh_nuclei',0o777)
+                os.mkdir(experiment_fpath / 'fresh_tissue')
+                os.chmod(experiment_fpath / 'fresh_tissue',0o777)
             
             for nuclei in nuclei_files:
-                shutil.move(nuclei.as_posix(), (experiment_fpath / 'fresh_nuclei').as_posix())
-                logger.debug(f'moved {nuclei.stem} into fresh nuclei')
-        else:
-            logger.debug(f'The experiment does not have images of fresh nuclei')
+                shutil.move(nuclei.as_posix(), (experiment_fpath / 'fresh_tissue').as_posix())
+                logger.debug(f'moved {nuclei.stem} into fresh tissue')
+
+            for beads in beads_files:
+                shutil.move(beads.as_posix(), (experiment_fpath / 'fresh_tissue').as_posix())
+                logger.debug(f'moved {beads.stem} into fresh tissue')
         
         large_views = list(experiment_fpath.glob('*ChannelDAPI*'))
         if len(large_views):
