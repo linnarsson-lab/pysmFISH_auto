@@ -541,6 +541,7 @@ def nikon_nd2_parsing_graph(experiment_fpath,
     """
     explain all the steps that are run by this function
     """
+    logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     experiment_info = configuration_files.load_experiment_config_file(experiment_fpath)
     configuration_files.create_specific_analysis_config_file(experiment_fpath, experiment_info)
