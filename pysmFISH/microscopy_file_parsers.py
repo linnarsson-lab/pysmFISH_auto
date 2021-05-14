@@ -543,7 +543,6 @@ def nikon_nd2_parsing_graph(experiment_fpath,
     """
     experiment_info = configuration_files.load_experiment_config_file(experiment_fpath)
     configuration_files.create_specific_analysis_config_file(experiment_fpath, experiment_info)
-    experiemnt_fpath = Path(experiment_fpath)
     # Create empty zarr file for the parse data
     parsed_raw_data_fpath = io.create_empty_zarr_file(experiment_fpath=experiment_fpath,
                                         tag=parsed_image_tag)
@@ -561,7 +560,7 @@ def nikon_nd2_parsing_graph(experiment_fpath,
         _ = client.gather(parsing_futures)
         list_pkl = experiment_fpath.glob('*.pkl')
         for pkl_fpath in list_pkl:
-            new_file_path = experiment_fpath / 'raw_data' / pkl_fpath.name
+            new_file_path = Path(experiment_fpath) / 'raw_data' / pkl_fpath.name
             pkl_fpath.rename(new_file_path)
             
     else:
