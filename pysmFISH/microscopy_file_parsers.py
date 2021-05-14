@@ -541,6 +541,7 @@ def nikon_nd2_parsing_graph(experiment_fpath,
     """
     explain all the steps that are run by this function
     """
+    experiment_fpath = Path(experiment_fpath)
     experiment_info = configuration_files.load_experiment_config_file(experiment_fpath)
     configuration_files.create_specific_analysis_config_file(experiment_fpath, experiment_info)
     # Create empty zarr file for the parse data
@@ -560,17 +561,17 @@ def nikon_nd2_parsing_graph(experiment_fpath,
         _ = client.gather(parsing_futures)
         list_pkl = experiment_fpath.glob('*.pkl')
         for pkl_fpath in list_pkl:
-            new_file_path = Path(experiment_fpath) / 'raw_data' / pkl_fpath.name
+            new_file_path = experiment_fpath / 'raw_data' / pkl_fpath.name
             pkl_fpath.rename(new_file_path)
             
     else:
         # add error if not correct parsing type
         if parsing_type == 'reparsing_from_processing_folder':
-            raw_files_fpath = experiment_fpath + '/raw_data'
+            raw_files_fpath = experiment_fpath / 'raw_data'
             logger.info(f'raw_files_fpath {raw_files_fpath}')
         elif parsing_type == 'reparsing_from_storage':
             nd2_raw_files_selector(storage_experiment_fpath, experiment_fpath)
-            raw_files_fpath = storage_experiment_fpath + '/raw_data'
+            raw_files_fpath = storage_experiment_fpath / 'raw_data'
         
         all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
         parsing_futures = client.map(nikon_nd2_reparser_zarr,
