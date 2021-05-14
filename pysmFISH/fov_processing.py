@@ -160,9 +160,9 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         dark_img = preprocessing.load_dark_image(experiment_fpath)
         
         # did this conversion to avoid to pass self to dask
-        analysis_parameters = analysis_parameters
-        running_functions = running_functions
-        tile_corners_coords_pxl = tile_corners_coords_pxl
+        # analysis_parameters = analysis_parameters
+        # running_functions = running_functions
+        # tile_corners_coords_pxl = tile_corners_coords_pxl
         
         
         dark_img = delayed(dark_img)
