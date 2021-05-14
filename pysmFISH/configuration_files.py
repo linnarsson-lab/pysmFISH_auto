@@ -467,7 +467,7 @@ def create_function_runner(experiment_fpath,metadata):
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
                             'reference_channels_dots_calling': 'osmFISH_peak_based_detection_fast',
-                            'fresh_sample_reference_prepreocessing':'large_beads_preprocessing',
+                            'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}
 

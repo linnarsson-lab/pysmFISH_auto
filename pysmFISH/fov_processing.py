@@ -1,6 +1,7 @@
 import pickle
 import gc
 import dask
+import sys
 import pandas as pd
 import numpy as np
 import zarr
@@ -377,11 +378,9 @@ def single_fov_fresh_tissue_beads(processing_tag,
     experiment_fpath = Path(experiment_fpath)
 
     experiment_name = fov_subdataset.experiment_name
-    pipeline = fov_subdataset.pipeline
-    processing_type = fov_subdataset.processing_type
     zarr_grp_name = fov_subdataset.grp_name
 
-    parsed_raw_data_fpath = experiment_fpath / 'fresh_nuclei'/ (experiment_name +'_img_data.zarr')
+    parsed_raw_data_fpath = experiment_fpath / 'fresh_tissue'/ (experiment_name +'_img_data.zarr')
     
     processing_parameters = analysis_parameters['fresh-tissue'][processing_tag]
 
@@ -414,7 +413,7 @@ def single_fov_fresh_tissue_beads(processing_tag,
         # Save the file as zarr
         store = zarr.DirectoryStore(preprocessed_zarr_fpath)
         root = zarr.group(store=store,overwrite=False)
-        tag_name = experiment_name + '_fresh_tissue_beads' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
+        tag_name = experiment_name + '_fresh_tissue_' + processing_tag + '_fov_' + str(fov_subdataset.fov_num)
         dgrp = root.create_group(tag_name)
         for k, v in filt_out[1].items():
             dgrp.attrs[k] = v
@@ -440,22 +439,22 @@ def process_fresh_sample_graph(experiment_fpath, running_functions,
     if parsing:
         presence_nuclei = 0
         presence_beads = 0
-        all_fresh_tissue_fpath = list((Path(experiment_fpath) / 'fresh_nuclei').glob('*.nd2'))
+        all_fresh_tissue_fpath = list((Path(experiment_fpath) / 'fresh_tissue').glob('*.nd2'))
         if all_fresh_tissue_fpath:
             for fpath in all_fresh_tissue_fpath:
                 if tag_ref_beads in fpath.stem:
-                    parsed_beads_fpath = experiment_fpath / 'fresh_nuclei'/ (fpath.stem +'_img_data.zarr')
-                    parsing_future = client.submit(microscopy_file_parsers,beads_fpath)
+                    parsed_beads_fpath = experiment_fpath / 'fresh_tissue'/ (fpath.stem +'_img_data.zarr')
+                    parsing_future = client.submit(microscopy_file_parsers.nikon_nd2_parser_simple_mfov,fpath)
                     all_parsing.append(parsing_future)
                     presence_beads = 1
                 elif tag_nuclei in fpath.stem:
-                    parsed_nuclei_fpath = experiment_fpath / 'fresh_nuclei'/ (fpath.stem +'_img_data.zarr')
-                    parsing_future = client.submit(microscopy_file_parsers,beads_fpath)
+                    parsed_nuclei_fpath = experiment_fpath / 'fresh_tissue'/ (fpath.stem +'_img_data.zarr')
+                    parsing_future = client.submit(microscopy_file_parsers.nikon_nd2_parser_simple_mfov,fpath)
                     all_parsing.append(parsing_future)
                     presence_nuclei = 1
 
             if presence_beads and presence_nuclei:
-                _ = client.gather(*all_parsing)
+                _ = client.gather(all_parsing)
                 io.consolidate_zarr_metadata(parsed_beads_fpath)
                 io.consolidate_zarr_metadata(parsed_nuclei_fpath)
             else:
@@ -470,7 +469,7 @@ def process_fresh_sample_graph(experiment_fpath, running_functions,
                     sys.exit(f'missing fresh-tissue beads and nuclei files')
 
     else:
-        all_fresh_tissue_fpath = list((Path(experiment_fpath) / 'fresh_nuclei').glob('*.zarr'))
+        all_fresh_tissue_fpath = list((Path(experiment_fpath) / 'fresh_tissue').glob('*.zarr'))
         if all_fresh_tissue_fpath:
             for fpath in all_fresh_tissue_fpath:
                 if tag_ref_beads in fpath.stem:
@@ -478,8 +477,6 @@ def process_fresh_sample_graph(experiment_fpath, running_functions,
                     presence_beads = 1
                 elif tag_nuclei in fpath.stem:
                     parsed_nuclei_fpath = fpath
-                    parsing_future = client.submit(microscopy_file_parsers,beads_fpath)
-                    all_parsing.append(parsing_future)
                     presence_nuclei = 1
               
         if not presence_beads:
@@ -488,12 +485,13 @@ def process_fresh_sample_graph(experiment_fpath, running_functions,
         elif not presence_nuclei:
             logger.error(f'missing fresh-tissue nuclei parsed file')
             sys.exit(f'missing fresh-tissue nuclei parsed file')
-        else:
+        elif (not presence_nuclei) & (not presence_beads    ):
             logger.error(f'missing fresh-tissue beads and nuclei parsed files')
             sys.exit(f'missing fresh-tissue beads and nuclei parsed files')  
 
   
     # Create dataset
+    
     ds_beads = data_models.Dataset()
     ds_nuclei = data_models.Dataset()
     ds_beads.create_full_dataset_from_zmetadata(parsed_beads_fpath)
@@ -504,74 +502,77 @@ def process_fresh_sample_graph(experiment_fpath, running_functions,
     
     # In this case I fake a dark image. It must be collected from the 
     # robofish system
-    img_width = ds.dataset.iloc[0].img_width
-    img_height = ds.dataset.iloc[0].img_height
+    img_width = ds_nuclei.dataset.iloc[0].img_width
+    img_height = ds_nuclei.dataset.iloc[0].img_height
     dark_img = np.zeros([img_width,img_height])
 
-    nuclei_base = parsed_nuclei_fpath.stem.split('_img_data_zarr')[0]
-    beads_base = parsed_beads_fpath.stem.split('_img_data_zarr')[0]
-    nuclei_filtered_fpath = experiment_fpath / 'fresh_nuclei' /  (nuclei_base + '_preprocessed_img_data.zarr')
-    io.create_empty_zarr_file(nuclei_filtered_fpath.parent.as_posix(), tag='preprocessed_img_data')
-    beads_filtered_fpath = experiment_fpath / 'fresh_nuclei' /  (beads_base + '_preprocessed_img_data.zarr')
-    io.create_empty_zarr_file(beads_filtered_fpath.parent.as_posix(), tag='preprocessed_img_data')
+    base_path = experiment_fpath / 'fresh_tissue'
+    # nuclei_base = parsed_nuclei_fpath.stem.split('_img_data.zarr')[0]
+    # beads_base = parsed_beads_fpath.stem.split('_img_data.zarr')[0]
+    nuclei_filtered_fpath = base_path /  (base_path.stem + '_nuclei_preprocessed_img_data.zarr')
+    io.create_empty_zarr_file(base_path.as_posix(), tag='nuclei_preprocessed_img_data')
+    beads_filtered_fpath = base_path /  (base_path.stem + '_beads_preprocessed_img_data.zarr')
+    io.create_empty_zarr_file(base_path.as_posix(), tag='beads_preprocessed_img_data')
     
 
-    # all_counts_beads = []
-    # all_processing_nuclei = []
-    # for fov_num, fov_subdataset in beads_grpd_fovs:
-    #     round_num = fov_subdataset.round_num
-    #     channel = fov_subdataset.channel
-    #     fov = fov_subdataset.fov_num
-    #     experiment_name = fov_subdataset.experiment_name
-    #     dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-    #                         '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-    #     fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name,nout=2)(
-    #                                     processing_tag='beads',
-    #                                     fov_subdataset,
-    #                                     analysis_parameters,
-    #                                     running_functions,
-    #                                     dark_img,
-    #                                     experiment_fpath,
-    #                                     preprocessed_zarr_fpath,
-    #                                     save_steps_output=True,
-    #                                     dask_key_name=dask_delayed_name)
-    #         counts, filt_out = fov_out[0], fov_out[1]
-    #         all_counts_beads.append(counts)
+    all_counts_beads = []
+    all_processing_nuclei = []
+    processing_tag = 'beads'
+    for fov_num, group in beads_grpd_fovs:
+        for index_value, fov_subdataset in group.iterrows():
+            round_num = fov_subdataset.round_num
+            channel = fov_subdataset.channel
+            fov = fov_subdataset.fov_num
+            experiment_name = fov_subdataset.experiment_name
+            dask_delayed_name = 'filt_count_beads_fov'+ str(fov) + '_' + tokenize()
+            fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
+                                            processing_tag,
+                                            fov_subdataset,
+                                            analysis_parameters,
+                                            running_functions,
+                                            dark_img,
+                                            experiment_fpath,
+                                            preprocessed_zarr_fpath=beads_filtered_fpath,
+                                            save_steps_output=True,
+                                            dask_key_name=dask_delayed_name)
+            counts, filt_out = fov_out[0], fov_out[1]
+            all_counts_beads.append(counts)
+    
 
-    # name = 'concat_all_counts_beads_fresh_tissue'+ '-' + tokenize()
-    # all_counts_fov = delayed(pd.concat,name=name)(all_counts_beads,axis=0,ignore_index=True)
+    name = 'concat_all_counts_beads_fresh_tissue'+ '-' + tokenize()
+    all_counts_fov = delayed(pd.concat,name=name)(all_counts_beads,axis=0,ignore_index=True)
 
-    # # Add registration and recalculation of all the coords
+    # Add registration and recalculation of all the coords
 
-    # name = 'save_df_beads_fresh_tissue' +experiment_name + '_' + channel + '_' \
-    #                             + '_fov_' +str(fov) + '-' + tokenize() 
-    # saved_file = delayed(all_counts_fov.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-    #                 '_counts_beads_fresh_tissue.parquet'),index=False)
+    name = 'save_df_beads_fresh_tissue' +experiment_name + '_' + channel + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize() 
+    saved_file = delayed(all_counts_fov.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                    '_counts_beads_fresh_tissue.parquet'),index=False)
 
-
-    # for fov_num, fov_subdataset in nuclei_grpd_fovs:
-    #     round_num = fov_subdataset.round_num
-    #     channel = fov_subdataset.channel
-    #     fov = fov_subdataset.fov_num
-    #     experiment_name = fov_subdataset.experiment_name
-    #     dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-    #                         '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-    #     fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name,nout=2)(
-    #                                     processing_tag='nuclei',
-    #                                     fov_subdataset,
-    #                                     analysis_parameters,
-    #                                     running_functions,
-    #                                     dark_img,
-    #                                     experiment_fpath,
-    #                                     preprocessed_zarr_fpath,
-    #                                     save_steps_output=True,
-    #                                     dask_key_name=dask_delayed_name)
-           
-    #     all_processing_nuclei.append(fov_out)
+    processing_tag='nuclei'
+    for fov_num, group in nuclei_grpd_fovs:
+        for index_value, fov_subdataset in group.iterrows():
+            round_num = fov_subdataset.round_num
+            channel = fov_subdataset.channel
+            fov = fov_subdataset.fov_num
+            experiment_name = fov_subdataset.experiment_name
+            dask_delayed_name = 'filt_nuclei_fov'+ str(fov) + '_' + tokenize()
+            fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
+                                            processing_tag,
+                                            fov_subdataset,
+                                            analysis_parameters,
+                                            running_functions,
+                                            dark_img,
+                                            experiment_fpath,
+                                            preprocessed_zarr_fpath=nuclei_filtered_fpath,
+                                            save_steps_output=True,
+                                            dask_key_name=dask_delayed_name)
+            
+            all_processing_nuclei.append(fov_out)
 
  
-    # end = delayed(combine_steps)(saved_file,all_processing_nuclei)
+    end = delayed(combine_steps)(saved_file,all_processing_nuclei)
       
-    # _ = dask.compute(end)
+    _ = dask.compute(end)
     
 

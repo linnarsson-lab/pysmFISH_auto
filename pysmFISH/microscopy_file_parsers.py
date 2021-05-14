@@ -141,9 +141,8 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
     try:
         nd2fh = nd2reader.ND2Reader(nd2_file_path)
     except:
-        logger.error('Cannot load the nd2 file')
-        err = signals.FAIL('Cannot load the nd2 file')
-        raise err
+        logger.error(f'Cannot load the nd2 file {nd2_file_path}')
+        sys.exit(f'Cannot load the nd2 file {nd2_file_path}')
     else:
         # Collect metadata
         all_metadata = nd2fh.parser._raw_metadata
@@ -297,8 +296,8 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
     try:
         nd2fh = nd2reader.ND2Reader(nd2_file_path)
     except:
-        logger.error('Cannot load the {nd2_fname} nd2 file')
-        sys.exit('Cannot load the {nd2_fname} nd2 file')
+        logger.error(f'Cannot load the {nd2_fname} nd2 file')
+        sys.exit('fCannot load the {nd2_fname} nd2 file')
     else:
         # Collect metadata
         all_metadata = nd2fh.parser._raw_metadata
@@ -436,9 +435,8 @@ def nikon_nd2_parser_simple_mfov(nd2_file_path):
     try:
         nd2fh = nd2reader.ND2Reader(nd2_file_path)
     except:
-        logger.error('Cannot load the nd2 file')
-        err = signals.FAIL('Cannot load the nd2 file')
-        raise err
+        logger.error(f'Cannot load the nd2 file {nd2_file_path}')
+        sys.exit(f'Cannot load the nd2 file {nd2_file_path}')
     else:
         # Collect metadata
         all_metadata = nd2fh.parser._raw_metadata
@@ -462,7 +460,7 @@ def nikon_nd2_parser_simple_mfov(nd2_file_path):
         all_coords = np.hstack((z_data,x_data,y_data))
         fov_coords = all_coords[0::len(z_levels),:]
         
-        tag_name = experiment_name + '_' + channel
+        tag_name = experiment_name
         
         
         # Save the file as zarr
@@ -524,12 +522,12 @@ def nikon_nd2_parser_simple_mfov(nd2_file_path):
 
             dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=(1,None,None),overwrite=True)
 
-        # Rename the nd2 files
-        new_file_name = tag_name + '.nd2'
-        logger.debug(f'.nd2 file renamed {new_file_name}')
-        new_file_path = experiment_fpath / new_file_name
-        nd2_file_path.rename(new_file_path)
-        nd2_file_path = new_file_path
+        # # Rename the nd2 files
+        # new_file_name = tag_name + '.nd2'
+        # logger.debug(f'.nd2 file renamed {new_file_name}')
+        # new_file_path = experiment_fpath / new_file_name
+        # nd2_file_path.rename(new_file_path)
+        # nd2_file_path = new_file_path
 
 
 

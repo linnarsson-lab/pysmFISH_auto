@@ -113,7 +113,7 @@ class Pipeline(object):
         self.experiment_fpath = Path(experiment_fpath)
         self.run_type = run_type
         self.parsing_type = parsing_type
-        self.logger = logger_utils.json_logger(self.experiment_fpath / 'logs', pipeline_run_name +'.log')   
+        self.logger = logger_utils.json_logger(self.experiment_fpath / pipeline_run_name +'.log')   
 
         # Collect some of the parameters. If missing a predefined value is assigned
         self.raw_data_folder_storage_path = kwarg.pop('raw_data_folder_storage_path', '/fish/rawdata')
@@ -370,7 +370,9 @@ class Pipeline(object):
 
 
 
-    def processing_fresh_tissue_step(self):
+    def processing_fresh_tissue_step(self,parsing=True,
+                                    tag_ref_beads='_ChannelEuropium_Cy3_',
+                                    tag_nuclei='_ChannelCy3_'):
         """
         This function create and run a processing graph that parse and filter the nuclei staining in fresh tissue
         and parse, filter and counts the Europium beads used for the registration with the smFISH images at high
@@ -387,9 +389,9 @@ class Pipeline(object):
         assert self.running_functions, self.logger.error(f'cannot process fresh tissue because missing running_functions attr')
         fov_processing.process_fresh_sample_graph(self.experiment_fpath,self.running_functions,
                                                 self.analysis_parameters, self.client,
-                                                tag_ref_beads= '_ChannelEuropium_Cy3_',
-                                                tag_nuclei= '_ChannelCy3_',
-                                                parsing=True)
+                                                tag_ref_beads= tag_ref_beads,
+                                                tag_nuclei= tag_nuclei,
+                                                parsing=parsing)
 
 
     # --------------------------------
