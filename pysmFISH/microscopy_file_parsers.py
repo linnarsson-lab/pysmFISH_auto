@@ -15,6 +15,7 @@ from pathlib import Path
 
 from pysmFISH import io
 from pysmFISH import utils
+from pysmFISH import configuration_files
 
 from pysmFISH.logger_utils import selected_logger
 
