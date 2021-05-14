@@ -606,7 +606,7 @@ def osmFISH_peak_based_detection_fast(ImgStack,
                     Selected_Thr = trimmed_thr_array[Thr_idx + stringency]
                     Selected_Peaks = Trimmed_PeaksCoords[Thr_idx + stringency]
                 else:
-                    Selected_Thr = Trimmed_ThrArray[Thr_idx]
+                    Selected_Thr = trimmed_thr_array[Thr_idx]
                     Selected_Peaks = Trimmed_PeaksCoords[Thr_idx]
 
                 # Calculate the selected peaks after removal of the big and small objects
