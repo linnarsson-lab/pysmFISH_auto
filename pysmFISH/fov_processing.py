@@ -79,7 +79,7 @@ def single_fov_round_processing_eel(fov_subdataset,
         store = zarr.DirectoryStore(preprocessed_zarr_fpath)
         root = zarr.group(store=store,overwrite=False)
         tag_name = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
-        dgrp = root.create_group(tag_name)
+        dgrp = root.create_group(tag_name,overwrite=True)
         for k, v in filt_out[1].items():
             dgrp.attrs[k] = v
         fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
