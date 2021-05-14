@@ -178,6 +178,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         all_fovs = list(grpd_fovs.groups.keys())
         chunks = [all_fovs[x:x+30] for x in range(0, len(all_fovs), 30)]
         for chunk in chunks:
+            all_processing = []
+            all_filtered_images = []
             for fov_num in chunk:
                 group = grpd_fovs.get_group(fov_num)
         # for fov_num, group in grpd_fovs:
