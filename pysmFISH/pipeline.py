@@ -268,7 +268,7 @@ class Pipeline(object):
 
 
 
-    def processing_barcoded_eel_step(self):
+    def processing_barcoded_eel_step(self,chunks_size=30):
         """
         Create and run a dask delayed task graph used to process barcoded eel experiments
         It runs:
@@ -297,7 +297,7 @@ class Pipeline(object):
         fov_processing.processing_barcoded_eel_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tile_corners_coords_pxl,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_image_tag,self.client)
+                                    self.preprocessed_image_tag,self.client,chunks_size)
 
 
 

@@ -146,7 +146,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
 def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                     running_functions, tile_corners_coords_pxl,metadata,
                                     grpd_fovs,save_intermediate_steps, 
-                                    preprocessed_image_tag, client ):
+                                    preprocessed_image_tag, client, chunks_size ):
         """ 
         This method create a processing graph XXXXXXXXX
 
@@ -176,7 +176,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         all_processing = []
         all_filtered_images = []
         all_fovs = list(grpd_fovs.groups.keys())
-        chunks = [all_fovs[x:x+30] for x in range(0, len(all_fovs), 30)]
+        chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
         for chunk in chunks:
             all_processing = []
             all_filtered_images = []
