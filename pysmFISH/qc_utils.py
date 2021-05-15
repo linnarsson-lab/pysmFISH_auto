@@ -57,9 +57,9 @@ class QC_registration_error():
         scale_value = 5
         self.tiles_coords = self.tiles_coords / scale_value
         RegistrationMinMatchingBeads = self.analysis_parameters['RegistrationMinMatchingBeads']
-        fovs = self.error_output_df['fov_num'].values
-        rounds_num = self.error_output_df['round_num'].values
-        min_errors = self.error_output_df['min_number_matching_dots_registration'].values
+        fovs = self.error_output_df['fov_num'].values.astype(int)
+        rounds_num = self.error_output_df['round_num'].values.astype(int)
+        min_errors = self.error_output_df['min_number_matching_dots_registration'].values.astype(int)
 
         fig = plt.figure(figsize=(30,20))
         ax = fig.add_subplot(111)
@@ -83,7 +83,7 @@ class QC_registration_error():
     
         sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
         plt.gca().invert_yaxis()
-        for fov, round_num, match, x, y in zip(int(fovs),int(rounds_num), int(min_errors), to_zero_c_coords,to_zero_r_coords):
+        for fov, round_num, match, x, y in zip(fovs,rounds_num, min_errors, to_zero_c_coords,to_zero_r_coords):
             
             ax.annotate(
                 fov,
