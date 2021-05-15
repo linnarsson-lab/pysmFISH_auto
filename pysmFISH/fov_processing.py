@@ -149,7 +149,9 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                     preprocessed_image_tag, client, chunks_size ):
         """ 
         This method create a processing graph XXXXXXXXX
-
+        Need to chunks the processing of the data because getting the intensity dots
+        is slow and if i process everything in parallel the workers can get lost and
+        the processing will crush
         """
         experiment_fpath = Path(experiment_fpath)
         io.create_empty_zarr_file(experiment_fpath.as_posix(), preprocessed_image_tag)
