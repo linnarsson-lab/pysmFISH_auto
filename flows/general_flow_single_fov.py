@@ -256,7 +256,7 @@ def general_flow(experiment_fpath:str,
 
     # ds.load_dataset('/fish/work_std/JJEXP20200818_SpaceTX_Human_Excitatory_5/210428_20_42_17_JJEXP20200818_SpaceTX_Human_Excitatory_5_img_data_dataset_corrected.parquet')
     
-    ds.dataset = ds.dataset.loc[(ds.dataset.channel == 'Europium') & (ds.dataset.round_num == 1),:]
+    # ds.dataset = ds.dataset.loc[(ds.dataset.channel == 'Europium') & (ds.dataset.round_num == 1),:]
     
     metadata = ds.collect_metadata(ds.dataset)
     # ds.dataset.loc[:,'stitching_channel'] = 'Europium'
