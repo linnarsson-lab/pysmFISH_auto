@@ -543,6 +543,8 @@ def nikon_nd2_parsing_graph(experiment_fpath,
     """
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
+    storage_experiment_fpath = Path(storage_experiment_fpath)
+    
     experiment_info = configuration_files.load_experiment_config_file(experiment_fpath)
     configuration_files.create_specific_analysis_config_file(experiment_fpath, experiment_info)
     # Create empty zarr file for the parse data
