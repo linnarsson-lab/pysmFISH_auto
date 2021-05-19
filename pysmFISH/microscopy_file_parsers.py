@@ -571,7 +571,6 @@ def nikon_nd2_parsing_graph(experiment_fpath,
             raw_files_fpath = experiment_fpath / 'raw_data'
             logger.info(f'raw_files_fpath {raw_files_fpath}')
         elif parsing_type == 'reparsing_from_storage':
-            nd2_raw_files_selector(storage_experiment_fpath, experiment_fpath)
             raw_files_fpath = storage_experiment_fpath / 'raw_data'
         
         all_raw_nd2 = nd2_raw_files_selector_general(folder_fpath=raw_files_fpath)
