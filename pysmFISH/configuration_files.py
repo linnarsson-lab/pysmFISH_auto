@@ -718,7 +718,8 @@ def load_codebook(experiment_fpath:str, metadata:str):
             _ = shutil.copy2(codebooks_db_fpath,codebook_fpath)
             return codebook
         except:
-            logger.error('cannot create the codebook')
+            logger.error(f'cannot create the codebook')
+            sys.exit(f'cannot create the codebook')
     else:
         return codebook
 
