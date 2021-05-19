@@ -290,11 +290,17 @@ def create_dark_img(experiment_fpath,metadata):
     experiment_name = metadata['experiment_name']
     machine = metadata['machine']
     # Check if the dark image is already present
+    nd2_blank = None
     try:
         pres = list((experiment_fpath / 'extra_processing_data').glob('*_dark_img.npy'))[0]
-    except:
-        nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
-        nd2_blank = [el for el in nd2_list if 'Blank' in el.stem]
+    except (FileNotFoundError, IOError):
+        try:
+            nd2_blank = list((experiment_fpath / 'config_db').glob('Blank_image_'+machine+'.nd2'))[0]
+        except (FileNotFoundError, IOError):
+            # Look in the extra files
+            nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
+            nd2_blank = [el for el in nd2_list if 'Blank' in el.stem]
+        
         if nd2_blank:
             nd2fh = nd2reader.ND2Reader(nd2_blank[0])
             nd2fh.bundle_axes = 'zyx'
@@ -309,10 +315,9 @@ def create_dark_img(experiment_fpath,metadata):
             np.save(fname, dark_img)
             logger.debug(f'Created dark image')
         else:
-            logger.error(f'the Blank .nd2 for the dark image is missing')
+            logger.error(f'the Blank .nd2 for the dark image is missing in experiment and config_db')
     else:
         logger.debug(f'the dark image is already present')
-
 
 def sorting_grps(grps, experiment_info, analysis_parameters):
     """
