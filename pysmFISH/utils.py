@@ -313,10 +313,10 @@ def create_dark_img(experiment_fpath,metadata):
         logger.debug(f'the Blank .nd2 for the dark image is missing in experiment folder')
         try:
             pres = list((experiment_fpath / 'extra_processing_data').glob('*_dark_img.npy'))[0]
-        except (FileNotFoundError, IOError):
+        except IndexError:
             try:
                 pres = list((experiment_fpath / 'config_db').glob('Blank_image_'+machine+'_dark_img.npy'))[0]
-            except (FileNotFoundError, IOError):
+            except IndexError:
                 logger.error(f'Missing .npy dask image')
             else:
                 logger.error(f'the Blank .nd2 for the dark image is missing in experiment folder')
