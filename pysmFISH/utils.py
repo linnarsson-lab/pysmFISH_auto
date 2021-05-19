@@ -291,33 +291,37 @@ def create_dark_img(experiment_fpath,metadata):
     machine = metadata['machine']
     # Check if the dark image is already present
     nd2_blank = None
-    try:
-        pres = list((experiment_fpath / 'extra_processing_data').glob('*_dark_img.npy'))[0]
-    except (FileNotFoundError, IOError):
-        try:
-            nd2_blank = list((experiment_fpath / 'config_db').glob('Blank_image_'+machine+'.nd2'))[0]
-        except (FileNotFoundError, IOError):
-            # Look in the extra files
-            nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
-            nd2_blank = [el for el in nd2_list if 'Blank' in el.stem]
-        
-        if nd2_blank:
-            nd2fh = nd2reader.ND2Reader(nd2_blank[0])
-            nd2fh.bundle_axes = 'zyx'
-            nd2fh.iter_axes = 'z'
-            # Image with single channel
-            channel = nd2fh.metadata['channels'][0]
-            # I can collect just one z because error of the reader
-            # that created both z and t planes
-            dark_img = np.median(nd2fh[0],axis=0)
-            dark_img = dark_img.astype(np.uint16)
-            fname = experiment_fpath / 'extra_processing_data' / (experiment_name + '_' + machine + '_dark_img.npy')
-            np.save(fname, dark_img)
-            logger.debug(f'Created dark image')
-        else:
-            logger.error(f'the Blank .nd2 for the dark image is missing in experiment and config_db')
+    
+    # Look in the extra files
+    nd2_list = list((experiment_fpath / 'extra_files').glob('*.nd2'))
+    nd2_blank = [el for el in nd2_list if 'Blank' in el.stem]
+    
+    if nd2_blank:
+        nd2fh = nd2reader.ND2Reader(nd2_blank[0])
+        nd2fh.bundle_axes = 'zyx'
+        nd2fh.iter_axes = 'z'
+        # Image with single channel
+        channel = nd2fh.metadata['channels'][0]
+        # I can collect just one z because error of the reader
+        # that created both z and t planes
+        dark_img = np.median(nd2fh[0],axis=0)
+        dark_img = dark_img.astype(np.uint16)
+        fname = experiment_fpath / 'extra_processing_data' / (experiment_name + '_' + machine + '_dark_img.npy')
+        np.save(fname, dark_img)
+        logger.debug(f'Created dark image from .nd2 file')
     else:
-        logger.debug(f'the dark image is already present')
+        logger.debug(f'the Blank .nd2 for the dark image is missing in experiment folder')
+        try:
+            pres = list((experiment_fpath / 'extra_processing_data').glob('*_dark_img.npy'))[0]
+        except (FileNotFoundError, IOError):
+            try:
+                pres = list((experiment_fpath / 'config_db').glob('Blank_image_'+machine+'_dark_img.npy'))[0]
+            except (FileNotFoundError, IOError):
+                logger.error(f'Missing .npy dask image')
+            else:
+                logger.error(f'the Blank .nd2 for the dark image is missing in experiment folder')
+        else:
+            logger.debug(f'the dark image is already present in the config_db')
 
 def sorting_grps(grps, experiment_info, analysis_parameters):
     """
