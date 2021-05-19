@@ -316,6 +316,8 @@ def create_dark_img(experiment_fpath,metadata):
         except IndexError:
             try:
                 pres = list((experiment_fpath / 'config_db').glob('Blank_image_'+machine+'_dark_img.npy'))[0]
+                new_location = fname = experiment_fpath / 'extra_processing_data' / pres
+                shutil.copy2(pres,new_location)
             except IndexError:
                 logger.error(f'Missing .npy dask image')
             else:
