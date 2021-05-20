@@ -143,10 +143,10 @@ def load_zarr_fov(zarr_fpath:str, fov:int):
 
 
 
-def simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client):
+def simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client, file_tag):
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*decoded*.parquet',engine='pyarrow')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*' +file_tag+'*.parquet',engine='pyarrow')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 
@@ -158,14 +158,14 @@ def simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdista
     counts_df = counts_dd_below.loc[:,['fov_num',r_tag,c_tag, 'decoded_genes']].compute()
 
     counts_df=counts_df.dropna(subset=['decoded_genes'])
-    fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting.parquet')
+    fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting_'+file_tag+'.parquet')
     counts_df.to_parquet(fpath,index=False)
 
 
-def simple_output_plotting_serial(experiment_fpath, stitching_selected, client):
+def simple_output_plotting_serial(experiment_fpath, stitching_selected, client,file_tag):
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*decoded*.parquet',engine='pyarrow')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / '*'+file_tag+'*.parquet',engine='pyarrow')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 
@@ -176,7 +176,7 @@ def simple_output_plotting_serial(experiment_fpath, stitching_selected, client):
     counts_df = counts_dd.loc[:,['fov_num',r_tag,c_tag, 'target_name']].compute()
 
     counts_df=counts_df.dropna(subset=['target_name'])
-    fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting.parquet')
+    fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting_'+file_tag+'.parquet')
     counts_df.to_parquet(fpath,index=False)
 
 

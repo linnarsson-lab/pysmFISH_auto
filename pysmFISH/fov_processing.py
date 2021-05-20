@@ -262,14 +262,14 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         # GENERATE OUTPUT FOR PLOTTING
         selected_Hdistance = 3 / metadata['barcode_length']
         stitching_selected = 'microscope_stitched'
-        io.simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client)
+        io.simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client,file_tag='decoded')
         # ----------------------------------------------------------------  
 
 
 def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                     running_functions, tile_corners_coords_pxl,metadata,
                                     grpd_fovs,save_intermediate_steps, 
-                                    preprocessed_zarr_fpath, client):
+                                    preprocessed_image_tag, client):
         """ 
         This method create a processing graph XXXXXXXXX
 
@@ -310,7 +310,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                     dask_delayed_name = 'filt_' +experiment_name + '_' + channel + \
                                     '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
 
-                    out_nuclei = delayed(fov_processing.single_fov_round_processing_serial_nuclei,name=dask_delayed_name)(fov_subdataset,
+                    out_nuclei = delayed(single_fov_round_processing_serial_nuclei,name=dask_delayed_name)(fov_subdataset,
                                             analysis_parameters,
                                             running_functions,
                                             dark_img,
@@ -323,7 +323,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                 else:
                     dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
                                     '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-                    counts = delayed(fov_processing.single_fov_round_processing_eel,name=dask_delayed_name)(fov_subdataset,
+                    counts = delayed(single_fov_round_processing_eel,name=dask_delayed_name)(fov_subdataset,
                                                 analysis_parameters,
                                                 running_functions,
                                                 dark_img,
@@ -364,7 +364,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
         # # ----------------------------------------------------------------
         # GENERATE OUTPUT FOR PLOTTING
         stitching_selected = 'microscope_stitched'
-        io.simple_output_plotting_serial(experiment_fpath, stitching_selected, client)
+        io.simple_output_plotting_serial(experiment_fpath, stitching_selected, client, file_tag='decoded')
         # ----------------------------------------------------------------  
   
 

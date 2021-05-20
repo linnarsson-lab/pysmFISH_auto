@@ -368,6 +368,13 @@ class Pipeline(object):
                                     self.hamming_distance,self.same_dot_radius, 
                                     self.stitching_selected, self.client)
 
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / self.metadata['barcode_length']
+        stitching_selected = 'microscope_stitched'
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                selected_Hdistance, self.client,file_tag='cleaned')
+        # ----------------------------------------------------------------  
 
 
     def processing_fresh_tissue_step(self,parsing=True,
