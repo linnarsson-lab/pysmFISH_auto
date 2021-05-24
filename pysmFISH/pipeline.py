@@ -502,6 +502,7 @@ class Pipeline(object):
 
         self.processing_cluster_init_step()
         self.logger.info(f'Started dask processing cluster')
+        self.logger.info(f"client dashboard {self.client.scheduler_info()['services']['dashboard']}")
 
         # Run parsing only if required
         self.logger.info(f'Parsing started')
