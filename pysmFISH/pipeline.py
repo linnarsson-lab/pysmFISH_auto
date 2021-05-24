@@ -19,6 +19,7 @@ from typing import *
 import os
 import dask
 import sys
+import yaml
 import pandas as pd
 import numpy as np
 
@@ -144,6 +145,14 @@ class Pipeline(object):
     # -----------------------------------
     # PROCESSING STEPS
     # ------------------------------------
+
+    def save_git_commit(self):
+        hash_str =  io.get_git_hash()
+        processing_info = {}
+        processing_info['git_commit_hash']
+        processing_info_fpath = self.experiment_fpath / 'git_info.yaml'
+        with open(processing_info_fpath, 'w') as new_config:
+                    yaml.safe_dump(processing_info, new_config,default_flow_style=False,sort_keys=False)
 
     def create_folders_step(self):
         """
@@ -475,8 +484,12 @@ class Pipeline(object):
         Pipeline running the data organization and the parsing
         of the .nd2 files of the entire experiment
         """
+
         self.logger.info(f"Start parsing")
         start = datetime.now()
+
+        self.save_git_commit()
+        self.logger.info(f'Saved current git commit version')
 
         self.create_folders_step(self.experiment_fpath)
         self.logger.info(f'Folder structure completed')
@@ -565,6 +578,11 @@ class Pipeline(object):
         else:
             self.logger.error(f"the experiment type {self.metadata['experiment_type']} is unknown")
             sys.exit(f"the experiment type {self.metadata['experiment_type']} is unknown")
+
+        step_start = datetime.now()
+        self.transfer_data_after_processing()
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    data transfer after processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")

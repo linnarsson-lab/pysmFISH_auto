@@ -5,8 +5,8 @@ from pathlib import Path
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.utils import create_dir
 
-from pysmFISH.configuration_files import create_processing_env_config_file
 from pysmFISH.configuration_files import create_general_analysis_config_file
+from pysmFISH.barcodes_analysis import simplify_barcodes_reference
 
 
 
@@ -40,9 +40,13 @@ def de_novo_env(processing_folder_path:str):
     create_dir(probes_path)
 
     # Create the analysis master files
-    create_processing_env_config_file(config_path)
     create_general_analysis_config_file(config_path)
 
+
+@setup_processing_env.command('recreate_general_analysis_config')
+
+@click.option('--processing_folder_path', type=str, help='Path to the folder \
+                where the experiments will be processed')
 
 def recreate_general_analysis_config(processing_folder_path:str):
     logger = selected_logger()
@@ -56,3 +60,19 @@ def recreate_general_analysis_config(processing_folder_path:str):
     config_path = processing_folder_path / 'config_db'
 
     create_general_analysis_config_file(config_path)
+
+
+
+@setup_processing_env.command('convert_codebook')
+
+@click.option('--codebook_path', type=str, help='Path to the folder \
+                with the codebook to be parsed')
+
+def convert_codebook(codebook_path:str):
+    logger = selected_logger()
+    click.echo('    ')
+    click.echo('--------------------------------------------------------------')
+    click.echo('Convert the codebook in a lighter version')
+    click.echo('--------------------------------------------------------------')
+    parser = simplify_barcodes_reference(codebook_path)
+    parser.convert_barcode()

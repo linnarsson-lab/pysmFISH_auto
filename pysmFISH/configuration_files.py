@@ -504,7 +504,7 @@ def create_function_runner(experiment_fpath,metadata):
     elif stitching_type == 'small-beads':
         pass
     elif stitching_type == 'both-beads':
-        running_functions['reference_channels_preprocessing'] = 'both_beads_preprocessing'
+        running_functions['reference_channels_preprocessing'] = 'standard_not_norm_preprocessing'
         
     elif stitching_type == 'nuclei':
         running_functions['reference_channels_preprocessing'] = 'nuclei_registration_filtering'

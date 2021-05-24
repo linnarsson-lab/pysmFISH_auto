@@ -9,31 +9,36 @@ setup(
 	version=__version__,
 	packages=find_packages(),
 	include_package_data=True,
-	install_requires=[],
-	# install_requires=[
-	# 	'Click',
-	# 	'dask',
-    #     'dask-jobqueue',
-    #     'python-json-logger',
+	install_requires=[
+		'Click',
+		'dask',
+        'dask-jobqueue',
+        'python-json-logger',
 	# 	'numpy',
-	# 	'scikit-learn',
-	# 	'scipy',
-	# 	'scikit-image',
+		'scikit-learn',
+		'scipy',
+		'scikit-image',
 	# 	'pyyaml',
-	# 	'zarr',
-    #     'sympy',
-    #     'Cython',
-    #     'nd2reader', #pims based: https://github.com/rbnvrw/nd2reader
+		'zarr',
+        'sympy',
+        'Cython',
+        'nd2reader', #pims based: https://github.com/rbnvrw/nd2reader
 	# 	'napari',
 	# 	'prefect',
 	# 	'foundationdb',
-	# 	'shoji'
-	# ],
+	# 	'shoji',
+		'pynndescent',
+		'GitPython',
+		'snappy',
+		'python-snappy',
+		'pyarrow',
+		'openpyxl'
+	],
 	
 	# pipeline scripts
 	entry_points='''
         [console_scripts]
-        pipeline=deploy_pipeline:cli
+        fish_processing=cli
     ''',
 
 	# metadata

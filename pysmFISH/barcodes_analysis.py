@@ -6,6 +6,7 @@ import logging
 from sklearn.neighbors import NearestNeighbors
 # from pynndescent import NNDescent
 from pathlib import Path
+from itertools import groupby
 
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.data_models import Output_models
@@ -31,7 +32,8 @@ class simplify_barcodes_reference():
         return converted_codeword
 
     def convert_barcode(self):
-        used_gene_codebook_df = pd.read_parquet(self.barcode_fpath)
+        used_gene_codebook_df = pd.read_excel(self.barcode_fpath)
+        # used_gene_codebook_df = pd.read_parquet(self.barcode_fpath)
         self.codebook_df = used_gene_codebook_df.loc[:,['Barcode','Gene']]
         self.codebook_df.rename(columns = {'Barcode':'Code'}, inplace = True)
         self.codebook_df.Code = self.codebook_df.Code.apply(lambda x: self.format_codeword(x))
@@ -537,9 +539,6 @@ def merge_with_concat(dfs):
 #     dfs = (df.set_index(col, drop=True) for df in dfs)
     merged = pd.concat(dfs, axis=0, join='outer', copy=False)
     return merged
-
-
-from itertools import groupby
 
 
 class extract_barcodes_NN_new():

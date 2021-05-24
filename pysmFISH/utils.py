@@ -3,6 +3,7 @@ import logging
 import shutil
 import yaml
 import sys
+import git
 import os
 import click
 import pickle
@@ -16,6 +17,16 @@ from scipy.ndimage import fourier_shift
 
 from pysmFISH.logger_utils import selected_logger
 
+
+
+def get_git_hash() -> str:
+    """
+    Function used to get the has of the current commit used for the 
+    processing of the data
+
+    """
+    repo = git.Repo(search_parent_directories=True)
+    return repo.head.object.hexsha
 
 # From Sten cytograph shoji
 # https://github.com/linnarsson-lab/cytograph-shoji/blob/6389e8864c755f056ab7c9b51892650e5ed4f040/cytograph/pipeline/workflow.py#L12
