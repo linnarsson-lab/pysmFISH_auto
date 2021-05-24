@@ -78,6 +78,7 @@ class Pipeline(object):
             preprocessed_image_tag (str): Tag to identify the zarr file with preprocessed images 
                                         (default: preprocessed_img_data)
             dataset_folder_storage_path (str): Path to the location where the dataset are stored (default: /fish/fish_datasets)
+            results_folder_storage_path (str): Path to the location where the dataset are stored (default: /fish/fish_results)
             save_intermediate_steps (bool): Determine if the processed images will be saved (default: True)
             dataset_path (str): Path to an existing dataset that will be used in the processing
 
@@ -123,6 +124,7 @@ class Pipeline(object):
         self.parsed_image_tag = kwarg.pop('parsed_image_tag','img_data')
         self.preprocessed_image_tag = kwarg.pop('filtered_image_tag','preprocessed_img_data')
         self.dataset_folder_storage_path = kwarg.pop('dataset_folder_storage_path','/fish/fish_datasets')
+        self.results_folder_storage_path = kwarg.pop('results_folder_storage_path','/fish/fish_results')
         self.save_intermediate_steps = kwarg.pop('save_intermediate_steps',True)
         self.dataset_path = kwarg.pop('dataset_path','')
         self.store_dataset = kwarg.pop('store_dataset',True)
