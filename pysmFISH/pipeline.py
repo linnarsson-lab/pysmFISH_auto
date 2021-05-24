@@ -542,11 +542,6 @@ class Pipeline(object):
         self.run_required_steps()    
         
         step_start = datetime.now()
-        self.create_preprocessed_zarr_step()
-        self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                Empty zarr file creation completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
-        
-        step_start = datetime.now()
         self.create_dark_img_step()
         self.logger.info(f"{self.experiment_fpath.stem} timing:\
                 Creation dark image completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
