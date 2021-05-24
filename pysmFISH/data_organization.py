@@ -122,7 +122,7 @@ def reorganize_processing_dir(experiment_fpath:str,
     experiment_fpath = Path(experiment_fpath)
     storage_fpath = Path(storage_fpath)
 
-    experiment_name = experiment_fpath.stem
+    experiment_name = experiment_fpath.name
 
 
 
@@ -134,20 +134,40 @@ def reorganize_processing_dir(experiment_fpath:str,
     
     # removed or store parsed data
     parsed_data_fpath = experiment_fpath / (experiment_name + '_img_data.zarr')
+    filtered_data_fpath = experiment_fpath / (experiment_name + '_preprocessed_img_data.zarr')
     if store_dataset:
         if dataset_storage_fpath:
-            dataset_storage_fpath = Path(dataset_storage_fpath) / 'experiment_name'
-            shutil.copytree(parsed_data_fpath,dataset_storage_fpath)
+            try:
+                dataset_file = list(experiment_fpath.glob('*_img_data_dataset.parquet'))[0]
+            except IndexError:
+                logger.error(f"The dataset file is missing")
+            else:
+                dataset_file_new_name = Path(dataset_storage_fpath) / dataset_file.name
+                shutil.copy2(dataset_file,dataset_file_new_name)
+                dataset_storage_fpath = Path(dataset_storage_fpath) / parsed_data_fpath.name
+                try:
+                    shutil.move(parsed_data_fpath,dataset_storage_fpath)
+                except FileNotFoundError:
+                    logger.error(f"The parsed raw data zarr file is missing")
+                else:
+                    filtered_storage_fpath = Path(filtered_data_fpath) / filtered_data_fpath.name
+                    try:
+                        shutil.move(filtered_storage_fpath,filtered_storage_fpath)
+                    except FileNotFoundError:
+                        logger.error(f"The filtered data zarr file is missing")
         else:
             logger.error(f'the dataset_storage_fpath is missing')
-            sys.exit(f'the dataset_storage_fpath is missing')
 
     else:
         shutil.rmtree(parsed_data_fpath.as_posix())
 
 
     # Transfer the remaining folder to the raw data folder
-    _ = shutil.move(experiment_fpath.as_posix(),storage_fpath.as_posix())
+    new_folder_location = storage_fpath / experiment_fpath.stem
+    try:
+        _ = shutil.move(experiment_fpath.as_posix(),new_folder_location.as_posix())
+    except OSError:
+        logger.error(f'the experiment folder cannot be moved')
    
 
 def transfer_data_to_storage(experiment_fpath:str,storage_fpath:str,):
@@ -228,7 +248,8 @@ def transfer_files_from_storage(storage_experiment_fpath:str,experiment_fpath:st
         'extra_processing_data',
         'microscope_tiles_coords',
         'codebook',
-        'probes'
+        'probes',
+        'pipeline_config'
     ]
     
     list_dir = [x[0] for x in os.walk(storage_experiment_fpath)]
