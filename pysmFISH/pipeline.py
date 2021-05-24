@@ -229,7 +229,7 @@ class Pipeline(object):
         # Start processing environment
        
         self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
-        self.client = Client(self.cluster)
+        self.client = Client(self.cluster,asynchronous=True)
         self.logger.debug(f'Dask dashboard info {self.client.scheduler_info()}')
 
 
@@ -471,7 +471,8 @@ class Pipeline(object):
         data_organization.reorganize_processing_dir(self.experiment_fpath,
                             self.storage_fpath,
                             self.store_dataset,
-                            self.dataset_folder_storage_path)
+                            self.dataset_folder_storage_path,
+                            self.results_folder_storage_path)
 
 
 
