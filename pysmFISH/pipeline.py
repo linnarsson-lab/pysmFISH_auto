@@ -147,7 +147,7 @@ class Pipeline(object):
     # ------------------------------------
 
     def save_git_commit(self):
-        hash_str =  io.get_git_hash()
+        hash_str =  utils.get_git_hash()
         processing_info = {}
         processing_info['git_commit_hash']
         processing_info_fpath = self.experiment_fpath / 'git_info.yaml'
