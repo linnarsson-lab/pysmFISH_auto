@@ -16,6 +16,7 @@ from pathlib import Path
 from pysmFISH import io
 from pysmFISH import utils
 from pysmFISH import configuration_files
+from pysmFISH import qc_utils
 
 from pysmFISH.logger_utils import selected_logger
 
@@ -554,7 +555,7 @@ def nikon_nd2_parsing_graph(experiment_fpath,
         utils.collect_processing_files(experiment_fpath, experiment_info)
         utils.sort_data_into_folders(experiment_fpath, experiment_info)
         all_raw_nd2 = nd2_raw_files_selector(experiment_fpath)
-
+        qc_utils.QC_matching_nd2_metadata_robofish(all_raw_nd2)
         parsing_futures = client.map(nikon_nd2_autoparser_zarr,
                                 all_raw_nd2,
                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
