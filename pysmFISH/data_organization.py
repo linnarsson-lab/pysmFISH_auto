@@ -164,12 +164,15 @@ def reorganize_processing_dir(experiment_fpath:str,
             create_dir(results_fpath)
             results_original = experiment_fpath / 'results'
             output_fig_original = experiment_fpath / 'output_figures'
+            tiles_original = experiment_fpath / 'microscope_tiles_coords'
 
             results_new = results_fpath / 'results'
             output_fig_new = results_fpath / 'output_figures'
+            tiles_new = results_fpath / 'microscope_tiles_coords'
 
             shutil.move(results_original,results_new)
             shutil.move(output_fig_original,output_fig_new)
+            shutil.move(tiles_original,tiles_new)
         
         shutil.rmtree(parsed_data_fpath.as_posix())
 
