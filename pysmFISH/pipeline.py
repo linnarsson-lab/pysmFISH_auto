@@ -48,6 +48,7 @@ from pysmFISH import barcodes_analysis
 from pysmFISH import fov_processing
 from pysmFISH import stitching
 from pysmFISH import qc_utils
+from pysmFISH import data_organization
 
 
 
@@ -123,7 +124,7 @@ class Pipeline(object):
         self.dataset_folder_storage_path = kwarg.pop('dataset_folder_storage_path','/fish/fish_datasets')
         self.save_intermediate_steps = kwarg.pop('save_intermediate_steps',True)
         self.dataset_path = kwarg.pop('dataset_path','')
-        # self.store_dataset = kwarg.pop('store_dataset',True)
+        self.store_dataset = kwarg.pop('store_dataset',True)
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}
@@ -441,6 +442,28 @@ class Pipeline(object):
                     self.analysis_parameters, self.tile_corners_coords_pxl)
 
         qc_reg.run_qc()
+
+
+    # --------------------------------
+    # DATA REORGANIZATION
+    # --------------------------------
+    
+    def transfer_data_after_processing(self):
+        """
+        Function use to clear space in the processing folder. 
+        - Tranfer parsed images zarr / filtered images zarr / dataset
+        - Remove the log and tmp folders
+        - Transfer the remaining data to cold storage
+        
+        """
+
+        data_organization.reorganize_processing_dir(self.experiment_fpath,
+                            self.storage_fpath,
+                            self.store_dataset,
+                            self.dataset_folder_storage_path)
+
+
+
     
     # --------------------------------
     # RUNNING OPTIONS
