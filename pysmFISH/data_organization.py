@@ -106,7 +106,8 @@ def experiment_transfer_to_processing_hd(path_source:str,path_destination:str,
 def reorganize_processing_dir(experiment_fpath:str,
                             storage_fpath:str,
                             store_dataset=False,
-                            dataset_storage_fpath=None):
+                            dataset_storage_fpath=None,
+                            results_storage_fpath=None):
     """
     Function to transfer and copy the data in the data storage HD
 
@@ -130,7 +131,6 @@ def reorganize_processing_dir(experiment_fpath:str,
     folders_to_remove = ['tmp','logs']
     for folder_name in folders_to_remove:
         shutil.rmtree((experiment_fpath / folder_name).as_posix(),ignore_errors=False)
-    
     
     # removed or store parsed data
     parsed_data_fpath = experiment_fpath / (experiment_name + '_img_data.zarr')
@@ -159,6 +159,18 @@ def reorganize_processing_dir(experiment_fpath:str,
             logger.error(f'the dataset_storage_fpath is missing')
 
     else:
+        if results_storage_fpath:
+            results_fpath = results_storage_fpath / ('results_' + experiment_fpath.stem)
+            create_dir(results_fpath)
+            results_original = experiment_fpath / 'results'
+            output_fig_original = experiment_fpath / 'output_figures'
+
+            results_new = results_fpath / 'results'
+            output_fig_new = results_fpath / 'output_figures'
+
+            shutil.move(results_original,results_new)
+            shutil.move(output_fig_original,output_fig_new)
+        
         shutil.rmtree(parsed_data_fpath.as_posix())
 
 
