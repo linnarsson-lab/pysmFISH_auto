@@ -494,8 +494,7 @@ class Pipeline(object):
         self.create_folders_step()
         self.logger.info(f'Folder structure completed')
 
-        self.create_analysis_config_file_from_dataset_step()
-        self.logger.info(f'Created analysis_config.yaml file')
+    
 
         self.QC_check_experiment_yaml_file_step()
         self.logger.info(f'Checked config file')
@@ -507,17 +506,14 @@ class Pipeline(object):
         self.logger.info(f'Parsing started')
         if self.parsing_type != 'no_parsing':
             self.nikon_nd2_parsing_step()
-
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                 Parsing completed in {utils.nice_deltastring(datetime.now() - start)}.")
-        self.logger.info(f"")
-
+        
         step_start = datetime.now()
         self.logger.info(f'Started creation of the dataset')
         self.prepare_processing_dataset_step()
         self.logger.info(f"{self.experiment_fpath.stem} timing:\
                 Dataset creation completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
-
     
     def run_required_steps(self):
         """
