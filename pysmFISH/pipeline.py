@@ -542,11 +542,6 @@ class Pipeline(object):
         self.run_parsing_only()
         self.run_required_steps()    
         
-        step_start = datetime.now()
-        self.create_dark_img_step()
-        self.logger.info(f"{self.experiment_fpath.stem} timing:\
-                Creation dark image completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
-
         if self.metadata['experiment_type'] == 'eel-barcoded':
             step_start = datetime.now()
             self.processing_barcoded_eel_step()
