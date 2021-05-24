@@ -499,7 +499,7 @@ class Pipeline(object):
         self.QC_check_experiment_yaml_file_step()
         self.logger.info(f'Checked config file')
 
-        self.processing_cluster_init_step.start_processing_env()
+        self.processing_cluster_init_step()
         self.logger.info(f'Started dask processing cluster')
 
         # Run parsing only if required
