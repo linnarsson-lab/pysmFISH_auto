@@ -117,7 +117,6 @@ class Pipeline(object):
         self.experiment_fpath = Path(experiment_fpath)
         self.run_type = run_type
         self.parsing_type = parsing_type
-        self.logger = logger_utils.selected_logger()  
 
         # Collect some of the parameters. If missing a predefined value is assigned
         self.raw_data_folder_storage_path = kwarg.pop('raw_data_folder_storage_path', '/fish/rawdata')
@@ -488,11 +487,12 @@ class Pipeline(object):
         of the .nd2 files of the entire experiment
         """
 
-        self.logger.info(f"Start parsing")
         start = datetime.now()
 
         self.create_folders_step()
-        self.logger.info(f'Folder structure completed')
+
+        self.logger = logger_utils.json_logger((self.experiment_fpath / 'logs'),'pipeline_run') 
+        self.logger.info(f"Start parsing")
 
         self.save_git_commit()
         self.logger.info(f'Saved current git commit version')
