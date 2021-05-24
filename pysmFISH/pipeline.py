@@ -150,7 +150,7 @@ class Pipeline(object):
         hash_str =  utils.get_git_hash()
         processing_info = {}
         processing_info['git_commit_hash'] = hash_str
-        processing_info_fpath = self.experiment_fpath / 'git_info.yaml'
+        processing_info_fpath = self.experiment_fpath / 'results' /'git_info.yaml'
         with open(processing_info_fpath, 'w') as new_config:
                     yaml.safe_dump(processing_info, new_config,default_flow_style=False,sort_keys=False)
 
@@ -488,13 +488,11 @@ class Pipeline(object):
         self.logger.info(f"Start parsing")
         start = datetime.now()
 
-        self.save_git_commit()
-        self.logger.info(f'Saved current git commit version')
-
         self.create_folders_step()
         self.logger.info(f'Folder structure completed')
 
-    
+        self.save_git_commit()
+        self.logger.info(f'Saved current git commit version')
 
         self.QC_check_experiment_yaml_file_step()
         self.logger.info(f'Checked config file')
