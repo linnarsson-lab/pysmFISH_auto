@@ -149,7 +149,7 @@ class Pipeline(object):
     def save_git_commit(self):
         hash_str =  utils.get_git_hash()
         processing_info = {}
-        processing_info['git_commit_hash']
+        processing_info['git_commit_hash'] = hash_str
         processing_info_fpath = self.experiment_fpath / 'git_info.yaml'
         with open(processing_info_fpath, 'w') as new_config:
                     yaml.safe_dump(processing_info, new_config,default_flow_style=False,sort_keys=False)
