@@ -505,7 +505,7 @@ class Pipeline(object):
         # Run parsing only if required
         self.logger.info(f'Parsing started')
         if self.parsing_type != 'no_parsing':
-            self.nikon_nd2_parsing_step()
+            self.nikon_nd2_parsing_graph_step()
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                 Parsing completed in {utils.nice_deltastring(datetime.now() - start)}.")
         
