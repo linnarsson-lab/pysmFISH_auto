@@ -491,7 +491,7 @@ class Pipeline(object):
         self.save_git_commit()
         self.logger.info(f'Saved current git commit version')
 
-        self.create_folders_step(self.experiment_fpath)
+        self.create_folders_step()
         self.logger.info(f'Folder structure completed')
 
         self.create_analysis_config_file_from_dataset_step()
