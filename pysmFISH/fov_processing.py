@@ -269,7 +269,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                     running_functions, tile_corners_coords_pxl,metadata,
                                     grpd_fovs,save_intermediate_steps, 
-                                    preprocessed_image_tag, client):
+                                    preprocessed_image_tag, client,chunks_size):
         """ 
         This method create a processing graph XXXXXXXXX
 
@@ -295,36 +295,30 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
         tile_corners_coords_pxl = delayed(tile_corners_coords_pxl)
 
         all_processing = []
+        all_filtered_images = []
+        all_fovs = list(grpd_fovs.groups.keys())
+        chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
+        for chunk in chunks:
+            all_processing = []
+            all_filtered_images = []
+            for fov_num in chunk:
+                group = grpd_fovs.get_group(fov_num)
+        # for fov_num, group in grpd_fovs:
+                all_counts_fov = []
+                all_nuclei_fov = []
+                for index_value, fov_subdataset in group.iterrows():
+                    round_num = fov_subdataset.round_num
+                    channel = fov_subdataset.channel
+                    fov = fov_subdataset.fov_num
+                    stitching_type = fov_subdataset.stitching_type
+                    experiment_name = fov_subdataset.experiment_name
+                    processing_type = fov_subdataset.processing_type
 
-        for fov_num, group in grpd_fovs:
-            all_counts_fov = []
-            all_nuclei_fov = []
-            for index_value, fov_subdataset in group.iterrows():
-                round_num = fov_subdataset.round_num
-                channel = fov_subdataset.channel
-                fov = fov_subdataset.fov_num
-                stitching_type = fov_subdataset.stitching_type
-                experiment_name = fov_subdataset.experiment_name
-                processing_type = fov_subdataset.processing_type
+                    if processing_type == 'nuclei':
+                        dask_delayed_name = 'filt_' +experiment_name + '_' + channel + \
+                                        '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
 
-                if processing_type == 'nuclei':
-                    dask_delayed_name = 'filt_' +experiment_name + '_' + channel + \
-                                    '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-
-                    out_nuclei = delayed(single_fov_round_processing_serial_nuclei,name=dask_delayed_name)(fov_subdataset,
-                                            analysis_parameters,
-                                            running_functions,
-                                            dark_img,
-                                            experiment_fpath,
-                                            preprocessed_zarr_fpath,
-                                            save_steps_output=save_intermediate_steps,
-                                            dask_key_name=dask_delayed_name)
-                    all_nuclei_fov.append(out_nuclei)
-
-                else:
-                    dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-                                    '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-                    counts = delayed(single_fov_round_processing_eel,name=dask_delayed_name)(fov_subdataset,
+                        out_nuclei = delayed(single_fov_round_processing_serial_nuclei,name=dask_delayed_name)(fov_subdataset,
                                                 analysis_parameters,
                                                 running_functions,
                                                 dark_img,
@@ -332,40 +326,64 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                                 preprocessed_zarr_fpath,
                                                 save_steps_output=save_intermediate_steps,
                                                 dask_key_name=dask_delayed_name)
-                    all_counts_fov.append(counts)
-            
-            name = 'concat_fish_' +experiment_name + '_' + channel + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize()
-            all_counts_fov = delayed(pd.concat,name=name)(all_counts_fov,axis=0,ignore_index=True)
-            
-            if stitching_type == 'nuclei':
+                        all_nuclei_fov.append(out_nuclei)
 
-                name = 'create_nuclei_stack' +experiment_name + '_' + channel + '_' \
+                    else:
+                        dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
+                                        '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+                        fov_out = delayed(single_fov_round_processing_eel,name=dask_delayed_name)(fov_subdataset,
+                                                    analysis_parameters,
+                                                    running_functions,
+                                                    dark_img,
+                                                    experiment_fpath,
+                                                    preprocessed_zarr_fpath,
+                                                    save_steps_output=save_intermediate_steps,
+                                                    dask_key_name=dask_delayed_name)
+                        
+                        counts, filt_out = fov_out[0], fov_out[1]
+                        all_counts_fov.append(counts)
+                        if channel != fov_subdataset.stitching_channel:
+                            all_filtered_images.append(filt_out)
+                        
+                
+                name = 'concat_fish_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
-                filtered_nuclei_stack = delayed(utils.combine_filtered_images,name=name)(all_nuclei_fov,experiment_fpath,metadata)
+                all_counts_fov = delayed(pd.concat,name=name)(all_counts_fov,axis=0,ignore_index=True)
+                
+                if stitching_type == 'nuclei':
 
-                name = 'register_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                registered_counts = delayed(fovs_registration.nuclei_based_registration,name=name)(all_counts_fov,
-                                                    filtered_nuclei_stack,
-                                                    analysis_parameters)
+                    name = 'create_nuclei_stack' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                    filtered_nuclei_stack = delayed(utils.combine_filtered_images,name=name)(all_nuclei_fov,experiment_fpath,metadata)
 
-            else:
+                    name = 'register_' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                    registered_counts = delayed(fovs_registration.nuclei_based_registration,name=name)(all_counts_fov,
+                                                        filtered_nuclei_stack,
+                                                        analysis_parameters)
 
-                name = 'register_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov,
-                                                    analysis_parameters)
-                                                                                                
-            name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize()  
-            stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords_new,name=name)(registered_counts,tile_corners_coords_pxl)
+                else:
+
+                    name = 'register_' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                    registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov,
+                                                        analysis_parameters)
+                                                                                                    
+                name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()  
+                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords_new,name=name)(registered_counts,tile_corners_coords_pxl)
+                
+                name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize() 
+                
+                # combined_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,stitched_coords,
+                #                                                                                 fov_subdataset.stitching_channel)
+
+                name = 'save_df_' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize() 
+                saved_file = delayed(stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                                '_decoded_fov_' + str(fov) + '.parquet'),index=False)
             
-            name = 'save_df_' +experiment_name + '_' + channel + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize() 
-            saved_file = delayed(stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                            '_decoded_fov_' + str(fov) + '.parquet'),index=False)
-        
             all_processing.append(saved_file) 
         _ = dask.compute(*all_processing)
 
