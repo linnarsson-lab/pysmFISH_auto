@@ -521,16 +521,14 @@ def combine_register_filtered_images(output_list):
     img_stack = np.zeros([metadata_tmp['total_rounds'],metadata_tmp['img_width'],metadata_tmp['img_height']])
 
     for filt_out in output_list:
-        img = filt[0][0]
+        img = filt_out[0][0]
         img_meta = filt_out[1]
         round_num = img_meta.round_num.values[0]
-        shift = np.array((meta.r_shift_px.values[0],meta.c_shift_px.values[0]))
+        shift = np.array((img_meta.r_shift_px.values[0],img_meta.c_shift_px.values[0]))
         shifted_img = register_images(img,shift)
         img_stack[round_num-1,:,:] = shifted_img
 
     return img_stack
-
-
 
 
 
@@ -546,6 +544,32 @@ def register_combined_rounds_images(combined_round_images,all_rounds_shifts):
         img_stack[round_num-1,:,:] = shifted_img
 
     return img_stack
+
+
+
+def combine_filtered_images(output_list,experiment_fpath,metadata, save=False):
+    experiment_fpath = Path(experiment_fpath)
+     
+    img_stack = np.zeros([metadata['total_rounds'],metadata['img_width'],metadata['img_height']])
+
+    for img, img_meta in output_list:
+        round_num = img_meta.round_num
+        img_stack[round_num-1,:,:] = img
+
+    if save:
+        # Add conversion to more compress ftype
+        img_meta = output_list[0][1]
+        channel = img_meta.channel
+        fov = img_meta.fov_num
+        fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_fpath.stem + '_' + channel + '_combined_img_fov_' + fov + '.npy')
+        np.save(fpath, img_stack)
+    
+    return img_stack
+
+
+
+
+
 
 # https://stackoverflow.com/questions/1868714/how-do-i-copy-an-entire-directory-of-files-into-an-existing-directory-using-pyth
 def copytree(src, dst, symlinks=False, ignore=None):
