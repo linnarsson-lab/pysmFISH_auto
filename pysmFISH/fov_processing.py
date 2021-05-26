@@ -342,10 +342,10 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                         
                         counts, filt_out = fov_out[0], fov_out[1]
                         all_counts_fov.append(counts)
-                        if channel != fov_subdataset.stitching_channel:
-                            all_filtered_images.append(filt_out)
+                        # if channel != fov_subdataset.stitching_channel:
+                        #     all_filtered_images.append(filt_out)
                         
-                
+
                 name = 'concat_fish_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
                 all_counts_fov = delayed(pd.concat,name=name)(all_counts_fov,axis=0,ignore_index=True)
@@ -384,8 +384,9 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                 saved_file = delayed(stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                                 '_decoded_fov_' + str(fov) + '.parquet'),index=False)
             
-            all_processing.append(saved_file) 
-        _ = dask.compute(*all_processing)
+                all_processing.append(saved_file) 
+            
+            _ = dask.compute(*all_processing)
 
         io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
 
@@ -395,10 +396,6 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
         io.simple_output_plotting_serial(experiment_fpath, stitching_selected, client, file_tag='decoded')
         # ----------------------------------------------------------------  
   
-
-
-
-
 
 
 
