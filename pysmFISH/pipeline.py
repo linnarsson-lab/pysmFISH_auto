@@ -464,7 +464,8 @@ class Pipeline(object):
         - Tranfer parsed images zarr / filtered images zarr / dataset
         - Remove the log and tmp folders
         - Transfer the remaining data to cold storage
-        
+        Before transfering the data it is necessary to close the cluster and the client
+        otherwise you won't be able to remove the logs folder.
         """
 
         data_organization.reorganize_processing_dir(self.experiment_fpath,
@@ -566,6 +567,7 @@ class Pipeline(object):
         else:
             self.logger.error(f"the experiment type {self.metadata['experiment_type']} is unknown")
             sys.exit(f"the experiment type {self.metadata['experiment_type']} is unknown")
+
 
         step_start = datetime.now()
         self.transfer_data_after_processing()
