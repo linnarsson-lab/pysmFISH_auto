@@ -303,6 +303,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                 round_num = fov_subdataset.round_num
                 channel = fov_subdataset.channel
                 fov = fov_subdataset.fov_num
+                stitching_type = fov_subdataset.stitching_type
                 experiment_name = fov_subdataset.experiment_name
                 processing_type = fov_subdataset.processing_type
 
@@ -337,15 +338,24 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                 + '_fov_' +str(fov) + '-' + tokenize()
             all_counts_fov = delayed(pd.concat,name=name)(all_counts_fov,axis=0,ignore_index=True)
             
-            name = 'create_nuclei_stack' +experiment_name + '_' + channel + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize()
-            filtered_nuclei_stack = delayed(utils.combine_filtered_images,name=name)(all_nuclei_fov,experiment_fpath,metadata)
+            if stitching_type == 'nuclei':
 
-            name = 'register_' +experiment_name + '_' + channel + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize()
-            registered_counts = delayed(fovs_registration.nuclei_based_registration,name=name)(all_counts_fov,
-                                                filtered_nuclei_stack,
-                                                analysis_parameters)
+                name = 'create_nuclei_stack' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()
+                filtered_nuclei_stack = delayed(utils.combine_filtered_images,name=name)(all_nuclei_fov,experiment_fpath,metadata)
+
+                name = 'register_' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()
+                registered_counts = delayed(fovs_registration.nuclei_based_registration,name=name)(all_counts_fov,
+                                                    filtered_nuclei_stack,
+                                                    analysis_parameters)
+
+            else:
+
+                name = 'register_' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()
+                registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov,
+                                                    analysis_parameters)
                                                                                                 
             name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                                 + '_fov_' +str(fov) + '-' + tokenize()  
