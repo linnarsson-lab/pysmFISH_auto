@@ -496,8 +496,14 @@ def create_function_runner(experiment_fpath,metadata):
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
                             'reference_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
+    
+    elif pipeline == 'smfish-serial-controls-eel':
+        running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
+                            'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
+                            'reference_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
 
         logger.info(f'selected functions for {pipeline}')
+    
     else:
         logger.error(f'The sample does not have a corresponding analysis pipeline')
         sys.exit(f'The sample does not have a corresponding analysis pipeline')
