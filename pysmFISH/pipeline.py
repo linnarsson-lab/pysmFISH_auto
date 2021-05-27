@@ -81,6 +81,14 @@ class Pipeline(object):
             results_folder_storage_path (str): Path to the location where the dataset are stored (default: /fish/fish_results)
             save_intermediate_steps (bool): Determine if the processed images will be saved (default: True)
             dataset_path (str): Path to an existing dataset that will be used in the processing
+            chunks_size (int): Number of FOV to process in parallel
+            same_dot_radius_duplicate_dots (float): Searching distance that define two dots as identical
+                                    (default: 10)
+            stitching_selected (str): Define the stitched counts on which the overlapping dotes will be removed 
+                                    (default: microscope_stitched) 
+            hamming_distance (int): Value to select the barcodes that are passing the 
+                                    screening (< hamming_distance). (default: 3)
+
 
             processing_engine (str): Define the name of the system that will run the processing. Can be local/htcondor
                                     (default htcondor). If engine == local the parameters that define the cluster
@@ -127,6 +135,10 @@ class Pipeline(object):
         self.save_intermediate_steps = kwarg.pop('save_intermediate_steps',True)
         self.dataset_path = kwarg.pop('dataset_path','')
         self.store_dataset = kwarg.pop('store_dataset',True)
+        self.chunk_size = kwarg.pop('chunk_size',30)
+        self.same_dot_radius_duplicate_dots = kwarg.pop('same_dot_radius_duplicate_dots',10)
+        self.stitching_selected = kwarg.pop('stitching_selected','microscope_stitched')
+        self.hamming_distance = kwarg.pop('hamming_distance',3)
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}
@@ -280,7 +292,7 @@ class Pipeline(object):
 
 
 
-    def processing_barcoded_eel_step(self,chunks_size=30):
+    def processing_barcoded_eel_step(self):
         """
         Create and run a dask delayed task graph used to process barcoded eel experiments
         It runs:
@@ -309,11 +321,11 @@ class Pipeline(object):
         fov_processing.processing_barcoded_eel_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tile_corners_coords_pxl,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_image_tag,self.client,chunks_size)
+                                    self.preprocessed_image_tag,self.client,self.chunks_size)
 
 
 
-    def processing_serial_fish_step(self,chunks_size=30):
+    def processing_serial_fish_step(self):
         """
         Create and run a dask delayed task graph used to process serial smFISH experiments
         It runs:
@@ -342,12 +354,11 @@ class Pipeline(object):
         fov_processing.processing_serial_fish_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tile_corners_coords_pxl,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_image_tag,self.client,chunks_size)
+                                    self.preprocessed_image_tag,self.client,self.chunks_size)
 
     
 
-    def remove_duplicated_dots_graph_step(self, hamming_distance:int=3,same_dot_radius:float=10,
-                                            stitching_selected:str= 'microscope_stitched'):
+    def remove_duplicated_dots_graph_step(self):
 
         """
         Function to remove the duplicated barcodes present in the overlapping regions of the
@@ -373,11 +384,8 @@ class Pipeline(object):
         assert isinstance(self.tiles_org,pysmFISH.stitching.organize_square_tiles), \
                             self.logger.error(f'cannot remove duplicated dots because tiles_org is missing attr')
         
-        self.hamming_distance = hamming_distance / self.metadata['barcode_length']
-        self.same_dot_radius = same_dot_radius
-        self.stitching_selected = stitching_selected
         stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
-                                    self.hamming_distance,self.same_dot_radius, 
+                                self.hamming_distance,self.same_dot_radius_duplicate_dots, 
                                     self.stitching_selected, self.client)
 
         # ----------------------------------------------------------------
