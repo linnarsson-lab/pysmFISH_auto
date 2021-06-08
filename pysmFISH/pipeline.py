@@ -543,7 +543,7 @@ class Pipeline():
                 Required steps completed in {utils.nice_deltastring(datetime.now() - start)}.")
         self.logger.info(f"")
     
-    def run_full(self):
+    def run_full(self,resume=False):
         """
         Full run from raw images from nikon or parsed images
         """
@@ -551,6 +551,17 @@ class Pipeline():
         self.run_parsing_only()
         self.run_required_steps()    
         
+        if resume:
+            already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
+            already_done_fovs = []
+            for fname in already_processed:
+                fov_num = int(fname.stem.split('_')[-1])
+                already_done_fovs.append(fov_num)
+            not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+            self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+            self.grpd_fovs = self.data.dataset.groupby('fov_num')
+
+
         if self.metadata['experiment_type'] == 'eel-barcoded':
             step_start = datetime.now()
             self.processing_barcoded_eel_step()
