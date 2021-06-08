@@ -81,7 +81,7 @@ class Pipeline():
             results_folder_storage_path (str): Path to the location where the dataset are stored (default: /fish/fish_results)
             save_intermediate_steps (bool): Determine if the processed images will be saved (default: True)
             dataset_path (str): Path to an existing dataset that will be used in the processing
-            chunks_size (int): Number of FOV to process in parallel
+            chunk_size (int): Number of FOV to process in parallel
             same_dot_radius_duplicate_dots (float): Searching distance that define two dots as identical
                                     (default: 10)
             stitching_selected (str): Define the stitched counts on which the overlapping dotes will be removed 
@@ -321,7 +321,7 @@ class Pipeline():
         fov_processing.processing_barcoded_eel_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tile_corners_coords_pxl,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_image_tag,self.client,self.chunks_size)
+                                    self.preprocessed_image_tag,self.client,self.chunk_size)
 
 
 
@@ -354,7 +354,7 @@ class Pipeline():
         fov_processing.processing_serial_fish_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tile_corners_coords_pxl,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_image_tag,self.client,self.chunks_size)
+                                    self.preprocessed_image_tag,self.client,self.chunk_size)
 
     
 
