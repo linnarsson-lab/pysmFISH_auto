@@ -138,7 +138,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
             dgrp.attrs[k] = v
         fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
         dgrp.attrs['fov_name'] = fov_name
-        img = utils.convert_to_uint16(filt_out[0])
+        img = utils.convert_to_uint16(filt_out[0][-1])
         dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=None,overwrite=True)
 
     return (img,fov_subdataset)
