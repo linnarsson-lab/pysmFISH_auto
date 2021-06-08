@@ -324,10 +324,12 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                                 running_functions,
                                                 dark_img,
                                                 experiment_fpath,
+                                                preprocessed_image_tag,
                                                 preprocessed_zarr_fpath,
                                                 save_steps_output=save_intermediate_steps,
                                                 dask_key_name=dask_delayed_name)
                         all_nuclei_fov.append(out_nuclei)
+
 
                     else:
                         dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
