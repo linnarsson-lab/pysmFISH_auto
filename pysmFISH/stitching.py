@@ -483,8 +483,6 @@ def remove_overlapping_dots_from_gene(experiment_fpath,counts_df,unfolded_overla
     fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_' + gene +'_counts.parquet')
     cleaned_df.to_parquet(fpath,index=False)
 
-    pass
-
 
 # REMOVED OVERLAPPING DOTS ACCORDING TO FOV (MUCH FASTER THAN FOR GENE)
 # EXPECIALLY FOR LARGE AREAS WITH A LOT OF COUNTS

@@ -54,7 +54,7 @@ from pysmFISH import data_organization
 
 
 # utils.nice_deltastring for calculate the time
-class Pipeline(object):
+class Pipeline():
     """
     General pipeline class used for running barcoded eel or serial smFISH experiments.
     The modules are used as steps to build a pipeline
