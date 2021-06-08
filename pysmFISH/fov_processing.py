@@ -99,6 +99,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
                                    dark_img,
                                    experiment_fpath,
                                    preprocessed_image_tag,
+                                   preprocessed_zarr_fpath,
                                    save_steps_output=False):
 
     """
@@ -121,7 +122,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
 
     processing_parameters = analysis_parameters[processing_type]
 
-    img = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
+    filt_out = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
                                                                         zarr_grp_name,
                                                                         parsed_raw_data_fpath,
                                                                         processing_parameters)
@@ -137,7 +138,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
             dgrp.attrs[k] = v
         fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
         dgrp.attrs['fov_name'] = fov_name
-        img = utils.convert_to_uint16(img)
+        img = utils.convert_to_uint16(filt_out[0])
         dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=None,overwrite=True)
 
     return (img,fov_subdataset)
