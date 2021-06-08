@@ -524,7 +524,6 @@ def osmFISH_peak_based_detection_fast(ImgStack,
         PeaksCoords = list(PeaksCoords)
         # Calculate the gradient of the number of peaks distribution
         # grad = np.gradient(TotalPeaks)
-        logger.debug(f"len TotalPeaks {len(TotalPeaks)}")
         grad = np.gradient(TotalPeaks,edge_order=1)
 
         # Restructure the data in order to avoid to consider the min_peak in the
