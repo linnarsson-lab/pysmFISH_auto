@@ -110,3 +110,6 @@ ENV/
 *.pkl
 *.lzma
 dask-worker-space/
+
+# Drawing 
+*.ai
