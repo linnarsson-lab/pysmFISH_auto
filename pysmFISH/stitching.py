@@ -548,7 +548,7 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
             return registration
 
 
-def stitching_graph(stitching_channel,tiles_org, client, nr_dim = 2):
+def stitching_graph(experiment_fpath, stitching_channel,tiles_org, client, nr_dim = 2):
     
     unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
     

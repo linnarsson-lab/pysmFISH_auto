@@ -385,7 +385,7 @@ class Pipeline():
                             self.logger.error(f'cannot remove duplicated dots because tiles_org is missing attr')
         
         
-        self.adjusted_coords = stitching.stitching_graph(self.metadata['stitching_channel'],
+        self.adjusted_coords = stitching.stitching_graph(self.experiment_fpath,self.metadata['stitching_channel'],
                                                                     self.tiles_org, self.client)
         
         # Recalculate the overlapping regions after stitching
