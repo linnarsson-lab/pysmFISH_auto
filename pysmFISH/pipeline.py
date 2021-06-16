@@ -399,7 +399,7 @@ class Pipeline():
         # ----------------------------------------------------------------
         # GENERATE OUTPUT FOR PLOTTING
         selected_Hdistance = 3 / self.metadata['barcode_length']
-        stitching_selected = 'microscope_stitched'
+        stitching_selected = 'global_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
                                 selected_Hdistance, self.client,file_tag='cleaned')
         # ----------------------------------------------------------------  
