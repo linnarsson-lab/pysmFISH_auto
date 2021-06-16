@@ -358,17 +358,17 @@ class Pipeline():
 
     
 
-    def remove_duplicated_dots_graph_step(self):
+    def stitch_and_remove_dots_eel_graph_step(self):
 
         """
-        Function to remove the duplicated barcodes present in the overlapping regions of the
-        tiles
+        Function to stitch the different fovs and remove the duplicated 
+        barcodes present in the overlapping regions of the tiles
 
         Args:
         ----
         hamming_distance (int): Value to select the barcodes that are passing the 
             screening (< hamming_distance). Default = 3
-        same_dot_radius (int): Searching distance that define two dots as identical
+        same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
             Default = 10
         stitching_selected (str): barcodes coords set where the duplicated dots will be
             removed
@@ -384,6 +384,14 @@ class Pipeline():
         assert isinstance(self.tiles_org,pysmFISH.stitching.organize_square_tiles), \
                             self.logger.error(f'cannot remove duplicated dots because tiles_org is missing attr')
         
+        
+        self.adjusted_coords = stitching.stitching_graph(self.metadata['stitching_channel'],
+                                                                    self.tiles_org, self.client)
+        
+        # Recalculate the overlapping regions after stitching
+        self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
+        self.tiles_org.determine_overlapping_regions()
+
         stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
                                 self.hamming_distance,self.same_dot_radius_duplicate_dots, 
                                     self.stitching_selected, self.client)
@@ -547,6 +555,7 @@ class Pipeline():
         """
         Full run from raw images from nikon or parsed images
         """
+
         start = datetime.now()
         self.run_parsing_only()
         self.run_required_steps()    
@@ -574,9 +583,9 @@ class Pipeline():
                     QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
             
             step_start = datetime.now()
-            self.remove_duplicated_dots_graph_step()
+            self.stitch_and_remove_dots_eel_graph_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    Removal duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+                    Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
         elif self.metadata['experiment_type'] == 'smfish-serial':
             step_start = datetime.now()

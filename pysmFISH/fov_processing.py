@@ -225,7 +225,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                 
                 name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()  
-                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords_new,name=name)(decoded[1],tile_corners_coords_pxl)
+                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(decoded[1],tile_corners_coords_pxl)
                 
                 name = 'save_df_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize() 
@@ -374,7 +374,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                                                                                     
                 name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()  
-                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords_new,name=name)(registered_counts,tile_corners_coords_pxl)
+                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(registered_counts,tile_corners_coords_pxl)
                 
                 name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize() 

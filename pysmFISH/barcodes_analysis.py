@@ -16,7 +16,7 @@ from pysmFISH.errors import Registration_errors
 
 class simplify_barcodes_reference():
     """
-    Class use to convert parquet files with codebook info
+    Class use to convert excels files with codebook info
     in smaller size better for passing around during processing
     """
     def __init__(self, barcode_fpath):
@@ -37,9 +37,7 @@ class simplify_barcodes_reference():
         self.codebook_df = used_gene_codebook_df.loc[:,['Barcode','Gene']]
         self.codebook_df.rename(columns = {'Barcode':'Code'}, inplace = True)
         self.codebook_df.Code = self.codebook_df.Code.apply(lambda x: self.format_codeword(x))
-        self.codebook_df.to_parquet(self.barcode_fpath)
-
-
+        self.codebook_df.to_parquet(self.barcode_fpath.parent / (self.barcode_fname + '.parquet'))
 
 
 
