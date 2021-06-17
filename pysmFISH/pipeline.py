@@ -404,6 +404,14 @@ class Pipeline():
                                 selected_Hdistance, self.client,file_tag='cleaned')
         # ----------------------------------------------------------------  
 
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / self.metadata['barcode_length']
+        stitching_selected = 'global_stitched'
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                selected_Hdistance, self.client,file_tag='removed')
+        # ---------------------------------------------------------------- 
+
 
     def processing_fresh_tissue_step(self,parsing=True,
                                     tag_ref_beads='_ChannelEuropium_Cy3_',
