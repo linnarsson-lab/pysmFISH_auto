@@ -820,6 +820,10 @@ def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
                 cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
                 cleaned_df.to_parquet(save_name,index=False)
                 logger.error(f'saved {fname}')
+
+                save_name = fname.stem.split('_decoded_fov_')[0] + '_removed_df_fov_' + str(fov) + '.parquet'
+                removed_df = counts_df.loc[counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
+                removed_df.to_parquet(save_name,index=False)
         else:
             try:
                 _ = shutil.copy2(fname.as_posix(),save_name.as_posix())
