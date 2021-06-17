@@ -620,6 +620,8 @@ class Pipeline():
         required
         """
 
+        self.logger = logger_utils.json_logger((self.experiment_fpath),'pipeline_run') 
+
         self.processing_cluster_init_step()
         self.logger.info(f'Started dask processing cluster')
         self.logger.info(f"client dashboard {self.client.scheduler_info()['services']['dashboard']}")
