@@ -612,3 +612,21 @@ class Pipeline():
 
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
+
+    def run_from_counts(self):
+        """
+        Set up processing environment to re-run analysis steps where only the counts are 
+        required
+        """
+
+        self.processing_cluster_init_step()
+        self.logger.info(f'Started dask processing cluster')
+        self.logger.info(f"client dashboard {self.client.scheduler_info()['services']['dashboard']}")
+
+        # Load the dataset that is already present
+        step_start = datetime.now()
+        self.logger.info(f'Started creation of the dataset')
+        self.prepare_processing_dataset_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing:\
+                Dataset creation completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
