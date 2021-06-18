@@ -78,87 +78,6 @@ class organize_square_tiles():
         self.x_coords = selected.loc[:,'fov_acquisition_coords_x'].to_numpy()
         self.y_coords = selected.loc[:,'fov_acquisition_coords_y'].to_numpy()
 
-        # fname = self.experiment_fpath / 'microscope_tiles_coords'/(self.experiment_name + '_Hybridization'+  \
-        #                     str(self.round_num).zfill(2) + '_' + self.stitching_channel + '_fovs_coords.npy')
-        # coords = np.load(fname) 
-        # self.x_coords = coords[:,1]
-        # self.y_coords = coords[:,2]
-    
-    # def normalize_coords(self):
-    #     """
-    #     ROBOFISH1 has stage with x increasing left-> right and y top->bottom 
-    #         ------> (x)
-    #         |
-    #         |
-    #         V (y)
-        
-    #     ROBOFISH2 has stage with x increasing right-> left and y top->bottom 
-    #     (x) <------
-    #               |
-    #               |
-    #               V (y)
-        
-
-    #     ROBOFISH3 has stage with x increasing left-> right and y bottom->top 
-    #         ^ (y)
-    #         |
-    #         |
-    #         ------> (x)
-
-    #     Axis modifications steps:
-    #     (1) The reference system will be first converted to image style:
-    #         ------> (x)
-    #         |
-    #         |
-    #         V (y)
-
-    #     (2) The coords will be translated to (0,0)
-
-    #     (3) then to matrix (python) notation
-    #         ------> (columns)
-    #         |
-    #         |
-    #         V (rows)
-
-    #     """
-
-    #     # port the coords to image type coords
-    #     if self.metadata['machine'] == 'ROBOFISH2':
-    #         self.x_coords = - self.x_coords
-    #     elif self.metadata['machine'] == 'ROBOFISH3':
-    #         self.x_coords = - self.x_coords
-    #         self.y_coords = - self.y_coords
-    #     elif self.metadata['machine'] == 'NOT_DEFINED':
-    #         self.logger.error(f'Need to define the specs for stitching NOT_DEFINED machine')
-    #         sys.exit(f'Need to define the specs for stitching NOT_DEFINED machine')
-    #     else:
-    #         self.logger.error(f'define the right machine used to collected the data')
-    #         sys.exit(f'define the right machine used to collected the data')
-
-    #     # shift the coords to reference point (0,0) 
-    #     # consider that we get the top-right corner of the image as well
-    #     y_min = np.amin(self.y_coords)
-    #     x_min = np.amin(self.x_coords)
-    #     x_max = np.amax(self.x_coords)
-    #     y_max = np.amax(self.y_coords)
-
-    #     if x_max >=0 :
-    #         self.x_coords = self.x_coords - x_min
-    #     else:
-    #         self.x_coords + np.abs(x_min)
-        
-    #     if y_max>0:
-    #         self.y_coords = self.y_coords - y_min
-    #     else:
-    #         self.y_coords = self.y_coords + np.abs(y_min)
-
-    #     # change the coords from x,y to r,c
-    #     adjusted_coords = np.zeros([self.x_coords.shape[0],2])
-    #     adjusted_coords[:,0] = self.y_coords
-    #     adjusted_coords[:,1] = self.x_coords
-
-    #     # move coords to pxl space
-    #     self.tile_corners_coords_pxl = adjusted_coords / self.pixel_size
 
     def normalize_coords(self):
 
@@ -298,41 +217,6 @@ class organize_square_tiles():
             only_new_cpls = [cpl for cpl in adj_cpls if (cpl[1],cpl[0]) not in self.overlapping_regions[cpl[1]].keys()]
             # only_new_cpls = [cpl for cpl in adj_cpls]
 
-            # for cpl in only_new_cpls:
-            # # If tile coords are top left
-            #     tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
-            #     tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
-            #     tile1_c_coords = self.tile_corners_coords_pxl[cpl[0]][1]
-            #     tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
-
-            #     if tile1_r_coords > tile2_r_coords:
-            #             r_tl = tile1_r_coords
-            #             r_br = tile2_r_coords + self.img_size
-
-            #             row_order = ('bottom','top')
-
-            #     else:
-            #         r_tl = tile2_r_coords
-            #         r_br = tile1_r_coords + self.img_size
-
-            #         row_order = ('top','bottom')
-
-            #     if tile1_c_coords > tile2_c_coords:
-            #         c_tl = tile1_c_coords
-            #         c_br = tile2_c_coords + self.img_size
-
-            #         col_order = ('right','left')
-
-            #     else:
-            #         c_tl = tile2_c_coords
-            #         c_br = tile1_c_coords + self.img_size
-
-            #         col_order = ('left','right')
-
-                # self.overlapping_regions[ref_tile][cpl] = [r_tl, r_br, c_tl, c_br]
-                # self.overlapping_order[ref_tile][cpl] = {'row_order':row_order,'column_order':col_order}
-
-
             if self.metadata['machine'] == 'ROBOFISH2':
                 # If tile coords are top left
                 for cpl in only_new_cpls:
@@ -441,6 +325,256 @@ class organize_square_tiles():
         np.save(fname,self.tile_corners_coords_pxl)
 
 
+class organize_square_tiles_new_room():
+
+    """
+    Class designed to determine the tile organization and identify the coords of the
+    overlapping regions between the tiles
+
+    Parameters:
+    -----------
+
+    experiment_fpath: str
+        location of the experiment to process
+    stitching_channel: str
+        channel to use for the stitching step
+    roi_num: int
+        region of interest to process
+
+    """
+
+    def __init__(self, experiment_fpath:str,dataset, metadata:Dict,round_num:int):
+        """
+        round_num = int
+            reference channel
+        """
+        
+        self.logger = selected_logger()
+        self.experiment_fpath = Path(experiment_fpath)
+        self.dataset = dataset
+        self.metadata = metadata
+        self.round_num = round_num
+        
+        self.experiment_name = self.metadata['experiment_name']
+        self.stitching_channel = self.metadata['stitching_channel']
+        self.overlapping_percentage = int(self.metadata['overlapping_percentage']) / 100
+         
+        self.pixel_size = self.metadata['pixel_microns']
+        self.img_width = self.metadata['img_width']
+        self.img_height = self.metadata['img_height']
+        
+        logging.getLogger('matplotlib.font_manager').disabled = True
+        
+        if  self.img_width ==  self.img_height:
+            self.img_size = self.img_width
+        else:
+            self.logger.error(f'the images to stitch are not square')
+            sys.exit(f'the images to stitch are not square')
+            
+    
+    def extract_microscope_coords(self): 
+        
+
+        selected = self.dataset.loc[self.dataset.round_num == self.round_num, 
+                                    ['round_num','fov_num','fov_acquisition_coords_x','fov_acquisition_coords_y']]
+        selected.drop_duplicates(subset=['fov_num'],inplace=True)
+        selected.sort_values(by='fov_num', ascending=True, inplace=True)
+        self.x_coords = selected.loc[:,'fov_acquisition_coords_x'].to_numpy()
+        self.y_coords = selected.loc[:,'fov_acquisition_coords_y'].to_numpy()
+
+    
+    def normalize_coords(self):
+        """
+        ROBOFISH1 has stage with x increasing left-> right and y top->bottom 
+            ------> (x)
+            |
+            |
+            V (y)
+        
+        ROBOFISH2 has stage with x increasing right-> left and y top->bottom 
+        (x) <------
+                  |
+                  |
+                  V (y)
+        
+
+        ROBOFISH3 has stage with x increasing left-> right and y bottom->top 
+            ^ (y)
+            |
+            |
+            ------> (x)
+
+        Axis modifications steps:
+        (1) The reference system will be first converted to image style:
+            ------> (x)
+            |
+            |
+            V (y)
+
+        (2) The coords will be translated to (0,0)
+
+        (3) then to matrix (python) notation
+            ------> (columns)
+            |
+            |
+            V (rows)
+
+        """
+
+        # port the coords to image type coords
+        if self.metadata['machine'] == 'ROBOFISH2':
+            self.x_coords = - self.x_coords
+        elif self.metadata['machine'] == 'ROBOFISH3':
+            self.x_coords = - self.x_coords
+            self.y_coords = - self.y_coords
+        elif self.metadata['machine'] == 'NOT_DEFINED':
+            self.logger.error(f'Need to define the specs for stitching NOT_DEFINED machine')
+            sys.exit(f'Need to define the specs for stitching NOT_DEFINED machine')
+        else:
+            self.logger.error(f'define the right machine used to collected the data')
+            sys.exit(f'define the right machine used to collected the data')
+
+        # shift the coords to reference point (0,0) 
+        # consider that we get the top-right corner of the image as well
+        y_min = np.amin(self.y_coords)
+        x_min = np.amin(self.x_coords)
+        x_max = np.amax(self.x_coords)
+        y_max = np.amax(self.y_coords)
+
+        if x_max >=0 :
+            self.x_coords = self.x_coords - x_min
+        else:
+            self.x_coords + np.abs(x_min)
+        
+        if y_max>0:
+            self.y_coords = self.y_coords - y_min
+        else:
+            self.y_coords = self.y_coords + np.abs(y_min)
+
+        # change the coords from x,y to r,c
+        adjusted_coords = np.zeros([self.x_coords.shape[0],2])
+        adjusted_coords[:,0] = self.y_coords
+        adjusted_coords[:,1] = self.x_coords
+
+        # move coords to pxl space
+        self.tile_corners_coords_pxl = adjusted_coords / self.pixel_size
+
+
+    
+    def save_graph_original_coords(self):
+        # Turn interactive plotting off
+        saving_fpath = self.experiment_fpath / 'output_figures' / 'microscope_space_tiles_organization.png'
+        plt.ioff()
+        # Create image type axes
+        labels = [str(nr) for nr in np.arange(self.x_coords.shape[0])]
+        fig = plt.figure(figsize=(20,10))
+        plt.plot(self.x_coords,self.y_coords,'or')
+
+        for label, x, y in zip(labels, self.x_coords,self.y_coords):
+            plt.annotate(
+                label,
+                xy=(x,y), xytext=(-2, 2),
+                textcoords='offset points', ha='center', va='bottom',fontsize=12)
+        plt.tight_layout()
+        plt.savefig(saving_fpath)
+    
+    
+    def save_graph_image_space_coords(self):
+        # Turn interactive plotting off
+        saving_fpath = self.experiment_fpath / 'output_figures' / 'image_space_tiles_organization.png'
+        plt.ioff()
+        # Create image type axes
+        labels = [str(nr) for nr in np.arange(self.tile_corners_coords_pxl.shape[0])]
+        fig = plt.figure(figsize=(20,10))
+        plt.gca().invert_yaxis()
+        plt.plot(self.tile_corners_coords_pxl[:,1],self.tile_corners_coords_pxl[:,0],'or')
+
+        for label, x, y in zip(labels, self.tile_corners_coords_pxl[:,1],self.tile_corners_coords_pxl[:,0]):
+            plt.annotate(
+                label,
+                xy=(x,y), xytext=(-2, 2),
+                textcoords='offset points', ha='center', va='bottom',fontsize=12)
+        plt.tight_layout()
+        plt.savefig(saving_fpath)
+        
+    
+    def identify_adjacent_tiles(self):
+        shift_percent_tolerance = 0.05
+        searching_radius = self.img_size - (self.img_size*self.overlapping_percentage) + (self.img_size*shift_percent_tolerance)
+        nn = NearestNeighbors(n_neighbors=5,radius=searching_radius, metric='euclidean')
+        nn.fit(self.tile_corners_coords_pxl)
+        self.dists, self.indices = nn.kneighbors(self.tile_corners_coords_pxl, return_distance=True)
+
+
+    def determine_overlapping_regions(self):
+        # remember that overlapping region can be an empty dictionary
+        self.overlapping_regions = {}
+        self.overlapping_order ={}
+        for idx in np.arange(self.indices.shape[0]):
+            self.overlapping_regions[idx] = {}
+            self.overlapping_order[idx] = {}
+        for idx in np.arange(self.indices.shape[0]):
+            # Determine the indices that identify the correct adjacent
+            processing_indices = self.indices[idx,:]
+            processing_dists = self.dists[idx,:]
+            ref_tile = processing_indices[0]
+            self.overlapping_regions[ref_tile] = {}
+            self.overlapping_order[ref_tile] = {}
+            trimmed_indices = processing_indices[1:]
+            trimmed_dists = processing_dists[1:]
+
+            idx_adj = np.where(trimmed_dists < self.img_size)
+            adj_tiles_id = trimmed_indices[idx_adj]
+            adj_cpls = [(ref_tile, adj_tile) for adj_tile in adj_tiles_id]
+            
+            # remove pairs that are already selected
+            only_new_cpls = [cpl for cpl in adj_cpls if (cpl[1],cpl[0]) not in self.overlapping_regions[cpl[1]].keys()]
+            # only_new_cpls = [cpl for cpl in adj_cpls]
+
+            for cpl in only_new_cpls:
+            # If tile coords are top left
+                tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
+                tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
+                tile1_c_coords = self.tile_corners_coords_pxl[cpl[0]][1]
+                tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
+
+                if tile1_r_coords > tile2_r_coords:
+                        r_tl = tile1_r_coords
+                        r_br = tile2_r_coords + self.img_size
+
+                        row_order = ('bottom','top')
+
+                else:
+                    r_tl = tile2_r_coords
+                    r_br = tile1_r_coords + self.img_size
+
+                    row_order = ('top','bottom')
+
+                if tile1_c_coords > tile2_c_coords:
+                    c_tl = tile1_c_coords
+                    c_br = tile2_c_coords + self.img_size
+
+                    col_order = ('right','left')
+
+                else:
+                    c_tl = tile2_c_coords
+                    c_br = tile1_c_coords + self.img_size
+
+                    col_order = ('left','right')
+
+                self.overlapping_regions[ref_tile][cpl] = [r_tl, r_br, c_tl, c_br]
+                self.overlapping_order[ref_tile][cpl] = {'row_order':row_order,'column_order':col_order}
+
+    def run_tiles_organization(self):
+        self.extract_microscope_coords()
+        self.save_graph_original_coords()
+        self.normalize_coords()
+        self.save_graph_image_space_coords()
+        self.identify_adjacent_tiles()
+        self.determine_overlapping_regions()
+        fname = self.experiment_fpath / 'results' / 'microscope_tile_corners_coords_pxl.npy'
+        np.save(fname,self.tile_corners_coords_pxl)
+
 
 def stitch_using_microscope_fov_coords(decoded_df,tile_corners_coords_pxl):
     """
@@ -521,11 +655,18 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
             
-            counts1_df['r_px_microscope_stitched'] = counts1_df['r_px_registered'] + tile_corners_coords_pxl[cpl[0],0]
-            counts1_df['c_px_microscope_stitched'] = counts1_df['c_px_registered'] + tile_corners_coords_pxl[cpl[0],1]
-            counts2_df['r_px_microscope_stitched'] = counts2_df['r_px_registered'] + tile_corners_coords_pxl[cpl[1],0]
-            counts2_df['c_px_microscope_stitched'] = counts2_df['c_px_registered'] + tile_corners_coords_pxl[cpl[1],1]
+            # counts1_df['r_px_microscope_stitched'] = counts1_df['r_px_registered'] + tile_corners_coords_pxl[cpl[0],0]
+            # counts1_df['c_px_microscope_stitched'] = counts1_df['c_px_registered'] + tile_corners_coords_pxl[cpl[0],1]
+            # counts2_df['r_px_microscope_stitched'] = counts2_df['r_px_registered'] + tile_corners_coords_pxl[cpl[1],0]
+            # counts2_df['c_px_microscope_stitched'] = counts2_df['c_px_registered'] + tile_corners_coords_pxl[cpl[1],1]
             
+            counts1_df['r_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[0],0] - counts1_df['r_px_registered']
+            counts1_df['c_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[0],1] - counts1_df['c_px_registered']
+            counts2_df['r_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[1],0] - counts2_df['r_px_registered']
+            counts2_df['c_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[1],1] - counts2_df['c_px_registered']
+
+
+
             count1_grp = counts1_df.loc[counts1_df.channel == stitching_channel,:]
             count2_grp = counts2_df.loc[counts2_df.channel == stitching_channel,:]
             
