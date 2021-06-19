@@ -21,7 +21,7 @@ from pynndescent import NNDescent
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.fovs_registration import create_fake_image
 
-class organize_square_tiles():
+class organize_square_tiles_old_room():
 
     """
     Class designed to determine the tile organization and identify the coords of the
@@ -325,7 +325,7 @@ class organize_square_tiles():
         np.save(fname,self.tile_corners_coords_pxl)
 
 
-class organize_square_tiles_new_room():
+class organize_square_tiles():
 
     """
     Class designed to determine the tile organization and identify the coords of the
@@ -588,11 +588,11 @@ def stitch_using_microscope_fov_coords(decoded_df,tile_corners_coords_pxl):
         fov = decoded_df.iloc[0]['fov_num']
         r_microscope_coords = tile_corners_coords_pxl[fov,0]
         c_microscope_coords = tile_corners_coords_pxl[fov,1]
-        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
-        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
+        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
+        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
 
-        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
-        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
+        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
+        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
     return decoded_df
 
 
@@ -606,11 +606,11 @@ def stitch_using_coords_general(decoded_df_fpath,tile_corners_coords_pxl, tag):
         r_microscope_coords = tile_corners_coords_pxl[fov,0]
         c_microscope_coords = tile_corners_coords_pxl[fov,1]
         # new room
-        # decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
-        # decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
+        decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
+        decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
 
-        decoded_df['r_px_'+tag] =  r_microscope_coords - decoded_df['r_px_registered']
-        decoded_df['c_px_'+tag] =  c_microscope_coords - decoded_df['c_px_registered']
+        # decoded_df['r_px_'+tag] =  r_microscope_coords - decoded_df['r_px_registered']
+        # decoded_df['c_px_'+tag] =  c_microscope_coords - decoded_df['c_px_registered']
     
     decoded_df.to_parquet(decoded_df_fpath,index=False)
 
@@ -655,10 +655,10 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
             
-            # counts1_df['r_px_microscope_stitched'] = counts1_df['r_px_registered'] + tile_corners_coords_pxl[cpl[0],0]
-            # counts1_df['c_px_microscope_stitched'] = counts1_df['c_px_registered'] + tile_corners_coords_pxl[cpl[0],1]
-            # counts2_df['r_px_microscope_stitched'] = counts2_df['r_px_registered'] + tile_corners_coords_pxl[cpl[1],0]
-            # counts2_df['c_px_microscope_stitched'] = counts2_df['c_px_registered'] + tile_corners_coords_pxl[cpl[1],1]
+            counts1_df['r_px_microscope_stitched'] = counts1_df['r_px_registered'] + tile_corners_coords_pxl[cpl[0],0]
+            counts1_df['c_px_microscope_stitched'] = counts1_df['c_px_registered'] + tile_corners_coords_pxl[cpl[0],1]
+            counts2_df['r_px_microscope_stitched'] = counts2_df['r_px_registered'] + tile_corners_coords_pxl[cpl[1],0]
+            counts2_df['c_px_microscope_stitched'] = counts2_df['c_px_registered'] + tile_corners_coords_pxl[cpl[1],1]
             
             # Testin before changing room
             # counts1_df['r_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[0],0] - counts1_df['r_px_registered']
