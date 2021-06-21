@@ -391,6 +391,9 @@ class Pipeline():
         # Recalculate the overlapping regions after stitching
         self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
         self.tiles_org.determine_overlapping_regions()
+        
+        # Removed the dots on the global stitched
+        self.stitching_selected = 'global_stitched'
 
         stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
                                 self.hamming_distance,self.same_dot_radius_duplicate_dots, 
