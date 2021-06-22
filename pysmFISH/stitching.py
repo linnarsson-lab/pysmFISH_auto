@@ -882,7 +882,7 @@ def identify_duplicated_dots_NNDescend(ref_tiles_df,comp_tiles_df,stitching_sele
 
 def identify_duplicated_dots_sklearn(ref_tiles_df,comp_tiles_df, stitching_selected,same_dot_radius):
     
-    nn = NearestNeighbors(n_neighbors=1,radius=same_dot_radius, metric='euclidean')
+    nn = NearestNeighbors(n_neighbors=1,radius=same_dot_radius, metric='euclidean',algorithm='kde_tree')
     
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
@@ -892,7 +892,7 @@ def identify_duplicated_dots_sklearn(ref_tiles_df,comp_tiles_df, stitching_selec
     dots_ids = comp_tiles_df.loc[:, ['dot_id']].to_numpy()
     nn.fit(overlapping_ref_coords)
     dists, indices = nn.kneighbors(overlapping_comp_coords, return_distance=True)
-    idx_dists = np.where(dists < same_dot_radius)[0]
+    idx_dists = np.where(dists <= same_dot_radius)[0]
     dots_id_to_remove = dots_ids[idx_dists]
     dots_id_to_remove = list(dots_id_to_remove.reshape(dots_id_to_remove.shape[0],))
     
@@ -940,7 +940,7 @@ def remove_overlapping_dots_fov(cpl, chunk_coords, experiment_fpath,
                 except:
                     pass
                 else:
-                    dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
+                    dots_id_to_remove = identify_duplicated_dots_NNDescend(over_c1_df,over_c2_df,
                                                                 stitching_selected,same_dot_radius)
                     if len(dots_id_to_remove):
                         all_dots_id_to_remove.append(dots_id_to_remove)
