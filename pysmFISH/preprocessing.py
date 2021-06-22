@@ -129,6 +129,61 @@ def standard_not_norm_preprocessing(
 
 
 
+def without_flat_field_correction(
+        zarr_grp_name,
+        parsed_raw_data_fpath,
+        processing_parameters,
+        dark_img):
+
+    """
+   Standard function for filtering the fov image
+   The image is not normalized
+    
+    Args:
+    -----
+        zarr_grp_name: str
+            group representing the image to process
+        parsed_raw_data_fpath: str
+            path to the zarr file containing the parsed images
+        processing_parameters: dict
+            dictionary with the parameters used to process the images
+    """
+
+    logger = selected_logger()
+    
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    experiment_fpath = parsed_raw_data_fpath.parent
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
+    LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
+    
+
+    try:
+        img, metadata = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+    except:
+        logger.error(f'cannot load {zarr_grp_name} raw fish image')
+        sys.exit(f'cannot load {zarr_grp_name} raw fish image')
+    else:
+        logger.info(f'loaded {zarr_grp_name} raw fish image')
+        img = convert_from_uint16_to_float64(img)
+
+        img -= dark_img
+        img[img<0] = 0
+
+        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        img -= background
+        img[img<=0] = 0
+        img = nd.gaussian_laplace(img,LaplacianKernel)
+        img = -img # the peaks are negative so invert the signal
+        img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
+        img = np.abs(img) # to avoid -0.0 issues
+
+        img = img.max(axis=0)
+
+        return ((img,),metadata)
+
+
 def standard_norm_preprocessing(
         zarr_grp_name,
         parsed_raw_data_fpath,
