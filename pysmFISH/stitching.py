@@ -882,7 +882,7 @@ def identify_duplicated_dots_NNDescend(ref_tiles_df,comp_tiles_df,stitching_sele
 
 def identify_duplicated_dots_sklearn(ref_tiles_df,comp_tiles_df, stitching_selected,same_dot_radius):
     
-    nn = NearestNeighbors(n_neighbors=1,radius=same_dot_radius, metric='euclidean',algorithm='kde_tree')
+    nn = NearestNeighbors(n_neighbors=1,radius=same_dot_radius, metric='euclidean',algorithm='kd_tree')
     
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
@@ -940,12 +940,12 @@ def remove_overlapping_dots_fov(cpl, chunk_coords, experiment_fpath,
                 except:
                     pass
                 else:
-                    dots_id_to_remove = identify_duplicated_dots_NNDescend(over_c1_df,over_c2_df,
+                    dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
                                                                 stitching_selected,same_dot_radius)
                     if len(dots_id_to_remove):
                         all_dots_id_to_remove.append(dots_id_to_remove)
             all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
-            return all_dots_id_to_remove
+            return {cpl:all_dots_id_to_remove}
 
 def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
     logger = selected_logger()
@@ -965,12 +965,12 @@ def clean_from_duplicated_dots(fov, dots_id_to_remove,experiment_fpath):
             except:
                 logger.error(f'missing {fname}')
             else:
-                cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
+                cleaned_df = counts_df.loc[~counts_df.dot_id.isin(dots_id_to_remove), :]
                 cleaned_df.to_parquet(save_name,index=False)
                 logger.error(f'saved {fname}')
 
                 save_name = fname.stem.split('_decoded_fov_')[0] + '_removed_df_fov_' + str(fov) + '.parquet'
-                removed_df = counts_df.loc[counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
+                removed_df = counts_df.loc[counts_df.dot_id.isin(dots_id_to_remove), :]
                 removed_df.to_parquet(save_name,index=False)
         else:
             try:
@@ -1011,16 +1011,16 @@ def remove_duplicated_dots_graph(experiment_fpath,dataset,tiles_org,
         all_futures.append(future)
 
     to_remove = client.gather(all_futures)  
-    to_remove = [el for tg in to_remove for el in tg]
+    to_remove_comb = {k: v for d in to_remove for k, v in d.items()}
+
     removed_dot_dict = {}
-    for k, g in groupby(to_remove, key=lambda x: int(x.split('_')[0])):
-        removed_dot_dict.update({k:list(g)})
-
-    for fov in fovs:
-        if fov not in removed_dot_dict.keys():
-            removed_dot_dict.update({fov:[]})
-
-    logger.info(f'{removed_dot_dict.keys()}')
+    for key, items in to_remove_comb.items():
+        if key[1] not in removed_dot_dict.keys():
+            removed_dot_dict[key[1]] = []
+        removed_dot_dict[key[1]].append(items)
+    
+    for key, items in removed_dot_dict.items():
+        removed_dot_dict[key] = [el for tg in items for el in tg]
 
     for fov,dots_id_to_remove in removed_dot_dict.items():
         future = client.submit(clean_from_duplicated_dots,

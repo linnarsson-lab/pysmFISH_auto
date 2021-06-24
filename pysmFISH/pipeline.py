@@ -98,6 +98,7 @@ class Pipeline():
             disk (str): Size of the spillover disk for dask (default 0.1GB)
             local_directory (str): Directory where to spill over on the node (default /tmp)
             logs_directory: (str): Directory where to store dask and htcondor logs
+            save_bits_int: (bool): Save the intensity of the bits and the flipping direction
 
     Attributes:
         storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -139,6 +140,7 @@ class Pipeline():
         self.same_dot_radius_duplicate_dots = kwarg.pop('same_dot_radius_duplicate_dots',10)
         self.stitching_selected = kwarg.pop('stitching_selected','microscope_stitched')
         self.hamming_distance = kwarg.pop('hamming_distance',3)
+        self.save_bits_int = kwarg.pop('hamming_distance',True)
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}
@@ -321,7 +323,7 @@ class Pipeline():
         fov_processing.processing_barcoded_eel_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tile_corners_coords_pxl,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_image_tag,self.client,self.chunk_size)
+                                    self.preprocessed_image_tag,self.client,self.chunk_size,self.save_bits_int)
 
 
 

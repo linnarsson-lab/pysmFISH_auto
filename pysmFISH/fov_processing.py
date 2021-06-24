@@ -23,6 +23,42 @@ from pysmFISH import microscopy_file_parsers
 from pysmFISH import data_models
 from pysmFISH.logger_utils import selected_logger
 
+
+def combine_filtered_images(output_list: list,experiment_fpath: str,
+                            metadata: pd.DataFrame, save:bool=False):
+    """Function used to combine all the filtered images for a fov/channel in a single
+        image stack
+
+    Args:
+        output_list (list): list containing the output of preprocessing 
+        experiment_fpath (str): path to the experiment to process
+        metadata (pd.DataFrame): dataframe containing the metadata
+        save (bool, optional): Determine if the filtered images should be stored Defaults to False.
+
+    Returns:
+        img_stack (np.ndarray): image stack of all the images for a fov. The position in the
+                stack correspond to round_num-1
+    """
+    experiment_fpath = Path(experiment_fpath)
+     
+    img_stack = np.zeros([metadata['total_rounds'],metadata['img_width'],metadata['img_height']])
+
+    for img, img_meta in output_list:
+        round_num = img_meta.round_num
+        img_stack[round_num-1,:,:] = img
+
+    if save:
+        # Add conversion to more compress ftype
+        img_meta = output_list[0][1]
+        channel = img_meta.channel
+        fov = img_meta.fov_num
+        fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_' + channel + '_combined_img_fov_' + fov + '.npy')
+        np.save(fpath, img_stack)
+    
+    return img_stack
+
+
+
 def combine_steps(*args):
     pass
 
@@ -147,7 +183,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
 def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                     running_functions, tile_corners_coords_pxl,metadata,
                                     grpd_fovs,save_intermediate_steps, 
-                                    preprocessed_image_tag, client, chunks_size ):
+                                    preprocessed_image_tag, client, chunks_size, save_bits_int=True ):
         """ 
         This method create a processing graph XXXXXXXXX
         Need to chunks the processing of the data because getting the intensity dots
@@ -158,7 +194,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         io.create_empty_zarr_file(experiment_fpath.as_posix(), preprocessed_image_tag)
         preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
 
-        utils.create_dark_img(experiment_fpath,metadata)
+        microscopy_file_parsers.create_dark_img(experiment_fpath,metadata)
 
         dark_img = preprocessing.load_dark_image(experiment_fpath)
         
@@ -232,28 +268,33 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                 saved_file = delayed(stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                                 '_decoded_fov_' + str(fov) + '.parquet'),index=False)
             
-                name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize() 
+                if save_bits_int:
                 
-                combined_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,stitched_coords,
-                                                                                                fov_subdataset.stitching_channel)
+                    name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize() 
+                    
+                    combined_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,stitched_coords,
+                                                                                                    fov_subdataset.stitching_channel)
 
 
-                name = 'extract_barcodes_int' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                barcodes_max = delayed(barcodes_analysis.extract_dots_images,name=name)(stitched_coords,combined_images,
-                                                                                        experiment_fpath)
+                    name = 'extract_barcodes_int' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                    barcodes_max = delayed(barcodes_analysis.extract_dots_images,name=name)(stitched_coords,combined_images,
+                                                                                            experiment_fpath)
 
 
-                name = 'extract_bit_flip_direction' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook,
-                                                                                        experiment_fpath,
-                                                                                        stitched_coords)
+                    name = 'extract_bit_flip_direction' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                    flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook,
+                                                                                            experiment_fpath,
+                                                                                            stitched_coords)
 
-                end = delayed(combine_steps)(saved_file,barcodes_max,flip_direction)
+                    end = delayed(combine_steps)(saved_file,barcodes_max,flip_direction)
+                    all_processing.append(end)
+                
+                else:
 
-                all_processing.append(end)
+                    all_processing.append(saved_file)
             
             _ = dask.compute(*all_processing)
 
@@ -280,7 +321,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
         io.create_empty_zarr_file(experiment_fpath, preprocessed_image_tag)
         preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
 
-        utils.create_dark_img(experiment_fpath,metadata)
+        microscopy_file_parsers.create_dark_img(experiment_fpath,metadata)
 
 
         dark_img = preprocessing.load_dark_image(experiment_fpath)
@@ -357,7 +398,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
 
                     name = 'create_nuclei_stack' +experiment_name + '_' + channel + '_' \
                                         + '_fov_' +str(fov) + '-' + tokenize()
-                    filtered_nuclei_stack = delayed(utils.combine_filtered_images,name=name)(all_nuclei_fov,experiment_fpath,metadata)
+                    filtered_nuclei_stack = delayed(combine_filtered_images,name=name)(all_nuclei_fov,experiment_fpath,metadata)
 
                     name = 'register_' +experiment_name + '_' + channel + '_' \
                                         + '_fov_' +str(fov) + '-' + tokenize()
