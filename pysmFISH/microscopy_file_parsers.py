@@ -9,6 +9,7 @@ import numpy as np
 import zarr
 import nd2reader
 import xarray as xr
+import pandas as pd
 from dask import array as da
 from pathlib import Path
 
