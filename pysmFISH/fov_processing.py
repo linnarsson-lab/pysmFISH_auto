@@ -183,7 +183,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
 def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                     running_functions, tile_corners_coords_pxl,metadata,
                                     grpd_fovs,save_intermediate_steps, 
-                                    preprocessed_image_tag, client, chunks_size, save_bits_int=True ):
+                                    preprocessed_image_tag, client, chunks_size, save_bits_int):
         """ 
         This method create a processing graph XXXXXXXXX
         Need to chunks the processing of the data because getting the intensity dots
