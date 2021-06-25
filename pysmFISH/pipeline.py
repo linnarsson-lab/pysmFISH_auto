@@ -140,7 +140,7 @@ class Pipeline():
         self.same_dot_radius_duplicate_dots = kwarg.pop('same_dot_radius_duplicate_dots',10)
         self.stitching_selected = kwarg.pop('stitching_selected','microscope_stitched')
         self.hamming_distance = kwarg.pop('hamming_distance',3)
-        self.save_bits_int = kwarg.pop('hamming_distance',True)
+        self.save_bits_int = kwarg.pop('save_bits_int',True)
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}
