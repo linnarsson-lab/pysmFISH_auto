@@ -610,7 +610,6 @@ def osmFISH_peak_based_detection_fast(ImgStack,
                     Selected_Peaks = Trimmed_PeaksCoords[Thr_idx]
 
                 # Calculate the selected peaks after removal of the big and small objects
-                
                 # Threshold the image using the selected threshold
                 if Selected_Thr > 0:
                     ImgMask = ImgStack > Selected_Thr
@@ -662,8 +661,6 @@ def osmFISH_peak_based_detection_fast(ImgStack,
                     counts_dict['dot_id'] = dot_id_array
                     counts_dict['dot_intensity'] = Selected_peaks_int
                     counts_dict['selected_thr'] = thr_array
-                    
-
                 else:
                     logger.info(f' fov {fov} does not have counts (mapping)')
 
