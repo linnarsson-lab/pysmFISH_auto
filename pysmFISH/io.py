@@ -81,7 +81,7 @@ def open_consolidated_metadata(parsed_raw_data_fpath:str):
         return consolidated_grp
 
 
-def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
+def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str):
     """
     Function used to load a raw image and metadata from the 
     parsed raw file and the attrs for the filtering
@@ -103,6 +103,29 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->np.ndarray:
     img = root[zarr_grp_name][metadata['fov_name']][...]
 
     return img, metadata
+
+
+def load_general_zarr(fov_subdataset,parsed_raw_data_fpath:str):
+    """
+    Function used to load a raw image and metadata from the 
+    parsed raw file and the attrs for the filtering
+        parsed_raw_data_fpath: str
+            fpath to zarr store containing the parsed raw images
+        zarr_grp_name: str
+            fpath to the group to process. The group contain the raw images and the 
+            corresponding metadata
+
+            grp = experiment_name_channel_fov_X
+                dataset = raw_data_fov_X
+
+    """
+    logger = selected_logger()
+    st = zarr.DirectoryStore(parsed_raw_data_fpath)
+    root = zarr.group(store=st,overwrite=False)
+    img = root[fov_subdataset.grp_name][fov_subdataset.fov_name][...]
+    return img
+
+
 
 
 
