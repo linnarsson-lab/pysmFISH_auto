@@ -5,6 +5,7 @@ import sys
 import pandas as pd
 import numpy as np
 import zarr
+from typing import *
 from pathlib import Path
 from dask import delayed
 from dask import dataframe as dd
@@ -654,3 +655,76 @@ def process_fresh_sample_graph(experiment_fpath, running_functions,
     _ = dask.compute(end)
     
 
+
+# def collect_bits_intensity_graph(dataset:pd.Dataframe, experiment_fpath:str, 
+#                             grpd_fovs,metadata:Dict,chunks_size,codebooks,client):
+
+#     # Write to add stitching reference to the dataset to make in easy to run the
+#     # bits analysis
+    
+
+#     # Need to run for fov
+
+#     bit_channels = list(set(metadata['list_all_channels']).difference(metadata['stitching_channel'])))
+#     experiment_fpath = Path(experiment_fpath)
+#     experiment_name = metadata['experiment_name']
+#     filtered_images_path =  Path(experiment_fpath) / (metadata['experiment_name'] + 'preprocessed_img_data.zarr')
+
+#     all_fovs = list(grpd_fovs.groups.keys())
+#     chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
+#     for chunk in chunks:
+#         all_processing = []
+#         all_filtered_images = []
+#         for fov_num in chunk:
+#             group = grpd_fovs.get_group(fov_num)
+#             grpd_channel = group.groupby('channel')
+
+#             # Load counts
+#             name = 'Load_counts' +experiment_name + '_' + \
+#                                         + '_fov_' +str(fov_num) + '-' + tokenize() 
+                    
+#             counts_fpath = experiment_fpath / 'results' / (experiment_name + '_decoded_fov_' +str(fov_num) + '.parquet')
+#             counts_df = delayed(pd.read_parquet,name=name)(counts_fpath)
+
+
+#             for channel, channel_grp in grpd_channel:
+#                 all_filtered_images = []
+#                 for index_value, fov_subdataset in channel_grp.iterrows():
+#                     # Create ((img,), metadata) list to match the one used in the eel graph in order
+#                     # to used the same set of functions
+
+#                     name =  'load_processed_images_' + fov_subdataset.grp_name+ '-' + tokenize()
+
+#                     img = delayed(io.load_general_zarr,name=name)(fov_subdataset,filtered_images_path)
+#                     filt_out = ((img,), metadata)
+#                     all_filtered_images.append(filt_out)
+
+                
+#                 name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
+#                                         + '_fov_' +str(fov_num) + '-' + tokenize() 
+                    
+#                 combined_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,counts_df,
+#                                                                                                 fov_subdataset.stitching_channel)
+
+
+#                 name = 'extract_barcodes_int' +experiment_name + '_' + channel + '_' \
+#                                     + '_fov_' +str(fov_num) + '-' + tokenize()
+#                 barcodes_max = delayed(barcodes_analysis.extract_dots_images,name=name)(counts_df,combined_images,
+#                                                                                         experiment_fpath)
+
+
+#                 name = 'extract_bit_flip_direction' +experiment_name + '_' + channel + '_' \
+#                                     + '_fov_' +str(fov) + '-' + tokenize()
+#                 flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook,
+#                                                                                         experiment_fpath,
+#                                                                                         stitched_coords)
+
+
+
+    # """Collected the intensity of the 1 and 0 bits and the flipping direction.
+    #     This is an extra function to run after the data are collected to avoid
+    #     to slow down the initial dots counting.
+
+    # Args:
+    #     dataset ([type]): [description]
+    # """
