@@ -278,7 +278,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
             dgrp.attrs['codebook'] = codebook_name
             
             probes_channel = 'Probes_' + channel
-            probes_name = experiment_info['Probes_FASTA_name'][probes_name]
+            probes_name = experiment_info['Probes_FASTA'][probes_name]
             dgrp.attrs['probe_fasta_name'] = probes_name
 
             dgrp.attrs['machine'] = experiment_info['Machine']
@@ -440,7 +440,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
             dgrp.attrs['codebook'] = codebook_name
             
             probes_channel = 'Probes_' + channel
-            probes_name = experiment_info['Probes_FASTA_name'][probes_name]
+            probes_name = experiment_info['Probes_FASTA'][probes_name]
             dgrp.attrs['probe_fasta_name'] = probes_name
 
             dgrp.attrs['barcode'] = experiment_info['Barcode']
@@ -660,18 +660,6 @@ def nikon_nd2_parsing_graph(experiment_fpath,
 
     _ = client.gather(parsing_futures)
     consolidated_grp = io.consolidate_zarr_metadata(parsed_raw_data_fpath)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
