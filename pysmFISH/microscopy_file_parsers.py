@@ -272,11 +272,18 @@ def nikon_nd2_autoparser_zarr(nd2_file_path, parsed_raw_data_fpath, experiment_i
             dgrp.attrs['experiment_type'] = experiment_info['Experiment_type']     
             dgrp.attrs['barcode_length'] = experiment_info['Barcode_length']
             dgrp.attrs['barcode'] = experiment_info['Barcode']
-            dgrp.attrs['codebook'] = experiment_info['Codebook']
+            
+            codebook_channel = 'Codebook_' + channel
+            codebook_name = experiment_info['Codebooks'][codebook_channel]
+            dgrp.attrs['codebook'] = codebook_name
+            
+            probes_channel = 'Probes_' + channel
+            probes_name = experiment_info['Probes_FASTA_name'][probes_name]
+            dgrp.attrs['probe_fasta_name'] = probes_name
+
             dgrp.attrs['machine'] = experiment_info['Machine']
             dgrp.attrs['operator'] = experiment_info['Operator']
             dgrp.attrs['overlapping_percentage'] = experiment_info['Overlapping_percentage']
-            dgrp.attrs['probe_fasta_name'] = experiment_info['Probe_FASTA_name']
             dgrp.attrs['species'] = experiment_info['Species']
             dgrp.attrs['start_date'] = experiment_info['Start_date']
             dgrp.attrs['strain'] = experiment_info['Strain']
@@ -427,12 +434,19 @@ def nikon_nd2_reparser_zarr(nd2_file_path,parsed_raw_data_fpath,experiment_info)
             dgrp.attrs['round_num'] = hybridization_num
             dgrp.attrs['experiment_name'] = experiment_name
             dgrp.attrs['barcode_length'] = experiment_info['Barcode_length']
+
+            codebook_channel = 'Codebook_' + channel
+            codebook_name = experiment_info['Codebooks'][codebook_channel]
+            dgrp.attrs['codebook'] = codebook_name
+            
+            probes_channel = 'Probes_' + channel
+            probes_name = experiment_info['Probes_FASTA_name'][probes_name]
+            dgrp.attrs['probe_fasta_name'] = probes_name
+
             dgrp.attrs['barcode'] = experiment_info['Barcode']
-            dgrp.attrs['codebook'] = experiment_info['Codebook']
             dgrp.attrs['machine'] = experiment_info['Machine']
             dgrp.attrs['operator'] = experiment_info['Operator']
             dgrp.attrs['overlapping_percentage'] = experiment_info['Overlapping_percentage']
-            dgrp.attrs['probe_fasta_name'] = experiment_info['Probe_FASTA_name']
             dgrp.attrs['species'] = experiment_info['Species']
             dgrp.attrs['start_date'] = experiment_info['Start_date']
             dgrp.attrs['strain'] = experiment_info['Strain']
