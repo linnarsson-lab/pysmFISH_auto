@@ -210,6 +210,10 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         running_functions = delayed(running_functions)
         tile_corners_coords_pxl = delayed(tile_corners_coords_pxl)
 
+        list_all_channels = metadata['list_all_channels']
+        stitching_channel = metadata['stitching_channel']
+        fish_channels = set(list_all_channels).difference(stitching_channel)
+
         codebook_dict = configuration_files.load_codebook(experiment_fpath,metadata)
         codebook_df = delayed(codebook_dict)
         
@@ -244,8 +248,10 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                                 dask_key_name=dask_delayed_name)
                     counts, filt_out = fov_out[0], fov_out[1]
                     all_counts_fov.append(counts)
-                    if channel != fov_subdataset.stitching_channel:
-                        all_filtered_images.append(filt_out)
+                    
+                    if save_bits_int:
+                        if channel != fov_subdataset.stitching_channel:
+                            all_filtered_images.append(filt_out)
                 
                 # Modify for channels name
 
@@ -258,11 +264,24 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                 registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov,
                                                     analysis_parameters)
 
-                name = 'decode_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast,name=name)(registered_counts, 
-                                                                            analysis_parameters,codebook_df)                                                        
                 
+                for channel in fish_channels:
+
+                    # Isolate the counts for specific channel
+                    name = 'select_counts_' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+
+                    registered_counts = delayed(pd.loc)
+                    
+
+                    name = 'decode_' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                    decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(registered_counts, 
+                                                                              analysis_parameters,codebook_df)                                                        
+                
+                # concat all the decoded data including the europium data
+
+
                 name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()  
                 stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(decoded[1],tile_corners_coords_pxl)
