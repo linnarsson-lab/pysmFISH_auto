@@ -173,7 +173,7 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
                             'Experiment_type',
                             'Barcode_length',
                             'Barcode',
-                            'Codebooks',
+                            'Codebook',
                             'Machine',
                             'Operator',
                             'Overlapping_percentage',
