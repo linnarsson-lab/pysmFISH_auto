@@ -177,7 +177,7 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
                             'Machine',
                             'Operator',
                             'Overlapping_percentage',
-                            'Probe_FASTA',
+                            'Probe_FASTA_name',
                             'Species',
                             'Start_date',
                             'Strain',
