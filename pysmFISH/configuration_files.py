@@ -850,28 +850,35 @@ def load_processing_env_config_file(experiment_fpath:str):
 def load_codebook(experiment_fpath:str, metadata:str):
     """
     Function used to load the codebook
-
+    connect the codebook to name so u can use if with different colors
+    if needed
     Args:
         config_db_fpath; str
             path to the folder containing the data_transfer_config.yaml
     """
     logger = selected_logger()
-    codebook_name = metadata['codebook']
-    codebook_fpath = Path(experiment_fpath) / 'pipeline_config' / codebook_name
-    try:
-        codebook = pd.read_parquet(codebook_fpath)
-    except (FileExistsError,NameError,FileNotFoundError) as e:
-        logger.debug(f'{codebook_name} missing in the pipeline_config folder')
+    
+    all_codebooks_dict = {}
+
+    for codebook_name in metadata['list_all_codebooks']:
+
+        codebook_fpath = Path(experiment_fpath) / 'pipeline_config' / codebook_name
         try:
-            codebooks_db_fpath = (Path(experiment_fpath)).parent / 'codebooks' / codebook_name
-            codebook = pd.read_parquet(codebooks_db_fpath)
-            _ = shutil.copy2(codebooks_db_fpath,codebook_fpath)
-            return codebook
-        except:
-            logger.error(f'cannot create the codebook')
-            sys.exit(f'cannot create the codebook')
-    else:
-        return codebook
+            codebook = pd.read_parquet(codebook_fpath)
+        except (FileExistsError,NameError,FileNotFoundError) as e:
+            logger.debug(f'{codebook_name} missing in the pipeline_config folder')
+            try:
+                codebooks_db_fpath = (Path(experiment_fpath)).parent / 'codebooks' / codebook_name
+                codebook = pd.read_parquet(codebooks_db_fpath)
+                _ = shutil.copy2(codebooks_db_fpath,codebook_fpath)
+                all_codebooks_dict[codebook_name] = codebook
+            except:
+                logger.error(f'cannot create the codebook')
+                sys.exit(f'cannot create the codebook')
+        else:
+            all_codebooks_dict[codebook_name] = codebook
+    
+    return all_codebooks_dict
 
 
 
