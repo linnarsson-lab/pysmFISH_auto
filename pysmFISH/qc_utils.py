@@ -50,7 +50,7 @@ class QC_registration_error():
         self.error_output_df = self.error_output_df.T
         # #     RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
         #     registration_error_df.columns = ["_".join(x) for x in registration_error_df.columns.ravel()]
-        self.error_output_df.to_parquet(self.experiment_fpath / 'tmp' / 'registration_error.parquet')
+        self.error_output_df.to_parquet(self.experiment_fpath / 'results' / 'registration_error.parquet')
 
     def plot_error(self):
         plt.ioff()
@@ -173,11 +173,11 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
                             'Experiment_type',
                             'Barcode_length',
                             'Barcode',
-                            'Codebook',
+                            'Codebooks',
                             'Machine',
                             'Operator',
                             'Overlapping_percentage',
-                            'Probe_FASTA_name',
+                            'Probe_FASTA',
                             'Species',
                             'Start_date',
                             'Strain',
