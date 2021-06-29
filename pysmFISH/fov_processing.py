@@ -210,8 +210,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         running_functions = delayed(running_functions)
         tile_corners_coords_pxl = delayed(tile_corners_coords_pxl)
 
-        codebook = configuration_files.load_codebook(experiment_fpath,metadata)
-        codebook_df = delayed(codebook)
+        codebook_dict = configuration_files.load_codebook(experiment_fpath,metadata)
+        codebook_df = delayed(codebook_dict)
         
         all_processing = []
         all_filtered_images = []
@@ -222,6 +222,9 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
             all_filtered_images = []
             for fov_num in chunk:
                 group = grpd_fovs.get_group(fov_num)
+
+        # Work on grouping by channel
+                
         # for fov_num, group in grpd_fovs:
                 all_counts_fov = []
                 for index_value, fov_subdataset in group.iterrows():
