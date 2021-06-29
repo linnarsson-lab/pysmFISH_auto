@@ -173,11 +173,11 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
                             'Experiment_type',
                             'Barcode_length',
                             'Barcode',
-                            'Codebook',
+                            'Codebooks',
                             'Machine',
                             'Operator',
                             'Overlapping_percentage',
-                            'Probe_FASTA_name',
+                            'Probe_FASTA',
                             'Species',
                             'Start_date',
                             'Strain',
@@ -191,13 +191,17 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
         
 
         if 'serial' not in experiment_info['Experiment_type']:
-            if not experiment_info['Codebook']:
+            if not experiment_info['Codebooks']:
                 logger.error(f"The experiment type {experiment_info['Experiment_type']} needs a codebook")
                 sys.exit(f"The experiment type {experiment_info['Experiment_type']} needs a codebook")
             else:
-                present = [x.name for x in codebooks_list if experiment_info['Codebook'] == x.name]
-                if not present:
-                    logger.error(f'Specified codebook is missing from the database')
+                missing_codebooks = []
+                for idx, codebook in experiment_info['Codebook'].items():
+                    if codebook not in codebooks_list:
+                        missing_codebooks.append(codebook)
+                if missing_codebooks:
+                    for missing_codebook in missing_codebooks:
+                        logger.error(f'{missing_codebook} is missing from the database')
                     sys.exit(f'Specified codebook is missing from the database')
 
             if experiment_info['Barcode'] not in ['True', 'False']:
@@ -212,7 +216,7 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
                     logger.error(f'Wrong barcode length')
                     sys.exit(f'Barcode_length keyword in the experiment file')
             
-        if experiment_info['Machine'] not in ['ROBOFISH1', 'ROBOFISH2', 'NOT-DEFINED']:
+        if experiment_info['Machine'] not in ['ROBOFISH1', 'ROBOFISH2','ROBOFISH3', 'NOT-DEFINED']:
             logger.error(f'Wrong machine name')
             sys.exit(f'Wrong machine name')
         
@@ -224,14 +228,18 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
             logger.error(f'Wrong Experiment_type selected in the experiment file')
             sys.exit(f'Wrong Experiment_type selected in the experiment file')
 
-        if not experiment_info['Probe_FASTA_name']:
+        if not experiment_info['Probe_FASTA']:
             logger.error(f'Experiment require the probes name')
             sys.exit(f'Probes keyword in the experiment file')
         else:
-            present = [x.name for x in probe_sets_list if experiment_info['Probe_FASTA_name'] == x.name]
-            if not present:
-                logger.error(f'Specified probes set is missing from the database')
-                sys.exit(f'Specified probes set is missing from the database')
+            missing_probes = []
+            for idx, probe in experiment_info['Probe_FASTA'].items():
+                if probe not in probe_sets_list:
+                    missing_probes.append(probe)
+            if missing_probes:
+                for mprobes in missing_probes:
+                    logger.error(f'{mprobes} is missing from the database')
+                sys.exit(f'Specified probes are missing from the database')
 
 
 def QC_matching_nd2_metadata_robofish(all_raw_files:list):
