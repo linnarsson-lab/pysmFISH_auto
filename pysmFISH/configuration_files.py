@@ -589,7 +589,6 @@ def create_function_runner(experiment_fpath,metadata):
     if pipeline == 'eel-human-GBM':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'reference_channels_dots_calling': 'osmFISH_peak_based_detection_fast',
                             'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}  
@@ -600,7 +599,6 @@ def create_function_runner(experiment_fpath,metadata):
     elif pipeline == 'eel-human-adult-brain':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'reference_channels_dots_calling': 'osmFISH_peak_based_detection_fast',
                             'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}
@@ -609,7 +607,6 @@ def create_function_runner(experiment_fpath,metadata):
     elif pipeline == 'eel-human-embryo':
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'reference_channels_dots_calling': 'osmFISH_peak_based_detection_fast',
                             'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}
@@ -617,7 +614,6 @@ def create_function_runner(experiment_fpath,metadata):
     elif pipeline == 'eel-mouse-brain':
         running_functions = { 'fish_channels_preprocessing':'without_flat_field_correction',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'reference_channels_dots_calling': 'osmFISH_peak_based_detection_fast',
                             'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}
@@ -632,13 +628,11 @@ def create_function_runner(experiment_fpath,metadata):
 
     elif pipeline == 'smfish-serial-mouse':
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
-                            'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'reference_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
+                            'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
     
     elif pipeline == 'smfish-serial-controls-eel':
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
-                            'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'reference_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
+                            'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
 
         logger.info(f'selected functions for {pipeline}')
     
@@ -648,12 +642,15 @@ def create_function_runner(experiment_fpath,metadata):
 
 
     if stitching_type == 'large-beads':
-                running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing'
-
+            running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing'
+            running_functions['reference_channels_dots_calling'] = 'osmFISH_peak_based_detection_fast'
     elif stitching_type == 'small-beads':
-        pass
+            running_functions['reference_channels_preprocessing'] = 'standard_not_norm_preprocessing'
+            running_functions['reference_channels_dots_calling'] = 'osmFISH_peak_based_detection_fast'
     elif stitching_type == 'both-beads':
-        running_functions['reference_channels_preprocessing'] = 'standard_not_norm_preprocessing'
+            running_functions['reference_channels_preprocessing'] = 'standard_not_norm_preprocessing'
+            running_functions['reference_channels_dots_calling'] = 'both_beads_peak_based_detection'
+        
         
     elif stitching_type == 'nuclei':
         running_functions['reference_channels_preprocessing'] = 'nuclei_registration_filtering'
@@ -775,9 +772,6 @@ def create_analysis_config_file_from_dataset(experiment_fpath, metadata):
                     return dict(analysis_config)
                 except:
                     logger.error(f'cannot save the analysis_config_file')
-
-
-
 
 
 

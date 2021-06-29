@@ -275,10 +275,6 @@ def filter_remove_large_objs(
     FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
 
-    LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
-    LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
-    LargeObjRemovalSelem = processing_parameters['LargeObjRemovalSelem']
-
 
     try:
         img, metadata = load_raw_images(zarr_grp_name,
