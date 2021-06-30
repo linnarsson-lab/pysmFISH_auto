@@ -588,11 +588,12 @@ def stitch_using_microscope_fov_coords(decoded_df,tile_corners_coords_pxl):
         fov = decoded_df.iloc[0]['fov_num']
         r_microscope_coords = tile_corners_coords_pxl[fov,0]
         c_microscope_coords = tile_corners_coords_pxl[fov,1]
-        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
-        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
+        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
+        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
 
-        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
-        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
+        # new room
+        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
+        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
     return decoded_df
 
 

@@ -273,7 +273,7 @@ class Pipeline():
         assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(f'cannot determine tiles organization because missing dataset attr')
         assert self.analysis_parameters, self.logger.error(f'cannot determine tiles organization because missing analysis_parameters attr')
         self.reference_round = self.analysis_parameters['RegistrationReferenceHybridization']
-        self.tiles_org = stitching.organize_square_tiles(self.experiment_fpath,
+        self.tiles_org = stitching.organize_square_tiles_old_room(self.experiment_fpath,
                                     self.data.dataset,self.metadata,
                                     self.reference_round)
         self.tiles_org.run_tiles_organization()
