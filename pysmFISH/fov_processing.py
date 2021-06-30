@@ -224,40 +224,53 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         for chunk in chunks:
             all_processing = []
             all_filtered_images = []
+            all_counts_fov = {}
+            for channel in list_all_channels:
+                all_counts_fov[channel] = []
             for fov_num in chunk:
-                group = grpd_fovs.get_group(fov_num)
+                for processing_channel in list_all_channels:
+                    group = grpd_fovs.get_group((fov_num,processing_channel))
 
-        # Work on grouping by channel
-                
-        # for fov_num, group in grpd_fovs:
-                all_counts_fov = []
-                for index_value, fov_subdataset in group.iterrows():
-                    round_num = fov_subdataset.round_num
-                    channel = fov_subdataset.channel
-                    fov = fov_subdataset.fov_num
-                    experiment_name = fov_subdataset.experiment_name
-                    dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
-                                    '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
-                    fov_out = delayed(single_fov_round_processing_eel, name=dask_delayed_name,nout=2)(fov_subdataset,
-                                                analysis_parameters,
-                                                running_functions,
-                                                dark_img,
-                                                experiment_fpath,
-                                                preprocessed_zarr_fpath,
-                                                save_steps_output=save_intermediate_steps,
-                                                dask_key_name=dask_delayed_name)
-                    counts, filt_out = fov_out[0], fov_out[1]
-                    all_counts_fov.append(counts)
-                    
-                    if save_bits_int:
-                        if channel != fov_subdataset.stitching_channel:
-                            all_filtered_images.append(filt_out)
+                    for index_value, fov_subdataset in group.iterrows():
+                        round_num = fov_subdataset.round_num
+                        channel = fov_subdataset.channel
+                        fov = fov_subdataset.fov_num
+                        experiment_name = fov_subdataset.experiment_name
+                        dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
+                                        '_round_' + str(round_num) + '_fov_' +str(fov) + '-' + tokenize()
+                        fov_out = delayed(single_fov_round_processing_eel, name=dask_delayed_name,nout=2)(fov_subdataset,
+                                                    analysis_parameters,
+                                                    running_functions,
+                                                    dark_img,
+                                                    experiment_fpath,
+                                                    preprocessed_zarr_fpath,
+                                                    save_steps_output=save_intermediate_steps,
+                                                    dask_key_name=dask_delayed_name)
+                        counts, filt_out = fov_out[0], fov_out[1]
+                        
+                        all_counts_fov[channel].append(counts)
+                        
+                        if save_bits_int:
+                            if channel != fov_subdataset.stitching_channel:
+                                all_filtered_images.append(filt_out)
                 
                 # Modify for channels name
-
-                name = 'concat_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                all_counts_fov = delayed(pd.concat,name=name)(all_counts_fov,axis=0,ignore_index=True)
+                for processing_channel in list_all_channels:
+                    name = 'concat_' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                    all_counts_fov[channel] = delayed(pd.concat,name=name)(all_counts_fov[channel],axis=0,ignore_index=True)
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
                 
                 name = 'register_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
