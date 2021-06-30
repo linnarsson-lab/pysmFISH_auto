@@ -254,83 +254,65 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                             if channel != fov_subdataset.stitching_channel:
                                 all_filtered_images.append(filt_out)
                 
-                # Modify for channels name
+                all_counts_fov_concat = {}
                 for processing_channel in list_all_channels:
                     name = 'concat_' +experiment_name + '_' + channel + '_' \
                                         + '_fov_' +str(fov) + '-' + tokenize()
-                    all_counts_fov[channel] = delayed(pd.concat,name=name)(all_counts_fov[channel],axis=0,ignore_index=True)
+                    all_counts_fov_concat[channel] = delayed(pd.concat,name=name)(all_counts_fov[channel],axis=0,ignore_index=True)
                 
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                name = 'register_' +experiment_name + '_' + channel + '_' \
+                # Run registration of stitching_channel
+
+                name = 'register_reference_channel_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
-                registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov,
-                                                    analysis_parameters)
-
                 
-                for channel in fish_channels:
+                registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov[stitching_channel],
+                                                        analysis_parameters)
 
-                    # Isolate the counts for specific channel
-                    name = 'select_counts_' +experiment_name + '_' + channel + '_' \
-                                        + '_fov_' +str(fov) + '-' + tokenize()
+                stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots = registration_stitching_channel_output[0], \
+                                                                                    registration_stitching_channel_output[1], \
+                                                                                    registration_stitching_channel_output[2]
 
-                    registered_counts = delayed(pd.loc)
+
+                all_stitched_coords = []
+
+                for processing_channel in fish_channels:
                     
+                    # Register fish
+                    name = 'register_fish_channels_' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()
 
+                    registered_counts = delayed(fovs_registration.beads_based_registration_fish,name=name)(all_counts_fov[processing_channel],
+                                                        all_rounds_shifts, all_rounds_matching_dots, analysis_parameters)
+
+                    # Decoded fish
                     name = 'decode_' +experiment_name + '_' + channel + '_' \
                                         + '_fov_' +str(fov) + '-' + tokenize()
                     decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(registered_counts, 
                                                                               analysis_parameters,codebook_df)                                                        
                 
-                # concat all the decoded data including the europium data
-
-
-                name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()  
-                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(decoded[1],tile_corners_coords_pxl)
+                    # Stitch to the microscope reference coords
+                    name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()  
+                    stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(decoded[1],tile_corners_coords_pxl)
                 
+                    all_stitched_coords.append(stitched_coords)
+
+                
+                all_stitched_coords.append(stitching_channel_df)
+
+                
+                name = 'concat_' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                all_stitched_coords = delayed(pd.concat,name=name)(all_stitched_coords,axis=0,ignore_index=True) 
+                    
+                    
                 name = 'save_df_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize() 
                 saved_file = delayed(stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                                 '_decoded_fov_' + str(fov) + '.parquet'),index=False)
             
-                if save_bits_int:
-                
-                    name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
-                                        + '_fov_' +str(fov) + '-' + tokenize() 
-                    
-                    combined_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,stitched_coords,
-                                                                                                    fov_subdataset.stitching_channel)
-
-
-                    name = 'extract_barcodes_int' +experiment_name + '_' + channel + '_' \
-                                        + '_fov_' +str(fov) + '-' + tokenize()
-                    barcodes_max = delayed(barcodes_analysis.extract_dots_images,name=name)(stitched_coords,combined_images,
-                                                                                            experiment_fpath)
-
-
-                    name = 'extract_bit_flip_direction' +experiment_name + '_' + channel + '_' \
-                                        + '_fov_' +str(fov) + '-' + tokenize()
-                    flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook,
-                                                                                            experiment_fpath,
-                                                                                            stitched_coords)
-
-                    end = delayed(combine_steps)(saved_file,barcodes_max,flip_direction)
-                    all_processing.append(end)
-                
-                else:
-
-                    all_processing.append(saved_file)
+            
+                all_processing.append(saved_file)
             
             _ = dask.compute(*all_processing)
 
