@@ -1193,6 +1193,7 @@ def both_beads_peak_based_detection(img,
     LargeObjRemovalSelem = processing_parameters['LargeObjRemovalSelem']
 
     large_beads_counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+    large_beads_counts_df['mapped_beads_type'] = 'large'
     
     mask = np.zeros_like(img)
     idx=  img > np.percentile(img,LargeObjRemovalPercentile)
@@ -1217,7 +1218,7 @@ def both_beads_peak_based_detection(img,
             'CountingFishNumPeaksPerLabel': 1}
 
     small_beads_counts_df = osmFISH_peak_based_detection_fast(masked_img,fov_subdataset,processing_parameters_small)
-
+    small_beads_counts_df['mapped_beads_type'] = 'small'
 
     counts_df = pd.concat([large_beads_counts_df,small_beads_counts_df], axis=0, copy=False)  
 
