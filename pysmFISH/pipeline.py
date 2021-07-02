@@ -319,9 +319,10 @@ class Pipeline():
         assert self.running_functions, self.logger.error(f'cannot process eel fovs because missing running_functions attr')
         assert self.grpd_fovs, self.logger.error(f'cannot process eel fovs because missing grpd_fovs attr')
         assert self.client, self.logger.error(f'cannot process eel fovs because missing client attr')
+        assert self.tiles_org, self.logger.error(f'cannot process eel fovs because missing tiles organization attr')
     
         fov_processing.processing_barcoded_eel_fov_graph(self.experiment_fpath,self.analysis_parameters,
-                                    self.running_functions, self.tile_corners_coords_pxl,self.metadata,
+                                    self.running_functions, self.tiles_org,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
                                     self.preprocessed_image_tag,self.client,self.chunk_size,self.save_bits_int)
 
@@ -351,10 +352,11 @@ class Pipeline():
         assert self.running_functions, self.logger.error(f'cannot process smFISH fovs because missing running_functions attr')
         assert self.grpd_fovs, self.logger.error(f'cannot process smFISH fovs because missing grpd_fovs attr')
         assert self.client, self.logger.error(f'cannot process smFISH fovs because missing client attr')
+        assert self.tiles_org, self.logger.error(f'cannot process eel fovs because missing tiles organization attr')
     
         
         fov_processing.processing_serial_fish_fov_graph(self.experiment_fpath,self.analysis_parameters,
-                                    self.running_functions, self.tile_corners_coords_pxl,self.metadata,
+                                    self.running_functions, self.tiles_org,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
                                     self.preprocessed_image_tag,self.client,self.chunk_size)
 

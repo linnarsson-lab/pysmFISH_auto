@@ -182,7 +182,7 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset,
 
 
 def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
-                                    running_functions, tile_corners_coords_pxl,metadata,
+                                    running_functions, tiles_org,metadata,
                                     grpd_fovs,save_intermediate_steps, 
                                     preprocessed_image_tag, client, chunks_size, save_bits_int):
         """ 
@@ -208,7 +208,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         dark_img = delayed(dark_img)
         analysis_parameters = delayed(analysis_parameters)
         running_functions = delayed(running_functions)
-        tile_corners_coords_pxl = delayed(tile_corners_coords_pxl)
+        tile_corners_coords_pxl = delayed(tiles_org.tile_corners_coords_pxl)
 
         codebook = configuration_files.load_codebook(experiment_fpath,metadata)
         codebook_df = delayed(codebook)
@@ -262,7 +262,11 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                 
                 name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()  
-                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(decoded[1],tile_corners_coords_pxl)
+
+
+                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(decoded[1],tile_corners_coords_pxl,
+                                                            tiles_org.reference_corner_fov_position,
+                                                            metadata, tag='microscope_stitched')
                 
                 name = 'save_df_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize() 
@@ -310,7 +314,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 
 
 def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
-                                    running_functions, tile_corners_coords_pxl,metadata,
+                                    running_functions, tiles_org,metadata,
                                     grpd_fovs,save_intermediate_steps, 
                                     preprocessed_image_tag, client,chunks_size):
         """ 
@@ -330,7 +334,7 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
         # did this conversion to avoid to pass self to dask
         analysis_parameters = analysis_parameters
         running_functions = running_functions
-        tile_corners_coords_pxl = tile_corners_coords_pxl
+        tile_corners_coords_pxl = tiles_org.tile_corners_coords_pxl
         
         dark_img = delayed(dark_img)
         analysis_parameters = delayed(analysis_parameters)
@@ -416,7 +420,10 @@ def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
                                                                                                     
                 name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()  
-                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(registered_counts,tile_corners_coords_pxl)
+
+                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(registered_counts,tile_corners_coords_pxl,
+                                                            tiles_org.reference_corner_fov_position,
+                                                            metadata, tag='microscope_stitched')
                 
                 name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize() 
