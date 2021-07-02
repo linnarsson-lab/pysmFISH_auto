@@ -37,7 +37,7 @@ class QC_registration_error():
         all_counts_folder = self.experiment_fpath / 'results'
         search_key = '*_decoded_fov_*'
         self.error_output_df= pd.DataFrame()
-        all_counts_dd = dd.read_parquet(all_counts_folder / search_key)
+        all_counts_dd = dd.read_parquet(all_counts_folder / search_key,engine='fastparquet')
         registration_error_df = all_counts_dd.groupby('fov_num').agg({'min_number_matching_dots_registration': ['min']}).compute()
         for idx, row in registration_error_df.itertuples():
             search_key = '*decoded_fov_' + str(idx) +'.parquet'
