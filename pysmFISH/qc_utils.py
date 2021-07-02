@@ -37,7 +37,7 @@ class QC_registration_error():
         all_counts_folder = self.experiment_fpath / 'results'
         search_key = '*_decoded_fov_*'
         self.error_output_df= pd.DataFrame()
-        all_counts_dd = dd.read_parquet(all_counts_folder / search_key,engine='fastparquet')
+        all_counts_dd = dd.read_parquet(all_counts_folder / search_key)
         registration_error_df = all_counts_dd.groupby('fov_num').agg({'min_number_matching_dots_registration': ['min']}).compute()
         for idx, row in registration_error_df.itertuples():
             search_key = '*decoded_fov_' + str(idx) +'.parquet'
@@ -87,8 +87,8 @@ class QC_registration_error():
             
             ax.annotate(
                 fov,
-                xy=(x,y), xytext=(-0, 15),
-                textcoords='offset points', ha='center', va='bottom',fontsize=12)
+                xy=(x,y), xytext=(-0, 10),
+                textcoords='offset points', ha='center', va='center',fontsize=5,color='white', weight='bold')
             
             ax.annotate(round_num, (x, y), color='white', weight='bold', 
                             fontsize=10, ha='center', va='center')
