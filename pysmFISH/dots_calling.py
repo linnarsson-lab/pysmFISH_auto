@@ -1195,6 +1195,7 @@ def both_beads_peak_based_detection(img,
     large_beads_counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
     large_beads_counts_df['mapped_beads_type'] = 'large'
     
+
     mask = np.zeros_like(img)
     idx=  img > np.percentile(img,LargeObjRemovalPercentile)
     mask[idx] = 1
