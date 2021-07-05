@@ -648,7 +648,7 @@ def create_function_runner(experiment_fpath,metadata):
             running_functions['reference_channels_preprocessing'] = 'standard_not_norm_preprocessing'
             running_functions['reference_channels_dots_calling'] = 'osmFISH_peak_based_detection_fast'
     elif stitching_type == 'both-beads':
-            running_functions['reference_channels_preprocessing'] = 'standard_not_norm_preprocessing'
+            running_functions['reference_channels_preprocessing'] = 'both_beads_preprocessing'
             running_functions['reference_channels_dots_calling'] = 'both_beads_peak_based_detection'
         
         
