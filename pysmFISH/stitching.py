@@ -920,20 +920,41 @@ class organize_square_tiles():
         np.save(fname,self.tile_corners_coords_pxl)
 
 
-def stitch_using_microscope_fov_coords(decoded_df,tile_corners_coords_pxl):
+def stitch_using_coords_general_df(decoded_df,tile_corners_coords_pxl,reference_corner_fov_position, metadata,tag):
     """
     Tiles are placed directly on the position indicated by the microscope
     coords
     """
+
     if decoded_df['r_px_registered'].empty:
-        decoded_df['r_px_microscope_stitched'] = np.nan
-        decoded_df['c_px_microscope_stitched'] = np.nan
+        decoded_df['r_px_'+tag] = np.nan
+        decoded_df['c_px_'+tag] = np.nan
     else:
+
         fov = decoded_df.iloc[0]['fov_num']
         r_microscope_coords = tile_corners_coords_pxl[fov,0]
         c_microscope_coords = tile_corners_coords_pxl[fov,1]
-        decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
-        decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
+        
+        if reference_corner_fov_position == 'top-left':
+            decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
+            decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
+
+        elif reference_corner_fov_position == 'top-right':
+            decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
+            decoded_df['c_px_'+tag] =  c_microscope_coords - (metadata['img_width'] - decoded_df['c_px_registered'])
+
+        elif reference_corner_fov_position == 'bottom_left':
+            decoded_df['r_px_'+tag] =  r_microscope_coords + (metadata['img_height'] - decoded_df['r_px_registered'])
+            decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
+    # if decoded_df['r_px_registered'].empty:
+    #     decoded_df['r_px_microscope_stitched'] = np.nan
+    #     decoded_df['c_px_microscope_stitched'] = np.nan
+    # else:
+    #     fov = decoded_df.iloc[0]['fov_num']
+    #     r_microscope_coords = tile_corners_coords_pxl[fov,0]
+    #     c_microscope_coords = tile_corners_coords_pxl[fov,1]
+    #     decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
+    #     decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
 
         # new room
         # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
