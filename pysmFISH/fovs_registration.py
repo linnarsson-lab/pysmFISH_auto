@@ -845,8 +845,14 @@ def beads_based_registration(all_counts_fov,
     # Used index to avoid to remake the output dataframe
     
     stitching_channel = all_counts_fov['stitching_channel'].iloc[0]
+    
     stitching_channel_df = all_counts_fov.loc[(all_counts_fov.channel == stitching_channel) &
                                               (all_counts_fov.mapped_beads_type == 'large')  , :]
+    
+    if stitching_channel_df.shape[0] < 2:
+        stitching_channel_df = all_counts_fov.loc[(all_counts_fov.channel == stitching_channel) , :]
+
+    
     fish_df = all_counts_fov.loc[all_counts_fov.channel != stitching_channel,:]
     
     reference_round_num = analysis_parameters['RegistrationReferenceHybridization']
