@@ -268,7 +268,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                     + '_fov_' +str(fov) + '-' + tokenize()  
 
 
-                stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(decoded[1],tile_corners_coords_pxl,
+                stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],tile_corners_coords_pxl,
                                                             tiles_org.reference_corner_fov_position,
                                                             metadata, tag='microscope_stitched')
                 
