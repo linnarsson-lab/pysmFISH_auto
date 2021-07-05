@@ -92,7 +92,7 @@ def single_fov_round_processing_eel(fov_subdataset,
         filtering_fun = running_functions['fish_channels_preprocessing']
         counting_fun = running_functions['fish_channels_dots_calling']
     
-    elif processing_type == 'beads':
+    elif 'beads' in processing_type:
         filtering_fun = running_functions['reference_channels_preprocessing']
         counting_fun = running_functions['reference_channels_dots_calling']
 
