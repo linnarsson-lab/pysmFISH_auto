@@ -328,6 +328,37 @@ class Pipeline():
 
 
 
+    def processing_barcoded_eel_after_dots_step(self):
+        """
+        Create and run a dask delayed task graph used to process barcoded eel experiments
+        It runs:
+        (1) Field of view registration
+        (2) Barcode decoding
+        (3) Registration to the microscope coords
+        (4) Consolidate the processed images zarr file metadata
+        (5) Create a simple output for quick visualization
+        
+        The following attributes created by another step must be accessible:
+        - metadata
+        - analysis_parameters
+        - running_functions
+        - grpd_fovs
+        - client
+
+        """
+        assert self.metadata, self.logger.error(f'cannot process eel fovs because missing metadata attr')
+        assert self.analysis_parameters, self.logger.error(f'cannot process eel fovs because missing analysis_parameters attr')
+        assert self.running_functions, self.logger.error(f'cannot process eel fovs because missing running_functions attr')
+        assert self.grpd_fovs, self.logger.error(f'cannot process eel fovs because missing grpd_fovs attr')
+        assert self.client, self.logger.error(f'cannot process eel fovs because missing client attr')
+        assert self.tiles_org, self.logger.error(f'cannot process eel fovs because missing tiles organization attr')
+    
+
+        fov_processing.processing_barcoded_eel_fov_after_dots_graph(self.experiment_fpath,self.analysis_parameters,
+                                    self.running_functions, self.tiles_org,self.metadata,
+                                    self.grpd_fovs, self.preprocessed_image_tag, self.client, self.chunks_size)
+
+
     def processing_serial_fish_step(self):
         """
         Create and run a dask delayed task graph used to process serial smFISH experiments
@@ -619,3 +650,36 @@ class Pipeline():
 
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
+
+    def run_eel_processing_from_registration(self):
+        """
+        Run analysis starting from the raw data files.
+        Requires raw files 
+        """
+
+        start = datetime.now()
+        self.run_parsing_only()
+        self.run_required_steps()
+        
+        step_start = datetime.now()  
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        step_start = datetime.now()
+        self.processing_barcoded_eel_after_dots_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        step_start = datetime.now()
+        self.QC_registration_error_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+        
+        step_start = datetime.now()
+        self.stitch_and_remove_dots_eel_graph_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
