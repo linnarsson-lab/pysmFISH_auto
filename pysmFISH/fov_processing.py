@@ -254,6 +254,16 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                     + '_fov_' +str(fov) + '-' + tokenize()
                 all_counts_fov = delayed(pd.concat,name=name)(all_counts_fov,axis=0,ignore_index=True)
                 
+                if save_intermediate_steps:
+                    
+                        name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()
+                        saved_raw_counts = delayed(all_counts_fov.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                                '_raw_fov_' + str(fov) + '.parquet'),index=False)
+
+                        all_processing.append(saved_raw_counts)
+
+
                 name = 'register_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
                 registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov,
@@ -315,6 +325,82 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         stitching_selected = 'microscope_stitched'
         io.simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client,file_tag='decoded')
         # ----------------------------------------------------------------  
+
+
+def processing_barcoded_eel_fov_after_prep_graph(experiment_fpath,analysis_parameters,
+                                    running_functions, tiles_org,metadata,
+                                    grpd_fovs, 
+                                    preprocessed_image_tag, client, chunks_size):
+        """ 
+        This method create a processing graph to run the registration and t
+        
+        """
+        experiment_fpath = Path(experiment_fpath)
+        experiment_name = experiment_fpath.stem
+    
+        preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
+
+        analysis_parameters = delayed(analysis_parameters)
+        running_functions = delayed(running_functions)
+        tile_corners_coords_pxl = delayed(tiles_org.tile_corners_coords_pxl)
+
+        codebook = configuration_files.load_codebook(experiment_fpath,metadata)
+        codebook_df = delayed(codebook)
+        
+
+        all_processing = []
+
+        all_fovs = list(grpd_fovs.groups.keys())
+        chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
+        for chunk in chunks:
+            all_processing = []
+            for fov_num in chunk:
+                
+                # Modify for channels name
+
+                counts_fpath = list((experiment_fpath / 'results').glob('*_decoded_fov_'+str(fov_num)+'.parquet'))[0]
+
+                name = 'load_counts_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
+                all_counts_fov = delayed(pd.read_parquet,name=name)(counts_fpath)
+                
+                name = 'register_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
+                registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov,
+                                                    analysis_parameters)
+
+                name = 'decode_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
+                decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast,name=name)(registered_counts, 
+                                                                            analysis_parameters,codebook_df)                                                        
+                
+                name = 'stitch_to_mic_coords_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()  
+
+
+                stitched_coords = delayed(stitching.stitch_using_coords_general_df,name=name)(decoded[1],tile_corners_coords_pxl,
+                                                            tiles_org.reference_corner_fov_position,
+                                                            metadata, tag='microscope_stitched')
+                
+                name = 'save_df_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize() 
+                saved_file = delayed(stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                                '_decoded_fov_' + str(fov_num) + '.parquet'),index=False)
+            
+                all_processing.append(saved_file)
+            
+            _ = dask.compute(*all_processing)
+
+        io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
+ 
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / metadata['barcode_length']
+        stitching_selected = 'microscope_stitched'
+        io.simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client,file_tag='decoded')
+        # ----------------------------------------------------------------  
+
+
 
 
 def processing_serial_fish_fov_graph(experiment_fpath,analysis_parameters,
