@@ -176,32 +176,36 @@ def collect_processing_files(experiment_fpath:str, experiment_info:Dict):
     except NameError:
         machine = 'NOT_DEFINED'
 
-    probes_fpath = experiment_fpath.parent / 'probes_sets' / (experiment_info['Probe_FASTA_name'])
-    try:
-        shutil.copy(probes_fpath, (experiment_fpath / 'probes'))
-    except FileNotFoundError:
-        logger.error('missing probes set file')
-        sys.exit('missing probes set file')
-    else:
-        # This step will be modified when the codebook will be stored in shoji
-        if 'barcoded' in experiment_info['Experiment_type']:
-            codebooks_folder = experiment_fpath.parent / 'codebooks'
-            codebook_code = experiment_info['Codebook']
-            
-            codebook_fpath = codebooks_folder / codebook_code
-            
-            # Create codebook folder in the experiment folder
+
+    for idx, probes in experiment_info['Probe_FASTA'].items():
+        if probes != 'None':
+            probes_fpath = experiment_fpath.parent / 'probes_sets' / probes
             try:
-                os.stat(experiment_fpath / 'codebook' )
-                logger.info(f'codebook folder already exist')
+                shutil.copy(probes_fpath, (experiment_fpath / 'probes'))
             except FileNotFoundError:
-                os.mkdir(experiment_fpath / 'codebook')
-                os.chmod(experiment_fpath / 'codebook',0o777)
-            try:
-                shutil.copy(codebook_fpath, (experiment_fpath / 'codebook'))
-            except FileNotFoundError:
-                logger.error('codebook is missing')
-                sys.exit('codebook is missing')
+                logger.error('missing probes set file')
+                sys.exit('missing probes set file')
+        else:
+            
+            if 'barcoded' in experiment_info['Experiment_type']:
+                codebooks_folder = experiment_fpath.parent / 'codebooks'
+                
+                for idx, codebook in experiment_info['Codebooks'].items():
+                    
+                    codebook_fpath = codebooks_folder / codebook
+                    
+                    # Create codebook folder in the experiment folder
+                    try:
+                        os.stat(experiment_fpath / 'codebook' )
+                        logger.info(f'codebook folder already exist')
+                    except FileNotFoundError:
+                        os.mkdir(experiment_fpath / 'codebook')
+                        os.chmod(experiment_fpath / 'codebook',0o777)
+                    try:
+                        shutil.copy(codebook_fpath, (experiment_fpath / 'codebook'))
+                    except FileNotFoundError:
+                        logger.error('codebook is missing')
+                        sys.exit('codebook is missing')
 
 
 def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
