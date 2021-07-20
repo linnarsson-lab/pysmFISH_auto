@@ -250,7 +250,7 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
     # Move the fresh nuclei file for eel
     if 'eel' in experiment_info['Experiment_type']:
         beads_files = list(experiment_fpath.glob('*ChannelEuropium_Cy3*'))
-        nuclei_files = list(experiment_fpath.glob('*ChannelCy3*'))
+        nuclei_files = list(experiment_fpath.glob('*ChannelCy3_Nuclei_*'))
         
         if len(nuclei_files) or (len(beads_files)):
             try:
