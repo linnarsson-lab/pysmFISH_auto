@@ -25,7 +25,7 @@ def selected_logger()->Logger:
     logger.setLevel(logging.INFO)
     return logger
 
-def json_logger(log_path:str,name:str)->logging.logger:
+def json_logger(log_path:str,name:str)->Logger:
     """Save the logs in a JSON file that can be easily
     parsed.
 
