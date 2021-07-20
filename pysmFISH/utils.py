@@ -191,21 +191,21 @@ def collect_processing_files(experiment_fpath:str, experiment_info:Dict):
                 codebooks_folder = experiment_fpath.parent / 'codebooks'
                 
                 for idx, codebook in experiment_info['Codebooks'].items():
-                    
-                    codebook_fpath = codebooks_folder / codebook
-                    
-                    # Create codebook folder in the experiment folder
-                    try:
-                        os.stat(experiment_fpath / 'codebook' )
-                        logger.info(f'codebook folder already exist')
-                    except FileNotFoundError:
-                        os.mkdir(experiment_fpath / 'codebook')
-                        os.chmod(experiment_fpath / 'codebook',0o777)
-                    try:
-                        shutil.copy(codebook_fpath, (experiment_fpath / 'codebook'))
-                    except FileNotFoundError:
-                        logger.error('codebook is missing')
-                        sys.exit('codebook is missing')
+                    if codebook != 'None':
+                        codebook_fpath = codebooks_folder / codebook
+                        
+                        # Create codebook folder in the experiment folder
+                        try:
+                            os.stat(experiment_fpath / 'codebook' )
+                            logger.info(f'codebook folder already exist')
+                        except FileNotFoundError:
+                            os.mkdir(experiment_fpath / 'codebook')
+                            os.chmod(experiment_fpath / 'codebook',0o777)
+                        try:
+                            shutil.copy(codebook_fpath, (experiment_fpath / 'codebook'))
+                        except FileNotFoundError:
+                            logger.error('codebook is missing')
+                            sys.exit('codebook is missing')
 
 
 def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
