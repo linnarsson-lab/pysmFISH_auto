@@ -6,9 +6,10 @@ import logging
 import time
 from pathlib import Path
 from pythonjsonlogger import jsonlogger
+from logging import Logger
 
 
-def selected_logger()->logging.logger:
+def selected_logger()->Logger:
     """Logger function used inside all the modules, classes and
     functions. If you want to change the logging procedure in the code 
     just replace the content of this function
