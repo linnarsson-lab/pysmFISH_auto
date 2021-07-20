@@ -843,6 +843,20 @@ def load_analysis_config_file(experiment_fpath:str):
         return analysis_config
 
 
+
+def load_pipeline_config_file(pipeline_config_fpath):
+
+    try:
+        pipeline_config_dict = OrderedDict(yaml.safe_load(open(pipeline_config_fpath, 'rb')))
+        return pipeline_config_dict
+    except FileExistsError:
+        logging.exception(f'{pipeline_config_fpath} missing')
+        sys.exit(f'{pipeline_config_fpath} missing')
+    except NameError:
+        logging.exception(f'{pipeline_config_fpath} wrong pathway name')
+        sys.exit(f'{pipeline_config_fpath} wrong pathway name')
+
+
 # def load_transferring_config(config_db_fpath:str)->Dict:
 #     """
 #     Function used to load the parameters used for transfering
