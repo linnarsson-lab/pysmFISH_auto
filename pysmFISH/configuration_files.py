@@ -1,5 +1,5 @@
 """
-create configuration files needed to run the pipeline
+create configuration files required to run the pipeline
 
 """
 from typing import *
@@ -11,57 +11,12 @@ from pathlib import Path
 from collections import OrderedDict
 
 
-
 from pysmFISH.logger_utils import selected_logger
 
 
 # to avoid reference for nested structures
 # https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml (comment)
 yaml.SafeDumper.ignore_aliases = lambda *args : True
-
-
-
-def create_processing_env_config_file(config_db_path:str):
-    """
-    This function creates a configuration files with the parameters requested for the 
-    setup of the processing cluster. 
-    The current file is defaulted to htcondor
-
-    Args:
-        config_db_path: str
-            path to the database with the yaml config files
-    """
-
-    config_db_path = Path(config_db_path)
-    processing_env_config_fpath = config_db_path / 'processing_env_config.yaml'
-    processing_env_config = OrderedDict()
-
-    processing_env_config['processing_engine'] = 'htcondor'
-    
-    processing_env_config['htcondor'] = {}
-
-    processing_env_config['htcondor']['smfish-serial'] = {}
-    processing_env_config['htcondor']['smfish-serial']['cores'] = 20
-    processing_env_config['htcondor']['smfish-serial']['memory'] = '300GB'
-    processing_env_config['htcondor']['smfish-serial']['disk'] = '0.1GB'
-    processing_env_config['htcondor']['smfish-serial']['local_directory'] = '/tmp'
-
-    processing_env_config['htcondor']['smfish-barcoded'] = {}
-    processing_env_config['htcondor']['smfish-barcoded']['cores'] = 1
-    processing_env_config['htcondor']['smfish-barcoded']['memory'] = '10GB'
-    processing_env_config['htcondor']['smfish-barcoded']['disk'] = '0.1GB'
-    processing_env_config['htcondor']['smfish-barcoded']['local_directory'] = '/tmp'
-
-    processing_env_config['htcondor']['eel-barcoded'] = {}
-    processing_env_config['htcondor']['eel-barcoded']['cores'] = 20
-    processing_env_config['htcondor']['eel-barcoded']['memory'] = '200GB'
-    processing_env_config['htcondor']['eel-barcoded']['disk'] = '0.1GB'
-    processing_env_config['htcondor']['eel-barcoded']['local_directory'] = '/tmp'
-
-    with open(processing_env_config_fpath, 'w') as new_config:
-            yaml.safe_dump(dict(processing_env_config), new_config,default_flow_style=False,sort_keys=False)
-
-
 
 
 def create_general_analysis_config_file(config_db_path:str):

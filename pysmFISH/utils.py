@@ -1,24 +1,25 @@
+    """
+    Set of utility functions that do not belong to any
+    specific module.
+    """
+
+
 from typing import *
-import logging
 import shutil
-import yaml
 import sys
 import git
 import os
 import click
-import pickle
-import nd2reader
 import numpy as np
-from collections import OrderedDict
 from skimage import img_as_float64
 from pathlib import Path
-from scipy.ndimage import fourier_shift
 from datetime import datetime
+
 
 from pysmFISH.logger_utils import selected_logger
 
 
-def create_dir(dir_path):
+def create_dir(dir_path: str):
     """Create a directory
 
     The directory is created only if it is not present in the folder.
@@ -283,8 +284,19 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
 
 
 
-# https://stackoverflow.com/questions/1868714/how-do-i-copy-an-entire-directory-of-files-into-an-existing-directory-using-pyth
-def copytree(src, dst, symlinks=False, ignore=None):
+
+def copytree(src:str, dst:str, symlinks:bool=False, ignore:str=None):
+    """ Function used to copy an entire directory tree into another directory
+
+    Code copied from:
+    https://stackoverflow.com/questions/1868714/how-do-i-copy-an-entire-directory-of-files-into-an-existing-directory-using-pyth
+
+    Args:
+        src (str): path of the directory to copy
+        dst (str): path of the destination
+        symlinks (bool, optional): Set to true if you want to copy symlinks as well. Defaults to False.
+        ignore (str, optional): Files to ignore. Defaults to None.
+    """
     if not os.path.exists(dst):
         os.makedirs(dst)
     for item in os.listdir(src):
@@ -297,44 +309,15 @@ def copytree(src, dst, symlinks=False, ignore=None):
                 shutil.copy2(s, d)
 
 
-def not_run_counting_sorted_grps(experiment_fpath, sorted_grps):
+
+def convert_to_uint16_full_float64_range(image: np.ndarray)->np.ndarray:
+    """Utility function to convert images to full range float64
+    Args:
+        image (np.ndarray): Image as numpy array
+
+    Returns:
+        image (np.ndarray): Image as float64 numpy array
     """
-    Helper function to identify the files not processed for counting
-    because a failure of dask/htcondor. Identify the files that
-    remain to be processed.
-    """
-    experiment_fpath = Path(experiment_fpath)
-    counts_fpath = experiment_fpath / 'tmp' / 'raw_counts'
-    
-    non_processed_sorted_grps = {}
-    
-    files_processed = list(counts_fpath.glob('*_dots.pkl'))
-    files_processed = [el.stem for el in files_processed]
-    for key, (grp, param) in sorted_grps.items():
-        non_processed_grp = []
-        for zarr_grp_name in grp:
-            if zarr_grp_name in files_processed:
-                files_processed.remove(zarr_grp_name)
-            else:
-                non_processed_grp.append(zarr_grp_name)
-        non_processed_sorted_grps[key] = (non_processed_grp, param)
-    return non_processed_sorted_grps
-
-
-
-
-
-
-# # to avoid reference for nested structures
-# # https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml (comment)
-# yaml.SafeDumper.ignore_aliases = lambda *args : True
-
-
-# # to avoid reference for nested structures
-# # https://stackoverflow.com/questions/13518819/avoid-references-in-pyyaml (comment)
-# yaml.SafeDumper.ignore_aliases = lambda *args : True
-
-def convert_to_uint16_full_float64_range(image):
     # Clip the values above 1
     image = image / np.finfo(np.float64).max
     # image[image > 1] = 1
@@ -346,12 +329,38 @@ def convert_to_uint16_full_float64_range(image):
     image = np.uint16(np.rint(image))
     return image
 
-def convert_to_uint16(image):
+
+def convert_from_uint16_to_float64(image: np.ndarray)->np.ndarray:
+    """Utility function to convert images to float64
+    Now a similar function is included in scikit-image but was not
+    there when I started the developing
+
+    Args:
+        image (np.ndarray): Image as numpy array
+
+    Returns:
+        image (np.ndarray): Image as float64 numpy array
     """
+    image = image / np.iinfo(np.uint16).max
+    image = img_as_float64(image)
+    return image
+
+
+def convert_to_uint16(image:np.ndarray)-> np.ndarray:
+    """ Utility function to convert images to uint16
+    
     Consider that the original images were uint16
     that is why i normalize for np.iinfo(np.uint16).max*1.0
     otherwise the values will be to small
+
+    Args:
+        image (np.ndarray): Image as numpy array, probably float64 after
+        processing
+
+    Returns:
+        image: (np.ndarray): Image as numpy array converted to uint16
     """
+    
  
     image = image / (np.iinfo(np.uint16).max*1.0)
     image *= np.iinfo(np.uint16).max
@@ -359,127 +368,15 @@ def convert_to_uint16(image):
     image = image.astype(np.uint16)
     return image
 
-def convert_from_uint16_to_float64(image):
-    image = image / np.iinfo(np.uint16).max
-    image = img_as_float64(image)
-    return image
-
-
-def load_pipeline_config_file(pipeline_config_fpath):
-
-    try:
-        pipeline_config_dict = OrderedDict(yaml.safe_load(open(pipeline_config_fpath, 'rb')))
-        return pipeline_config_dict
-    except FileExistsError:
-        logging.exception(f'{pipeline_config_fpath} missing')
-        sys.exit(f'{pipeline_config_fpath} missing')
-    except NameError:
-        logging.exception(f'{pipeline_config_fpath} wrong pathway name')
-        sys.exit(f'{pipeline_config_fpath} wrong pathway name')
-
-
-
-def load_running_analysis_config_file(experiment_fpath):
-    experiment_fpath = Path(experiment_fpath)
-    config_fpath = experiment_fpath /  'pipeline_config'
-    running_analysis_config_fpath = list(config_fpath.glob('*_analysis_run.yaml'))
-    if len(running_analysis_config_fpath) == 0:
-        logging.exception(f'missing running analysis config file')
-        sys.exit(f'missing running analysis config file')
-    elif len(running_analysis_config_fpath) > 1:
-        logging.exception(f'too many running analysis config file')
-        sys.exit(f'too many running analysis config file')
-    else:
-        running_analysis_config_fpath = running_analysis_config_fpath[0]
-        running_analysis_config = load_pipeline_config_file(running_analysis_config_fpath)
-        return running_analysis_config
-
-
-
-def modify_images_config(experiment_fpath:str,keyword:str):
-    """
-    Function used to batch modify the values of the
-    processing parameters in the images_config.yaml
-    files
-
-    Parameters:
-    -----------
-    experiment_fpath: str
-        path of the experiment to process
-    keyword: str
-        selection criteria used to process a subset of
-        configuration files
-
-    """
-    experiment_fpath = Path(experiment_fpath)
-    pipeline_config_dpath = experiment_fpath / 'pipeline_config'
-
-    for config_fpath in pipeline_config_dpath.glob('*_images_config.yaml'):
-        if keyword in config_fpath.name:
-            img_config_dict = load_pipeline_config_file(config_fpath)
-            for fov_name, fov_data in img_config_dict.items():
-                for round_name, round_data in fov_data.items():
-                    # round_data['analysis_parameters'] = {}
-                    # round_data['analysis_parameters']['preprocessing'] = {}
-                    # round_data['analysis_parameters']['preprocessing']['flat_field_kernel'] = (2,100,100)
-                    # round_data['analysis_parameters']['preprocessing']['filtering_small_kernel'] = (1,8,8)
-                    # round_data['analysis_parameters']['preprocessing']['filtering_laplacian_kernel'] = (0.2,0.5,0.5)
-                    # round_data['analysis_parameters']['preprocessing']['large_obj_removal_percentile'] = 99
-                    # round_data['analysis_parameters']['preprocessing']['large_obj_removal_min_obj_size']= 50
-                    # round_data['analysis_parameters']['preprocessing']['large_obj_removal_selem'] = 3
-                    round_data['analysis_parameters']['counting'] = {}
-                    round_data['analysis_parameters']['counting']['min_distance'] = 4
-                    round_data['analysis_parameters']['counting']['min_obj_size'] = 4
-                    round_data['analysis_parameters']['counting']['max_obj_size'] = 200
-                    round_data['analysis_parameters']['beads_registration'] = {}
-
-            with open(config_fpath, 'w') as new_config:
-                    yaml.safe_dump(dict(img_config_dict), new_config,default_flow_style=False,sort_keys=False)
-
-
-
-def create_stringency_selection_fov_yaml(pipeline_config_fpath):
-    
-    pipeline_config_dict = load_pipeline_config_file(pipeline_config_fpath)
-    fovs = (pipeline_config_dict['channel_coords_dict'].keys())
-    stringency = pipeline_config_dict['pipeline_required_parameters']['counting_settings']['stringency']
-    pipeline_config_dict['pipeline_required_parameters']['counting_settings']['stringency'] = {}
-    pipeline_config_dict['pipeline_required_parameters']['counting_settings']['stringency'] = {k:int(stringency) for k in fovs}
-    with open(pipeline_config_fpath, 'w') as new_config:
-            yaml.safe_dump(dict(pipeline_config_dict), new_config,default_flow_style=False,sort_keys=False)
-
-def create_specific_fov_counting_thr_yaml(pipeline_config_fpath):
-    pipeline_config_dict = load_pipeline_config_file(pipeline_config_fpath)
-    fovs = (pipeline_config_dict['channel_coords_dict'].keys())
-    stringency = pipeline_config_dict['pipeline_required_parameters']['counting_settings']['thr_fov'] = {}
-    pipeline_config_dict['pipeline_required_parameters']['counting_settings']['thr_fov'] = {k:None for k in fovs}
-    with open(pipeline_config_fpath, 'w') as new_config:
-            yaml.safe_dump(dict(pipeline_config_dict), new_config,default_flow_style=False,sort_keys=False)
-
-def select_dir(processing_directory,keyword):
-    list_hyb_fpaths = []
-    processed_dirs = next(os.walk(processing_directory))[1]
-    
-    if keyword:
-        for dir_name in processed_dirs:
-            if keyword in dir_name:
-                dir_path = processing_directory / dir_name
-                list_hyb_fpaths.append(dir_path)
-    else:
-        for dir_name in processed_dirs:
-            dir_path = processing_directory / dir_name
-            list_hyb_fpaths.append(dir_path)
-
-    return list_hyb_fpaths
-
 
 
 class OptionEatAll(click.Option):
-    '''
+    """ Option class to ingest undefined number of options.
+
+    Code copied from:
     https://stackoverflow.com/questions/48391777/nargs-equivalent-for-options-in-click
 
-    Option class to ingest undefined number of options.
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         self.save_other_options = kwargs.pop('save_other_options', True)

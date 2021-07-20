@@ -1,5 +1,5 @@
 """
-Set utils to control logging 
+Set utils to control logging in htcondor and dask
 """
 from typing import *
 import logging
@@ -7,14 +7,16 @@ import time
 from pathlib import Path
 from pythonjsonlogger import jsonlogger
 
-from logging.handlers import RotatingFileHandler
 
+def selected_logger()->logging.logger:
+    """Logger function used inside all the modules, classes and
+    functions. If you want to change the logging procedure in the code 
+    just replace the content of this function
 
-def selected_logger():
+    Returns:
+        logger (logger): selected type of logger
     """
-    Logger function. If you want to change the logging
-    procedure replace the content of this function
-    """
+        
     # Redirect warnings to logger
     logging.captureWarnings(True)
     # Create logger
@@ -22,7 +24,18 @@ def selected_logger():
     logger.setLevel(logging.INFO)
     return logger
 
-def json_logger(log_path,name):
+def json_logger(log_path:str,name:str)->logging.logger:
+    """Save the logs in a JSON file that can be easily
+    parsed.
+
+    Args:
+        log_path (str): path where to save the log file
+        name (str): name of the logging file
+
+    Returns:
+        logger (logger): json logger
+    """
+
     log_path = Path(log_path)
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
     fname = log_path / (name + '_' + date_tag + '.log')

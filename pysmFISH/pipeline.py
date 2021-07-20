@@ -658,28 +658,34 @@ class Pipeline():
         Requires raw files 
         """
 
-        start = datetime.now()
-        self.run_parsing_only()
-        self.run_required_steps()
-        
-        step_start = datetime.now()  
-        self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+        raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_fov_*'))
 
-        step_start = datetime.now()
-        self.processing_barcoded_eel_after_dots_step()
-        self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+        if raw_files_path:
+            start = datetime.now()
+            self.run_parsing_only()
+            self.run_required_steps()
+            
+            step_start = datetime.now()  
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
-        step_start = datetime.now()
-        self.QC_registration_error_step()
-        self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
-        
-        step_start = datetime.now()
-        self.stitch_and_remove_dots_eel_graph_step()
-        self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            step_start = datetime.now()
+            self.processing_barcoded_eel_after_dots_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
-        self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
+            step_start = datetime.now()
+            self.stitch_and_remove_dots_eel_graph_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+        else:
+            self.logger.error(f"{self.experiment_fpath.stem} missing files with raw counts")
+            raise FileNotFoundError
