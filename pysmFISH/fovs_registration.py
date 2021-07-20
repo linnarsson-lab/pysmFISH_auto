@@ -16,7 +16,7 @@ from skimage.measure import ransac
 from scipy.spatial import distance
 from scipy.ndimage import fourier_shift
 
-from pysmFISH.utils import load_pipeline_config_file
+from pysmFISH.configuration_files import load_pipeline_config_file
 from skimage.feature import register_translation
 # from skimage.registration import phase_cross_correlation UPDATE SKIMAGEN
 from skimage import filters
@@ -24,7 +24,6 @@ from skimage.registration import phase_cross_correlation
 
 from sklearn.neighbors import NearestNeighbors
 
-import shoji
 import itertools
 import math
 import operator
