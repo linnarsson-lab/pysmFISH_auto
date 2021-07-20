@@ -1,7 +1,7 @@
-    """
-    Set of utility functions that do not belong to any
-    specific module.
-    """
+"""
+Set of utility functions that do not belong to any
+specific module.
+"""
 
 
 from typing import *
