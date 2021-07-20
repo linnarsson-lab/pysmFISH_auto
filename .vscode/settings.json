@@ -1,7 +1,7 @@
 {
     "python.pythonPath": "/Users/simone.codeluppi/opt/miniconda3/envs/test_d/bin/python",
     "telemetry.enableTelemetry": false,
-    "python.linting.mypyEnabled": true,
+    "python.linting.mypyEnabled": false,
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "jupyter.jupyterServerType": "local",

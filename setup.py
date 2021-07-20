@@ -17,7 +17,7 @@ setup(
 	# 	'numpy',
 		'scikit-learn',
 		'scipy',
-		'scikit-image',
+		'scikit-image=0.17.2',
 	# 	'pyyaml',
 		'zarr',
         'sympy',

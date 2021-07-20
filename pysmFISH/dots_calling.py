@@ -9,7 +9,7 @@ import logging
 import pickle
 import pandas as pd
 from sympy import Point, Line
-from skimage import feature, measure, img_as_float
+from skimage import feature, measure, morphology, img_as_float
 from scipy import ndimage as nd
 from pathlib import Path
 
@@ -1181,4 +1181,46 @@ def osmFISH_dots_thr_selection_np(img:np.ndarray, min_distance:int,
         trimmed_thr_array = fill_value
     
     return selected_thr
+
+
+def both_beads_peak_based_detection(img, 
+                            fov_subdataset,
+                            processing_parameters):
+                        
+
+    LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
+    LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
+    LargeObjRemovalSelem = processing_parameters['LargeObjRemovalSelem']
+
+    large_beads_counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+    large_beads_counts_df['mapped_beads_type'] = 'large'
     
+
+    mask = np.zeros_like(img)
+    idx=  img > np.percentile(img,LargeObjRemovalPercentile)
+    mask[idx] = 1
+
+    labels = nd.label(mask)
+
+    properties = measure.regionprops(labels[0])    
+    for ob in properties:
+        if ob.area < LargeObjRemovalMinObjSize:
+            mask[ob.coords[:,0],ob.coords[:,1]]=0
+
+    mask = morphology.binary_dilation(mask, selem=morphology.disk(LargeObjRemovalSelem))
+    mask = np.logical_not(mask)
+
+    masked_img = img*mask
+
+    processing_parameters_small = {
+            'CountingFishMinObjDistance': 5,
+            'CountingFishMaxObjSize': 20,
+            'CountingFishMinObjSize': 2,
+            'CountingFishNumPeaksPerLabel': 1}
+
+    small_beads_counts_df = osmFISH_peak_based_detection_fast(masked_img,fov_subdataset,processing_parameters_small)
+    small_beads_counts_df['mapped_beads_type'] = 'small'
+
+    counts_df = pd.concat([large_beads_counts_df,small_beads_counts_df], axis=0, copy=False)  
+
+    return counts_df
