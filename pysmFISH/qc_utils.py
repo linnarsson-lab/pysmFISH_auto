@@ -197,9 +197,9 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
             else:
                 missing_codebooks = []
                 for idx, codebook in experiment_info['Codebooks'].items():
-                    if codebook == None:
-                        logger.debug(f'{idx} has None as codebook')
-                    elif (codebook not in codebooks_list) and (codebook !=None):
+                    if codebook == 'None':
+                        logger.info(f'{idx} has None as codebook')
+                    elif (codebook not in codebooks_list) and (codebook != 'None'):
                         missing_codebooks.append(codebook)
                 if missing_codebooks:
                     for missing_codebook in missing_codebooks:
@@ -236,9 +236,9 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
         else:
             missing_probes = []
             for idx, probe in experiment_info['Probe_FASTA'].items():
-                if probe == None:
+                if probe == 'None':
                         logger.debug(f'{idx} has None as probe')
-                elif (probe not in probe_sets_list) and (probe !=None):
+                elif (probe not in probe_sets_list) and (probe !='None'):
                     missing_probes.append(probe)
             if missing_probes:
                 for mprobes in missing_probes:
