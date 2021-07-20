@@ -181,7 +181,7 @@ def collect_processing_files(experiment_fpath:str, experiment_info:Dict):
         if probes != 'None':
             probes_fpath = experiment_fpath.parent / 'probes_sets' / probes
             try:
-                shutil.copy(probes_fpath, (experiment_fpath / 'probes'))
+                shutil.copy(probes_fpath, (experiment_fpath / 'probes'/ probes))
             except FileNotFoundError:
                 logger.error('missing probes set file')
                 sys.exit('missing probes set file')
