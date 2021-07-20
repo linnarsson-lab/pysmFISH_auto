@@ -196,7 +196,7 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
                 sys.exit(f"The experiment type {experiment_info['Experiment_type']} needs a codebook")
             else:
                 missing_codebooks = []
-                for idx, codebook in experiment_info['Codebook'].items():
+                for idx, codebook in experiment_info['Codebooks'].items():
                     if codebook not in codebooks_list:
                         missing_codebooks.append(codebook)
                 if missing_codebooks:
