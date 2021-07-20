@@ -166,6 +166,10 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
         codebooks_list = (experiment_fpath.parent / 'codebooks').glob('*')
         probe_sets_list = (experiment_fpath.parent / 'probes_sets').glob('*')
 
+        codebooks_list = [el.name for el in codebooks_list]
+        probe_sets_list = [el.name for el in probe_sets_list]
+        
+
 
         experiment_info_keys = list(experiment_info.keys())
 
