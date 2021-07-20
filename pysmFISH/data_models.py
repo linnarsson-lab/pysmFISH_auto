@@ -97,7 +97,7 @@ class Dataset():
         self.metadata['experiment_type'] = df.iloc[0]['experiment_type']
         self.metadata['pipeline'] =  df.iloc[0]['pipeline']
         self.metadata['stitching_type'] = df.iloc[0]['stitching_type']
-        self.metadata['codebook'] = df.iloc[0]['codebook']
+        self.metadata['list_all_codebooks'] = df.codebook.unique()
         return self.metadata
         
 

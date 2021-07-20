@@ -217,7 +217,7 @@ class Pipeline():
                 sys.exit(f"can't create dataset from {self.parsed_raw_data_fpath}")
         
         self.metadata = self.data.collect_metadata(self.data.dataset)
-        self.grpd_fovs = self.data.dataset.groupby('fov_num')
+        self.grpd_fovs = self.data.dataset.groupby(['fov_num','channel'])
     
     
     def create_analysis_config_file_from_dataset_step(self):
@@ -614,7 +614,7 @@ class Pipeline():
                 already_done_fovs.append(fov_num)
             not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
             self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
-            self.grpd_fovs = self.data.dataset.groupby('fov_num')
+            self.grpd_fovs = self.data.dataset.groupby(['fov_num','channel'])
 
 
         if self.metadata['experiment_type'] == 'eel-barcoded':
