@@ -964,10 +964,10 @@ def stitch_using_coords_general_df(decoded_df,tile_corners_coords_pxl,reference_
     return decoded_df
 
 
-def stitch_using_coords_general(decoded_df_or_fpath,tile_corners_coords_pxl, reference_corner_fov_position, metadata, tag):
+def stitch_using_coords_general(decoded_df,tile_corners_coords_pxl, reference_corner_fov_position, metadata, tag):
     
-    if not isinstance(decoded_df_or_fpath, pd.DataFrame):
-        decoded_df = pd.read_parquet(decoded_df_or_fpath)
+    if not isinstance(decoded_df, pd.DataFrame):
+        decoded_df = pd.read_parquet(decoded_df)
     
     if decoded_df['r_px_registered'].empty:
         decoded_df['r_px_'+tag] = np.nan
