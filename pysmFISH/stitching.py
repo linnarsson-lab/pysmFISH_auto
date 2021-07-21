@@ -969,7 +969,7 @@ def stitch_using_coords_general(decoded_df,tile_corners_coords_pxl, reference_co
     if not isinstance(decoded_df, pd.DataFrame):
         decoded_df_fpath = decoded_df.copy()
         decoded_df = pd.read_parquet(decoded_df)
-    
+        
     if decoded_df['r_px_registered'].empty:
         decoded_df['r_px_'+tag] = np.nan
         decoded_df['c_px_'+tag] = np.nan
