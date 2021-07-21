@@ -810,22 +810,22 @@ def load_codebook(experiment_fpath:str, metadata:str):
     all_codebooks_dict = {}
 
     for codebook_name in metadata['list_all_codebooks']:
-
-        codebook_fpath = Path(experiment_fpath) / 'pipeline_config' / codebook_name
-        try:
-            codebook = pd.read_parquet(codebook_fpath)
-        except (FileExistsError,NameError,FileNotFoundError) as e:
-            logger.debug(f'{codebook_name} missing in the pipeline_config folder')
+        if codebook_name != 'None':
+            codebook_fpath = Path(experiment_fpath) / 'pipeline_config' / codebook_name
             try:
-                codebooks_db_fpath = (Path(experiment_fpath)).parent / 'codebooks' / codebook_name
-                codebook = pd.read_parquet(codebooks_db_fpath)
-                _ = shutil.copy2(codebooks_db_fpath,codebook_fpath)
+                codebook = pd.read_parquet(codebook_fpath)
+            except (FileExistsError,NameError,FileNotFoundError) as e:
+                logger.debug(f'{codebook_name} missing in the pipeline_config folder')
+                try:
+                    codebooks_db_fpath = (Path(experiment_fpath)).parent / 'codebooks' / codebook_name
+                    codebook = pd.read_parquet(codebooks_db_fpath)
+                    _ = shutil.copy2(codebooks_db_fpath,codebook_fpath)
+                    all_codebooks_dict[codebook_name] = codebook
+                except:
+                    logger.error(f'cannot create the codebook')
+                    sys.exit(f'cannot create the codebook')
+            else:
                 all_codebooks_dict[codebook_name] = codebook
-            except:
-                logger.error(f'cannot create the codebook')
-                sys.exit(f'cannot create the codebook')
-        else:
-            all_codebooks_dict[codebook_name] = codebook
     
     return all_codebooks_dict
 
