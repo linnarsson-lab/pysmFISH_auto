@@ -809,7 +809,7 @@ def load_codebook(experiment_fpath:str, metadata:str):
     
     all_codebooks_dict = {}
 
-    for codebook_name in metadata['list_all_codebooks']:
+    for channel, codebook_name in zip(metadata['list_all_channels'],metadata['list_all_codebooks']):
         if codebook_name != 'None':
             codebook_fpath = Path(experiment_fpath) / 'pipeline_config' / codebook_name
             try:
@@ -820,12 +820,12 @@ def load_codebook(experiment_fpath:str, metadata:str):
                     codebooks_db_fpath = (Path(experiment_fpath)).parent / 'codebooks' / codebook_name
                     codebook = pd.read_parquet(codebooks_db_fpath)
                     _ = shutil.copy2(codebooks_db_fpath,codebook_fpath)
-                    all_codebooks_dict[codebook_name] = codebook
+                    all_codebooks_dict[channel] = codebook
                 except:
                     logger.error(f'cannot create the codebook')
                     sys.exit(f'cannot create the codebook')
             else:
-                all_codebooks_dict[codebook_name] = codebook
+                all_codebooks_dict[channel] = codebook
     
     return all_codebooks_dict
 
