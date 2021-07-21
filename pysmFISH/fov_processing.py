@@ -232,7 +232,9 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
             for channel in list_all_channels:
                 all_counts_fov[channel] = []
             for fov_num in chunk:
+                all_counts_fov = {}
                 all_counts_fov_concat = {}
+
                 fov_group = grpd_fovs.get_group(fov_num)
                 channel_grpd = fov_group.groupby('channel')
 
@@ -298,7 +300,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                     name = 'register_fish_channels_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
 
-                    registered_counts = delayed(fovs_registration.beads_based_registration_fish,name=name)(all_counts_fov[processing_channel],
+                    registered_counts = delayed(fovs_registration.beads_based_registration_fish,name=name)(all_counts_fov_concat[processing_channel],
                                                         all_rounds_shifts, all_rounds_matching_dots, analysis_parameters)
 
                     # Decoded fish
