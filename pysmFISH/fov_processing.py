@@ -268,8 +268,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                     
                         name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
-                        saved_raw_counts = delayed(all_counts_fov.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                                '_raw_fov_' + str(fov) + '.parquet'),index=False)
+                        saved_raw_counts = delayed(pickle.dump,name=name)(all_counts_fov_concat, Path(experiment_fpath) / 'results'/ (experiment_name + \
+                                '_raw_fov_' + str(fov) + '.pkl'))
 
                         all_processing.append(saved_raw_counts)
 
