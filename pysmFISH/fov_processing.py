@@ -219,7 +219,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         fish_channels = set(list_all_channels).difference(stitching_channel)
 
         codebook_dict = configuration_files.load_codebook(experiment_fpath,metadata)
-        codebook_df = delayed(codebook_dict)
+        codebook_dict = delayed(codebook_dict)
         
         all_processing = []
         all_filtered_images = []
@@ -306,7 +306,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                     name = 'decode_' +experiment_name + '_' + channel + '_' \
                                         + '_fov_' +str(fov) + '-' + tokenize()
                     decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(registered_counts, 
-                                                                              analysis_parameters,codebook_df)                                                        
+                                                                              analysis_parameters,codebook_dict[processing_channel])                                                        
                 
                     # Stitch to the microscope reference coords
                     name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
