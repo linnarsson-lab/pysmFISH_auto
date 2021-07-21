@@ -967,6 +967,7 @@ def stitch_using_coords_general_df(decoded_df,tile_corners_coords_pxl,reference_
 def stitch_using_coords_general(decoded_df,tile_corners_coords_pxl, reference_corner_fov_position, metadata, tag):
     
     if not isinstance(decoded_df, pd.DataFrame):
+        decoded_df_fpath = decoded_df.copy()
         decoded_df = pd.read_parquet(decoded_df)
     
     if decoded_df['r_px_registered'].empty:
@@ -994,7 +995,10 @@ def stitch_using_coords_general(decoded_df,tile_corners_coords_pxl, reference_co
         # decoded_df['r_px_'+tag] =  r_microscope_coords - decoded_df['r_px_registered']
         # decoded_df['c_px_'+tag] =  c_microscope_coords - decoded_df['c_px_registered']
     
-    decoded_df.to_parquet(decoded_df_fpath,index=False)
+    if not isinstance(decoded_df, pd.DataFrame):
+        decoded_df.to_parquet(decoded_df_fpath,index=False)
+    else:
+        return decoded_df
 
 
 
