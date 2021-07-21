@@ -217,7 +217,7 @@ class Pipeline():
                 sys.exit(f"can't create dataset from {self.parsed_raw_data_fpath}")
         
         self.metadata = self.data.collect_metadata(self.data.dataset)
-        self.grpd_fovs = self.data.dataset.groupby(['fov_num','channel'])
+        self.grpd_fovs = self.data.dataset.groupby('fov_num')
     
     
     def create_analysis_config_file_from_dataset_step(self):
