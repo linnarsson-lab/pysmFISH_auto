@@ -229,16 +229,15 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
             all_processing = []
             all_filtered_images = []
             all_counts_fov = {}
-            for channel in list_all_channels:
-                all_counts_fov[channel] = []
             for fov_num in chunk:
                 all_counts_fov = {}
                 all_counts_fov_concat = {}
-
+                
                 fov_group = grpd_fovs.get_group(fov_num)
                 channel_grpd = fov_group.groupby('channel')
 
                 for channel in list_all_channels:
+                    all_counts_fov[channel] = []
                     group = channel_grpd.get_group(channel)
                     for index_value, fov_subdataset in group.iterrows():
                         round_num = fov_subdataset.round_num
