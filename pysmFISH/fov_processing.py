@@ -269,12 +269,14 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                 
                 if save_intermediate_steps:
                     
-                        name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                        saved_raw_counts = delayed(pickle.dump,name=name)(all_counts_fov_concat, Path(experiment_fpath) / 'results'/ (experiment_name + \
-                                '_raw_fov_' + str(fov) + '.pkl'))
 
-                        all_processing.append(saved_raw_counts)
+                        for channel in list_all_channels:
+                            name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                            saved_raw_counts = delayed(all_counts_fov_concat[channel].to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                                    'raw_counts_channel_'+ channel + '_fov_' + str(fov) + '.parquet'),index=False)
+
+                            all_processing.append(saved_raw_counts)
 
 
                 name = 'register_' +experiment_name + '_' + channel + '_' \
