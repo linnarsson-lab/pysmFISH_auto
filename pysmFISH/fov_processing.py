@@ -292,7 +292,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                                                                     registration_stitching_channel_output[1], \
                                                                                     registration_stitching_channel_output[2]
 
-                all_processing.append(saved_raw_counts)
+                all_processing.append(registration_stitching_channel_output)
 
         #         all_stitched_coords = []
 
