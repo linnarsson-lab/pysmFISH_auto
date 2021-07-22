@@ -334,9 +334,9 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
         #                         '_decoded_fov_' + str(fov) + '.parquet'),index=False)
             
             
-        #         all_processing.append(saved_file)
+                all_processing.append(saved_file)
             
-        #     _ = dask.compute(*all_processing)
+            _ = dask.compute(*all_processing)
 
         # io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
  
