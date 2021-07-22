@@ -331,7 +331,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 
                 
                 name = 'concat_' +experiment_name + \
-                                        + '_fov_' +str(fov) + '-' + tokenize()
+                                        '_fov_' + str(fov) + '-' + tokenize()
                 all_stitched_coords = delayed(pd.concat,name=name)(all_stitched_coords,axis=0,ignore_index=True) 
                     
                     
