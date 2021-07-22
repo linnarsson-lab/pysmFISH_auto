@@ -216,7 +216,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 
         list_all_channels = metadata['list_all_channels']
         stitching_channel = metadata['stitching_channel']
-        fish_channels = set(list_all_channels).difference(stitching_channel)
+        fish_channels = set(list_all_channels)^set([stitching_channel])
 
         codebook_dict = configuration_files.load_codebook(experiment_fpath,metadata)
         codebook_dict = delayed(codebook_dict)
