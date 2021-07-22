@@ -295,50 +295,47 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 
                 all_stitched_coords = []
 
-                df = pd.DataFrame(all_rounds_shifts.items())
-                tmp = delayed(df.to_parquet)('/fish/work_std/JJEXP20210622_SL001B_Section2/results(shifts.parquet')
-                all_processing.append(tmp)
 
-                # for processing_channel in fish_channels:
+                for processing_channel in fish_channels:
                     
-                #     # Register fish
-                #     name = 'register_fish_channels_' +experiment_name + '_' + processing_channel + '_' \
-                #                     + '_fov_' +str(fov) + '-' + tokenize()
+                    # Register fish
+                    name = 'register_fish_channels_' +experiment_name + '_' + processing_channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()
 
-                #     registered_counts = delayed(fovs_registration.beads_based_registration_fish,name=name)(all_counts_fov_concat[processing_channel],
-                #                                         all_rounds_shifts, all_rounds_matching_dots, analysis_parameters)
+                    registered_counts = delayed(fovs_registration.beads_based_registration_fish,name=name)(all_counts_fov_concat[processing_channel],
+                                                        all_rounds_shifts, all_rounds_matching_dots, analysis_parameters)
 
-                #     # Decoded fish
-                #     name = 'decode_' +experiment_name + '_' + processing_channel + '_' \
-                #                         + '_fov_' +str(fov) + '-' + tokenize()
-                #     decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(registered_counts, 
-                #                                                             analysis_parameters,codebook_dict[processing_channel])                                                        
+                    # Decoded fish
+                    name = 'decode_' +experiment_name + '_' + processing_channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()
+                    decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(registered_counts, 
+                                                                            analysis_parameters,codebook_dict[processing_channel])                                                        
                 
-                #     # Stitch to the microscope reference coords
-                #     name = 'stitch_to_mic_coords_' +experiment_name + '_' + processing_channel + '_' \
-                #                         + '_fov_' +str(fov) + '-' + tokenize()  
-                #     stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],
-                #                                                     tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
-                #                                                     metadata,tag='microscope_stitched')
+                    # Stitch to the microscope reference coords
+                    name = 'stitch_to_mic_coords_' +experiment_name + '_' + processing_channel + '_' \
+                                        + '_fov_' +str(fov) + '-' + tokenize()  
+                    stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],
+                                                                    tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                                    metadata,tag='microscope_stitched')
                 
-                #     all_stitched_coords.append(stitched_coords)
-
-                
-                # all_stitched_coords.append(stitching_channel_df)
+                    all_stitched_coords.append(stitched_coords)
 
                 
-                # name = 'concat_' +experiment_name + \
-                #                         '_fov_' + str(fov) + '-' + tokenize()
-                # all_stitched_coords = delayed(pd.concat,name=name)(all_stitched_coords,axis=0,ignore_index=True) 
+                all_stitched_coords.append(stitching_channel_df)
+
+                
+                name = 'concat_' +experiment_name + \
+                                        '_fov_' + str(fov) + '-' + tokenize()
+                all_stitched_coords = delayed(pd.concat,name=name)(all_stitched_coords,axis=0,ignore_index=True) 
                     
                     
-                # name = 'save_df_' +experiment_name + '_' + channel + '_' \
-                #                     + '_fov_' +str(fov) + '-' + tokenize() 
-                # saved_file = delayed(all_stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                #                 '_decoded_fov_' + str(fov) + '.parquet'),index=False)
+                name = 'save_df_' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize() 
+                saved_file = delayed(all_stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                                '_decoded_fov_' + str(fov) + '.parquet'),index=False)
                 
                 
-                # all_processing.append(saved_file)
+                all_processing.append(saved_file)
             
             _ = dask.compute(*all_processing)
 
