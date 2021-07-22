@@ -264,7 +264,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                 
                     name = 'concat_' +experiment_name + '_' + channel_proc + '_' \
                                         + '_fov_' +str(fov) + '-' + tokenize()
-                    all_counts_fov_concat[channel_proc] = delayed(pd.concat,name=name)(all_counts_fov[channel],axis=0,ignore_index=True)
+                    all_counts_fov_concat[channel_proc] = delayed(pd.concat,name=name)(all_counts_fov[channel_proc],axis=0,ignore_index=True)
                 
                 
                 if save_intermediate_steps:
