@@ -236,9 +236,9 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                 fov_group = grpd_fovs.get_group(fov_num)
                 channel_grpd = fov_group.groupby('channel')
 
-                for channel in list_all_channels:
-                    all_counts_fov[channel] = []
-                    group = channel_grpd.get_group(channel)
+                for channel_proc in list_all_channels:
+                    all_counts_fov[channel_proc] = []
+                    group = channel_grpd.get_group(channel_proc)
                     for index_value, fov_subdataset in group.iterrows():
                         round_num = fov_subdataset.round_num
                         channel = fov_subdataset.channel
@@ -256,27 +256,27 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                                                     dask_key_name=dask_delayed_name)
                         counts, filt_out = fov_out[0], fov_out[1]
                         
-                        all_counts_fov[channel].append(counts)
+                        all_counts_fov[channel_proc].append(counts)
                         
                         if save_bits_int:
                             if channel != fov_subdataset.stitching_channel:
                                 all_filtered_images.append(filt_out)
                 
-                    name = 'concat_' +experiment_name + '_' + channel + '_' \
+                    name = 'concat_' +experiment_name + '_' + channel_proc + '_' \
                                         + '_fov_' +str(fov) + '-' + tokenize()
-                    all_counts_fov_concat[channel] = delayed(pd.concat,name=name)(all_counts_fov[channel],axis=0,ignore_index=True)
+                    all_counts_fov_concat[channel_proc] = delayed(pd.concat,name=name)(all_counts_fov[channel],axis=0,ignore_index=True)
                 
                 
                 if save_intermediate_steps:
                     
 
-                        for channel in list_all_channels:
-                            name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
-                                        + '_fov_' +str(fov) + '-' + tokenize()
-                            saved_raw_counts = delayed(all_counts_fov_concat[channel].to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                                    '_raw_counts_channel_'+ channel + '_fov_' + str(fov) + '.parquet'),index=False)
+                    for channel in list_all_channels:
+                        name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()
+                        saved_raw_counts = delayed(all_counts_fov_concat[channel].to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                                '_raw_counts_channel_'+ channel + '_fov_' + str(fov) + '.parquet'),index=False)
 
-                            all_processing.append(saved_raw_counts)
+                        all_processing.append(saved_raw_counts)
 
 
                 name = 'register_' +experiment_name + '_' + channel + '_' \
