@@ -933,7 +933,7 @@ def beads_based_registration_fish(all_counts_fov,
         all_counts_fov['c_shift_px'] = np.nan
         all_counts_fov['min_number_matching_dots_registration'] = np.nan
 
-        if isinstance(all_rounds_shifts,Dict):
+        if isinstance(all_rounds_shifts,dict):
 
             for round_num, shift in all_rounds_shifts.items():
                     
