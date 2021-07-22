@@ -295,7 +295,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 
                 all_stitched_coords = []
 
-                tmp = delayed(pickle.dump)(all_rounds_shifts, open('/fish/work_std/JJEXP20210622_SL001B_Section2/results(shifts.pkl','wb'))
+                df = pd.DataFrame(all_rounds_shifts.items())
+                tmp = delayed(df.to_parquet)('/fish/work_std/JJEXP20210622_SL001B_Section2/results(shifts.parquet')
                 all_processing.append(tmp)
 
                 # for processing_channel in fish_channels:
