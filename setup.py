@@ -27,14 +27,14 @@ setup(
 		'snappy',
 		'python-snappy',
 		'pyarrow',
-		'openpyxl'
+		'openpyxl',
+		'napari'
 	],
 	
-	# pipeline scripts
 	entry_points='''
-        [console_scripts]
-        fish_processing=cli
-    ''',
+		[console_scripts]
+		pysmFISH:pysmFISH.cli.cli:pysmFISH_cli
+	''',
 
 	# metadata
 	author="Simone Codeluppi",
