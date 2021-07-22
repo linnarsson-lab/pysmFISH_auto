@@ -105,7 +105,8 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str):
     return img, metadata
 
 
-def load_general_zarr(fov_subdataset,parsed_raw_data_fpath:str):
+# TODO: fix docstring
+def load_general_zarr(fov_subdataset,parsed_raw_data_fpath:str, tag:str):
     """
     Function used to load a raw image and metadata from the 
     parsed raw file and the attrs for the filtering
@@ -122,7 +123,9 @@ def load_general_zarr(fov_subdataset,parsed_raw_data_fpath:str):
     logger = selected_logger()
     st = zarr.DirectoryStore(parsed_raw_data_fpath)
     root = zarr.group(store=st,overwrite=False)
-    img = root[fov_subdataset.grp_name][fov_subdataset.fov_name][...]
+    fov_name = tag + '_fov_' + str(fov_subdataset.fov_num)
+    grp_name = fov_subdataset.experiment_name +'_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
+    img = root[grp_name][fov_name][...]
     return img
 
 
