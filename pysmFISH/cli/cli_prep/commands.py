@@ -66,7 +66,8 @@ def recreate_general_analysis_config(processing_folder_path:str):
 @setup_processing_env.command('convert_codebook')
 
 @click.option('--codebook_path', type=str, help='Path to the folder \
-                with the codebook to be parsed')
+                with the codebook to be parsed. The codebook excel file \
+                should be in the config_db folder')
 
 def convert_codebook(codebook_path:str):
     logger = selected_logger()
