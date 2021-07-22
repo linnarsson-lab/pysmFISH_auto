@@ -614,7 +614,7 @@ class Pipeline():
                 already_done_fovs.append(fov_num)
             not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
             self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
-            self.grpd_fovs = self.data.dataset.groupby(['fov_num','channel'])
+            self.grpd_fovs = self.data.dataset.groupby('fov_num')
 
 
         if self.metadata['experiment_type'] == 'eel-barcoded':
