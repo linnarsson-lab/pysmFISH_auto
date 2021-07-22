@@ -295,6 +295,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
 
                 all_stitched_coords = []
 
+
+                fish_channels = ['Cy3']
                 for processing_channel in fish_channels:
                     
                     # Register fish
