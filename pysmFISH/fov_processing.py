@@ -279,18 +279,18 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                         all_processing.append(saved_raw_counts)
 
 
-        #         name = 'register_' +experiment_name + '_' + channel + '_' \
-        #                             + '_fov_' +str(fov) + '-' + tokenize()
-        #         registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov_concat[stitching_channel],
-        #                                             analysis_parameters)
+                name = 'register_' +experiment_name + '_' + stitching_channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()
+                registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov_concat[stitching_channel],
+                                                    analysis_parameters)
 
                 
-        #         registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov_concat[stitching_channel],
-        #                                                 analysis_parameters)
+                registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov_concat[stitching_channel],
+                                                        analysis_parameters)
 
-        #         stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots = registration_stitching_channel_output[0], \
-        #                                                                             registration_stitching_channel_output[1], \
-        #                                                                             registration_stitching_channel_output[2]
+                stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots = registration_stitching_channel_output[0], \
+                                                                                    registration_stitching_channel_output[1], \
+                                                                                    registration_stitching_channel_output[2]
 
 
         #         all_stitched_coords = []
