@@ -2,7 +2,6 @@ import os
 import time
 from pathlib import Path
 
-from flows.general_flow_single_fov import general_flow
 from pysmFISH.utils import free_space
 from pysmFISH.logger_utils import selected_logger
 

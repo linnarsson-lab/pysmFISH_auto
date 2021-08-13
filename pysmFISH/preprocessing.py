@@ -17,44 +17,32 @@ fed to the counting algorithm and img saved
 
 """
 from typing import *
-import pickle
 import sys
-import time
-import zarr
 
-import dask
 import numpy as np
 import scipy.ndimage as nd
 from skimage import filters, morphology, measure
-from skimage import img_as_float64, img_as_uint
+from skimage import img_as_float64
 from pathlib import Path
-from dask.distributed import Client
 
 
 # pysmFISH imports
 from pysmFISH.io import load_raw_images
-from pysmFISH.io import load_zarr_fov
-from pysmFISH.dots_calling import osmFISH_peak_based_detection
-from pysmFISH.dots_calling import osmFISH_dots_thr_selection, osmFISH_dots_mapping
-from pysmFISH.dots_calling import osmFISH_barcoded_peak_based_detection_masked_thr
 from pysmFISH.utils import convert_from_uint16_to_float64
-from pysmFISH.data_models import Output_models
-
 from pysmFISH.logger_utils import selected_logger
 
 
 def load_dark_image(experiment_fpath:str)->np.ndarray:
-    """
-    Function used to load the dark image  previously created and 
+    """Function used to load the dark image  previously created and 
     saved in the extra folder present in the experiment
 
-    Parameters:
-    -----------
-    experiment_fpath: str
-        path to the experiment
+    Args:
+        experiment_fpath (str): Path to the experiment to process
 
+    Returns:
+        np.ndarray: Dark image
     """
-
+    
     logger = selected_logger()
 
     search = '*dark_img.npy'
@@ -72,37 +60,31 @@ def load_dark_image(experiment_fpath:str)->np.ndarray:
         return dark_img
 
 
-
-
 def standard_not_norm_preprocessing(
-        zarr_grp_name,
-        parsed_raw_data_fpath,
-        processing_parameters,
-        dark_img):
-
-    """
-   Standard function for filtering the fov image
-   The image is not normalized
+        zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict,
+        dark_img: np.ndarray)-> Tuple[Tuple[np.ndarray,],dict]:
     
+    """Standard function for filtering the fov image
+    The image is not normalized
+
     Args:
-    -----
-        zarr_grp_name: str
-            group representing the image to process
-        parsed_raw_data_fpath: str
-            path to the zarr file containing the parsed images
-        processing_parameters: dict
-            dictionary with the parameters used to process the images
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+        dark_img (np.ndarray): Dark image used to remove camera dark noise
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((filtered_image,),metadata)
     """
+ 
 
     logger = selected_logger()
     
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
-    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
     
-
     try:
         img, metadata = load_raw_images(zarr_grp_name,
                                     parsed_raw_data_fpath)
@@ -127,15 +109,7 @@ def standard_not_norm_preprocessing(
 
         return ((img,),metadata)
 
-
-
-def without_flat_field_correction(
-        zarr_grp_name,
-        parsed_raw_data_fpath,
-        processing_parameters,
-        dark_img):
-
-    """
+  """
    Standard function for filtering the fov image
    The image is not normalized
     
@@ -149,12 +123,32 @@ def without_flat_field_correction(
             dictionary with the parameters used to process the images
     """
 
+def without_flat_field_correction(
+        zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict,
+        dark_img: np.ndarray)-> Tuple[Tuple[np.ndarray,],dict]:
+    
+    """Standard function for filtering the fov image where the
+    flat field correction step is removed.
+    The image is not normalized
+
+
+    Args:
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+        dark_img (np.ndarray): Dark image used to remove camera dark noise
+
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((filtered_image,),metadata)
+    """
+  
+
     logger = selected_logger()
     
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
-    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
     
 
@@ -185,31 +179,28 @@ def without_flat_field_correction(
 
 
 def standard_norm_preprocessing(
-        zarr_grp_name,
-        parsed_raw_data_fpath,
-        processing_parameters,
-        dark_img):
-
-    """
-    Function to:
-    - preprocess the fish images
-    - count the dots and save the data
+        zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict,
+        dark_img: np.ndarray)-> Tuple[Tuple[np.ndarray,],dict]:
     
+    """Function to preprocess and normalize the intensity of the
+        fov. Normalization: (img_stack - img_stack_z_mean)/ img_stack_z_std
+
     Args:
-    -----
-        zarr_grp_name: str
-            group representing the image to process
-        parsed_raw_data_fpath: str
-            path to the zarr file containing the parsed images
-        processing_parameters: dict
-            dictionary with the parameters used to process the images
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+        dark_img (np.ndarray): Dark image used to remove camera dark noise
+
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((filtered_normalized_image,),metadata)
     """
+   
 
     logger = selected_logger()
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
-    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
 
 
@@ -247,32 +238,28 @@ def standard_norm_preprocessing(
 
 
 def filter_remove_large_objs(
-        zarr_grp_name,
-        parsed_raw_data_fpath,
-        processing_parameters,
-        dark_img):
+        zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict,
+        dark_img: np.ndarray)-> Tuple[Tuple[np.ndarray,np.ndarray],dict]:
 
-    """
-    Function to:
-    - preprocess the fish images
-    - count the dots and save the data
-    
+    """Function used to mask large objects (ex. lipofuscin) present in the image
+
     Args:
-    -----
-        zarr_grp_name: str
-            group representing the image to process
-        parsed_raw_data_fpath: str
-            path to the zarr file containing the parsed images
-        processing_parameters: dict
-            dictionary with the parameters used to process the images
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+        dark_img (np.ndarray): Dark image used to remove camera dark noise
+
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((masked_image, filtered_image),metadata)
     """
+  
 
     logger = selected_logger()
     
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
-    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
     LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
     LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
@@ -321,15 +308,26 @@ def filter_remove_large_objs(
         return ((masked_img,img),metadata)
 
 
-def large_beads_preprocessing(zarr_grp_name,
-    parsed_raw_data_fpath,
-    processing_parameters,
-    dark_img):
+def large_beads_preprocessing(zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict,
+        dark_img: np.ndarray)-> Tuple[Tuple[np.ndarray,],dict]:
+
+    """Function used filter the reference image containing large beads 
+
+    Args:
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+        dark_img (np.ndarray): Dark image used to remove camera dark noise
+
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((filtered_image,),metadata)
+    """
 
     logger = selected_logger()
     
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
 
     img, metadata = load_raw_images(zarr_grp_name,
@@ -348,14 +346,21 @@ def large_beads_preprocessing(zarr_grp_name,
     return ((img,), metadata)
 
 
-def both_beads_preprocessing(zarr_grp_name,
-        parsed_raw_data_fpath,
-        processing_parameters,
-        dark_img):
+def both_beads_preprocessing(zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict,
+        dark_img: np.ndarray)-> Tuple[Tuple[np.ndarray,],dict]:
 
-    """
-    Function used to process only large beads in both-beads condition
-    Used for testing experiment
+    """Function used filter the reference image containing large beads 
+
+    Args:
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+        dark_img (np.ndarray): Dark image used to remove camera dark noise
+
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((filtered_image,),metadata)
     """
 
     # logger = selected_logger()
@@ -383,9 +388,7 @@ def both_beads_preprocessing(zarr_grp_name,
     logger = selected_logger()
     
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    experiment_fpath = parsed_raw_data_fpath.parent
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
-    FilteringSmallKernel=processing_parameters['PreprocessingFishFilteringSmallKernel']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
     
 
@@ -413,107 +416,91 @@ def both_beads_preprocessing(zarr_grp_name,
 
         return ((img,),metadata)
 
-def nuclei_registration_filtering(zarr_grp_name,
-        parsed_raw_data_fpath,
-        processing_parameters):
-        
-        """
-        This function remove the background from large structures like nuclei
-        For the sigma I seleced a value quite bigger than
-        the nuclei size in order to remove them from the 
-        image. I used what showed on the gaussian filter code page and on this
-        link on stackoverflow: 
-        http://stackoverflow.com/questions/25216382/gaussian-filter-in-scipy
 
-        Parameters:
-        -----------
-
-        img_stack: np.array float64
-            raw image to filter
-        
-        large_kernel_size_sigma: list
-            list with the kernel size used to remove large objects in the image
-            to identify the background
-
-        Returns
-        -----------
-
-        img_stack: np.array float64 
-            img stack after filtering 
-
-        """
-
-        logger = selected_logger()
-        parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-        experiment_fpath = parsed_raw_data_fpath.parent
-        FlatFieldKernel=processing_parameters['PreprocessingNucleiFlatFieldKernel']
+def nuclei_registration_filtering(zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict)-> Tuple[Tuple[np.ndarray,],dict]:
     
-        try:
-            img, metadata = load_raw_images(zarr_grp_name,
-                                    parsed_raw_data_fpath)
-        except:
-            logger.error(f'cannot load {zarr_grp_name} raw fish image')
-            sys.exit(f'cannot load {zarr_grp_name} raw fish image')
-        else:
-            logger.info(f'loaded {zarr_grp_name} raw fish image')
-
-            
-            img = convert_from_uint16_to_float64(img)
-
-
-            # Clean the image from the background
-            img = img-filters.gaussian(img,sigma=FlatFieldKernel)
-            # Remove the negative values        
-            img[img<0] = 0
-            # Flatten the image
-            flattened_img = np.amax(img,axis=0)
-
-
-            # img -= dark_img
-            # # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
-            # img[img<0] = 0
-
-            # background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
-            # img -= background
-            # img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
-            # img = np.abs(img) # to avoid -0.0 issues
-            # img /= background
-            
-            # img = img.max(axis=0)
-        
-            return ((flattened_img,),metadata)
-
-
-
-def fresh_nuclei_filtering(zarr_grp_name,
-        parsed_raw_data_fpath,
-        processing_parameters):
-        
-        """
-        This function remove the background from large structures like nuclei
+    """This function remove the background from large structures like nuclei
         For the sigma I seleced a value quite bigger than
         the nuclei size in order to remove them from the 
         image. I used what showed on the gaussian filter code page and on this
         link on stackoverflow: 
         http://stackoverflow.com/questions/25216382/gaussian-filter-in-scipy
 
-        Parameters:
-        -----------
+    Args:
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
 
-        img_stack: np.array float64
-            raw image to filter
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((filtered_image,),metadata)
+    """
         
-        large_kernel_size_sigma: list
-            list with the kernel size used to remove large objects in the image
-            to identify the background
 
-        Returns
-        -----------
+    logger = selected_logger()
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    experiment_fpath = parsed_raw_data_fpath.parent
+    FlatFieldKernel=processing_parameters['PreprocessingNucleiFlatFieldKernel']
 
-        img_stack: np.array float64 
-            img stack after filtering 
+    try:
+        img, metadata = load_raw_images(zarr_grp_name,
+                                parsed_raw_data_fpath)
+    except:
+        logger.error(f'cannot load {zarr_grp_name} raw fish image')
+        sys.exit(f'cannot load {zarr_grp_name} raw fish image')
+    else:
+        logger.info(f'loaded {zarr_grp_name} raw fish image')
 
-        """
+        
+        img = convert_from_uint16_to_float64(img)
+
+
+        # Clean the image from the background
+        img = img-filters.gaussian(img,sigma=FlatFieldKernel)
+        # Remove the negative values        
+        img[img<0] = 0
+        # Flatten the image
+        flattened_img = np.amax(img,axis=0)
+
+
+        # img -= dark_img
+        # # img -= filters.gaussian(img,FilteringSmallKernel,preserve_range=False)
+        # img[img<0] = 0
+
+        # background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        # img -= background
+        # img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
+        # img = np.abs(img) # to avoid -0.0 issues
+        # img /= background
+        
+        # img = img.max(axis=0)
+    
+        return ((flattened_img,),metadata)
+
+
+
+def fresh_nuclei_filtering(zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict)-> Tuple[Tuple[np.ndarray,],dict]:
+        
+        """This function remove the background and filter the nuclei in the
+        low power magnification images used for identifying the cells position
+        after running eel.
+        For the sigma I seleced a value quite bigger than
+        the nuclei size in order to remove them from the 
+        image. I used what showed on the gaussian filter code page and on this
+        link on stackoverflow: 
+        http://stackoverflow.com/questions/25216382/gaussian-filter-in-scipy
+
+    Args:
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((filtered_image,),metadata)
+    """
 
         logger = selected_logger()
         parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
@@ -554,49 +541,3 @@ def fresh_nuclei_filtering(zarr_grp_name,
             # img = img.max(axis=0)
         
             return ((flattened_img,),metadata)
-
-# def fresh_nuclei_filtering(
-#         parsed_raw_data_fpath,
-#         filtered_raw_data_fpath,
-#         fov,
-#         processing_parameters):
-        
-#         """
-#         This function remove the background from large structures like nuclei
-#         For the sigma I seleced a value quite bigger than
-#         the nuclei size in order to remove them from the 
-#         image. I used what showed on the gaussian filter code page and on this
-#         link on stackoverflow: 
-#         http://stackoverflow.com/questions/25216382/gaussian-filter-in-scipy
-
-#         Arguments
-#         -----------
-
-#         img_stack: np.array float64
-#             3D numpy array with the image
-        
-#         Returns
-#         -----------
-
-#         filtered_image: np.array float64 
-#             2D flattened image 
-
-#         """
-#         PreprocessingFreshNucleiLargeKernelSize = processing_parameters['fresh-nuclei']['PreprocessingFreshNucleiLargeKernelSize']
-
-#         filtered_store = zarr.DirectoryStore(filtered_raw_data_fpath)
-#         filtered_root = zarr.group(store=filtered_store,overwrite=False)
-
-#         img_stack = load_zarr_fov(parsed_raw_data_fpath,fov)
-#         img_stack = convert_from_uint16_to_float64(img_stack)
-
-#         # Clean the image from the background
-#         img_stack = img_stack-filters.gaussian(img_stack,sigma=PreprocessingFreshNucleiLargeKernelSize)
-#         # Remove the negative values        
-#         img_stack[img_stack<0] = 0
-#         # Flatten the image
-#         flattened_img = np.amax(img_stack,axis=0)
-
-#         # flattened_img = img_as_uint(flattened_img)
-#         filtered_root.create_dataset(fov, data=flattened_img, shape=flattened_img.shape, chunks=(None,None),overwrite=True)
-        

@@ -1,8 +1,9 @@
+"""
+Module containing classes and function used to organize data and metadata
+"""
 from typing import *
-import yaml
 import time
 
-import numpy as np
 import pandas as pd
 import sys
 import pickle
@@ -14,22 +15,41 @@ from pysmFISH.logger_utils import selected_logger
 
 
 class Dataset():
+    """Dataset class used to collect all the info related to the
+    acquired images. It contains all the metadata needed during the
+    processing.
+    """
     
     def __init__(self):
         
         self.logger = selected_logger()
         
-    def load_dataset(self, dataset_fpath):
+    def load_dataset(self, dataset_fpath: str):
+        """Load a pre-existing dataset
+
+        Args:
+            dataset_fpath (str): Path to the existing dataset
+        """
         self.dataset = pd.read_parquet(dataset_fpath)
         
-    def create_full_dataset_from_files(self, experiment_fpath, 
-                                       experiment_info,
-                                       parsed_raw_data_fpath,ftype='pkl'): 
-        """
-        Starting point if you want to work with another type of storage
-        but want to use the same dataset structure for downstream
-        processing
-        """
+    
+    # TODO Add support for other file types
+    def create_full_dataset_from_files(self, experiment_fpath: str, 
+                                       experiment_info: dict,
+                                       parsed_raw_data_fpath: str ,ftype: str = 'pkl'):
+        
+        """ Utility function that can be used to create the dataset from a 
+        storage type different from the zarr structure used in pysmFISH. 
+        processing. It requires a file of type ftype containing all the metadata
+
+        
+
+        Args:
+            experiment_fpath (str): Path to the experiment to process
+            experiment_info (dict): Dictionary with the configuration data
+            parsed_raw_data_fpath (str): Path to the folder/zarr file with the parsed data
+            ftype (str, optional): Path to the files containing the metadata. Defaults to 'pkl'.
+        """    
         
         self.experiment_fpath = Path(experiment_fpath)
         self.experiment_info = experiment_info
@@ -42,20 +62,28 @@ class Dataset():
         self.dataset = pd.DataFrame()
         all_pickle_list = list(self.parsed_raw_data_fpath.glob('*.' + ftype))
         if len(all_pickle_list):
-            for fdata in all_pickle_list:
-                single = pickle.load(open(fdata,'rb'))
-                fdata_loc = fdata.parent / fdata.stem
-                single['raw_data_location'] = fdata_loc.as_posix()
-                single_df = pd.DataFrame(single,index=[0])
-                self.dataset = pd.concat([self.dataset,single_df],axis=0,ignore_index=True)
-            self.dataset.to_parquet(self.dataset_fpath, index=False)
-        
+            if ftype == 'pkl':
+                for fdata in all_pickle_list:
+                    single = pickle.load(open(fdata,'rb'))
+                    fdata_loc = fdata.parent / fdata.stem
+                    single['raw_data_location'] = fdata_loc.as_posix()
+                    single_df = pd.DataFrame(single,index=[0])
+                    self.dataset = pd.concat([self.dataset,single_df],axis=0,ignore_index=True)
+                self.dataset.to_parquet(self.dataset_fpath, index=False)
+            
+            # TODO Add support for other file types
         else:
             self.logger.error(f'there are no files with the metadata dictionary')
             sys.exit(f'there are no files with the metadata dictionary')
     
     def create_full_dataset_from_zmetadata(self,
-                                       parsed_raw_data_fpath):  
+                                       parsed_raw_data_fpath: str):
+        """Function used to create the full dataset starting from the consolidated
+        metadata of the parsed zarr file
+
+        Args:
+            parsed_raw_data_fpath (str): Path to the zarr file with the parsed data
+        """
         
         try:
             consolidated_metadata = open_consolidated_metadata(parsed_raw_data_fpath)
@@ -79,7 +107,18 @@ class Dataset():
             self.dataset.to_parquet(self.dataset_fpath, index=False)
         
             
-    def collect_metadata(self,df):
+    def collect_metadata(self,df:pd.DataFrame)-> dict:
+        """Function used to create a simplified metadata dictionary
+        used in the processing. This create a smaller size variable
+        compared to the dataset making it easier to send to all
+        the workers during the processing
+
+        Args:
+            df (pd.DataFrame): Dataset DataFrame
+
+        Returns:
+            dict: Dictionary with the compiled metadata
+        """
         self.metadata = {}
         self.metadata['list_all_fovs'] = df.fov_num.unique()
         self.metadata['list_all_channels'] = df.channel.unique()
@@ -101,40 +140,97 @@ class Dataset():
         return self.metadata
         
 
-        
-    
-    def grp_by_channel(self,df):
+    def grp_by_channel(self,df: pd.DataFrame)->pd.DataFrame:
+        """Groupby the dataset by channel
+
+        Args:
+            df (pd.DataFrame): Dataset to groupby
+
+        Returns:
+            pd.DataFrame: Dataset grouped by channel
+        """
         subset_df = self.dataset.groupby('channel')
+        return subset_df
     
-    
-    def select_fovs_subset(self, df, min_fov, max_fov):
+    def select_fovs_subset(self, df: pd.DataFrame, min_fov: int, max_fov: int)->pd.DataFrame:
+        """Select a range of fovs between min and max values (extremites included)
+
+        Args:
+            df (pd.DataFrame): Dataset
+            min_fov (int): lowest fov to select
+            max_fov (int): highest fov to select
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing only the selected fovs 
+        """
         subset_df = df.loc[(df.fov_num >= min_fov) & (df.fov_num <= max_fov),:]
         return subset_df
     
     
-    def select_channel_subset(self,df, channel):
+    def select_channel_subset(self,df: pd.DataFrame, channel: str)->pd.DataFrame:
+        """Select all the fovs of a specific channel
+
+        Args:
+            df (pd.DataFrame): Dataset
+            channel (str): Imaging channel of interest
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the fovs of the
+                    selected channel
+        """
         subset_df = df.loc[(df.channel == channel),:]
         return subset_df
     
     
-    def select_round_subset(self,df, round_num):
+    def select_round_subset(self,df: pd.DataFrame, round_num: int)->pd.DataFrame:
+        """Select all the fovs of a specific imaging round
+
+        Args:
+            df (pd.DataFrame): Dataset
+            round_num (int): Imaging round of interest
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the fovs of the
+                    selected round
+        """
         subset_df = df.loc[(df.round_num == round_num),:]
         return subset_df
     
     
-    def select_specific_fov(self,df, channel,round_num, fov_num):
+    def select_specific_fov(self,df: pd.DataFrame, channel: str,round_num: int, fov_num: int)->pd.Series:
+        """Select a specific fov according to fov number, channel and
+        round number
+
+        Args:
+            df (pd.DataFrame): Dataset
+            channel (str): Imaging channel of interest
+            round_num (int): Imaging round of interest
+            fov_num (int): Number of the fov of interest
+
+        Returns:
+            pd.Series: Sub-Dataset containing the fovs of the
+                    selected round
+        """
         subset_df = df.loc[(df.channel == channel) & 
                            (df.round_num == round_num) & 
                            (df.fov_num == fov_num),:]
         return subset_df.squeeze()
 
-    def select_all_imgs_fov(self,df, fovs_list):
+    def select_all_imgs_fov(self,df: pd.DataFrame, fovs_list: List)->pd.DataFrame:
+        """Select a list of fovs
+
+        Args:
+            df (pd.DataFrame): Dataset
+            fovs_list (List): List of fov number to select
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the selected fovs
         """
-        fov is a list
-        """
+        
         subset_df = df.loc[(df.fov_num.isin(fovs_list)),:]
         return subset_df
     
+    # TODO additional utliti functions
     def load_to_numpy(self):
         pass
     
@@ -147,9 +243,10 @@ class Dataset():
     def save_dataset(self, df, fpath):
         df.to_parquet(fpath)
 
+
 class Output_models():
     """
-    Class containing the definition of the output data
+    Utility class containing the definition of the output dataframes
     """
 
     def __init__(self):
@@ -178,297 +275,3 @@ class Output_models():
         # self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_barcodes)
 
         self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_specific_barcodes)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class shoji_db_fish(Task):
-#     """
-#     Task used to create the shoji database that will be used to store
-#     the output of the analysis. It will also contain the standard settings
-#     for automated analysis and the parameter obtained from the experiment.yaml
-#     file generated by the machine
-
-#     NB: The settings for the analysis are  adjusted according to the machine 
-#         used for acquisition. In our case the machines have different components.
-
-#     Args:
-#     -----
-#         experiment_info: dict
-#             dictionary containing all the info generated by robofish
-#     """
-    
-#     def run(self, experiment_info):
-#         """
-#         Function used to create the shoji database that will be used to store
-#         the output of the analysis. It will also contain the standard settings
-#         for automated analysis and the parameter obtained from the experiment.yaml
-#         file generated by the machine
-
-#         NB: The settings for the analysis are  adjusted according to the machine 
-#             used for acquisition. In our case the machines have different components.
-
-#         Args:
-#         -----
-#             experiment_info: dict
-#                 dictionary containing all the info generated by robofish
-#         """
-#         experiment_name = experiment_info['EXP_name']
-#         try:
-#             machine = experiment_info['Machine']
-#         except NameError:
-#             machine = 'NOT_DEFINED'
-
-#         try:
-#             db = shoji.connect()
-#         except:
-#             self.logger.error(f'Cannot connect to shoji DB')
-#             err = signals.FAIL(f'Cannot connect to shoji DB')
-#             raise err
-#         else:
-#             if 'FISH' not in db:
-#                 db.FISH = shoji.Workspace()
-            
-#             if experiment_name not in db.FISH:
-#                 db.FISH[experiment_name] = shoji.Workspace()
-#                 ws = db.FISH[experiment_name]
-#             else:
-#                 ws = db.FISH[experiment_name]
-#                 self.logger.info('Experiment already present in the database')
-            
-#             if 'experiment_properties' not in db.FISH[experiment_name]:
-#                 db.FISH[experiment_name]['experiment_properties'] = shoji.Workspace()
-#                 experiment_properties_ws = db.FISH[experiment_name]['experiment_properties']
-#             else:
-#                 experiment_properties_ws = db.FISH[experiment_name]['experiment_properties']
-            
-#             if 'analysis_parameters' not in db.FISH[experiment_name]:
-#                 db.FISH[experiment_name]['analysis_parameters'] = shoji.Workspace()
-#                 analysis_parameters_ws = db.FISH[experiment_name]['analysis_parameters']
-#             else:
-#                 analysis_parameters_ws = db.FISH[experiment_name]['analysis_parameters']
-            
-#             if 'images_properties' not in db.FISH[experiment_name]:
-#                 db.FISH[experiment_name]['images_properties'] = shoji.Workspace()
-#                 images_properties_ws = db.FISH[experiment_name]['images_properties']
-#             else:
-#                 images_properties_ws = db.FISH[experiment_name]['images_properties']
-            
-#             if 'dots_data' not in db.FISH[experiment_name]:
-#                 db.FISH[experiment_name]['dots_data'] = shoji.Workspace()
-#                 dots_data_ws = db.FISH[experiment_name]['dots_data']
-#             else:
-#                 dots_data_ws = db.FISH[experiment_name]['dots_data']
-            
-            
-#             # Create the experiment properties workspace
-#             try:
-#                 experiment_properties_ws.Age = shoji.Tensor("uint8", dims=(), inits=np.array(int(experiment_info['Age']),dtype=np.uint8))
-#             except ValueError:
-#                 experiment_properties_ws.Age = shoji.Tensor("uint8", dims=(), inits=None)
-
-#             experiment_properties_ws.Barcode =                       shoji.Tensor("bool", dims=(), inits=np.array((experiment_info['Barcode'] == 'True'),dtype=np.bool))
-#             experiment_properties_ws.BarcodeLength =                 shoji.Tensor("uint8",dims=(), inits=np.array(experiment_info['Barcode_length'],dtype= np.uint8))
-#             experiment_properties_ws.ChamberExp =                    shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Chamber_EXP'],dtype=object)) 
-#             experiment_properties_ws.Chemistry =                     shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Chemistry'],dtype=object)) 
-#             experiment_properties_ws.CodebookName =                  shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Codebook'],dtype=object)) 
-#             experiment_properties_ws.ProbeSetName =                  shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Probe_FASTA_name'],dtype=object)) 
-#             experiment_properties_ws.ExperimentType =                shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Experiment_type'],dtype=object))
-#             experiment_properties_ws.ExperimentName =                shoji.Tensor("string",dims=(),inits=np.array(experiment_info['EXP_name'],dtype=object))
-#             experiment_properties_ws.Machine =                       shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Machine'],dtype=object))
-#             experiment_properties_ws.Program =                       shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Program'],dtype=object))
-#             experiment_properties_ws.Operator =                      shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Operator'],dtype=object))
-#             experiment_properties_ws.Sample =                        shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Sample'],dtype=object))
-#             experiment_properties_ws.SectionID =                     shoji.Tensor("string",dims=(),inits=np.array(experiment_info['SectionID'],dtype=object))
-#             experiment_properties_ws.Species =                       shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Species'],dtype=object))
-#             experiment_properties_ws.Strain =                        shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Strain'],dtype=object))
-#             experiment_properties_ws.Tissue =                        shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Tissue'],dtype=object))
-#             experiment_properties_ws.Roi =                           shoji.Tensor("string",dims=(),inits=np.array(experiment_info['roi'],dtype=object))
-#             experiment_properties_ws.RegionImaged =                  shoji.Tensor("string",dims=(),inits=np.array(experiment_info['RegionImaged'],dtype=object))
-#             experiment_properties_ws.SampleOrientation =             shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Orrientation'],dtype=object))
-#             experiment_properties_ws.TilesOverlappingPercentage =    shoji.Tensor("float32",dims=(),inits=np.array(np.float32(experiment_info['Overlapping_percentage']),dtype=np.float32))
-#             experiment_properties_ws.StitchingChannel =              shoji.Tensor("string",dims=(),inits=np.array(experiment_info['StitchingChannel'],dtype=object))
-#             experiment_properties_ws.StitchingType =                 shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Stitching_type'],dtype=object))
-#             experiment_properties_ws.DataGenerationDate =            shoji.Tensor("string",dims=(),inits=np.array(experiment_info['Start_date'],dtype=object))
-
-
-
-#             analysis_parameters_ws.RegistrationReferenceHybridization = shoji.Tensor("uint8", dims=(), inits=np.array(1,dtype=np.uint8))
-
-#             if machine == 'ROBOFISH1':
-#                 analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16))
-
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16))
-
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
-
-#                 analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=np.array(3,dtype=np.uint8))                                                                   
-
-#                 analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-
-#                 analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint16", dims=(2,), inits=np.array([50,50], dtype=np.uint16))
-
-#             elif machine == 'ROBOFISH2':
-
-#                 analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
-
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
-
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16))
-
-#                 analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=np.array(3,dtype=np.uint8))                                                              
-
-#                 analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-
-#                 analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint16", dims=(2,), inits=np.array([50,50], dtype=np.uint16))
-
-#             elif machine == 'NOT_DEFINED':
-
-#                 analysis_parameters_ws.PreprocessingFishFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingFishFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingFishFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
-
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingSmallBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16)) 
-
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringSmallKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([8,8], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-#                 analysis_parameters_ws.PreprocessingLargeBeadsRegistrationFilteringLaplacianKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([1,1], dtype=np.uint16))
-
-#                 analysis_parameters_ws.CountingFishMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingFishNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingSmallBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjDistance =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMinObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(2,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationMaxObjSize =  shoji.Tensor("uint16", dims=(), inits=np.array(200,dtype=np.uint16))
-#                 analysis_parameters_ws.CountingLargeBeadsRegistrationNumPeaksPerLabel =  shoji.Tensor("uint16", dims=(), inits=np.array(1,dtype=np.uint16))
-
-#                 analysis_parameters_ws.BarcodesExtractionResolution =   shoji.Tensor("uint8", dims=(), inits=np.array(3,dtype=np.uint8))                                                                    
-
-#                 analysis_parameters_ws.PreprocessingStainingFlatFieldKernel = shoji.Tensor("uint16", dims=(2,), inits=np.array([100,100], dtype=np.uint16))
-
-#                 analysis_parameters_ws.PreprocessingFreshNucleiLargeKernelSize = shoji.Tensor("uint16", dims=(2,), inits=np.array([50,50], dtype=np.uint16))
-
-
-#             # Create dimension and tensors for storage of image related properties   
-#             images_properties_ws.fov =                       shoji.Dimension(shape=None)
-
-#             images_properties_ws.hybridization =             shoji.Dimension(shape=1)      
-#             images_properties_ws.acquisitioncoords=          shoji.Dimension(shape=3)      
-#             images_properties_ws.registrationshiftcoords=    shoji.Dimension(shape=2)
-#             images_properties_ws.channel =                   shoji.Dimension(shape=1)
-#             images_properties_ws.imageshaperc =              shoji.Dimension(shape=2)
-
-#             # Rank-1 tensors
-#             images_properties_ws.FovName = shoji.Tensor("string",dims=('fov',))
-#             images_properties_ws.AcquistionChannel = shoji.Tensor("string",dims=('fov',))
-#             images_properties_ws.FovNumber = shoji.Tensor("uint16",dims=('fov',))
-#             images_properties_ws.HybridizationNumber = shoji.Tensor("uint8",dims=('fov',))
-
-#             # Higher ranking tensors
-#             images_properties_ws.FieldsOfView = shoji.Tensor("uint16",dims=('fov',None))
-#             images_properties_ws.GroupName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
-#             images_properties_ws.TargetName = shoji.Tensor("string",dims=('fov','hybridization','channel'))
-#             images_properties_ws.ImageShape = shoji.Tensor("uint16",dims=('fov','hybridization','channel','imageshaperc'))
-#             images_properties_ws.PixelMicrons = shoji.Tensor("float64",dims=('fov','hybridization','channel'))
-#             images_properties_ws.PreprocessedImage = shoji.Tensor("uint16",dims=('fov','hybridization','channel',None,None))
-#             images_properties_ws.FovCoords = shoji.Tensor("float64",dims=('fov','hybridization','channel','acquisitioncoords'))
-#             images_properties_ws.RegistrationShift = shoji.Tensor("float64",dims=('fov','hybridization','channel','registrationshiftcoords'))
-#             images_properties_ws.RegistrationError = shoji.Tensor("float64",dims=('fov','hybridization','channel'))
-#             images_properties_ws.StitchingShift = shoji.Tensor("float64",dims=('fov','hybridization','channel','registrationshiftcoords'))
-#             images_properties_ws.StitchingError = shoji.Tensor("float64",dims=('fov','hybridization','channel'))
-
-
-#             # Create dimension and tensors for dots acquisition
-#             # Dimenstion of the tensors
-#             dots_data_ws.hybridization =    shoji.Dimension(shape=1)   
-#             dots_data_ws.fov =              shoji.Dimension(shape=1)   
-#             dots_data_ws.dots =             shoji.Dimension(shape=None)   
-#             dots_data_ws.rc =               shoji.Dimension(shape=2)      
-#             dots_data_ws.bits =             shoji.Dimension(shape=16)  # Depend on the barcodes used
-#             dots_data_ws.gene =             shoji.Dimension(shape=1) 
-        
-#             # Rank-1 tensors
-#             dots_data_ws.DotID =                           shoji.Tensor("string", dims=('dots',))
-#             dots_data_ws.FovNumber =                       shoji.Tensor("uint16", dims=('dots',))
-#             dots_data_ws.HybridizationNumber =             shoji.Tensor("uint8", dims=('dots',))
-#             dots_data_ws.BarcodeReferenceDotID =           shoji.Tensor("string", dims=('dots',))
-#             dots_data_ws.DotChannel =                      shoji.Tensor("string", dims=('dots',))
-#             dots_data_ws.GeneID =                          shoji.Tensor("string", dims=('dots',))
-#             dots_data_ws.HammingDistanceRawBarcode =       shoji.Tensor("float64", dims=('dots',))
-
-#             # add rank-1 tensors for the fitering of the barcodes and genes
-
-#             # Higher ranking tensors
-#             dots_data_ws.DotCoordsFOV =                    shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
-#             dots_data_ws.DotIntensity =                    shoji.Tensor("float64", dims=('dots','fov','hybridization'))
-#             dots_data_ws.SelectedThreshold =               shoji.Tensor("float64", dims=('dots','fov','hybridization'))
-#             dots_data_ws.ProcessingType =                  shoji.Tensor("string", dims=('dots','fov','hybridization'))
-#             dots_data_ws.DotsCoordsRegisteredFOV =         shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
-#             dots_data_ws.DotsCoordsStitched =              shoji.Tensor("float64", dims=('dots','fov','hybridization','rc'))
-#             dots_data_ws.RawBarcode =                      shoji.Tensor("bool", dims=('dots','bits'))

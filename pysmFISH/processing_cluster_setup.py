@@ -1,23 +1,18 @@
 from typing import *
-import yaml
 import dask
 import sys
 from dask_jobqueue.htcondor import HTCondorCluster
-from dask.distributed import Client, LocalCluster
+from dask.distributed import LocalCluster
 from psutil import virtual_memory
-from pathlib import Path
-
 
 from pysmFISH.logger_utils import selected_logger
 
+
 def htcondor_cluster_setup(htcondor_cluster_setup: dict):
+    """Utility function to start a HTCondor cluster
 
-    """
-    Utility class used to create a dask cluster in HTCondor.
-
-    Parameters:
-    -----------
-        cluster_setup_dictionary
+    Args:
+        htcondor_cluster_setup (dict): cluster_setup_dictionary
         dictionary with the info for the cluster setup
         {
             cores: number of cores
@@ -49,47 +44,46 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
 #  "--lifetime-stagger", "10m",
 # death_timeout=5000,
 
+
 def local_cluster_setup():
-    
-    """
-    Utility to set up a dask cluster on a local computer. I will use
-    all the cpus-1 and scatter the memory
+    """Utility to set up a dask cluster on a local computer. I will use
+    all the cpus-1 and scatter the memory. In thi
+
+    Returns:
+       cluster: dask cluster
     """
 
     total_ram = virtual_memory()
     total_ram = total_ram.available
-    cores = dask.multiprocessing.multiprocessing.cpu_count()-2
+    cores = dask.multiprocessing.multiprocessing.cpu_count()-1
 
     # Calculate the total ram to use for each worker
-    # worker_memory_limit = 0.9
-    # worker_memory = (total_ram*worker_memory_limit)/cores
+    worker_memory_limit = 0.9
+    worker_memory = (total_ram*worker_memory_limit)/cores
 
-    cores = 5
-    worker_memory = 10000000000
-    cluster = LocalCluster(n_workers=cores, threads_per_worker=1, memory_limit=worker_memory)
+    #cores = 5
+    # worker_memory = 10000000000
+    # cluster = LocalCluster(n_workers=cores, threads_per_worker=1, memory_limit=worker_memory)
+    cluster = LocalCluster(n_workers=cores, memory_limit=worker_memory)
 
 
     return cluster
 
 
+# TODO Run experiment with fixed size cluster (No adaptive)
+
 def start_processing_env(processing_env_config:Dict):
-    """
-    Function to start the processing env. In the current setup
+    """Function to start the processing env. In the current setup
     is set up to run on the local computer or in a HPC cluster 
-    manged by HTCondor
+    manged by HTCondor. The max number of jobs in htcondor is hardcoded to 15
+    and the cluster is adaptive.
 
-    Args;
-        processing_env_config: Dict
-            Dict with the parameters for starting the cluster
-        experiment_info: Dict
-            dictionary with all the info describing the experiment
-        experiment_fpath: str
-            path to the experiment to process
-    Return:
-        cluster: dask-cluster-obj
-                cluster responsible for the data processing
+    Args:
+        processing_env_config (Dict): Parameters that define the 
+                    cluster characteristics.
 
     """
+    
     logger = selected_logger()
     processing_engine = processing_env_config['processing_engine']
     if processing_engine == 'htcondor':

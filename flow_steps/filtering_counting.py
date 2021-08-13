@@ -18,7 +18,6 @@ from dask.distributed import Client
 from pysmFISH.io import load_raw_images
 from pysmFISH.dots_calling import osmFISH_peak_based_detection
 from pysmFISH.dots_calling import osmFISH_dots_thr_selection, osmFISH_dots_mapping
-from pysmFISH.dots_calling import osmFISH_barcoded_peak_based_detection_masked_thr
 from pysmFISH.utils import convert_from_uint16_to_float64
 from pysmFISH.data_models import Output_models
 
