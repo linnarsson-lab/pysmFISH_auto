@@ -279,10 +279,10 @@ def processing_barcoded_eel_fov_graph(experiment_fpath,analysis_parameters,
                         all_processing.append(saved_raw_counts)
 
 
-                name = 'register_' +experiment_name + '_' + stitching_channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()
-                registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov_concat[stitching_channel],
-                                                    analysis_parameters)
+                # name = 'register_' +experiment_name + '_' + stitching_channel + '_' \
+                #                     + '_fov_' +str(fov) + '-' + tokenize()
+                # registered_counts = delayed(fovs_registration.beads_based_registration,name=name)(all_counts_fov_concat[stitching_channel],
+                #                                     analysis_parameters)
 
                 
                 registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov_concat[stitching_channel],
@@ -400,7 +400,7 @@ def processing_barcoded_eel_fov_after_dots_graph(experiment_fpath,analysis_param
                                     + '_fov_' +str(fov_num) + '-' + tokenize()  
 
 
-                stitched_coords = delayed(stitching.stitch_using_coords_general_df,name=name)(decoded[1],tile_corners_coords_pxl,
+                stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],tile_corners_coords_pxl,
                                                             tiles_org.reference_corner_fov_position,
                                                             metadata, tag='microscope_stitched')
                 
