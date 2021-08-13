@@ -1,6 +1,6 @@
-
 """
-group of class or functions use to register the fov
+group of class or functions use to register the fov between
+different rounds.
 """
 from typing import *
 import logging
@@ -16,7 +16,6 @@ from skimage.measure import ransac
 from scipy.spatial import distance
 from scipy.ndimage import fourier_shift
 
-# from pysmFISH.configuration_files import load_pipeline_config_file
 from skimage.feature import register_translation
 # from skimage.registration import phase_cross_correlation UPDATE SKIMAGEN
 from skimage import filters
@@ -33,51 +32,731 @@ import gc
 
 
 from pysmFISH.logger_utils import selected_logger
-# from pysmFISH.io import connect_to_shoji_smfish_experiment
 from pysmFISH.errors import Registration_errors
 
 from pysmFISH.data_models import Output_models
 
-def create_registration_grps(experiment_fpath:str,registration_channel:str, fovs:List, save=True):
-    """
-    Function to create groups of files that need to be registered together
+def create_fake_image(img_shape: np.ndarray,coords: np.ndarray)->np.ndarray:
+    """Function used to create an image from dots counts. The image
+    will be used for FFT based registration. The dots are mapped in
+    the image and the signal is enhanced using a gaussian. This
+    increase the features that can be used in the FFT based
+    registration.
+
     Args:
-        experiment_fpath: str
-            Path to the exp directory 
-        registration_channel : str
-            Name of the channel used for registration of the fovs
-        fovs: List
-            List of the keys used for grouping
+        img_shape (np.ndarray): Shape of the image to create. It matches
+            the shape of the images to process.
+        coords (np.ndarray): Coordinates of the peaks detected.
+
     Returns:
-        all_grps: List
-            List of tuples containing the file names of reference
-            channel and fish grouped by fov
+        np.ndarray: synthetic image used for registration
     """
-    logger = selected_logger()
-    tmp_fpath = Path(experiment_fpath) / 'tmp/raw_counts'
-    all_files = set(tmp_fpath.glob('*'))
-    registration_files = list(tmp_fpath.glob('*' + registration_channel + '*'))
-    fish_files = all_files.difference(registration_files)
-
-    all_grps = []
-    for fov in fovs:
-        search_key_reg = registration_channel + '_fov_' + str(fov) + '_dots.pkl'
-        search_key_fish =  '_fov_' + str(fov) + '_dots.pkl'
-        grp_reg = [reg_f for reg_f in registration_files if search_key_reg in reg_f.as_posix()]
-        grp_fish = [fish_f for fish_f in fish_files if search_key_fish in fish_f.as_posix()]
-        logger.debug(f'fov {fov} for registration on {registration_channel} has {len(grp_reg)} counts files')
-        all_grps.append((grp_reg, grp_fish))
-    if save:
-        fname = Path(experiment_fpath) / 'tmp' / 'registration_groups.pkl'
-        pickle.dump(all_grps, open(fname,'wb'))
-    return all_grps
-
-def create_fake_image(img_shape,coords):
     gaussian_sigma = 5
     img = np.zeros(img_shape,dtype=np.float64)
     img[coords[:,0].astype(int),coords[:,1].astype(int)] = 1000
     img = filters.gaussian(img,sigma=gaussian_sigma)
     return img
+
+
+def register_images(img: np.ndarray, shift: np.ndarray)->np.ndarray:
+    """Function to create a new image shifted according
+    a predefined shift.
+
+    Args:
+        img (np.ndarray): Image to shift
+        shift (np.ndarray): Shift
+
+    Returns:
+        np.ndarray: Shifted image
+    """
+    offset_image = fourier_shift(np.fft.fftn(img), shift)
+    offset_image = np.fft.ifftn(offset_image).real
+    return offset_image
+
+
+def combine_register_filtered_images(output_list: list, registered_counts: pd.DataFrame, 
+        stitching_channel: str)->np.ndarray:
+    """Function used to register the image throughout all rounds.
+    
+    IMPORTANT: must use the stitching channel because the other channels do not have 
+    barcodes starting in round 16
+    
+    Args:
+        output_list (list): list containg metadata and images ((img,),metadata).
+        registered_counts (pd.DataFrame): Counts after registration.
+        stitching_channel (str): Stitching channel.
+
+    Returns:
+        np.ndarray: Image stack with all the rounds registered.
+    """
+  
+    if registered_counts.shape[0] > 1:
+        metadata_tmp = output_list[0][-1] 
+        channel = metadata_tmp['channel']
+        img_stack = np.zeros([int(metadata_tmp['barcode_length']),int(metadata_tmp['img_width']),int(metadata_tmp['img_height'])])
+        for filt_out in output_list:
+            img = filt_out[0][0]
+            img_meta = filt_out[1]
+            round_num = img_meta['round_num']
+            shift = registered_counts.loc[(registered_counts.round_num == round_num) &
+                                        (registered_counts.channel == stitching_channel), ['r_shift_px','c_shift_px']]
+            shift = shift.iloc[0].to_numpy()
+            shifted_img = register_images(img,shift)
+            img_stack[round_num-1,:,:] = shifted_img
+
+        return img_stack
+
+
+
+def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFrame,
+                analysis_parameters: Dict)-> Tuple[pd.DataFrame, np.ndarray, pd.DataFrame]:
+    """Registration of the reference channel that contained reference beads.
+
+    Args:
+        stitching_channel_df (pd.DataFrame): Coordinates of the beads
+        analysis_parameters (Dict): Processing parameters
+
+    Returns:
+        Tuple[pd.DataFrame, np.ndarray, pd.DataFrame]: (stitching_channel_df, 
+                        all_rounds_shifts, all_rounds_matching_dots)
+    
+    """
+                
+    # Used index to avoid to remake the output dataframe
+    
+
+    reference_round_num = analysis_parameters['RegistrationReferenceHybridization']
+    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
+    
+    registration_errors = Registration_errors()
+    
+    all_rounds_shifts = {}
+    all_rounds_matching_dots = {}
+    # Determine if there are any round with missing counts in the registration
+    if stitching_channel_df[stitching_channel_df['dot_id'].isnull()].empty :
+    
+        stitching_channel_df['r_px_registered'] = np.nan
+        stitching_channel_df['c_px_registered'] = np.nan
+        stitching_channel_df['r_shift_px'] = np.nan
+        stitching_channel_df['c_shift_px'] = np.nan
+        stitching_channel_df['min_number_matching_dots_registration'] = np.nan
+
+        # Register stitching channel
+        ref_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,:]
+
+        stitching_channel_df.loc[ref_counts_df.index,'r_px_registered'] =  \
+                ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'r_px_original']
+        stitching_channel_df.loc[ref_counts_df.index,'c_px_registered'] =  \
+                ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'c_px_original']
+        stitching_channel_df.loc[ref_counts_df.index,'r_shift_px'] =  0
+        stitching_channel_df.loc[ref_counts_df.index,'c_shift_px'] =  0
+        stitching_channel_df.loc[ref_counts_df.index,'min_number_matching_dots_registration'] =  1000
+
+        all_rounds_shifts[reference_round_num] = [0,0]
+        all_rounds_matching_dots[reference_round_num] = 1000
+
+        # Create reference fake image for registration
+        img_width = ref_counts_df.iloc[0]['img_width']
+        img_height = ref_counts_df.iloc[0]['img_height']
+        ref_coords = ref_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+        img_ref = create_fake_image((img_width, img_height),ref_coords)
+
+        all_rounds = stitching_channel_df.round_num.unique()
+        all_rounds = all_rounds[all_rounds != reference_round_num]
+        for tran_round_num in all_rounds:
+
+           
+            tran_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == tran_round_num,:]
+            img_width = tran_counts_df.iloc[0]['img_width']
+            img_height = tran_counts_df.iloc[0]['img_height']
+            tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+            img_tran = create_fake_image((img_width, img_height),tran_coords)
+
+
+            shift, error, diffphase = register_translation(img_ref, img_tran)
+            registered_tran_coords = tran_coords + shift
+            min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
+                                                        registered_tran_coords,
+                                                        registration_tollerance_pxl)
+
+            all_rounds_shifts[tran_round_num] = shift
+            all_rounds_matching_dots[tran_round_num] = min_num_matching_dots
+            
+
+            # Register stitching channel
+            stitching_channel_df.loc[tran_counts_df.index,'r_px_registered'] =  registered_tran_coords[:,0]
+            stitching_channel_df.loc[tran_counts_df.index,'c_px_registered'] =  registered_tran_coords[:,1]
+            stitching_channel_df.loc[tran_counts_df.index,'r_shift_px'] =  shift[0]
+            stitching_channel_df.loc[tran_counts_df.index,'c_shift_px'] =  shift[1]
+            stitching_channel_df.loc[tran_counts_df.index,
+                        'min_number_matching_dots_registration'] =  min_num_matching_dots
+            
+    else:
+        
+        stitching_channel_df['r_px_registered'] = np.nan
+        stitching_channel_df['c_px_registered'] = np.nan
+        stitching_channel_df['r_shift_px'] = np.nan
+        stitching_channel_df['c_shift_px'] = np.nan
+        stitching_channel_df['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
+        all_rounds_shifts = np.nan
+     
+    return stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots
+
+
+
+
+def beads_based_registration_fish(all_counts_fov: pd.DataFrame,
+                                        all_rounds_shifts: np.ndarray,
+                                        all_rounds_matching_dots: pd.DataFrame,
+                                        analysis_parameters: Dict)->pd.DataFrame:
+    """Adjust the coords of the fish dots using the shift calculated in the 
+    reference channel.
+
+    Args:
+        all_counts_fov (pd.DataFrame): Coords of all peaks
+        all_rounds_shifts (np.ndarray): Calculated shift from the registration 
+                                of the reference channel
+        all_rounds_matching_dots (pd.DataFrame): Marching dots between rounds
+        analysis_parameters (Dict): Processing parameters
+
+    Returns:
+        pd.DataFrame: All registered counts
+    """
+    
+    registration_errors = Registration_errors()
+    
+    # Determine if there are any round with missing counts in the registration
+    if all_counts_fov[all_counts_fov['dot_id'].isnull()].empty :
+    
+        all_counts_fov['r_px_registered'] = np.nan
+        all_counts_fov['c_px_registered'] = np.nan
+        all_counts_fov['r_shift_px'] = np.nan
+        all_counts_fov['c_shift_px'] = np.nan
+        all_counts_fov['min_number_matching_dots_registration'] = np.nan
+
+        if isinstance(all_rounds_shifts,dict):
+
+            for round_num, shift in all_rounds_shifts.items():
+                    
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_px_registered'] =  all_counts_fov['r_px_original'] + shift[0] 
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_px_registered'] =  all_counts_fov['c_px_original'] + shift[1]
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_shift_px'] =  shift[0] 
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_shift_px'] =  shift[1]
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,
+                            'min_number_matching_dots_registration'] =  all_rounds_matching_dots[round_num]
+        else:
+
+            all_counts_fov['r_px_registered'] = np.nan
+            all_counts_fov['c_px_registered'] = np.nan
+            all_counts_fov['r_shift_px'] = np.nan
+            all_counts_fov['c_shift_px'] = np.nan
+            all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
+                 
+    else:
+        
+        all_counts_fov['r_px_registered'] = np.nan
+        all_counts_fov['c_px_registered'] = np.nan
+        all_counts_fov['r_shift_px'] = np.nan
+        all_counts_fov['c_shift_px'] = np.nan
+        all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
+     
+    return all_counts_fov
+
+
+# TODO MUST ADD THE CONSIDERATION OF POTENTIAL ERRORS
+def nuclei_based_registration(all_counts_fov: pd.DataFrame,
+                            img_stack: np.ndarray,
+                            analysis_parameters: Dict)->pd.DataFrame:
+    """Function used to run the registration of a single fov
+    through all hybridization. The registration is done using the dots
+    coords determined in each image
+
+    Args:
+        all_counts_fov (pd.DataFrame): Coords of all peaks
+        img_stack (np.ndarray): Image stack of the nuclei from different rounds
+        analysis_parameters (Dict): Processing parameters
+
+    Returns:
+        pd.DataFrame: All registered counts
+    """
+   
+    
+    logger = selected_logger()
+    
+    # Used index to avoid to remake the output dataframe
+    
+    stitching_channel = all_counts_fov['stitching_channel'].iloc[0]
+    stitching_channel_df = all_counts_fov.loc[all_counts_fov.channel == stitching_channel, :]
+    fish_df = all_counts_fov.loc[all_counts_fov.channel != stitching_channel,:]
+    
+    reference_round_num = analysis_parameters['RegistrationReferenceHybridization']
+    ref_round_num_img = reference_round_num -1
+    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
+    
+    registration_errors = Registration_errors()
+    
+    
+    # Determine if there are any round with missing counts in the registration
+    if stitching_channel_df[stitching_channel_df['dot_id'].isnull()].empty :
+    
+        all_counts_fov['r_px_registered'] = np.nan
+        all_counts_fov['c_px_registered'] = np.nan
+        all_counts_fov['r_shift_px'] = np.nan
+        all_counts_fov['c_shift_px'] = np.nan
+        all_counts_fov['min_number_matching_dots_registration'] = np.nan
+        all_counts_fov['RMS'] = np.nan
+
+
+        # Register fish and enter ref round info
+        fish_ref_round = fish_df.loc[fish_df.round_num == reference_round_num,:]
+
+        all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  \
+                fish_ref_round.loc[fish_ref_round.index,'r_px_original']
+        all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  \
+                fish_ref_round.loc[fish_ref_round.index,'c_px_original']
+        all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  0
+        all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  0
+        all_counts_fov.loc[fish_ref_round.index,'min_number_matching_dots_registration'] =  1000
+        all_counts_fov.loc[fish_ref_round.index,'RMS'] =  0
+
+        all_rounds = np.arange(img_stack.shape[0])
+        all_rounds = all_rounds[all_rounds != ref_round_num_img]
+
+        ref_img = img_stack[ref_round_num_img,:,:]
+    
+        for r_num in all_rounds:
+            # Register fish
+            fish_ref_round = fish_df.loc[fish_df.round_num == (r_num+1),:]
+
+            shift, error, diffphase = phase_cross_correlation(ref_img, img_stack[r_num,:,:],return_error=True)    
+            
+            all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  fish_ref_round['r_px_original'] + shift[0] 
+            all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  fish_ref_round['c_px_original'] + shift[1]
+            all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  shift[0] 
+            all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  shift[1]
+            all_counts_fov.loc[fish_ref_round.index,
+                        'min_number_matching_dots_registration'] =  error
+            all_counts_fov.loc[fish_ref_round.index,'RMS'] =  0
+
+    else:
+        
+        all_counts_fov['r_px_registered'] = np.nan
+        all_counts_fov['c_px_registered'] = np.nan
+        all_counts_fov['r_shift_px'] = np.nan
+        all_counts_fov['c_shift_px'] = np.nan
+        all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
+        all_counts_fov['RMS'] = np.nan
+     
+    return all_counts_fov
+
+
+# TODO Adjust and port this function in case of triangulation
+# class triangles_based_registration():
+#     """
+#     Class used to register the different rounds by searaching and
+#     matching all possible triangles formed by the dots in the reference
+#     and translated image. This function run only a registration to the reference
+#     round
+    
+#     The calculation of the triangle is based on list processing and may 
+#     be improved in ported to numpy.
+#     https://stackoverflow.com/questions/43126580/match-set-of-x-y-points-to-another-set-that-is-scaled-rotated-translated-and
+
+#     """
+
+#     def __init__(self, counts, experiment_fpath, channel_name, roi_number, fov_name):
+#         self.counts = counts
+#         self.experiment_fpath = Path(experiment_fpath)
+#         self.channel_name = channel_name
+#         self.roi_number = roi_number
+#         self.fov_name = fov_name
+        
+#         self.logger = logging.getLogger(__name__)
+        
+#         self.pipeline_config_fpath = self.experiment_fpath / 'pipeline_config'
+#         self.experiment_config_fpath =  self.pipeline_config_fpath / 'experiment.yaml'
+#         self.experiment_config = load_pipeline_config_file(self.experiment_config_fpath)
+        
+#         searching_key = '*roi_' +str(self.roi_number) + '_' + self.channel_name + '_images_config.yaml'        
+        
+#         try:
+#             self.image_config_fpath = list(self.pipeline_config_fpath.glob(searching_key))[0]
+#         except:
+#             self.logger.error(f'the reference beads image_config file is missing {searching_key}')
+#             sys.exit(f'the reference beads image_config file')
+
+        
+#         # Load registration parameters
+#         self.image_config = load_pipeline_config_file(self.image_config_fpath)
+#         self.registration_parameters = self.image_config[fov_name]['fov_analysis_parameters']['rounds_registration']
+#         self.chunk_size = self.registration_parameters['chunk_size']
+#         self.min_dots_chunk = self.registration_parameters['min_dots_chunk']
+#         self.min_error_triangles = self.registration_parameters['min_error_triangles']
+#         self.percent_padding = self.registration_parameters['percent_padding']
+#         self.reference_round = self.registration_parameters['reference_round']
+#         self.collect_all_chunks = self.registration_parameters['collect_all_chunks']
+#         self.reference_round_name = 'round_' + str(self.reference_round)
+       
+#         # The top lef coords are 0,0 because we are using relative coords
+#         self.tl_coords = (0,0)
+
+#         self.img_dimensions = (self.image_config[fov_name]['rounds'][self.reference_round_name]['shape']['height'],
+#                                self.image_config[fov_name]['rounds'][self.reference_round_name]['shape']['width'])    
+                    
+
+#     @staticmethod
+#     def combine_coords(counts, round_num):
+#         data_reference = counts.loc[counts['round_num'] == round_num]
+#         r_px = data_reference.r_px_original.to_list()
+#         c_px = data_reference.c_px_original.to_list()
+#         coords = np.array(list(zip(r_px,c_px)))
+#         position_idx = data_reference.index
+#         return coords, position_idx
+
+
+#     @staticmethod
+#     def obj_fun(pars,x,src):
+#         tx, ty = pars
+#         H = np.array([[1, 0, tx],\
+#             [0, 1, ty]])
+#         src1 = np.c_[src,np.ones(src.shape[0])]
+#         return np.sum( (x - src1.dot(H.T)[:,:2])**2 )
+
+#     @staticmethod
+#     def apply_transform(pars, src):
+#         tx, ty = pars
+#         H = np.array([[1, 0, tx],\
+#             [0, 1, ty]])
+#         src1 = np.c_[src,np.ones(src.shape[0])]
+#         return src1.dot(H.T)[:,:2]
+
+#     @staticmethod
+#     def distance(x1,y1,x2,y2):
+#         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2 )
+
+#     @staticmethod
+#     def list_subtract(list1,list2):
+#         return np.absolute(np.array(list1)-np.array(list2))
+
+#     def tri_sides(self,set_x, set_x_tri):
+
+#         triangles = []
+#         for i in range(len(set_x_tri)):
+
+#             point1 = set_x_tri[i][0]
+#             point2 = set_x_tri[i][1]
+#             point3 = set_x_tri[i][2]
+
+#             point1x, point1y = set_x[point1][0], set_x[point1][1]
+#             point2x, point2y = set_x[point2][0], set_x[point2][1]
+#             point3x, point3y = set_x[point3][0], set_x[point3][1] 
+
+#             len1 = self.distance(point1x,point1y,point2x,point2y)
+#             len2 = self.distance(point1x,point1y,point3x,point3y)
+#             len3 = self.distance(point2x,point2y,point3x,point3y)
+
+#             # you need to normalize in case the ref and the tran
+#             # are warped
+#             #min_side = min(len1,len2,len3)
+#             #len1/=min_side
+#             #len2/=min_side
+#             #len3/=min_side
+#             t=[len1,len2,len3]
+#             t.sort()
+#             triangles.append(t)
+
+#         return triangles
+
+
+#     def identify_matching_coords(self,set_A, set_B, threshold):
+#         match_A_pts = []
+#         match_B_pts = []
+#         set_A_tri = list(itertools.combinations(range(len(set_A)), 3))
+#         set_B_tri = list(itertools.combinations(range(len(set_B)), 3))
+#         A_triangles = self.tri_sides(set_A, set_A_tri)
+#         B_triangles = self.tri_sides(set_B, set_B_tri)
+#         sums = []
+#         for i in range(len(A_triangles)):
+#             for j in range(len(B_triangles)):
+#                 k = sum(self.list_subtract(A_triangles[i], B_triangles[j]))
+#                 if k < threshold:
+#                     sums.append([i,j,k])
+#         # sort by smallest sum
+#         sums = sorted(sums, key=operator.itemgetter(2))
+#         if len(sums):
+#             match_A = set_A_tri[sums[0][0]]
+#             match_B = set_B_tri[sums[0][1]]
+#             for i in range(3):
+#                 match_A_pts.append(set_A[match_A[i]])
+#                 match_B_pts.append(set_B[match_B[i]])
+#         return (match_A_pts,match_B_pts)
+
+
+
+#     def calculate_chunks(self):
+#         self.chunks = chunking(self.img_dimensions,self.chunk_size,
+#                           self.registration_parameters['percent_padding'],self.tl_coords)   
+#         self.chunks.block_chunking()
+#         self.Coords_Padded_Chunks_list = self.chunks.Coords_Padded_Chunks_list
+        
+#     def calculate_dots_chunks(self,coords,chunk_coords):  
+#         r_tl = chunk_coords[0]
+#         r_br = chunk_coords[1]
+#         c_tl = chunk_coords[2]
+#         c_br = chunk_coords[3]
+
+#         # Select only the coords in the trimmed region
+#         coords_in_chunk = coords[((r_tl < coords[:,0]) & (coords[:,0]<r_br)\
+#                     & (c_tl <coords[:,1]) &(coords[:,1]<c_br)),: ]
+#         return coords_in_chunk
+
+
+#     def optimize_chunking(self,ref_coords, tran_coords):       
+#         self.enough_dots = False
+#         chunk_size = self.chunk_size
+#         while chunk_size < min(self.img_dimensions):
+#             chunks = chunking(self.img_dimensions, chunk_size, self.percent_padding, self.tl_coords)
+#             chunks.block_chunking()
+#             Coords_Padded_Chunks_list = chunks.Coords_Padded_Chunks_list
+#             ref_max_number_dots = []
+#             tran_max_number_dots = []
+#             ref_total = []
+#             tran_total = []
+#             for chunk_coords in Coords_Padded_Chunks_list:
+#                 ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
+#                 tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
+#                 if ref_coords_in_chunk.shape[0] > self.min_dots_chunk and tran_coords_in_chunk.shape[0] > self.min_dots_chunk:
+#                         self.enough_dots = True
+#                         break
+#             if self.enough_dots:
+#                 break
+#             else:
+#                 self.enough_dots = False
+#                 chunk_size += 200
+
+#         if self.enough_dots:
+#             # Collect the ref and tran coords from the chunks with enough dots
+#             self.ref_tran_screening_list = []
+#             for chunk_coords in Coords_Padded_Chunks_list:
+#                 ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
+#                 tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
+#                 if ref_coords_in_chunk.shape[0] > self.min_dots_chunk and tran_coords_in_chunk.shape[0] > self.min_dots_chunk:
+#                     self.ref_tran_screening_list.append((ref_coords_in_chunk,tran_coords_in_chunk,chunk_coords))
+#             self.chunk_size = chunk_size
+
+
+#     def rounds_to_register(self):
+#         # remember that round_num is not pythonic
+#         self.rounds_list = list(self.counts['round_num'].unique())
+#         if self.reference_round == False:
+#             logger.error(f'missing reference round')
+#             sys.exit(f'missing reference round')
+#         elif self.reference_round <0 or self.reference_round > max(self.rounds_list):
+#             logger.error(f'selected reference round {self.reference_round} is out of range')
+#             sys.exit(f'selected reference round {self.reference_round} is out of range')
+#         else:
+#             self.rounds_list = list(self.counts['round_num'].unique()) 
+#             self.processing_combinations = []
+#             self.rounds_list.remove(self.reference_round)
+#             for el in self.rounds_list:
+#                 self.processing_combinations.append((self.reference_round,el))
+
+#     def cpl_registration(self,ref_coords,tran_coords,cpl):
+#         self.optimize_chunking(ref_coords, tran_coords)
+#         self.completed_registration = False
+#         if self.enough_dots:
+#             match_ref_pts_all = []
+#             match_tran_pts_all = []
+#             if self.collect_all_chunks:
+#             # Collect all matching dots in all chunked regions with number of dots above threshold
+#                 for ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords in self.ref_tran_screening_list:
+#                         match_ref_pts, match_tran_pts = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
+#                         if len(match_ref_pts) and len(match_tran_pts):
+#                             match_ref_pts_all.append(match_ref_pts)
+#                             match_tran_pts_all.append(match_tran_pts)
+#                 match_ref_pts_all = [pts for grp in match_ref_pts_all for pts in grp]
+#                 match_tran_pts_all = [pts for grp in match_tran_pts_all for pts in grp]
+#             else:
+#                 ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords = self.ref_tran_screening_list[0]
+#                 match_ref_pts_all, match_tran_pts_all = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
+
+#             if len(match_ref_pts_all):
+#                 match_ref_pts_all = np.vstack(match_ref_pts_all)
+#                 match_tran_pts_all = np.vstack(match_tran_pts_all)
+#                 minimization_output = minimize(self.obj_fun,[0,0],args=(match_ref_pts_all,match_tran_pts_all), method='Nelder-Mead')
+#                 if minimization_output.success:
+#                     self.tran_registered_coords = self.apply_transform(minimization_output.x, tran_coords)
+#                     self.transformation_matrix = minimization_output.x
+#                     self.completed_registration = True
+#                 else:
+#                     self.logger.info(f'chunk {chunk_coords} of {cpl} failed minimization of distances')
+#             else:
+#                 self.logger.info(f'chunk {chunk_coords} of {cpl} did not find matching triangles')
+
+#         else:
+#             self.logger.info(f'cannot register rounds {cpl} not enough dots')
+#             self.tran_registered_coords = tran_coords
+#             self.transformation_matrix = np.empty([1,2])
+#             self.transformation_matrix[:] = np.nan
+
+#         if not self.completed_registration:
+#             self.logger.info(f'was not possible to register {cpl} ')
+#             self.tran_registered_coords = tran_coords
+#             self.transformation_matrix = np.empty([1,2])
+#             self.transformation_matrix[:] = np.nan
+
+
+#     def register(self):
+#         all_registration_matrix = {}
+#         r_px_col_name = 'r_px_registered'
+#         c_px_col_name = 'c_px_registered'
+#         self.counts[r_px_col_name] = np.nan
+#         self.counts[c_px_col_name] = np.nan
+#         self.counts['r_transformation_registration'] = np.nan
+#         self.counts['c_transformation_registration'] = np.nan
+#         self.rounds_to_register()
+#         for cpl in self.processing_combinations:
+#             ref_round, tran_round = cpl
+#             ref_coords, ref_position_idx = self.combine_coords(self.counts,ref_round)
+#             tran_coords, tran_position_idx = self.combine_coords(self.counts,tran_round)
+#             self.cpl_registration(ref_coords,tran_coords,cpl)
+#             all_registration_matrix[cpl] = self.transformation_matrix
+#             self.ref_registered_coords = ref_coords
+#             self.counts.loc[ref_position_idx, r_px_col_name] = self.ref_registered_coords[:,0]
+#             self.counts.loc[ref_position_idx, c_px_col_name] = self.ref_registered_coords[:,1]
+#             self.counts.loc[ref_position_idx, 'r_transformation_registration'] = np.ones(self.ref_registered_coords.shape[0])
+#             self.counts.loc[ref_position_idx, 'c_transformation_registration'] = np.ones(self.ref_registered_coords.shape[0])
+#             self.counts.loc[tran_position_idx, r_px_col_name] = self.tran_registered_coords[:,0]
+#             self.counts.loc[tran_position_idx, c_px_col_name] = self.tran_registered_coords[:,1]
+#             all_transf = np.tile(self.transformation_matrix,(self.tran_registered_coords.shape[0],1))
+#             self.counts.loc[tran_position_idx, 'r_transformation_registration'] = all_transf[:,0]
+#             self.counts.loc[tran_position_idx, 'c_transformation_registration'] = all_transf[:,1]
+       
+#         return self.counts, all_registration_matrix
+
+
+
+
+# TODO Remove not used functions
+########## ----------------------------------------
+
+
+def beads_based_registration(all_counts_fov: pd.DataFrame,
+                            analysis_parameters: Dict)->pd.DataFrame:
+    """[summary]
+
+    Args:
+        all_counts_fov (pd.DataFrame): [description]
+        analysis_parameters (Dict): [description]
+
+    Returns:
+        pd.DataFrame: [description]
+    """
+    
+    # Used index to avoid to remake the output dataframe
+    
+    stitching_channel = all_counts_fov['stitching_channel'].iloc[0]
+    
+    stitching_channel_df = all_counts_fov.loc[(all_counts_fov.channel == stitching_channel) &
+                                              (all_counts_fov.mapped_beads_type == 'large')  , :]
+    
+    if stitching_channel_df.shape[0] < 2:
+        stitching_channel_df = all_counts_fov.loc[(all_counts_fov.channel == stitching_channel) , :]
+
+    
+    fish_df = all_counts_fov.loc[all_counts_fov.channel != stitching_channel,:]
+    
+    reference_round_num = analysis_parameters['RegistrationReferenceHybridization']
+    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
+    
+    registration_errors = Registration_errors()
+    
+    
+    # Determine if there are any round with missing counts in the registration
+    if stitching_channel_df[stitching_channel_df['dot_id'].isnull()].empty :
+    
+        all_counts_fov['r_px_registered'] = np.nan
+        all_counts_fov['c_px_registered'] = np.nan
+        all_counts_fov['r_shift_px'] = np.nan
+        all_counts_fov['c_shift_px'] = np.nan
+        all_counts_fov['min_number_matching_dots_registration'] = np.nan
+
+        # Register stitching channel
+        ref_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,:]
+
+        all_counts_fov.loc[ref_counts_df.index,'r_px_registered'] =  \
+                ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'r_px_original']
+        all_counts_fov.loc[ref_counts_df.index,'c_px_registered'] =  \
+                ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'c_px_original']
+        all_counts_fov.loc[ref_counts_df.index,'r_shift_px'] =  0
+        all_counts_fov.loc[ref_counts_df.index,'c_shift_px'] =  0
+        all_counts_fov.loc[ref_counts_df.index,'min_number_matching_dots_registration'] =  1000
+
+        # Register fish
+        fish_ref_round = fish_df.loc[fish_df.round_num == reference_round_num,:]
+        
+        all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  \
+                fish_ref_round.loc[fish_ref_round.index,'r_px_original']
+        all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  \
+                fish_ref_round.loc[fish_ref_round.index,'c_px_original']
+        all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  0
+        all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  0
+        all_counts_fov.loc[fish_ref_round.index,'min_number_matching_dots_registration'] =  1000
+        
+        # Create reference fake image for registration
+        img_width = ref_counts_df.iloc[0]['img_width']
+        img_height = ref_counts_df.iloc[0]['img_height']
+        ref_coords = ref_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+        img_ref = create_fake_image((img_width, img_height),ref_coords)
+
+        all_rounds = all_counts_fov.round_num.unique()
+        all_rounds = all_rounds[all_rounds != reference_round_num]
+        for tran_round_num in all_rounds:
+
+           
+            tran_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == tran_round_num,:]
+            img_width = tran_counts_df.iloc[0]['img_width']
+            img_height = tran_counts_df.iloc[0]['img_height']
+            tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+            img_tran = create_fake_image((img_width, img_height),tran_coords)
+
+
+            shift, error, diffphase = register_translation(img_ref, img_tran)
+            registered_tran_coords = tran_coords + shift
+            min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
+                                                        registered_tran_coords,
+                                                        registration_tollerance_pxl)
+
+
+            # Register stitching channel
+            all_counts_fov.loc[tran_counts_df.index,'r_px_registered'] =  registered_tran_coords[:,0]
+            all_counts_fov.loc[tran_counts_df.index,'c_px_registered'] =  registered_tran_coords[:,1]
+            all_counts_fov.loc[tran_counts_df.index,'r_shift_px'] =  shift[0]
+            all_counts_fov.loc[tran_counts_df.index,'c_shift_px'] =  shift[1]
+            all_counts_fov.loc[tran_counts_df.index,
+                        'min_number_matching_dots_registration'] =  min_num_matching_dots
+            
+            
+            # Register fish
+            fish_ref_round = fish_df.loc[fish_df.round_num == tran_round_num,:]
+            all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  fish_ref_round['r_px_original'] + shift[0] 
+            all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  fish_ref_round['c_px_original'] + shift[1]
+            all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  shift[0] 
+            all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  shift[1]
+            all_counts_fov.loc[fish_ref_round.index,
+                        'min_number_matching_dots_registration'] =  min_num_matching_dots
+            
+            
+    else:
+        
+        all_counts_fov['r_px_registered'] = np.nan
+        all_counts_fov['c_px_registered'] = np.nan
+        all_counts_fov['r_shift_px'] = np.nan
+        all_counts_fov['c_shift_px'] = np.nan
+        all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
+     
+    return all_counts_fov
+
 
 # @task(name='fft_registration_beads')# ADD LOGGER
 def fft_registration_beads(reference_coords:np.ndarray, translated_coords:np.ndarray,
@@ -831,363 +1510,66 @@ def register_fish_on_nuclei(processing_files:List,analysis_parameters:Dict,
         registered_fish_df.to_parquet(fname,index=False)
     return registered_fish_df, file_tags, status
 
-
-
-def beads_based_registration_stitching_channel(stitching_channel_df,
-                                          analysis_parameters):
-    
-    # Used index to avoid to remake the output dataframe
-    
-
-    reference_round_num = analysis_parameters['RegistrationReferenceHybridization']
-    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
-    
-    registration_errors = Registration_errors()
-    
-    all_rounds_shifts = {}
-    all_rounds_matching_dots = {}
-    # Determine if there are any round with missing counts in the registration
-    if stitching_channel_df[stitching_channel_df['dot_id'].isnull()].empty :
-    
-        stitching_channel_df['r_px_registered'] = np.nan
-        stitching_channel_df['c_px_registered'] = np.nan
-        stitching_channel_df['r_shift_px'] = np.nan
-        stitching_channel_df['c_shift_px'] = np.nan
-        stitching_channel_df['min_number_matching_dots_registration'] = np.nan
-
-        # Register stitching channel
-        ref_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,:]
-
-        stitching_channel_df.loc[ref_counts_df.index,'r_px_registered'] =  \
-                ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'r_px_original']
-        stitching_channel_df.loc[ref_counts_df.index,'c_px_registered'] =  \
-                ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'c_px_original']
-        stitching_channel_df.loc[ref_counts_df.index,'r_shift_px'] =  0
-        stitching_channel_df.loc[ref_counts_df.index,'c_shift_px'] =  0
-        stitching_channel_df.loc[ref_counts_df.index,'min_number_matching_dots_registration'] =  1000
-
-        all_rounds_shifts[reference_round_num] = [0,0]
-        all_rounds_matching_dots[reference_round_num] = 1000
-
-        # Create reference fake image for registration
-        img_width = ref_counts_df.iloc[0]['img_width']
-        img_height = ref_counts_df.iloc[0]['img_height']
-        ref_coords = ref_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
-        img_ref = create_fake_image((img_width, img_height),ref_coords)
-
-        all_rounds = stitching_channel_df.round_num.unique()
-        all_rounds = all_rounds[all_rounds != reference_round_num]
-        for tran_round_num in all_rounds:
-
-           
-            tran_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == tran_round_num,:]
-            img_width = tran_counts_df.iloc[0]['img_width']
-            img_height = tran_counts_df.iloc[0]['img_height']
-            tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
-            img_tran = create_fake_image((img_width, img_height),tran_coords)
-
-
-            shift, error, diffphase = register_translation(img_ref, img_tran)
-            registered_tran_coords = tran_coords + shift
-            min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
-                                                        registered_tran_coords,
-                                                        registration_tollerance_pxl)
-
-            all_rounds_shifts[tran_round_num] = shift
-            all_rounds_matching_dots[tran_round_num] = min_num_matching_dots
-            
-
-            # Register stitching channel
-            stitching_channel_df.loc[tran_counts_df.index,'r_px_registered'] =  registered_tran_coords[:,0]
-            stitching_channel_df.loc[tran_counts_df.index,'c_px_registered'] =  registered_tran_coords[:,1]
-            stitching_channel_df.loc[tran_counts_df.index,'r_shift_px'] =  shift[0]
-            stitching_channel_df.loc[tran_counts_df.index,'c_shift_px'] =  shift[1]
-            stitching_channel_df.loc[tran_counts_df.index,
-                        'min_number_matching_dots_registration'] =  min_num_matching_dots
-            
-    else:
-        
-        stitching_channel_df['r_px_registered'] = np.nan
-        stitching_channel_df['c_px_registered'] = np.nan
-        stitching_channel_df['r_shift_px'] = np.nan
-        stitching_channel_df['c_shift_px'] = np.nan
-        stitching_channel_df['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
-        all_rounds_shifts = np.nan
-     
-    return stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots
-
-
-def beads_based_registration_fish(all_counts_fov,
-                                        all_rounds_shifts,
-                                        all_rounds_matching_dots,
-                                        analysis_parameters):
-    
-    registration_errors = Registration_errors()
-    
-    # Determine if there are any round with missing counts in the registration
-    if all_counts_fov[all_counts_fov['dot_id'].isnull()].empty :
-    
-        all_counts_fov['r_px_registered'] = np.nan
-        all_counts_fov['c_px_registered'] = np.nan
-        all_counts_fov['r_shift_px'] = np.nan
-        all_counts_fov['c_shift_px'] = np.nan
-        all_counts_fov['min_number_matching_dots_registration'] = np.nan
-
-        if isinstance(all_rounds_shifts,dict):
-
-            for round_num, shift in all_rounds_shifts.items():
-                    
-                all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_px_registered'] =  all_counts_fov['r_px_original'] + shift[0] 
-                all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_px_registered'] =  all_counts_fov['c_px_original'] + shift[1]
-                all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_shift_px'] =  shift[0] 
-                all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_shift_px'] =  shift[1]
-                all_counts_fov.loc[all_counts_fov.round_num == round_num,
-                            'min_number_matching_dots_registration'] =  all_rounds_matching_dots[round_num]
-        else:
-
-            all_counts_fov['r_px_registered'] = np.nan
-            all_counts_fov['c_px_registered'] = np.nan
-            all_counts_fov['r_shift_px'] = np.nan
-            all_counts_fov['c_shift_px'] = np.nan
-            all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
-            
-            
-    else:
-        
-        all_counts_fov['r_px_registered'] = np.nan
-        all_counts_fov['c_px_registered'] = np.nan
-        all_counts_fov['r_shift_px'] = np.nan
-        all_counts_fov['c_shift_px'] = np.nan
-        all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
-     
-    return all_counts_fov
-
-
-def beads_based_registration(all_counts_fov,
-                                          analysis_parameters):
-    
-    # Used index to avoid to remake the output dataframe
-    
-    stitching_channel = all_counts_fov['stitching_channel'].iloc[0]
-    
-    stitching_channel_df = all_counts_fov.loc[(all_counts_fov.channel == stitching_channel) &
-                                              (all_counts_fov.mapped_beads_type == 'large')  , :]
-    
-    if stitching_channel_df.shape[0] < 2:
-        stitching_channel_df = all_counts_fov.loc[(all_counts_fov.channel == stitching_channel) , :]
-
-    
-    fish_df = all_counts_fov.loc[all_counts_fov.channel != stitching_channel,:]
-    
-    reference_round_num = analysis_parameters['RegistrationReferenceHybridization']
-    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
-    
-    registration_errors = Registration_errors()
-    
-    
-    # Determine if there are any round with missing counts in the registration
-    if stitching_channel_df[stitching_channel_df['dot_id'].isnull()].empty :
-    
-        all_counts_fov['r_px_registered'] = np.nan
-        all_counts_fov['c_px_registered'] = np.nan
-        all_counts_fov['r_shift_px'] = np.nan
-        all_counts_fov['c_shift_px'] = np.nan
-        all_counts_fov['min_number_matching_dots_registration'] = np.nan
-
-        # Register stitching channel
-        ref_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,:]
-
-        all_counts_fov.loc[ref_counts_df.index,'r_px_registered'] =  \
-                ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'r_px_original']
-        all_counts_fov.loc[ref_counts_df.index,'c_px_registered'] =  \
-                ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'c_px_original']
-        all_counts_fov.loc[ref_counts_df.index,'r_shift_px'] =  0
-        all_counts_fov.loc[ref_counts_df.index,'c_shift_px'] =  0
-        all_counts_fov.loc[ref_counts_df.index,'min_number_matching_dots_registration'] =  1000
-
-        # Register fish
-        fish_ref_round = fish_df.loc[fish_df.round_num == reference_round_num,:]
-        
-        all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  \
-                fish_ref_round.loc[fish_ref_round.index,'r_px_original']
-        all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  \
-                fish_ref_round.loc[fish_ref_round.index,'c_px_original']
-        all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  0
-        all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  0
-        all_counts_fov.loc[fish_ref_round.index,'min_number_matching_dots_registration'] =  1000
-        
-        
-
-        # Create reference fake image for registration
-        img_width = ref_counts_df.iloc[0]['img_width']
-        img_height = ref_counts_df.iloc[0]['img_height']
-        ref_coords = ref_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
-        img_ref = create_fake_image((img_width, img_height),ref_coords)
-
-        all_rounds = all_counts_fov.round_num.unique()
-        all_rounds = all_rounds[all_rounds != reference_round_num]
-        for tran_round_num in all_rounds:
-
-           
-            tran_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == tran_round_num,:]
-            img_width = tran_counts_df.iloc[0]['img_width']
-            img_height = tran_counts_df.iloc[0]['img_height']
-            tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
-            img_tran = create_fake_image((img_width, img_height),tran_coords)
-
-
-            shift, error, diffphase = register_translation(img_ref, img_tran)
-            registered_tran_coords = tran_coords + shift
-            min_num_matching_dots = identify_matching_register_dots_NN(ref_coords,
-                                                        registered_tran_coords,
-                                                        registration_tollerance_pxl)
-
-
-            # Register stitching channel
-            all_counts_fov.loc[tran_counts_df.index,'r_px_registered'] =  registered_tran_coords[:,0]
-            all_counts_fov.loc[tran_counts_df.index,'c_px_registered'] =  registered_tran_coords[:,1]
-            all_counts_fov.loc[tran_counts_df.index,'r_shift_px'] =  shift[0]
-            all_counts_fov.loc[tran_counts_df.index,'c_shift_px'] =  shift[1]
-            all_counts_fov.loc[tran_counts_df.index,
-                        'min_number_matching_dots_registration'] =  min_num_matching_dots
-            
-            
-            # Register fish
-            fish_ref_round = fish_df.loc[fish_df.round_num == tran_round_num,:]
-            all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  fish_ref_round['r_px_original'] + shift[0] 
-            all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  fish_ref_round['c_px_original'] + shift[1]
-            all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  shift[0] 
-            all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  shift[1]
-            all_counts_fov.loc[fish_ref_round.index,
-                        'min_number_matching_dots_registration'] =  min_num_matching_dots
-            
-            
-    else:
-        
-        all_counts_fov['r_px_registered'] = np.nan
-        all_counts_fov['c_px_registered'] = np.nan
-        all_counts_fov['r_shift_px'] = np.nan
-        all_counts_fov['c_shift_px'] = np.nan
-        all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
-     
-    return all_counts_fov
-
-
-
-def nuclei_based_registration(all_counts_fov,
-                            img_stack:np.ndarray,
-                            analysis_parameters:Dict):
+def create_registration_grps(experiment_fpath:str,registration_channel:str, fovs:List, save=True):
     """
-    Function used to run the registration of a single fov
-    through all hybridization. The registration is done using the dots
-    coords determined in each image
-
+    Function to create groups of files that need to be registered together
     Args:
-        processing_files: List
-            list of the files with the counts to register
-        analysis_parameters: Dict
-            dict that contains the settings for the analysis 
-
-
-    MUST ADD THE CONSIDERATION OF POTENTIAL ERRORS
+        experiment_fpath: str
+            Path to the exp directory 
+        registration_channel : str
+            Name of the channel used for registration of the fovs
+        fovs: List
+            List of the keys used for grouping
+    Returns:
+        all_grps: List
+            List of tuples containing the file names of reference
+            channel and fish grouped by fov
     """
-    
     logger = selected_logger()
-    
-    # Used index to avoid to remake the output dataframe
-    
-    stitching_channel = all_counts_fov['stitching_channel'].iloc[0]
-    stitching_channel_df = all_counts_fov.loc[all_counts_fov.channel == stitching_channel, :]
-    fish_df = all_counts_fov.loc[all_counts_fov.channel != stitching_channel,:]
-    
-    reference_round_num = analysis_parameters['RegistrationReferenceHybridization']
-    ref_round_num_img = reference_round_num -1
-    registration_tollerance_pxl = analysis_parameters['RegistrationTollerancePxl']
-    
-    registration_errors = Registration_errors()
-    
-    
-    # Determine if there are any round with missing counts in the registration
-    if stitching_channel_df[stitching_channel_df['dot_id'].isnull()].empty :
-    
-        all_counts_fov['r_px_registered'] = np.nan
-        all_counts_fov['c_px_registered'] = np.nan
-        all_counts_fov['r_shift_px'] = np.nan
-        all_counts_fov['c_shift_px'] = np.nan
-        all_counts_fov['min_number_matching_dots_registration'] = np.nan
-        all_counts_fov['RMS'] = np.nan
+    tmp_fpath = Path(experiment_fpath) / 'tmp/raw_counts'
+    all_files = set(tmp_fpath.glob('*'))
+    registration_files = list(tmp_fpath.glob('*' + registration_channel + '*'))
+    fish_files = all_files.difference(registration_files)
 
-
-        # Register fish and enter ref round info
-        fish_ref_round = fish_df.loc[fish_df.round_num == reference_round_num,:]
-
-        all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  \
-                fish_ref_round.loc[fish_ref_round.index,'r_px_original']
-        all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  \
-                fish_ref_round.loc[fish_ref_round.index,'c_px_original']
-        all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  0
-        all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  0
-        all_counts_fov.loc[fish_ref_round.index,'min_number_matching_dots_registration'] =  1000
-        all_counts_fov.loc[fish_ref_round.index,'RMS'] =  0
-
-        all_rounds = np.arange(img_stack.shape[0])
-        all_rounds = all_rounds[all_rounds != ref_round_num_img]
-
-        ref_img = img_stack[ref_round_num_img,:,:]
-    
-        for r_num in all_rounds:
-            # Register fish
-            fish_ref_round = fish_df.loc[fish_df.round_num == (r_num+1),:]
-
-            shift, error, diffphase = phase_cross_correlation(ref_img, img_stack[r_num,:,:],return_error=True)    
-            
-            all_counts_fov.loc[fish_ref_round.index,'r_px_registered'] =  fish_ref_round['r_px_original'] + shift[0] 
-            all_counts_fov.loc[fish_ref_round.index,'c_px_registered'] =  fish_ref_round['c_px_original'] + shift[1]
-            all_counts_fov.loc[fish_ref_round.index,'r_shift_px'] =  shift[0] 
-            all_counts_fov.loc[fish_ref_round.index,'c_shift_px'] =  shift[1]
-            all_counts_fov.loc[fish_ref_round.index,
-                        'min_number_matching_dots_registration'] =  error
-            all_counts_fov.loc[fish_ref_round.index,'RMS'] =  0
-
-    else:
-        
-        all_counts_fov['r_px_registered'] = np.nan
-        all_counts_fov['c_px_registered'] = np.nan
-        all_counts_fov['r_shift_px'] = np.nan
-        all_counts_fov['c_shift_px'] = np.nan
-        all_counts_fov['min_number_matching_dots_registration'] = registration_errors.missing_counts_reg_channel
-        all_counts_fov['RMS'] = np.nan
-     
-    return all_counts_fov
+    all_grps = []
+    for fov in fovs:
+        search_key_reg = registration_channel + '_fov_' + str(fov) + '_dots.pkl'
+        search_key_fish =  '_fov_' + str(fov) + '_dots.pkl'
+        grp_reg = [reg_f for reg_f in registration_files if search_key_reg in reg_f.as_posix()]
+        grp_fish = [fish_f for fish_f in fish_files if search_key_fish in fish_f.as_posix()]
+        logger.debug(f'fov {fov} for registration on {registration_channel} has {len(grp_reg)} counts files')
+        all_grps.append((grp_reg, grp_fish))
+    if save:
+        fname = Path(experiment_fpath) / 'tmp' / 'registration_groups.pkl'
+        pickle.dump(all_grps, open(fname,'wb'))
+    return all_grps
 
 
 
-def register_images(img, shift):
-        offset_image = fourier_shift(np.fft.fftn(img), shift)
-        offset_image = np.fft.ifftn(offset_image).real
-        return offset_image
 
 
-def combine_register_filtered_images(output_list, registered_counts, stitching_channel):
-    """
-    Important to use the stitching channel because the other channels do not have 
-    barcodes starting in round 16
-    """
-    if registered_counts.shape[0] > 1:
-        metadata_tmp = output_list[0][-1] 
-        channel = metadata_tmp['channel']
-        img_stack = np.zeros([int(metadata_tmp['barcode_length']),int(metadata_tmp['img_width']),int(metadata_tmp['img_height'])])
-        for filt_out in output_list:
-            img = filt_out[0][0]
-            img_meta = filt_out[1]
-            round_num = img_meta['round_num']
-            shift = registered_counts.loc[(registered_counts.round_num == round_num) &
-                                        (registered_counts.channel == stitching_channel), ['r_shift_px','c_shift_px']]
-            shift = shift.iloc[0].to_numpy()
-            shifted_img = register_images(img,shift)
-            img_stack[round_num-1,:,:] = shifted_img
 
-        return img_stack
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2039,291 +2421,6 @@ class reference_beads_registration_couple():
                                     'missing_pos':self.missing_pos}
 
 
-
-
-
-# class triangles_based_registration():
-#     """
-#     Class used to register the different rounds by searaching and
-#     matching all possible triangles formed by the dots in the reference
-#     and translated image. This function run only a registration to the reference
-#     round
-    
-#     The calculation of the triangle is based on list processing and may 
-#     be improved in ported to numpy.
-#     https://stackoverflow.com/questions/43126580/match-set-of-x-y-points-to-another-set-that-is-scaled-rotated-translated-and
-
-#     """
-
-#     def __init__(self, counts, experiment_fpath, channel_name, roi_number, fov_name):
-#         self.counts = counts
-#         self.experiment_fpath = Path(experiment_fpath)
-#         self.channel_name = channel_name
-#         self.roi_number = roi_number
-#         self.fov_name = fov_name
-        
-#         self.logger = logging.getLogger(__name__)
-        
-#         self.pipeline_config_fpath = self.experiment_fpath / 'pipeline_config'
-#         self.experiment_config_fpath =  self.pipeline_config_fpath / 'experiment.yaml'
-#         self.experiment_config = load_pipeline_config_file(self.experiment_config_fpath)
-        
-#         searching_key = '*roi_' +str(self.roi_number) + '_' + self.channel_name + '_images_config.yaml'        
-        
-#         try:
-#             self.image_config_fpath = list(self.pipeline_config_fpath.glob(searching_key))[0]
-#         except:
-#             self.logger.error(f'the reference beads image_config file is missing {searching_key}')
-#             sys.exit(f'the reference beads image_config file')
-
-        
-#         # Load registration parameters
-#         self.image_config = load_pipeline_config_file(self.image_config_fpath)
-#         self.registration_parameters = self.image_config[fov_name]['fov_analysis_parameters']['rounds_registration']
-#         self.chunk_size = self.registration_parameters['chunk_size']
-#         self.min_dots_chunk = self.registration_parameters['min_dots_chunk']
-#         self.min_error_triangles = self.registration_parameters['min_error_triangles']
-#         self.percent_padding = self.registration_parameters['percent_padding']
-#         self.reference_round = self.registration_parameters['reference_round']
-#         self.collect_all_chunks = self.registration_parameters['collect_all_chunks']
-#         self.reference_round_name = 'round_' + str(self.reference_round)
-       
-#         # The top lef coords are 0,0 because we are using relative coords
-#         self.tl_coords = (0,0)
-
-#         self.img_dimensions = (self.image_config[fov_name]['rounds'][self.reference_round_name]['shape']['height'],
-#                                self.image_config[fov_name]['rounds'][self.reference_round_name]['shape']['width'])    
-                    
-
-#     @staticmethod
-#     def combine_coords(counts, round_num):
-#         data_reference = counts.loc[counts['round_num'] == round_num]
-#         r_px = data_reference.r_px_original.to_list()
-#         c_px = data_reference.c_px_original.to_list()
-#         coords = np.array(list(zip(r_px,c_px)))
-#         position_idx = data_reference.index
-#         return coords, position_idx
-
-
-#     @staticmethod
-#     def obj_fun(pars,x,src):
-#         tx, ty = pars
-#         H = np.array([[1, 0, tx],\
-#             [0, 1, ty]])
-#         src1 = np.c_[src,np.ones(src.shape[0])]
-#         return np.sum( (x - src1.dot(H.T)[:,:2])**2 )
-
-#     @staticmethod
-#     def apply_transform(pars, src):
-#         tx, ty = pars
-#         H = np.array([[1, 0, tx],\
-#             [0, 1, ty]])
-#         src1 = np.c_[src,np.ones(src.shape[0])]
-#         return src1.dot(H.T)[:,:2]
-
-#     @staticmethod
-#     def distance(x1,y1,x2,y2):
-#         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2 )
-
-#     @staticmethod
-#     def list_subtract(list1,list2):
-#         return np.absolute(np.array(list1)-np.array(list2))
-
-#     def tri_sides(self,set_x, set_x_tri):
-
-#         triangles = []
-#         for i in range(len(set_x_tri)):
-
-#             point1 = set_x_tri[i][0]
-#             point2 = set_x_tri[i][1]
-#             point3 = set_x_tri[i][2]
-
-#             point1x, point1y = set_x[point1][0], set_x[point1][1]
-#             point2x, point2y = set_x[point2][0], set_x[point2][1]
-#             point3x, point3y = set_x[point3][0], set_x[point3][1] 
-
-#             len1 = self.distance(point1x,point1y,point2x,point2y)
-#             len2 = self.distance(point1x,point1y,point3x,point3y)
-#             len3 = self.distance(point2x,point2y,point3x,point3y)
-
-#             # you need to normalize in case the ref and the tran
-#             # are warped
-#             #min_side = min(len1,len2,len3)
-#             #len1/=min_side
-#             #len2/=min_side
-#             #len3/=min_side
-#             t=[len1,len2,len3]
-#             t.sort()
-#             triangles.append(t)
-
-#         return triangles
-
-
-#     def identify_matching_coords(self,set_A, set_B, threshold):
-#         match_A_pts = []
-#         match_B_pts = []
-#         set_A_tri = list(itertools.combinations(range(len(set_A)), 3))
-#         set_B_tri = list(itertools.combinations(range(len(set_B)), 3))
-#         A_triangles = self.tri_sides(set_A, set_A_tri)
-#         B_triangles = self.tri_sides(set_B, set_B_tri)
-#         sums = []
-#         for i in range(len(A_triangles)):
-#             for j in range(len(B_triangles)):
-#                 k = sum(self.list_subtract(A_triangles[i], B_triangles[j]))
-#                 if k < threshold:
-#                     sums.append([i,j,k])
-#         # sort by smallest sum
-#         sums = sorted(sums, key=operator.itemgetter(2))
-#         if len(sums):
-#             match_A = set_A_tri[sums[0][0]]
-#             match_B = set_B_tri[sums[0][1]]
-#             for i in range(3):
-#                 match_A_pts.append(set_A[match_A[i]])
-#                 match_B_pts.append(set_B[match_B[i]])
-#         return (match_A_pts,match_B_pts)
-
-
-
-#     def calculate_chunks(self):
-#         self.chunks = chunking(self.img_dimensions,self.chunk_size,
-#                           self.registration_parameters['percent_padding'],self.tl_coords)   
-#         self.chunks.block_chunking()
-#         self.Coords_Padded_Chunks_list = self.chunks.Coords_Padded_Chunks_list
-        
-#     def calculate_dots_chunks(self,coords,chunk_coords):  
-#         r_tl = chunk_coords[0]
-#         r_br = chunk_coords[1]
-#         c_tl = chunk_coords[2]
-#         c_br = chunk_coords[3]
-
-#         # Select only the coords in the trimmed region
-#         coords_in_chunk = coords[((r_tl < coords[:,0]) & (coords[:,0]<r_br)\
-#                     & (c_tl <coords[:,1]) &(coords[:,1]<c_br)),: ]
-#         return coords_in_chunk
-
-
-#     def optimize_chunking(self,ref_coords, tran_coords):       
-#         self.enough_dots = False
-#         chunk_size = self.chunk_size
-#         while chunk_size < min(self.img_dimensions):
-#             chunks = chunking(self.img_dimensions, chunk_size, self.percent_padding, self.tl_coords)
-#             chunks.block_chunking()
-#             Coords_Padded_Chunks_list = chunks.Coords_Padded_Chunks_list
-#             ref_max_number_dots = []
-#             tran_max_number_dots = []
-#             ref_total = []
-#             tran_total = []
-#             for chunk_coords in Coords_Padded_Chunks_list:
-#                 ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
-#                 tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
-#                 if ref_coords_in_chunk.shape[0] > self.min_dots_chunk and tran_coords_in_chunk.shape[0] > self.min_dots_chunk:
-#                         self.enough_dots = True
-#                         break
-#             if self.enough_dots:
-#                 break
-#             else:
-#                 self.enough_dots = False
-#                 chunk_size += 200
-
-#         if self.enough_dots:
-#             # Collect the ref and tran coords from the chunks with enough dots
-#             self.ref_tran_screening_list = []
-#             for chunk_coords in Coords_Padded_Chunks_list:
-#                 ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
-#                 tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
-#                 if ref_coords_in_chunk.shape[0] > self.min_dots_chunk and tran_coords_in_chunk.shape[0] > self.min_dots_chunk:
-#                     self.ref_tran_screening_list.append((ref_coords_in_chunk,tran_coords_in_chunk,chunk_coords))
-#             self.chunk_size = chunk_size
-
-
-#     def rounds_to_register(self):
-#         # remember that round_num is not pythonic
-#         self.rounds_list = list(self.counts['round_num'].unique())
-#         if self.reference_round == False:
-#             logger.error(f'missing reference round')
-#             sys.exit(f'missing reference round')
-#         elif self.reference_round <0 or self.reference_round > max(self.rounds_list):
-#             logger.error(f'selected reference round {self.reference_round} is out of range')
-#             sys.exit(f'selected reference round {self.reference_round} is out of range')
-#         else:
-#             self.rounds_list = list(self.counts['round_num'].unique()) 
-#             self.processing_combinations = []
-#             self.rounds_list.remove(self.reference_round)
-#             for el in self.rounds_list:
-#                 self.processing_combinations.append((self.reference_round,el))
-
-#     def cpl_registration(self,ref_coords,tran_coords,cpl):
-#         self.optimize_chunking(ref_coords, tran_coords)
-#         self.completed_registration = False
-#         if self.enough_dots:
-#             match_ref_pts_all = []
-#             match_tran_pts_all = []
-#             if self.collect_all_chunks:
-#             # Collect all matching dots in all chunked regions with number of dots above threshold
-#                 for ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords in self.ref_tran_screening_list:
-#                         match_ref_pts, match_tran_pts = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
-#                         if len(match_ref_pts) and len(match_tran_pts):
-#                             match_ref_pts_all.append(match_ref_pts)
-#                             match_tran_pts_all.append(match_tran_pts)
-#                 match_ref_pts_all = [pts for grp in match_ref_pts_all for pts in grp]
-#                 match_tran_pts_all = [pts for grp in match_tran_pts_all for pts in grp]
-#             else:
-#                 ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords = self.ref_tran_screening_list[0]
-#                 match_ref_pts_all, match_tran_pts_all = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
-
-#             if len(match_ref_pts_all):
-#                 match_ref_pts_all = np.vstack(match_ref_pts_all)
-#                 match_tran_pts_all = np.vstack(match_tran_pts_all)
-#                 minimization_output = minimize(self.obj_fun,[0,0],args=(match_ref_pts_all,match_tran_pts_all), method='Nelder-Mead')
-#                 if minimization_output.success:
-#                     self.tran_registered_coords = self.apply_transform(minimization_output.x, tran_coords)
-#                     self.transformation_matrix = minimization_output.x
-#                     self.completed_registration = True
-#                 else:
-#                     self.logger.info(f'chunk {chunk_coords} of {cpl} failed minimization of distances')
-#             else:
-#                 self.logger.info(f'chunk {chunk_coords} of {cpl} did not find matching triangles')
-
-#         else:
-#             self.logger.info(f'cannot register rounds {cpl} not enough dots')
-#             self.tran_registered_coords = tran_coords
-#             self.transformation_matrix = np.empty([1,2])
-#             self.transformation_matrix[:] = np.nan
-
-#         if not self.completed_registration:
-#             self.logger.info(f'was not possible to register {cpl} ')
-#             self.tran_registered_coords = tran_coords
-#             self.transformation_matrix = np.empty([1,2])
-#             self.transformation_matrix[:] = np.nan
-
-
-#     def register(self):
-#         all_registration_matrix = {}
-#         r_px_col_name = 'r_px_registered'
-#         c_px_col_name = 'c_px_registered'
-#         self.counts[r_px_col_name] = np.nan
-#         self.counts[c_px_col_name] = np.nan
-#         self.counts['r_transformation_registration'] = np.nan
-#         self.counts['c_transformation_registration'] = np.nan
-#         self.rounds_to_register()
-#         for cpl in self.processing_combinations:
-#             ref_round, tran_round = cpl
-#             ref_coords, ref_position_idx = self.combine_coords(self.counts,ref_round)
-#             tran_coords, tran_position_idx = self.combine_coords(self.counts,tran_round)
-#             self.cpl_registration(ref_coords,tran_coords,cpl)
-#             all_registration_matrix[cpl] = self.transformation_matrix
-#             self.ref_registered_coords = ref_coords
-#             self.counts.loc[ref_position_idx, r_px_col_name] = self.ref_registered_coords[:,0]
-#             self.counts.loc[ref_position_idx, c_px_col_name] = self.ref_registered_coords[:,1]
-#             self.counts.loc[ref_position_idx, 'r_transformation_registration'] = np.ones(self.ref_registered_coords.shape[0])
-#             self.counts.loc[ref_position_idx, 'c_transformation_registration'] = np.ones(self.ref_registered_coords.shape[0])
-#             self.counts.loc[tran_position_idx, r_px_col_name] = self.tran_registered_coords[:,0]
-#             self.counts.loc[tran_position_idx, c_px_col_name] = self.tran_registered_coords[:,1]
-#             all_transf = np.tile(self.transformation_matrix,(self.tran_registered_coords.shape[0],1))
-#             self.counts.loc[tran_position_idx, 'r_transformation_registration'] = all_transf[:,0]
-#             self.counts.loc[tran_position_idx, 'c_transformation_registration'] = all_transf[:,1]
-       
-#         return self.counts, all_registration_matrix
 
 
 
