@@ -125,15 +125,19 @@ def load_general_zarr(fov_subdataset: pd.Series ,parsed_raw_data_fpath:str, tag:
 
 
 
-def simple_output_plotting(experiment_fpath: str, stitching_selected: str, selected_Hdistance: float, client: Client, file_tag: str):
-    """[summary]
+def simple_output_plotting(experiment_fpath: str, stitching_selected: str, 
+                            selected_Hdistance: float, client, file_tag: str):
+    """Utility function used to create a pandas dataframe with a simplified
+    version of the eel analysis output that can be used for quick visualization
 
     Args:
-        experiment_fpath (str): [description]
-        stitching_selected (str): [description]
-        selected_Hdistance (float): [description]
-        client (Client): [description]
-        file_tag (str): [description]
+        experiment_fpath (str): Path to the experiment to process
+        stitching_selected (str): Define with stitched data will be selected
+            for creating the simplified dataframe
+        selected_Hdistance (float): Used to select the dots with hamming
+            distance below this value
+        client (Client): Dask client taking care of the processing 
+        file_tag (str): tag to label the output file
     """
 
     experiment_fpath = Path(experiment_fpath)
@@ -153,7 +157,20 @@ def simple_output_plotting(experiment_fpath: str, stitching_selected: str, selec
     counts_df.to_parquet(fpath,index=False)
 
 
-def simple_output_plotting_serial(experiment_fpath, stitching_selected, client,file_tag):
+def simple_output_plotting_serial(experiment_fpath: str, stitching_selected: str, 
+                                client,file_tag: str):
+    """Utility function used to create a pandas dataframe with a simplified
+    version of the serial analysis output that can be used for quick visualization
+
+    Args:
+        experiment_fpath (str): Path to the experiment to process
+        stitching_selected (str): Define with stitched data will be selected
+            for creating the simplified dataframe
+        client (Client): Dask client taking care of the processing 
+        file_tag (str): tag to label the output file
+
+    """
+
 
     experiment_fpath = Path(experiment_fpath)
     counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*'+file_tag+'*.parquet'),engine='pyarrow')
@@ -170,43 +187,3 @@ def simple_output_plotting_serial(experiment_fpath, stitching_selected, client,f
     fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting_'+file_tag+'.parquet')
     counts_df.to_parquet(fpath,index=False)
 
-
-
-
-
-
-
-# def load_zarr_fov(zarr_fpath:str, fov:int):
-#     """
-#     Function used to load in memory the raw image stacks,
-#     it will also convert the data into float64
-
-#     Parameters:
-#     -----------
-#     zarr_fpah: str 
-#         path to the file containing the raw images
-#     fov: int
-#         number of the fov to load
-    
-#     Returns:
-#     --------
-#     img_stack: float64
-#         raw image
-#     """
-
-#     logger = selected_logger()
-
-#     try:
-#         raw_store = zarr.DirectoryStore(zarr_fpath)
-#         raw_root = zarr.group(store=raw_store,overwrite=False)
-#     except:
-#         logger.error(f'cannot load the zarr file {zarr_fpath}')
-#         sys.exit(f'cannot load the zarr file {zarr_fpath}')
-    
-#     try:
-#         img_stack = raw_root[fov][...]
-#     except:
-#         logger.error(f'cannot load image fov {fov} from {zarr_fpath}')
-#         sys.exit(f'cannot load image fov {fov} from {zarr_fpath}')
-
-#     return img_stack
