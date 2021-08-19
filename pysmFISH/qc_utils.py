@@ -22,8 +22,21 @@ from pysmFISH.configuration_files import load_experiment_config_file
 
 
 class QC_registration_error():
+    """Class use to evaluate the performance of the regstration
+    of the different rounds of hybridization
+    """
 
-    def __init__(self, client, experiment_fpath, analysis_parameters, tiles_coords):
+    def __init__(self, client, experiment_fpath: str, 
+                analysis_parameters: dict, tiles_coords: np.ndarray):
+        """Class initialization
+
+        Args:
+            client (distributed.Client): Clients that orchesterate the
+                processing of some of the QC steps
+            experiment_fpath (str): Path to the experiment to process
+            analysis_parameters (dict): Parameters for the processing
+            tiles_coords (np.ndarray): Stage coords of the acquired FOVS
+        """
     # def __init__(self, client, experiment_fpath, analysis_parameters, tiles_coords, img_width, img_height):
         self.client = client
         self.experiment_fpath = Path(experiment_fpath)
@@ -34,6 +47,9 @@ class QC_registration_error():
         matplotlib.use("Agg")
 
     def create_error_df(self):
+        """Method used to collect the error information from
+        the processed data
+        """
         all_counts_folder = self.experiment_fpath / 'results'
         search_key = '*_decoded_fov_*'
         self.error_output_df= pd.DataFrame()
@@ -53,6 +69,8 @@ class QC_registration_error():
         self.error_output_df.to_parquet(self.experiment_fpath / 'results' / 'registration_error.parquet')
 
     def plot_error(self):
+        """Method used to visualize the error for the different tiles
+        """
         plt.ioff()
         scale_value = 5
         self.tiles_coords = self.tiles_coords / scale_value
@@ -104,41 +122,9 @@ class QC_registration_error():
         plt.savefig(self.experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
 
 
-        # Old plotting with squares
-        # RegistrationMinMatchingBeads = self.analysis_parameters['RegistrationMinMatchingBeads']
-        # # create colormap for error in the registration
-        # errors_normalized = (min_errors -min(min_errors)) / (max(min_errors -min(min_errors)))
-        # threshold = (RegistrationMinMatchingBeads-min(min_errors)) / (max(min_errors -min(min_errors)))
-        # nodes = [0,threshold, threshold, 1.0]
-
-        # colors = ["black", "black", "blue", "magenta"]
-        # cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colors)))
-        # cmap.set_under("black")
-        
-
-        # sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
-        # for fov, round_num, match, x, y in zip(fovs,rounds_num, min_errors, to_zero_c_coords,to_zero_r_coords):
-            
-        #     ax.annotate(
-        #         fov,
-        #         xy=(x,y), xytext=(-0, 15),
-        #         textcoords='offset points', ha='center', va='bottom',fontsize=12)
-            
-        #     ax.annotate(round_num, (x, y), color='white', weight='bold', 
-        #                     fontsize=10, ha='center', va='center')
-            
-        #     ax.annotate('m' + str(match), xy=(x, y), xytext=(0, -10), color='white', weight='bold', 
-        #                     textcoords='offset points', fontsize=5, ha='center', va='center')
-            
-
-        # ax.set_aspect('equal')
-        # ax.axis('off')
-        # plt.gca().invert_yaxis()
-        # plt.tight_layout()
-
-        # plt.savefig(self.experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
-
     def run_qc(self):
+        """Method that runs all the QC steps
+        """
         self.create_error_df()
         self.plot_error()
 
