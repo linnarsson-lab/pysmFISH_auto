@@ -243,7 +243,7 @@ def merge_with_concat(dfs: list)->pd.DataFrame:
     """
 
 
-def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.Dataframe, analysis_parameters: Dict,
+def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, analysis_parameters: Dict,
                 codebook_df: pd.DataFrame)-> Tuple[pd.DataFrame,pd.DataFrame]:
     """Function used to extract the barcodes from the registered
     counts using nearest neighbour. if there is a problem with the registration the barcode assigned 
