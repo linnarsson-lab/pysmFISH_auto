@@ -56,21 +56,21 @@ from pysmFISH import data_organization
 # utils.nice_deltastring for calculate the time
 class Pipeline():
     """
-    General pipeline class used for running barcoded eel or serial smFISH experiments.
-    The modules are used as steps to build a pipeline
+        General pipeline class used for running barcoded eel or serial smFISH experiments.
+        The modules are used as steps to build a pipeline
 
-    The exposed attributes allow to modify the properties of the runnning pipline
-    on the fly
+        The exposed attributes allow to modify the properties of the runnning pipline
+        on the fly
 
 
-    Args:
-        pipeline_run_name (str): Name of the running pipeline made of current datetime and
-                experiment name (ex. '210507_13_25_21_LBEXP20210226_EEL_HE_2100um')
-        experiment_fpath (str): Path to the experiment folder
-        run_type (str): Define if it is a 'new' or 're-run' (default: new)
-        parsing_type (str): Define the parsing type. Can be: 
-                        original/no_parsing/reparsing_from_processing_folder/reparsing_from_storage
-                        (default: original)
+        Args:
+            pipeline_run_name (str): Name of the running pipeline made of current datetime and
+                    experiment name (ex. '210507_13_25_21_LBEXP20210226_EEL_HE_2100um')
+            experiment_fpath (str): Path to the experiment folder
+            run_type (str): Define if it is a 'new' or 're-run' (default: new)
+            parsing_type (str): Define the parsing type. Can be: 
+                            original/no_parsing/reparsing_from_processing_folder/reparsing_from_storage
+                            (default: original)
 
         Optional KWargs:
             raw_data_folder_storage_path (str): Path to the cold storage hard drive (default: /fish/rawdata)
@@ -100,22 +100,22 @@ class Pipeline():
             logs_directory: (str): Directory where to store dask and htcondor logs
             save_bits_int: (bool): Save the intensity of the bits and the flipping direction
 
-    Attributes:
-        storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
-                                    the current experiment
-        parsed_raw_data_fpath: Path to the zarr file containing the raw data
-        analysis_parameters: Parameters used for running the analysis
-        metadata: Dictionary with the parameters that characterize the current experiment
-        preprocessed_zarr_fpath: Path to the zarr file containing the preprocessed images
-        cluster: dask cluster running locally or on htcondor
-        client: dask client used to manage the cluster
-        data: Dataset that define the experiment
-        grpd_fovs: Dataset grouped-by field of view number
-        reference_round: Round used as starting point for the decoding of the codebooks
-        tiles_org: Describe the organization of the tiles in the dataset
-        tile_corners_coords_pxl: Coords of the tiles acquired by the microscope in the reference round
-        running_functions: Dictionary of functions used to define the type of filtering used for the 
-                            fish and reference channels
+        Attributes:
+            storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
+                                        the current experiment
+            parsed_raw_data_fpath: Path to the zarr file containing the raw data
+            analysis_parameters: Parameters used for running the analysis
+            metadata: Dictionary with the parameters that characterize the current experiment
+            preprocessed_zarr_fpath: Path to the zarr file containing the preprocessed images
+            cluster: dask cluster running locally or on htcondor
+            client: dask client used to manage the cluster
+            data: Dataset that define the experiment
+            grpd_fovs: Dataset grouped-by field of view number
+            reference_round: Round used as starting point for the decoding of the codebooks
+            tiles_org: Describe the organization of the tiles in the dataset
+            tile_corners_coords_pxl: Coords of the tiles acquired by the microscope in the reference round
+            running_functions: Dictionary of functions used to define the type of filtering used for the 
+                                fish and reference channels
 
     """
 
@@ -171,22 +171,22 @@ class Pipeline():
 
     def create_folders_step(self):
         """
-        Create the folder structure used for the data processing. If the folder
-        is already present it won't overwrite it
+            Create the folder structure used for the data processing. If the folder
+            is already present it won't overwrite it
 
-        Folder structure
-            - original_robofish_logs: contains all the original robofish logs.
-            - extra_files: contains the extra files acquired during imaging.
-            - extra_processing_data: contains extra files used in the analysis 
-                                                like the dark images for flat field correction.
-            - pipeline_config: contains all the configuration files.
-            - raw_data: contains the renamed .nd2 files and the corresponding 
-                        pickle configuration files. It is the directory that is 
-                        backed up on the server.
-            - output_figures: contains the reports and visualizations
-            - notebooks: will contain potential notebooks used for processing the data
-            - probes: will contains the fasta file with the probes used in the experiment
-            - tmp: save temporary data
+            Folder structure
+                - original_robofish_logs: contains all the original robofish logs.
+                - extra_files: contains the extra files acquired during imaging.
+                - extra_processing_data: contains extra files used in the analysis 
+                                                    like the dark images for flat field correction.
+                - pipeline_config: contains all the configuration files.
+                - raw_data: contains the renamed .nd2 files and the corresponding 
+                            pickle configuration files. It is the directory that is 
+                            backed up on the server.
+                - output_figures: contains the reports and visualizations
+                - notebooks: will contain potential notebooks used for processing the data
+                - probes: will contains the fasta file with the probes used in the experiment
+                - tmp: save temporary data
         """
 
         utils.create_folder_structure(self.experiment_fpath, self.run_type)
@@ -194,12 +194,12 @@ class Pipeline():
     
     def prepare_processing_dataset_step(self):
         """
-        If a path to an existing dataset is entered it will be loaded otherwise
-        it will create a new dataset that will have all the info that characterize the
-        experiment.
+            If a path to an existing dataset is entered it will be loaded otherwise
+            it will create a new dataset that will have all the info that characterize the
+            experiment.
 
-        Args:
-            zarr_file_path (Path): Path of the file used to build the dataset
+            Args:
+                zarr_file_path (Path): Path of the file used to build the dataset
 
         """
         self.data = data_models.Dataset()
@@ -222,12 +222,12 @@ class Pipeline():
     
     def create_analysis_config_file_from_dataset_step(self):
         """
-        Load or create the yaml file with all the parameters for running the analysis. It will first
-        load the analysis_config.yaml file present in the pipeline_config folder. If not it 
-        will create one using the master template stored in the config_db directory
+            Load or create the yaml file with all the parameters for running the analysis. It will first
+            load the analysis_config.yaml file present in the pipeline_config folder. If not it 
+            will create one using the master template stored in the config_db directory
 
-        The following attributes created by another step must be accessible:
-        - metadata
+            The following attributes created by another step must be accessible:
+            - metadata
 
         """
         assert self.metadata, self.logger.error(f'cannot load/create the analysis config because missing metadata attr')
@@ -236,7 +236,7 @@ class Pipeline():
 
     def processing_cluster_init_step(self):
         """
-        Start the processing dask cluster (dask-jobqueue for htcondor) and client
+            Start the processing dask cluster (dask-jobqueue for htcondor) and client
 
         """
         # Start processing environment
@@ -248,8 +248,8 @@ class Pipeline():
 
     def nikon_nd2_parsing_graph_step(self):
         """
-        Run the parsing according to what is specified by the parsing_type
-        argument.
+            Run the parsing according to what is specified by the parsing_type
+            argument.
 
         """
         microscopy_file_parsers.nikon_nd2_parsing_graph(self.experiment_fpath,
@@ -261,12 +261,12 @@ class Pipeline():
 
     def determine_tiles_organization(self):
         """
-        Determine the organization of the field of views in the dataset
+            Determine the organization of the field of views in the dataset
 
-        The following attributes created by another step must be accessible:
-        - analysis_parameters
-        - dataset
-        - metadata
+            The following attributes created by another step must be accessible:
+            - analysis_parameters
+            - dataset
+            - metadata
 
         """
         assert self.metadata, self.logger.error(f'cannot determine tiles organization because missing metadata attr')
@@ -282,11 +282,11 @@ class Pipeline():
 
     def create_running_functions_step(self):
         """
-        Create the dictionary with the function names used to run a specific pipeline as defined
-        in metadata['pipeline']
+            Create the dictionary with the function names used to run a specific pipeline as defined
+            in metadata['pipeline']
 
-        The following attributes created by another step must be accessible:
-        - metadata
+            The following attributes created by another step must be accessible:
+            - metadata
 
         """
         assert self.metadata, self.logger.error(f'cannot create running functions because missing metadata attr')
@@ -296,22 +296,22 @@ class Pipeline():
 
     def processing_barcoded_eel_step(self):
         """
-        Create and run a dask delayed task graph used to process barcoded eel experiments
-        It runs:
-        (1) Image preprocessing
-        (2) Dot calling
-        (3) Field of view registration
-        (4) Barcode decoding
-        (5) Registration to the microscope coords
-        (6) Consolidate the processed images zarr file metadata
-        (7) Create a simple output for quick visualization
-        
-        The following attributes created by another step must be accessible:
-        - metadata
-        - analysis_parameters
-        - running_functions
-        - grpd_fovs
-        - client
+            Create and run a dask delayed task graph used to process barcoded eel experiments
+            It runs:
+            (1) Image preprocessing
+            (2) Dot calling
+            (3) Field of view registration
+            (4) Barcode decoding
+            (5) Registration to the microscope coords
+            (6) Consolidate the processed images zarr file metadata
+            (7) Create a simple output for quick visualization
+            
+            The following attributes created by another step must be accessible:
+            - metadata
+            - analysis_parameters
+            - running_functions
+            - grpd_fovs
+            - client
 
         """
         assert self.metadata, self.logger.error(f'cannot process eel fovs because missing metadata attr')
@@ -330,20 +330,20 @@ class Pipeline():
 
     def processing_barcoded_eel_after_dots_step(self):
         """
-        Create and run a dask delayed task graph used to process barcoded eel experiments
-        It runs:
-        (1) Field of view registration
-        (2) Barcode decoding
-        (3) Registration to the microscope coords
-        (4) Consolidate the processed images zarr file metadata
-        (5) Create a simple output for quick visualization
-        
-        The following attributes created by another step must be accessible:
-        - metadata
-        - analysis_parameters
-        - running_functions
-        - grpd_fovs
-        - client
+            Create and run a dask delayed task graph used to process barcoded eel experiments
+            It runs:
+            (1) Field of view registration
+            (2) Barcode decoding
+            (3) Registration to the microscope coords
+            (4) Consolidate the processed images zarr file metadata
+            (5) Create a simple output for quick visualization
+            
+            The following attributes created by another step must be accessible:
+            - metadata
+            - analysis_parameters
+            - running_functions
+            - grpd_fovs
+            - client
 
         """
         assert self.metadata, self.logger.error(f'cannot process eel fovs because missing metadata attr')
@@ -361,21 +361,21 @@ class Pipeline():
 
     def processing_serial_fish_step(self):
         """
-        Create and run a dask delayed task graph used to process serial smFISH experiments
-        It runs:
-        (1) Image preprocessing
-        (2) Dot calling
-        (3) Field of view registration
-        (4) Registration to the microscope coords
-        (5) Consolidate the processed images zarr file metadata
-        (6) Create a simple output for quick visualization
-        
-        The following attributes created by another step must be accessible:
-        - metadata
-        - analysis_parameters
-        - running_functions
-        - grpd_fovs
-        - client
+            Create and run a dask delayed task graph used to process serial smFISH experiments
+            It runs:
+            (1) Image preprocessing
+            (2) Dot calling
+            (3) Field of view registration
+            (4) Registration to the microscope coords
+            (5) Consolidate the processed images zarr file metadata
+            (6) Create a simple output for quick visualization
+            
+            The following attributes created by another step must be accessible:
+            - metadata
+            - analysis_parameters
+            - running_functions
+            - grpd_fovs
+            - client
 
         """
         assert self.metadata, self.logger.error(f'cannot process smFISH fovs because missing metadata attr')
@@ -396,22 +396,22 @@ class Pipeline():
     def stitch_and_remove_dots_eel_graph_step(self):
 
         """
-        Function to stitch the different fovs and remove the duplicated 
-        barcodes present in the overlapping regions of the tiles
+            Function to stitch the different fovs and remove the duplicated 
+            barcodes present in the overlapping regions of the tiles
 
-        Args:
-        ----
-        hamming_distance (int): Value to select the barcodes that are passing the 
-            screening (< hamming_distance). Default = 3
-        same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
-            Default = 10
-        stitching_selected (str): barcodes coords set where the duplicated dots will be
-            removed
+            Args:
+            ----
+            hamming_distance (int): Value to select the barcodes that are passing the 
+                screening (< hamming_distance). Default = 3
+            same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
+                Default = 10
+            stitching_selected (str): barcodes coords set where the duplicated dots will be
+                removed
 
-        The following attributes created by another step must be accessible:
-        - dataset
-        - tiles_org
-        - client
+            The following attributes created by another step must be accessible:
+            - dataset
+            - tiles_org
+            - client
 
         """
         assert self.client, self.logger.error(f'cannot remove duplicated dots because missing client attr')
@@ -455,14 +455,14 @@ class Pipeline():
                                     tag_ref_beads='_ChannelEuropium_Cy3_',
                                     tag_nuclei='_ChannelCy3_'):
         """
-        This function create and run a processing graph that parse and filter the nuclei staining in fresh tissue
-        and parse, filter and counts the Europium beads used for the registration with the smFISH images at high
-        power.
+            This function create and run a processing graph that parse and filter the nuclei staining in fresh tissue
+            and parse, filter and counts the Europium beads used for the registration with the smFISH images at high
+            power.
 
-        Args:
-        ----
-        tag_ref_beads (str): The tag reference of the .nd2 file containing the raw beads images. Default: '_ChannelEuropium_Cy3_'
-        tag_ref_nuclei (str): The tag reference of the .nd2 file containing the raw images of nuclei. Default: '_ChannelCy3_'
+            Args:
+            ----
+            tag_ref_beads (str): The tag reference of the .nd2 file containing the raw beads images. Default: '_ChannelEuropium_Cy3_'
+            tag_ref_nuclei (str): The tag reference of the .nd2 file containing the raw images of nuclei. Default: '_ChannelCy3_'
 
         """
         assert self.client, self.logger.error(f'cannot process fresh tissue because missing client attr')
@@ -482,12 +482,12 @@ class Pipeline():
 
     def QC_check_experiment_yaml_file_step(self):
         """
-        This QC function check in the fields required in the ExperimentName_config.yaml file
-        are present and have the expected values. This file is important for the parsing of the
-        data.
-        The following keys are required:
-        'Stitching_type', 'Experiment_type', 'Barcode_length', 'Barcode', 'Codebook', 'Machine', 'Operator',
-        'Overlapping_percentage','Probes_FASTA_name','Species','Start_date','Strain','Tissue','Pipeline'
+            This QC function check in the fields required in the ExperimentName_config.yaml file
+            are present and have the expected values. This file is important for the parsing of the
+            data.
+            The following keys are required:
+            'Stitching_type', 'Experiment_type', 'Barcode_length', 'Barcode', 'Codebook', 'Machine', 'Operator',
+            'Overlapping_percentage','Probes_FASTA_name','Species','Start_date','Strain','Tissue','Pipeline'
         """
 
         qc_utils.QC_check_experiment_yaml_file(self.experiment_fpath)
@@ -496,14 +496,14 @@ class Pipeline():
 
     def QC_registration_error_step(self):
         """
-        Visualise the error in the registration. It plots the error for each fov and the number of matching
-        beads identified after the registration. The FOV number, the round number with the lowest number
-        of matching beads and the lowest number of matching beads.
+            Visualise the error in the registration. It plots the error for each fov and the number of matching
+            beads identified after the registration. The FOV number, the round number with the lowest number
+            of matching beads and the lowest number of matching beads.
 
-        The following attributes created by another step must be accessible:
-        - analysis_parameters
-        - tile_corners_coords_pxl
-        - client
+            The following attributes created by another step must be accessible:
+            - analysis_parameters
+            - tile_corners_coords_pxl
+            - client
 
         """
         assert self.client, self.logger.error(f'cannot run QC on registration because missing client attr')
@@ -522,12 +522,12 @@ class Pipeline():
     
     def transfer_data_after_processing(self):
         """
-        Function use to clear space in the processing folder. 
-        - Tranfer parsed images zarr / filtered images zarr / dataset
-        - Remove the log and tmp folders
-        - Transfer the remaining data to cold storage
-        Before transfering the data it is necessary to close the cluster and the client
-        otherwise you won't be able to remove the logs folder.
+            Function use to clear space in the processing folder. 
+            - Tranfer parsed images zarr / filtered images zarr / dataset
+            - Remove the log and tmp folders
+            - Transfer the remaining data to cold storage
+            Before transfering the data it is necessary to close the cluster and the client
+            otherwise you won't be able to remove the logs folder.
         """
 
         data_organization.reorganize_processing_dir(self.experiment_fpath,
@@ -546,8 +546,8 @@ class Pipeline():
 
     def run_parsing_only(self):
         """
-        Pipeline running the data organization and the parsing
-        of the .nd2 files of the entire experiment
+            Pipeline running the data organization and the parsing
+            of the .nd2 files of the entire experiment
         """
 
         start = datetime.now()
@@ -582,8 +582,8 @@ class Pipeline():
     
     def run_required_steps(self):
         """
-        Short pipeline used to make sure that the basic required
-        step are run and will be included in more complex pipelines
+            Short pipeline used to make sure that the basic required
+            step are run and will be included in more complex pipelines
 
         """
         start = datetime.now()
@@ -599,7 +599,7 @@ class Pipeline():
     
     def run_full(self,resume=False):
         """
-        Full run from raw images from nikon or parsed images
+            Full run from raw images from nikon or parsed images
         """
 
         start = datetime.now()
@@ -654,8 +654,8 @@ class Pipeline():
 
     def run_eel_processing_from_registration(self):
         """
-        Run analysis starting from the raw data files.
-        Requires raw files 
+            Run analysis starting from the raw data files.
+            Requires raw files 
         """
 
         raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_fov_*'))
