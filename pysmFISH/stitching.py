@@ -36,7 +36,7 @@ from pysmFISH.fovs_registration import create_fake_image
  
 
 class organize_square_tiles():
-    '
+    
     """Class designed to determine the tile organization and identify the coords of the
     overlapping regions between the tiles. 
     
