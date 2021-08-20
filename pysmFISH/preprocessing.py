@@ -109,19 +109,7 @@ def standard_not_norm_preprocessing(
 
         return ((img,),metadata)
 
-  """
-   Standard function for filtering the fov image
-   The image is not normalized
-    
-    Args:
-    -----
-        zarr_grp_name: str
-            group representing the image to process
-        parsed_raw_data_fpath: str
-            path to the zarr file containing the parsed images
-        processing_parameters: dict
-            dictionary with the parameters used to process the images
-    """
+
 
 def without_flat_field_correction(
         zarr_grp_name: str,
