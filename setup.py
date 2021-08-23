@@ -28,7 +28,8 @@ setup(
 		'python-snappy',
 		'pyarrow',
 		'openpyxl',
-		'napari'
+		'napari',
+		'papermill'
 	],
 	
 	entry_points='''
