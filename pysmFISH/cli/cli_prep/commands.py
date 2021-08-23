@@ -43,7 +43,7 @@ def de_novo_env(processing_folder_path:str):
     create_general_analysis_config_file(config_path)
 
 
-@setup_processing_env.command('recreate_general_analysis_config')
+@setup_processing_env.command('create_general_analysis_config')
 
 @click.option('--processing_folder_path', type=str, help='Path to the folder \
                 where the experiments will be processed')
@@ -52,7 +52,7 @@ def recreate_general_analysis_config(processing_folder_path:str):
     logger = selected_logger()
     click.echo('    ')
     click.echo('--------------------------------------------------------------')
-    click.echo('Re-create general analysis config file')
+    click.echo('create general analysis config file')
     click.echo('--------------------------------------------------------------')
     
     processing_folder_path = Path(processing_folder_path)
