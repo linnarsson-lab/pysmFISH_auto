@@ -17,6 +17,7 @@ from dask.base import tokenize
 
 
 import pysmFISH
+from pysmFISH import dots_calling
 from pysmFISH import io
 from pysmFISH import fovs_registration
 from pysmFISH import barcodes_analysis
