@@ -162,7 +162,8 @@ def create_folder_structure(experiment_fpath:str,run_type:str):
                         'probes',
                         'logs',
                         'results',
-                        'microscope_tiles_coords']
+                        'microscope_tiles_coords',
+                        'notebooks']
     else:
         folders_list = ['extra_processing_data',
                     'pipeline_config',
@@ -170,7 +171,8 @@ def create_folder_structure(experiment_fpath:str,run_type:str):
                     'probes',
                     'logs',
                     'results',
-                    'microscope_tiles_coords']
+                    'microscope_tiles_coords',
+                    'notebooks']
     
     for folder_name in folders_list:
         try:

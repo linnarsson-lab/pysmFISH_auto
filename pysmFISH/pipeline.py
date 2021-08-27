@@ -175,18 +175,23 @@ class Pipeline():
             is already present it won't overwrite it
 
             Folder structure
+                - codebook: contain the codebooks used for the analysis
                 - original_robofish_logs: contains all the original robofish logs.
                 - extra_files: contains the extra files acquired during imaging.
-                - extra_processing_data: contains extra files used in the analysis 
-                                                    like the dark images for flat field correction.
+                - extra_processing_data: contains extra files used in the analysis
+                    like the dark images for flat field correction.
                 - pipeline_config: contains all the configuration files.
-                - raw_data: contains the renamed .nd2 files and the corresponding 
-                            pickle configuration files. It is the directory that is 
-                            backed up on the server.
+                - raw_data: contains the renamed .nd2 files and the corresponding .pkl metadata 
+					files
                 - output_figures: contains the reports and visualizations
-                - notebooks: will contain potential notebooks used for processing the data
-                - probes: will contains the fasta file with the probes used in the experiment
-                - tmp: save temporary data
+                - notebooks: contain potential notebooks used for processing the data
+                - probes: contains the fasta file with the probes used in the experiment
+                - fresh_tissue: contain the images and the process data obtained from 
+							imaging the fresh tissue before eel processing
+                - logs: contains the dask and htcondor logs
+                - microscope_tiles_coords: contain the coords of the FOVs according to the 
+												microscope stage.
+                - results: contains all the processing results            
         """
 
         utils.create_folder_structure(self.experiment_fpath, self.run_type)
