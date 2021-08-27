@@ -644,9 +644,9 @@ class Pipeline():
 
 
         step_start = datetime.now()
-        self.transfer_data_after_processing()
-        self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    data transfer after processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+        # self.transfer_data_after_processing()
+        # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+        #             data transfer after processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
