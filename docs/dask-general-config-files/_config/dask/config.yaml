@@ -1,0 +1,28 @@
+loggging:
+  version: 1
+  handlers:
+    file:
+      class: logging.handlers.RotatingFileHandler
+      filename: /fish/work_std/test_dask_htcondor_logging/output.log
+      level: INFO
+      formatter: simple_formatter
+    console:
+      class: logging.StreamHandler
+      level: INFO
+      stream: ext://sys.stderr
+      formatter: simple_formatter
+  
+  formatters:
+    simple_formatter:
+      format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'  
+loggers:
+    distributed.worker:
+      level: INFO
+      handlers:
+        - file
+        - console
+    distributed.scheduler:
+      level: INFO
+      handlers:
+        - file
+        - console
