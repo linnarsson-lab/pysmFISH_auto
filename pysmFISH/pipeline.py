@@ -426,7 +426,7 @@ class Pipeline():
         
         
         self.adjusted_coords = stitching.stitching_graph(self.experiment_fpath,self.metadata['stitching_channel'],
-                                                                    self.tiles_org, self.client)
+                                                                    self.tiles_org, self.metadata, self.client)
         
         # Recalculate the overlapping regions after stitching
         self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords

@@ -826,7 +826,7 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
             return registration
 
 
-def stitching_graph(experiment_fpath, stitching_channel,tiles_org, client, nr_dim = 2):
+def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata, client, nr_dim = 2):
     
     unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
     
@@ -893,7 +893,10 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, client, nr_di
 
     dec_fpath = (experiment_fpath / 'results').glob('*_decoded_fov*')
     for fpath in dec_fpath:
-        stitch_using_coords_general(fpath,adjusted_coords,'global_stitched')
+        stitch_using_coords_general(adjusted_coords,
+                                    tiles_org.tile_corners_coords_pxl,
+                                    metadata,
+                                    'global_stitched')
     
     pickle.dump(global_shift,open(experiment_fpath / 'results'/ 'stitching_global_shift.pkl','wb'))
 
