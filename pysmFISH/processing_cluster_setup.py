@@ -91,9 +91,9 @@ def start_processing_env(processing_env_config:Dict):
         cluster.scale(jobs=1)
         # Always put a minimum to avoid the cluster to shut down
         minimum_jobs = 1
-        maximum_jobs = 15
-        cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
-        # cluster.adapt(minimum_jobs=minimum_jobs)
+        maximum_jobs = 12 #15
+        # cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
+        cluster.scale(maximum_jobs)
         logger.info(f'adaptive dask cluster with {minimum_jobs} minimum jobs')
         return cluster
     elif processing_engine == 'local':
