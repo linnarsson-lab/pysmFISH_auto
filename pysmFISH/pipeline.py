@@ -397,6 +397,47 @@ class Pipeline():
                                     self.preprocessed_image_tag,self.client,self.chunk_size)
 
     
+    def microscope_stitched_remove_dots_eel_graph_step(self):
+        """
+            Function to remove the duplicated 
+            barcodes present in the overlapping regions of the tiles after stitching
+            using the microscope coords
+
+            Args:
+            ----
+            hamming_distance (int): Value to select the barcodes that are passing the 
+                screening (< hamming_distance). Default = 3
+            same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
+                Default = 10
+            stitching_selected (str): barcodes coords set where the duplicated dots will be
+                removed
+
+            The following attributes created by another step must be accessible:
+            - dataset
+            - tiles_org
+            - client
+
+        """
+        assert self.client, self.logger.error(f'cannot remove duplicated dots because missing client attr')
+        assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(f'cannot remove duplicated dots because missing dataset attr')
+        assert isinstance(self.tiles_org,pysmFISH.stitching.organize_square_tiles), \
+                            self.logger.error(f'cannot remove duplicated dots because tiles_org is missing attr')
+        
+        
+        # Removed the dots on the microscope stitched
+        self.stitching_selected = 'microscope_stitched'
+
+        stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
+                                self.hamming_distance,self.same_dot_radius_duplicate_dots, 
+                                    self.stitching_selected, self.client)
+ 
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / self.metadata['barcode_length']
+        stitching_selected = 'microscope_stitched'
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                selected_Hdistance, self.client,file_tag='removed_microscope_stitched')
+        # ---------------------------------------------------------------- 
 
     def stitch_and_remove_dots_eel_graph_step(self):
 
@@ -629,6 +670,11 @@ class Pipeline():
                     eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
             step_start = datetime.now()
+            self.microscope_stitched_remove_dots_eel_graph_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
             self.QC_registration_error_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
@@ -637,6 +683,11 @@ class Pipeline():
             self.stitch_and_remove_dots_eel_graph_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.processing_fresh_tissue_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Processing fresh tissue completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
         elif self.metadata['experiment_type'] == 'smfish-serial':
             step_start = datetime.now()
