@@ -359,6 +359,9 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                                                                                 registration_stitching_channel_output[2]
 
 
+            stitched_coords_reference_df = delayed(stitching.stitch_using_coords_general,name=name)(stitching_channel_df,
+                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                                metadata,tag='microscope_stitched')
             all_stitched_coords = []
 
 
@@ -387,7 +390,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                 all_stitched_coords.append(stitched_coords)
 
             
-            all_stitched_coords.append(stitching_channel_df)
+            all_stitched_coords.append(stitched_coords_reference_df)
 
             
             name = 'concat_' +experiment_name + \
