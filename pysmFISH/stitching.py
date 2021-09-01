@@ -13,6 +13,7 @@ are used to generate the data.
 from typing import *
 import logging
 import shutil
+import copy
 import itertools
 import math
 import pickle
@@ -710,7 +711,7 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
     """
     
     if not isinstance(decoded_df, pd.DataFrame):
-        decoded_df_fpath = decoded_df.copy()
+        decoded_df_fpath = copy.deepcopy(decoded_df)
         decoded_df = pd.read_parquet(decoded_df)
         
     if decoded_df['r_px_registered'].empty:
@@ -893,11 +894,13 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata, cli
 
     dec_fpath = (experiment_fpath / 'results').glob('*_decoded_fov*')
     for fpath in dec_fpath:
-        stitch_using_coords_general(adjusted_coords,
-                                    tiles_org.tile_corners_coords_pxl,
+        global_stitched_decoded_df = stitch_using_coords_general(fpath,
+                                    adjusted_coords,
+                                    tiles_org.reference_corner_fov_position,
                                     metadata,
                                     'global_stitched')
-    
+                    
+        global_stitched_decoded_df.to_parquet(fpath)
     pickle.dump(global_shift,open(experiment_fpath / 'results'/ 'stitching_global_shift.pkl','wb'))
 
     return adjusted_coords
