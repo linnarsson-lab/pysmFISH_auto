@@ -785,10 +785,10 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
             
-            counts1_df['r_px_microscope_stitched'] = counts1_df['r_px_registered'] + tile_corners_coords_pxl[cpl[0],0]
-            counts1_df['c_px_microscope_stitched'] = counts1_df['c_px_registered'] + tile_corners_coords_pxl[cpl[0],1]
-            counts2_df['r_px_microscope_stitched'] = counts2_df['r_px_registered'] + tile_corners_coords_pxl[cpl[1],0]
-            counts2_df['c_px_microscope_stitched'] = counts2_df['c_px_registered'] + tile_corners_coords_pxl[cpl[1],1]
+            # counts1_df['r_px_microscope_stitched'] = counts1_df['r_px_registered'] + tile_corners_coords_pxl[cpl[0],0]
+            # counts1_df['c_px_microscope_stitched'] = counts1_df['c_px_registered'] + tile_corners_coords_pxl[cpl[0],1]
+            # counts2_df['r_px_microscope_stitched'] = counts2_df['r_px_registered'] + tile_corners_coords_pxl[cpl[1],0]
+            # counts2_df['c_px_microscope_stitched'] = counts2_df['c_px_registered'] + tile_corners_coords_pxl[cpl[1],1]
             
             # Testin before changing room
             # counts1_df['r_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[0],0] - counts1_df['r_px_registered']
