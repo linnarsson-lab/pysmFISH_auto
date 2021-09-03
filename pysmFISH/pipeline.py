@@ -473,37 +473,38 @@ class Pipeline():
                             self.logger.error(f'cannot remove duplicated dots because tiles_org is missing attr')
         
         
-        self.adjusted_coords = stitching.stitching_graph(self.experiment_fpath,self.metadata['stitching_channel'],
+        self.adjusted_coords, self.global_stitching_done = stitching.stitching_graph(self.experiment_fpath,self.metadata['stitching_channel'],
                                                                     self.tiles_org, self.metadata,
                                                                     self.analysis_parameters['RegistrationReferenceHybridization'], 
                                                                     self.client)
         
-        # Recalculate the overlapping regions after stitching
-        self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
-        self.tiles_org.determine_overlapping_regions()
-        
-        # Removed the dots on the global stitched
-        self.stitching_selected = 'global_stitched'
+        if self.global_stitching_done:
+            # Recalculate the overlapping regions after stitching
+            self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
+            self.tiles_org.determine_overlapping_regions()
+            
+            # Removed the dots on the global stitched
+            self.stitching_selected = 'global_stitched'
 
-        stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
-                                self.hamming_distance,self.same_dot_radius_duplicate_dots, 
-                                    self.stitching_selected, self.client)
+            stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
+                                    self.hamming_distance,self.same_dot_radius_duplicate_dots, 
+                                        self.stitching_selected, self.client)
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata['barcode_length']
-        stitching_selected = 'global_stitched'
-        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='cleaned')
-        # ----------------------------------------------------------------  
+            # ----------------------------------------------------------------
+            # GENERATE OUTPUT FOR PLOTTING
+            selected_Hdistance = 3 / self.metadata['barcode_length']
+            stitching_selected = 'global_stitched'
+            io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                    selected_Hdistance, self.client,file_tag='cleaned')
+            # ----------------------------------------------------------------  
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata['barcode_length']
-        stitching_selected = 'global_stitched'
-        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='removed')
-        # ---------------------------------------------------------------- 
+            # ----------------------------------------------------------------
+            # GENERATE OUTPUT FOR PLOTTING
+            selected_Hdistance = 3 / self.metadata['barcode_length']
+            stitching_selected = 'global_stitched'
+            io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                    selected_Hdistance, self.client,file_tag='removed')
+            # ---------------------------------------------------------------- 
 
 
     def processing_fresh_tissue_step(self,parsing=True,
