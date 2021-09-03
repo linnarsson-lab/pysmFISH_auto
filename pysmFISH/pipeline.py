@@ -93,11 +93,14 @@ class Pipeline():
             processing_engine (str): Define the name of the system that will run the processing. Can be local/htcondor
                                     (default htcondor). If engine == local the parameters that define the cluster
                                     will be ignored
-            cores (int): Number of cores to use in htcondor (default 20)
+            cores (int): Number of cores to use in htcondor or in the local processing (default 20)
             memory (str): Total memory for all the cores (default 200GB)
             disk (str): Size of the spillover disk for dask (default 0.1GB)
             local_directory (str): Directory where to spill over on the node (default /tmp)
             logs_directory: (str): Directory where to store dask and htcondor logs
+            adaptive: (bool): Decide if the cluster can increase/decrease the number of worker accroding to
+                                the processig required. (default True)
+            maximum_jobs (int): Max number of jobs to run in htcondor
             save_bits_int: (bool): Save the intensity of the bits and the flipping direction
 
         Attributes:
@@ -141,6 +144,8 @@ class Pipeline():
         self.stitching_selected = kwarg.pop('stitching_selected','microscope_stitched')
         self.hamming_distance = kwarg.pop('hamming_distance',3)
         self.save_bits_int = kwarg.pop('save_bits_int',True)
+        self.adaptive = kwarg.pop('adaptive',True)
+        self.maximum_jobs = kwarg.pop('maximum_jobs',15)
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}
@@ -150,6 +155,8 @@ class Pipeline():
         self.processing_env_config['disk'] = kwarg.pop('disk','0.1GB')
         self.processing_env_config['local_directory'] = kwarg.pop('local_directory','/tmp')
         self.processing_env_config['logs_directory'] = (self.experiment_fpath / 'logs').as_posix()
+        self.processing_env_config['adaptive'] = self.adaptive
+        self.processing_env_config['maximum_jobs'] = self.maximum_jobs
 
 
         # Define the experiment folder location in the storage HD

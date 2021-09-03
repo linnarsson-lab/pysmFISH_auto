@@ -45,17 +45,19 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
 # death_timeout=5000,
 
 
-def local_cluster_setup():
+def local_cluster_setup(cores:int):
     """Utility to set up a dask cluster on a local computer. I will use
     all the cpus-1 and scatter the memory. In thi
 
+    Args:
+        cores: number of cores of the computer to use for processing
     Returns:
        cluster: dask cluster
     """
 
     total_ram = virtual_memory()
     total_ram = total_ram.available
-    cores = dask.multiprocessing.multiprocessing.cpu_count()-1
+    # cores = dask.multiprocessing.multiprocessing.cpu_count()-1
 
     # Calculate the total ram to use for each worker
     worker_memory_limit = 0.9
@@ -91,13 +93,15 @@ def start_processing_env(processing_env_config:Dict):
         cluster.scale(jobs=1)
         # Always put a minimum to avoid the cluster to shut down
         minimum_jobs = 1
-        maximum_jobs = 12 #15
-        # cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=maximum_jobs)
-        cluster.scale(maximum_jobs)
-        logger.info(f'adaptive dask cluster with {minimum_jobs} minimum jobs')
+        if processing_env_config['adaptive']:
+            cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=processing_env_config['processing_engine'])
+            logger.info(f"Started adaptive cluster")
+        else:
+            cluster.scale(processing_env_config['maximum_jobs'])
+            logger.info(f"Started non adaptive cluster")
         return cluster
     elif processing_engine == 'local':
-        cluster = local_cluster_setup()
+        cluster = local_cluster_setup(processing_env_config['cores'])
         return cluster
     else:
         logger.error(f'the processing engine is not defined check the name')
