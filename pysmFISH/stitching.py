@@ -765,7 +765,7 @@ def get_all_dots_in_overlapping_regions(counts_df, chunk_coords, stitching_selec
 
 def register_cpl(cpl, chunk_coords, experiment_fpath,
                                     stitching_channel,
-                                    tile_corners_coords_pxl):
+                                    reference_round):
 
     logger = selected_logger()
     registration = {}
@@ -785,20 +785,11 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
     
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
-            
-            # counts1_df['r_px_microscope_stitched'] = counts1_df['r_px_registered'] + tile_corners_coords_pxl[cpl[0],0]
-            # counts1_df['c_px_microscope_stitched'] = counts1_df['c_px_registered'] + tile_corners_coords_pxl[cpl[0],1]
-            # counts2_df['r_px_microscope_stitched'] = counts2_df['r_px_registered'] + tile_corners_coords_pxl[cpl[1],0]
-            # counts2_df['c_px_microscope_stitched'] = counts2_df['c_px_registered'] + tile_corners_coords_pxl[cpl[1],1]
-            
-            # Testin before changing room
-            # counts1_df['r_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[0],0] - counts1_df['r_px_registered']
-            # counts1_df['c_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[0],1] - counts1_df['c_px_registered']
-            # counts2_df['r_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[1],0] - counts2_df['r_px_registered']
-            # counts2_df['c_px_microscope_stitched'] = tile_corners_coords_pxl[cpl[1],1] - counts2_df['c_px_registered']
 
-
-
+            count1_grp = counts1_df.loc[(counts1_df.channel == stitching_channel) &
+                                        (counts1_df.round_num == reference_round),:]
+            count2_grp = counts2_df.loc[(counts2_df.channel == stitching_channel) &
+                                        (counts2_df.round_num == reference_round),:]
             count1_grp = counts1_df.loc[counts1_df.channel == stitching_channel,:]
             count2_grp = counts2_df.loc[counts2_df.channel == stitching_channel,:]
             
@@ -827,7 +818,8 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
             return registration
 
 
-def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata, client, nr_dim = 2):
+def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata, 
+                    reference_round, client, nr_dim = 2):
     
     unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
     
@@ -835,7 +827,7 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata, cli
     for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
 
         future = client.submit(register_cpl,cpl, chunk_coords, experiment_fpath,stitching_channel,
-                            tiles_org.tile_corners_coords_pxl)
+                            reference_round)
 
         futures.append(future)
     all_registrations = client.gather(futures)
