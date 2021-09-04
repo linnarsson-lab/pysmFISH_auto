@@ -97,7 +97,7 @@ def start_processing_env(processing_env_config:Dict):
             cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=processing_env_config['processing_engine'])
             logger.info(f"Started adaptive cluster")
         else:
-            cluster.scale(processing_env_config['maximum_jobs'])
+            cluster.scale(jobs=processing_env_config['maximum_jobs'])
             logger.info(f"Started non adaptive cluster")
         return cluster
     elif processing_engine == 'local':
