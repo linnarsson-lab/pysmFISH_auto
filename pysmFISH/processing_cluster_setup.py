@@ -94,7 +94,7 @@ def start_processing_env(processing_env_config:Dict):
         # Always put a minimum to avoid the cluster to shut down
         minimum_jobs = 1
         if processing_env_config['adaptive']:
-            cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=processing_env_config['processing_engine'])
+            cluster.adapt(minimum_jobs=minimum_jobs,maximum_jobs=processing_env_config['maximum_jobs'])
             logger.info(f"Started adaptive cluster")
         else:
             cluster.scale(jobs=processing_env_config['maximum_jobs'])
