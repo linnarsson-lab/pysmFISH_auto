@@ -329,7 +329,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                         
                     if save_bits_int:
                         if channel != fov_subdataset.stitching_channel:
-                            all_filtered_images[channel_proc][int(round_num)] = filt_out
+                            all_filtered_images[channel_proc][np.int(round_num)] = filt_out
             
                 name = 'concat_' +experiment_name + '_' + channel_proc + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
