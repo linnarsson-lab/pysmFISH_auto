@@ -74,37 +74,32 @@ def register_images(img: np.ndarray, shift: np.ndarray)->np.ndarray:
     return offset_image
 
 
-def combine_register_filtered_images(output_list: list, registered_counts: pd.DataFrame, 
-        stitching_channel: str)->np.ndarray:
+def combine_register_filtered_images(output_dict: dict, metadata: dict, 
+                                    registered_counts: pd.DataFrame)->np.ndarray:
     """Function used to register the image throughout all rounds.
-    
-    IMPORTANT: must use the stitching channel because the other channels do not have 
-    barcodes starting in round 16
-    
+
     Args:
-        output_list (list): list containg metadata and images ((img,),metadata).
+        output_dict (dict): dict containg output of the filtering ((img,),metadata) organised
+                            by channe and round.
+        metadata (dict): Metadata that characterize the acquired images
         registered_counts (pd.DataFrame): Counts after registration.
-        stitching_channel (str): Stitching channel.
 
     Returns:
         np.ndarray: Image stack with all the rounds registered.
     """
-  
-    if registered_counts.shape[0] > 1:
-        metadata_tmp = output_list[0][-1] 
-        channel = metadata_tmp['channel']
-        img_stack = np.zeros([int(metadata_tmp['barcode_length']),int(metadata_tmp['img_width']),int(metadata_tmp['img_height'])])
-        for filt_out in output_list:
-            img = filt_out[0][0]
-            img_meta = filt_out[1]
-            round_num = img_meta['round_num']
-            shift = registered_counts.loc[(registered_counts.round_num == round_num) &
-                                        (registered_counts.channel == stitching_channel), ['r_shift_px','c_shift_px']]
-            shift = shift.iloc[0].to_numpy()
-            shifted_img = register_images(img,shift)
-            img_stack[round_num-1,:,:] = shifted_img
-
-        return img_stack
+    registered_img_stack = {}
+    if output_dict:
+        for channel, all_rounds_data in output_dict.items():
+            img_stack = np.zeros([int(metadata['total_rounds']),int(metadata['img_width']),int(metadata['img_height'])])
+            for round_num, filt_out in all_rounds_data.items():
+                img = filt_out[0][0]
+                shift = registered_counts.loc[(registered_counts.round_num == round_num) &
+                                        (registered_counts.channel == channel), ['r_shift_px','c_shift_px']]
+                shift = shift.iloc[0].to_numpy()
+                shifted_img = register_images(img,shift)
+                img_stack[round_num-1,:,:] = shifted_img
+            registered_img_stack[channel] = img_stack
+    return registered_img_stack
 
 
 def beads_based_registration(all_counts_fov: pd.DataFrame,

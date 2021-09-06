@@ -293,21 +293,24 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
     chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
     for chunk in chunks:
         all_processing = []
-        all_filtered_images = []
         all_counts_fov = {}
         for fov_num in chunk:
+            all_filtered_images = []
             all_counts_fov = {}
             all_counts_fov_concat = {}
             
             fov_group = grpd_fovs.get_group(fov_num)
             channel_grpd = fov_group.groupby('channel')
 
+            all_filtered_imges = {}
             for channel_proc in list_all_channels:
+                all_filtered_imges[channel_proc] = {}
                 all_counts_fov[channel_proc] = []
                 group = channel_grpd.get_group(channel_proc)
                 for index_value, fov_subdataset in group.iterrows():
                     round_num = fov_subdataset.round_num
                     channel = fov_subdataset.channel
+                    
                     fov = fov_subdataset.fov_num
                     experiment_name = fov_subdataset.experiment_name
                     dask_delayed_name = 'filt_count_' +experiment_name + '_' + channel + \
@@ -323,15 +326,16 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                     counts, filt_out = fov_out[0], fov_out[1]
                     
                     all_counts_fov[channel_proc].append(counts)
-                    
+                        
                     if save_bits_int:
                         if channel != fov_subdataset.stitching_channel:
-                            all_filtered_images.append(filt_out)
+                            all_filtered_images[channel_proc][round_num] = filt_out
             
                 name = 'concat_' +experiment_name + '_' + channel_proc + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
                 all_counts_fov_concat[channel_proc] = delayed(pd.concat,name=name)(all_counts_fov[channel_proc],axis=0,ignore_index=True)
             
+
             
             if save_intermediate_steps:
                 
@@ -399,10 +403,31 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                                 + '_fov_' +str(fov) + '-' + tokenize() 
             saved_file = delayed(all_stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
                             '_decoded_fov_' + str(fov) + '.parquet'),index=False)
-            
+                        
             
             all_processing.append(saved_file)
-        
+
+            if save_bits_int:
+                name = 'combine_shifted_images_' +experiment_name + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize() 
+
+                combined_shift_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_imges,
+                                            metadata,all_stitched_coords)
+                
+                name = 'extract_dots_intensities_' +experiment_name + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+                extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(all_stitched_coords,
+                                        combined_shift_images,experiment_fpath)
+
+                all_processing.append(extracted_intensities)
+
+                name = 'determine_flip_direction_' +experiment_name + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+                flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook_dict,
+                                            experiment_fpath,all_stitched_coords)
+
+                all_processing.append(flip_direction)
+
         _ = dask.compute(*all_processing)
 
     io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
@@ -618,6 +643,7 @@ def processing_serial_fish_fov_graph(experiment_fpath: str,
                     
                     counts, filt_out = fov_out[0], fov_out[1]
                     all_counts_fov.append(counts)
+                    
                     # if channel != fov_subdataset.stitching_channel:
                     #     all_filtered_images.append(filt_out)
                     

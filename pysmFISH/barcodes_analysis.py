@@ -83,7 +83,7 @@ def dots_hoods(coords: np.ndarray,pxl: int)->np.ndarray:
     return chunks_coords
 
 
-def extract_dots_images(barcoded_df: pd.DataFrame,img_stack: np.ndarray,
+def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
                 experiment_fpath: str):
     """Function used to extract the images corresponding to a barcode
     after running the decoding identification. It can save the images
@@ -102,27 +102,33 @@ def extract_dots_images(barcoded_df: pd.DataFrame,img_stack: np.ndarray,
         experiment_fpath = Path(experiment_fpath)
         fov = barcoded_df.fov_num.values[0]
         experiment_name = experiment_fpath.stem
-        channel = barcoded_df.channel.values[0]
-        
+        channels = registered_img_stack.keys()
         trimmed_df = barcoded_df.loc[barcoded_df.dot_id == barcoded_df.barcode_reference_dot_id ,
                                 ['barcode_reference_dot_id', 'r_px_registered', 'c_px_registered','barcodes_extraction_resolution']]
-
-        barcodes_names = trimmed_df['barcode_reference_dot_id'].values
-        coords = trimmed_df.loc[:, ['r_px_registered', 'c_px_registered']].to_numpy()
-        barcodes_extraction_resolution = trimmed_df['barcodes_extraction_resolution'].values[0]
-
-        chunks_coords = dots_hoods(coords,barcodes_extraction_resolution)
-        chunks_coords[chunks_coords<0]=0
-        chunks_coords[chunks_coords>img_stack.shape[1]]= img_stack.shape[1]
         
         all_regions = {}
         all_max = {}
-        for idx in np.arange(chunks_coords.shape[0]):
-            selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
-            if selected_region.size >0:
-                max_array = selected_region.max(axis=(1,2))
-                all_regions[barcodes_names[idx]]= selected_region
-                all_max[barcodes_names[idx]]= max_array
+        for channel in channels:
+            all_regions[channel] = {}
+            all_max[channel] = {}
+            img_stack = registered_img_stack[channel]
+            trimmed_df_channel = trimmed_df.loc[trimmed_df.channel == channel]
+
+            barcodes_names = trimmed_df_channel['barcode_reference_dot_id'].values
+            coords = trimmed_df_channel.loc[:, ['r_px_registered', 'c_px_registered']].to_numpy()
+            barcodes_extraction_resolution = trimmed_df_channel['barcodes_extraction_resolution'].values[0]
+
+            chunks_coords = dots_hoods(coords,barcodes_extraction_resolution)
+            chunks_coords[chunks_coords<0]=0
+            chunks_coords[chunks_coords>img_stack.shape[1]]= img_stack.shape[1]
+        
+           
+            for idx in np.arange(chunks_coords.shape[0]):
+                selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
+                if selected_region.size >0:
+                    max_array = selected_region.max(axis=(1,2))
+                    all_regions[channel][barcodes_names[idx]]= selected_region
+                    all_max[channel][barcodes_names[idx]]= max_array
                 # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
 
         # fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_img_dict_fov_' + str(fov) + '.pkl')
@@ -156,14 +162,14 @@ def identify_flipped_bits(codebook: pd.DataFrame, gene: str,
     return flipped_positions,flipping_directions
 
 
-def define_flip_direction(codebook: pd.DataFrame,experiment_fpath: str, 
+def define_flip_direction(codebook_dict: dict,experiment_fpath: str, 
             output_df: pd.DataFrame):
     """Function used to determinethe the position of the bits that are
     flipped after the nearest neighbors and the definition of the
     acceptable hamming distance for fov.
 
     Args:
-        codebook (pd.DataFrame): Codebook used for the decoding
+        codebook (dict): Codebooks used for the decoding
         experiment_fpath (str): Path to the folder of the experiment to process
         output_df (pd.DataFrame): Dataframe with the decoded results for 
                     the specific fov.
@@ -173,21 +179,29 @@ def define_flip_direction(codebook: pd.DataFrame,experiment_fpath: str,
         selected_hamming_distance = 3 / output_df.iloc[0].barcode_length
         experiment_fpath = Path(experiment_fpath)
         experiment_name = experiment_fpath.stem
-        channel = output_df.channel.values[0]
-        fov = output_df.fov_num.values[0]
-        trimmed_df = output_df.loc[(output_df.dot_id == output_df.barcode_reference_dot_id) &
-                            (output_df['hamming_distance'] > correct_hamming_distance) &
-                            (output_df['hamming_distance'] < selected_hamming_distance),
-                                ['barcode_reference_dot_id', 'decoded_genes', 'raw_barcodes','hamming_distance']]
-        trimmed_df = trimmed_df.dropna(subset=['decoded_genes'])
-        trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,
-                                                                                    x.decoded_genes,x.raw_barcodes),axis=1)
-        trimmed_df['flip_position'] = trimmed_df['flip_and_direction'].apply(lambda x: x[0])
-        trimmed_df['flip_direction'] = trimmed_df['flip_and_direction'].apply(lambda x: x[1])
-        trimmed_df.drop(columns=['flip_and_direction'],inplace=True)
+        channels = codebook_dict.keys()
+        all_evaluated = []
+        for channel in channels: 
+            codebook = codebook_dict[channel]
+            fov = output_df.fov_num.values[0]
+            trimmed_df = output_df.loc[(output_df.dot_id == output_df.barcode_reference_dot_id) &
+                                (output_df.channel == channel) &
+                                (output_df['hamming_distance'] > correct_hamming_distance) &
+                                (output_df['hamming_distance'] < selected_hamming_distance),
+                                    ['barcode_reference_dot_id', 'decoded_genes', 'raw_barcodes','hamming_distance']]
+            trimmed_df = trimmed_df.dropna(subset=['decoded_genes'])
+            trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,
+                                                                                        x.decoded_genes,x.raw_barcodes),axis=1)
+            trimmed_df['flip_position'] = trimmed_df['flip_and_direction'].apply(lambda x: x[0])
+            trimmed_df['flip_direction'] = trimmed_df['flip_and_direction'].apply(lambda x: x[1])
+            trimmed_df.drop(columns=['flip_and_direction'],inplace=True)
+            all_evaluated.append(trimmed_df)
+        
+        all_evaluated = pd.concat(all_evaluated,axis=0,ignore_index=True,inplace=True)
+
         
         fpath = experiment_fpath / 'results' / (experiment_name + '_' + channel + '_df_flip_direction_fov' + str(fov) + '.parquet')
-        trimmed_df.to_parquet(fpath)
+        all_evaluated.to_parquet(fpath)
         # return trimmed_df
 
 
