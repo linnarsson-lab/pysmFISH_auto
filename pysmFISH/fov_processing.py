@@ -417,12 +417,12 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
 
                 all_processing.append(extracted_intensities)
 
-                name = 'determine_flip_direction_' +experiment_name + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize()
-                flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook_dict,
-                                            experiment_fpath,all_stitched_coords)
+                # name = 'determine_flip_direction_' +experiment_name + '_' \
+                #                 + '_fov_' +str(fov) + '-' + tokenize()
+                # flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook_dict,
+                #                             experiment_fpath,all_stitched_coords)
 
-                all_processing.append(flip_direction)
+                # all_processing.append(flip_direction)
 
         _ = dask.compute(*all_processing)
 
