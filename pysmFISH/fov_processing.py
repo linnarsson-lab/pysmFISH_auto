@@ -304,7 +304,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
 
             all_filtered_imges = {}
             for channel_proc in list_all_channels:
-                all_filtered_imges[channel_proc] = {}
+                all_filtered_images[channel_proc] = {}
                 all_counts_fov[channel_proc] = []
                 group = channel_grpd.get_group(channel_proc)
                 for index_value, fov_subdataset in group.iterrows():
@@ -328,7 +328,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                     all_counts_fov[channel_proc].append(counts)
                         
                     if save_bits_int:
-                        if channel != fov_subdataset.stitching_channel:
+                        if channel_proc != fov_subdataset.stitching_channel:
                             all_filtered_images[channel_proc][round_num] = filt_out
             
                 name = 'concat_' +experiment_name + '_' + channel_proc + '_' \
