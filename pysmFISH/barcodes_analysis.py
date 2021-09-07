@@ -190,7 +190,7 @@ def define_flip_direction(codebook_dict: dict,experiment_fpath: str,
                                 (output_df['hamming_distance'] < selected_hamming_distance),
                                     ['barcode_reference_dot_id', 'decoded_genes', 'raw_barcodes','hamming_distance']]
             trimmed_df = trimmed_df.dropna(subset=['decoded_genes'])
-            trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,
+            trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,\
                                                                                         x.decoded_genes,x.raw_barcodes),axis=1)
             trimmed_df['flip_position'] = trimmed_df['flip_and_direction'].apply(lambda x: x[0])
             trimmed_df['flip_direction'] = trimmed_df['flip_and_direction'].apply(lambda x: x[1])
