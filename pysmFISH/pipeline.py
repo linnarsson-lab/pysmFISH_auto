@@ -93,7 +93,7 @@ class Pipeline():
             processing_engine (str): Define the name of the system that will run the processing. Can be local/htcondor
                                     (default htcondor). If engine == local the parameters that define the cluster
                                     will be ignored
-            cores (int): Number of cores to use in htcondor or in the local processing (default 20)
+            cores (int): Number of cores/job to use in htcondor or in the local processing (default 20)
             memory (str): Total memory for all the cores (default 200GB)
             disk (str): Size of the spillover disk for dask (default 0.1GB)
             local_directory (str): Directory where to spill over on the node (default /tmp)
@@ -716,6 +716,68 @@ class Pipeline():
 
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
+    def run_after_editing(self,resume=False):
+        """
+            Full run from raw images from nikon or parsed images
+        """
+
+        start = datetime.now()    
+        if resume:
+            already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
+            already_done_fovs = []
+            for fname in already_processed:
+                fov_num = int(fname.stem.split('_')[-1])
+                already_done_fovs.append(fov_num)
+            not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+            self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+            self.grpd_fovs = self.data.dataset.groupby('fov_num')
+
+
+        if self.metadata['experiment_type'] == 'eel-barcoded':
+            step_start = datetime.now()
+            self.processing_barcoded_eel_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.microscope_stitched_remove_dots_eel_graph_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
+            step_start = datetime.now()
+            self.stitch_and_remove_dots_eel_graph_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.processing_fresh_tissue_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Processing fresh tissue completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        elif self.metadata['experiment_type'] == 'smfish-serial':
+            step_start = datetime.now()
+            self.processing_serial_fish_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    serial smfish fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+        else:
+            self.logger.error(f"the experiment type {self.metadata['experiment_type']} is unknown")
+            sys.exit(f"the experiment type {self.metadata['experiment_type']} is unknown")
+
+
+        step_start = datetime.now()
+        # self.transfer_data_after_processing()
+        # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+        #             data transfer after processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
 
 
     def run_eel_processing_from_registration(self):

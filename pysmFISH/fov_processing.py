@@ -94,10 +94,6 @@ def single_fov_round_processing_eel(fov_subdataset: pd.Series,
 
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
-
-    # Path of directory where to save the intermediate results
-    filtered_img_path = experiment_fpath / 'tmp' / 'filtered_images'
-    raw_counts_path = experiment_fpath / 'tmp' / 'raw_counts'
     
     experiment_name = fov_subdataset.experiment_name
     pipeline = fov_subdataset.pipeline
