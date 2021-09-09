@@ -30,40 +30,6 @@ from pysmFISH import data_models
 from pysmFISH.logger_utils import selected_logger
 
 
-def combine_filtered_images(output_list: list,experiment_fpath: str,
-                            metadata: pd.DataFrame, save:bool=False):
-    """Function used to combine all the filtered images for a fov/channel in a single
-        image stack
-
-    Args:
-        output_list (list): list containing the output of preprocessing 
-        experiment_fpath (str): path to the experiment to process
-        metadata (pd.DataFrame): dataframe containing the metadata
-        save (bool, optional): Determine if the filtered images should be stored Defaults to False.
-
-    Returns:
-        img_stack (np.ndarray): image stack of all the images for a fov. The position in the
-                stack correspond to round_num-1
-    """
-    experiment_fpath = Path(experiment_fpath)
-     
-    img_stack = np.zeros([metadata['total_rounds'],metadata['img_width'],metadata['img_height']])
-
-    for img, img_meta in output_list:
-        round_num = img_meta.round_num
-        img_stack[round_num-1,:,:] = img
-
-    if save:
-        # Add conversion to more compress ftype
-        img_meta = output_list[0][1]
-        channel = img_meta.channel
-        fov = img_meta.fov_num
-        fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_' + channel + '_combined_img_fov_' + fov + '.npy')
-        np.save(fpath, img_stack)
-    
-    return img_stack
-
-
 
 def single_fov_round_processing_eel(fov_subdataset: pd.Series,
                                    analysis_parameters: dict,

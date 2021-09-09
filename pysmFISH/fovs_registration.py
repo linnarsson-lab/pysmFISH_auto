@@ -21,6 +21,7 @@ from skimage.feature import register_translation
 from skimage import filters
 from skimage.registration import phase_cross_correlation
 
+
 from sklearn.neighbors import NearestNeighbors
 
 import itertools
@@ -35,6 +36,7 @@ from pysmFISH.logger_utils import selected_logger
 from pysmFISH.errors import Registration_errors
 
 from pysmFISH.data_models import Output_models
+from pysmFISH import utils
 
 def create_fake_image(img_shape: np.ndarray,coords: np.ndarray)->np.ndarray:
     """Function used to create an image from dots counts. The image
