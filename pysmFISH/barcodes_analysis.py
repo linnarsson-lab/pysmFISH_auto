@@ -115,23 +115,24 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
             all_max[channel] = {}
             img_stack = registered_img_stack[channel]
             trimmed_df_channel = trimmed_df.loc[trimmed_df.channel == channel]
+            if trimmed_df_channel.shape[0] >0:
 
-            barcodes_names = trimmed_df_channel['barcode_reference_dot_id'].values
-            coords = trimmed_df_channel.loc[:, ['r_px_registered', 'c_px_registered']].to_numpy()
-            barcodes_extraction_resolution = trimmed_df_channel['barcodes_extraction_resolution'].values[0]
+                barcodes_names = trimmed_df_channel['barcode_reference_dot_id'].values
+                coords = trimmed_df_channel.loc[:, ['r_px_registered', 'c_px_registered']].to_numpy()
+                barcodes_extraction_resolution = trimmed_df_channel['barcodes_extraction_resolution'].values[0]
 
-            chunks_coords = dots_hoods(coords,barcodes_extraction_resolution)
-            chunks_coords[chunks_coords<0]=0
-            chunks_coords[chunks_coords>img_stack.shape[1]]= img_stack.shape[1]
-        
-           
-            for idx in np.arange(chunks_coords.shape[0]):
-                selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
-                if selected_region.size >0:
-                    max_array = selected_region.max(axis=(1,2))
-                    all_regions[channel][barcodes_names[idx]]= selected_region
-                    all_max[channel][barcodes_names[idx]]= max_array
-                # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
+                chunks_coords = dots_hoods(coords,barcodes_extraction_resolution)
+                chunks_coords[chunks_coords<0]=0
+                chunks_coords[chunks_coords>img_stack.shape[1]]= img_stack.shape[1]
+            
+            
+                for idx in np.arange(chunks_coords.shape[0]):
+                    selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
+                    if selected_region.size >0:
+                        max_array = selected_region.max(axis=(1,2))
+                        all_regions[channel][barcodes_names[idx]]= selected_region
+                        all_max[channel][barcodes_names[idx]]= max_array
+                    # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
 
         # fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_img_dict_fov_' + str(fov) + '.pkl')
         # pickle.dump(all_regions,open(fpath,'wb'))
