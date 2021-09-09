@@ -104,7 +104,8 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
         experiment_name = experiment_fpath.stem
         channels = registered_img_stack.keys()
         trimmed_df = barcoded_df.loc[barcoded_df.dot_id == barcoded_df.barcode_reference_dot_id ,
-                                ['barcode_reference_dot_id', 'r_px_registered', 'c_px_registered','barcodes_extraction_resolution']]
+                                ['barcode_reference_dot_id', 'r_px_registered', 'c_px_registered',
+                                'barcodes_extraction_resolution', 'channel']]
         
         all_regions = {}
         all_max = {}
