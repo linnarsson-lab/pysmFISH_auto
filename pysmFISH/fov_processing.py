@@ -373,7 +373,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                 name = 'combine_shifted_images_' +experiment_name + '_' \
                                 + '_fov_' +str(fov) + '-' + tokenize() 
 
-                combined_shift_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_imges,
+                combined_shift_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,
                                             metadata,all_stitched_coords)
                 
                 name = 'extract_dots_intensities_' +experiment_name + '_' \
