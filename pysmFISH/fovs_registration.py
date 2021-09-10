@@ -97,7 +97,6 @@ def combine_register_filtered_images(output_dict: dict, metadata: dict,
                 img = filt_out[0][0]
                 shift = all_rounds_shifts[int(round_num)]
                 if shift:
-                    shift = shift.iloc[0].to_numpy()
                     shifted_img = register_images(img,shift)
                     img_stack[round_num-1,:,:] = shifted_img
             registered_img_stack[channel] = img_stack
