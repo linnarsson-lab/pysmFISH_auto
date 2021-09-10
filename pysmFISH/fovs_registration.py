@@ -264,7 +264,7 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
         stitching_channel_df.loc[ref_counts_df.index,'c_shift_px'] =  0
         stitching_channel_df.loc[ref_counts_df.index,'min_number_matching_dots_registration'] =  1000
 
-        all_rounds_shifts[reference_round_num] = [0,0]
+        all_rounds_shifts[reference_round_num] = np.array([0,0])
         all_rounds_matching_dots[reference_round_num] = 1000
 
         # Create reference fake image for registration
