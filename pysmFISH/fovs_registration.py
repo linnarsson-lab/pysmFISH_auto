@@ -95,7 +95,7 @@ def combine_register_filtered_images(output_dict: dict, metadata: dict,
             img_stack = np.zeros([int(metadata['total_rounds']),int(metadata['img_width']),int(metadata['img_height'])])
             for round_num, filt_out in all_rounds_data.items():
                 img = filt_out[0][0]
-                shift = all_rounds_shifts[round_num]
+                shift = all_rounds_shifts[int(round_num)]
                 if shift.shape[0] > 0:
                     shift = shift.iloc[0].to_numpy()
                     shifted_img = register_images(img,shift)
