@@ -98,7 +98,7 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
                     the imaging round correspond to the z-stack position
         experiment_fpath (str): Path to the folder of the experiment to process
     """
-    if barcoded_df.shape[0] >1 :
+    if isinstance(registered_img_stack, dict) and (barcoded_df.shape[0] >1):
         experiment_fpath = Path(experiment_fpath)
         fov = barcoded_df.fov_num.values[0]
         experiment_name = experiment_fpath.stem

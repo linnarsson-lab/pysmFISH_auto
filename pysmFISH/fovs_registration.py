@@ -90,7 +90,7 @@ def combine_register_filtered_images(output_dict: dict, metadata: dict,
         np.ndarray: Image stack with all the rounds registered.
     """
     registered_img_stack = {}
-    if output_dict:
+    if isinstance(all_rounds_shifts, dict) and (output_dict):
         for channel, all_rounds_data in output_dict.items():
             img_stack = np.zeros([int(metadata['total_rounds']),int(metadata['img_width']),int(metadata['img_height'])])
             for round_num, filt_out in all_rounds_data.items():
@@ -100,7 +100,9 @@ def combine_register_filtered_images(output_dict: dict, metadata: dict,
                     shifted_img = register_images(img,shift)
                     img_stack[round_num-1,:,:] = shifted_img
             registered_img_stack[channel] = img_stack
-    return registered_img_stack
+        return registered_img_stack
+    else:
+        registered_img_stack = np.nan
 
 
 def beads_based_registration(all_counts_fov: pd.DataFrame,
