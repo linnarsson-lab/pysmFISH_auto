@@ -790,7 +790,7 @@ def load_codebook(experiment_fpath:str, metadata:str)-> dict:
 
     for channel, codebook_name in zip(metadata['list_all_channels'],metadata['list_all_codebooks']):
         if codebook_name != 'None':
-            codebook_fpath = Path(experiment_fpath) / 'pipeline_config' / codebook_name
+            codebook_fpath = Path(experiment_fpath) / 'codebook' / codebook_name
             try:
                 codebook = pd.read_parquet(codebook_fpath)
             except (FileExistsError,NameError,FileNotFoundError) as e:
