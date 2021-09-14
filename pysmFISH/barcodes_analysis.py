@@ -310,32 +310,46 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
             # Step one (all dots not in round 1)
             compare_df = dropping_counts.loc[dropping_counts.round_num != ref_round_number,:]
 
-            if (not reference_round_df.empty) and (not compare_df.empty):
-                nn = NearestNeighbors(1, metric="euclidean")
-                nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
-                dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
+            if (not reference_round_df.empty):
+                if not compare_df.empty:
+                    nn = NearestNeighbors(1, metric="euclidean")
+                    nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
+                    dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
 
-                # select only the nn that are below barcodes_extraction_resolution distance
-                idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
+                    # select only the nn that are below barcodes_extraction_resolution distance
+                    idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
 
-                comp_idx = idx_distances_below_resolution
-                ref_idx = indices[comp_idx].flatten()
+                    comp_idx = idx_distances_below_resolution
+                    ref_idx = indices[comp_idx].flatten()
 
-                # Subset the dataframe according to the selected points
-                # The reference selected will have repeated points
-                comp_selected_df = compare_df.iloc[comp_idx]
-                ref_selected_df = reference_round_df.iloc[ref_idx]
+                    # Subset the dataframe according to the selected points
+                    # The reference selected will have repeated points
+                    comp_selected_df = compare_df.iloc[comp_idx]
+                    ref_selected_df = reference_round_df.iloc[ref_idx]
 
-               # The size of ref_selected_df w/o duplicates may be smaller of reference_round_df if 
-                # some of the dots in reference_round_df have no neighbours
+                    # The size of ref_selected_df w/o duplicates may be smaller of reference_round_df if 
+                    # some of the dots in reference_round_df have no neighbours
 
-                # Test approach where we get rid of the single dots
-                comp_selected_df.loc[:,'barcode_reference_dot_id'] = ref_selected_df['dot_id'].values
-                ref_selected_df_no_duplicates = ref_selected_df.drop_duplicates()
-                ref_selected_df_no_duplicates.loc[:,'barcode_reference_dot_id'] = ref_selected_df_no_duplicates['dot_id'].values
+                    # Test approach where we get rid of the single dots
+                    comp_selected_df.loc[:,'barcode_reference_dot_id'] = ref_selected_df['dot_id'].values
+                    ref_selected_df_no_duplicates = ref_selected_df.drop_duplicates()
+                    ref_selected_df_no_duplicates.loc[:,'barcode_reference_dot_id'] = ref_selected_df_no_duplicates['dot_id'].values
 
-                barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates], axis=0,ignore_index=False)
-                barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
+                    # Collect singletons
+                    # Remeber that this method works only because there are no duplicates inside the dataframes
+                    # https://stackoverflow.com/questions/48647534/python-pandas-find-difference-between-two-data-frames
+                    singletons_df = pd.concat([reference_round_df,ref_selected_df_no_duplicates]).drop_duplicates(keep=False)
+
+
+                    barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
+                    barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
+
+                else:
+                    # Collecting singleton of last bit
+                    reference_round_df.loc[:,'barcode_reference_dot_id'] = reference_round_df['dot_id'].values
+                    barcoded_round_grouped = reference_round_df.groupby('barcode_reference_dot_id')
+                    ref_selected_df_no_duplicates = reference_round_df
+
                 for brdi, grp in barcoded_round_grouped:
                     barcode = np.zeros([barcode_length],dtype=np.int8)
                     barcode[grp.round_num.values.astype(np.int8)-1] = 1
@@ -357,6 +371,8 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
                 
                 compare_df = compare_df.drop(comp_selected_df.index)
                 dropping_counts = compare_df
+            
+           
 
         codebook_df = convert_str_codebook(codebook_df,'Code')
         codebook_array = make_codebook_array(codebook_df,'Code')
