@@ -338,8 +338,11 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
                     # Collect singletons
                     # Remeber that this method works only because there are no duplicates inside the dataframes
                     # https://stackoverflow.com/questions/48647534/python-pandas-find-difference-between-two-data-frames
-                    singletons_df = pd.concat([reference_round_df,ref_selected_df_no_duplicates]).drop_duplicates(keep=False)
-
+                    if reference_round_df.shape[0] > ref_selected_df_no_duplicates.shape[0]:
+                        singletons_df = pd.concat([reference_round_df,ref_selected_df_no_duplicates]).drop_duplicates(keep=False)
+                        barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
+                    else:
+                        barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates], axis=0,ignore_index=False)
 
                     barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
                     barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
