@@ -138,7 +138,7 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
         # pickle.dump(all_regions,open(fpath,'wb'))
         fpath = experiment_fpath / 'results' / (experiment_name + '_barcodes_max_array_dict_fov_' + str(fov) + '.pkl')
         pickle.dump(all_max,open(fpath,'wb'))
-        # return all_max
+        return all_max
 
 
 def identify_flipped_bits(codebook: pd.DataFrame, gene: str, 
