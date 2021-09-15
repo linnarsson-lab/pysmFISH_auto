@@ -102,6 +102,8 @@ class Pipeline():
                                 the processig required. (default True)
             maximum_jobs (int): Max number of jobs to run in htcondor
             save_bits_int: (bool): Save the intensity of the bits and the flipping direction
+            start_from_preprocessed_imgs (bool): Run the processing starting from the counting
+                using preprocessed images. default: False 
 
         Attributes:
             storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -146,6 +148,7 @@ class Pipeline():
         self.save_bits_int = kwarg.pop('save_bits_int',True)
         self.adaptive = kwarg.pop('adaptive',True)
         self.maximum_jobs = kwarg.pop('maximum_jobs',15)
+        self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}

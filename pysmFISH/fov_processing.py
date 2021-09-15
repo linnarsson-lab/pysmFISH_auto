@@ -37,7 +37,8 @@ def single_fov_round_processing_eel(fov_subdataset: pd.Series,
                                    dark_img: np.ndarray,
                                    experiment_fpath: str,
                                    preprocessed_zarr_fpath: str,
-                                   save_steps_output=False)-> Tuple[pd.DataFrame,Tuple]:
+                                   save_steps_output:bool=False,
+                                   start_from_preprocessed_imgs:bool=False)-> Tuple[pd.DataFrame,Tuple]:
     
     """Function to run eel processing and counting on a single fov
 
@@ -85,12 +86,19 @@ def single_fov_round_processing_eel(fov_subdataset: pd.Series,
         counting_fun = running_functions['reference_channels_dots_calling']
 
 
-    filt_out = getattr(pysmFISH.preprocessing,filtering_fun)(
-                                                    zarr_grp_name,
-                                                    parsed_raw_data_fpath,
-                                                    processing_parameters,
-                                                    dark_img)
+    if start_from_preprocessed_imgs:
+        # Load already filtered data
+        filt_out = io.load_general_zarr(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
+        filt_out = ((filt_out[0],),filt_out[1])
 
+    else:
+
+        filt_out = getattr(pysmFISH.preprocessing,filtering_fun)(
+                                                        zarr_grp_name,
+                                                        parsed_raw_data_fpath,
+                                                        processing_parameters,
+                                                        dark_img)
+  
     counts = getattr(pysmFISH.dots_calling,counting_fun)(
                                                         filt_out[0][0],
                                                         fov_subdataset,
@@ -107,7 +115,7 @@ def single_fov_round_processing_eel(fov_subdataset: pd.Series,
             dgrp.attrs[k] = v
         fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
         dgrp.attrs['fov_name'] = fov_name
-        img = utils.convert_to_uint16(filt_out[0][-1])
+        img = utils.convert_to_uint16(filt_out[0][0]) # Changed to save final processed image 
         dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=None,overwrite=True)
 
         # counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
@@ -193,7 +201,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                                     preprocessed_image_tag: str, 
                                     client, 
                                     chunks_size: int, 
-                                    save_bits_int: int):
+                                    save_bits_int: int,
+                                    start_from_preprocessed_imgs: False):
     
     """Processing graph for eel type of experiments. Run all the
     steps that can be applied to a single FOV.
@@ -221,6 +230,8 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
         chunks_size (int): Number of FOVs to process in one go
         save_bits_int (int): Save the intensity of the barcodes (also negative barcodes)
                         and the position of the bits that are flipped
+        start_from_preprocessed_imgs (bool): Run the processing starting from the counting
+                using preprocessed images. default: False 
     """
         
     experiment_fpath = Path(experiment_fpath)
@@ -284,6 +295,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                                                 experiment_fpath,
                                                 preprocessed_zarr_fpath,
                                                 save_steps_output=save_intermediate_steps,
+                                                start_from_preprocessed_imgs=start_from_preprocessed_imgs,
                                                 dask_key_name=dask_delayed_name)
                     counts, filt_out = fov_out[0], fov_out[1]
                     
