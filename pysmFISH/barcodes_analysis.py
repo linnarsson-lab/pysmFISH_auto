@@ -347,6 +347,9 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
                     barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
                     barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
 
+                    compare_df = compare_df.drop(comp_selected_df.index)
+                    dropping_counts = compare_df
+
                 else:
                     # Collecting singleton of last bit
                     reference_round_df.loc[:,'barcode_reference_dot_id'] = reference_round_df['dot_id'].values
@@ -372,8 +375,6 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
 
                 all_decoded_dots_df = pd.concat(all_decoded_dots_list,ignore_index=False)
                 
-                compare_df = compare_df.drop(comp_selected_df.index)
-                dropping_counts = compare_df
             
            
 
