@@ -476,7 +476,7 @@ def processing_barcoded_eel_fov_after_dots_graph(experiment_fpath: str,
             
             # Modify for channels name
 
-            counts_fpath = list((experiment_fpath / 'results').glob('*_raw_fov_'+str(fov_num)+'.parquet'))[0]
+            counts_fpath = list((experiment_fpath / 'results').glob('*_raw_counts_channel_'+str(fov_num)+'.parquet'))[0]
 
             name = 'load_counts_' +experiment_name + '_' \
                                 + '_fov_' +str(fov_num) + '-' + tokenize()
