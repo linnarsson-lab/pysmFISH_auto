@@ -313,29 +313,15 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
             
             if save_intermediate_steps:
                 
-                name = 'concat_raw_counts_' +experiment_name + '_' + channel + '_' \
+                for channel in list_all_channels:
+                    name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
                                 + '_fov_' +str(fov) + '-' + tokenize()
-
-                concat_raw_counts = delayed(pd.concat,name=name)(all_counts_fov_concat.values())
-                name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize()
-
-                saved_raw_counts = delayed(concat_raw_counts.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                            '_raw_counts_fov_' + str(fov) + '.parquet'),index=False)
-
-
-                all_processing.append(saved_raw_counts)
-
-                # OLD WAY TO SAVE COUNTS
-                # for channel in list_all_channels:
-                #     name = 'save_raw_counts_' +experiment_name + '_' + channel + '_' \
-                #                 + '_fov_' +str(fov) + '-' + tokenize()
 
                     
-                #     saved_raw_counts = delayed(all_counts_fov_concat[channel].to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                #             '_raw_counts_channel_'+ channel + '_fov_' + str(fov) + '.parquet'),index=False)
+                    saved_raw_counts = delayed(all_counts_fov_concat[channel].to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                            '_raw_counts_channel_'+ channel + '_fov_' + str(fov) + '.parquet'),index=False)
 
-                #     all_processing.append(saved_raw_counts)
+                    all_processing.append(saved_raw_counts)
 
 
             # name = 'register_' +experiment_name + '_' + stitching_channel + '_' \
