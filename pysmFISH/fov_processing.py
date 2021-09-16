@@ -474,7 +474,7 @@ def processing_barcoded_eel_fov_graph_from_decoding(experiment_fpath: str,
                                 + '_fov_' +str(fov_num) + '-' + tokenize()
             counts_fov = delayed(pd.read_parquet,name=name)(counts_fpath)
 
-
+            all_stitched_coords = []
             for processing_channel in fish_channels:
 
                 # Decoded fish
