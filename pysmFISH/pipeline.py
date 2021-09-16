@@ -720,6 +720,11 @@ class Pipeline():
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
 
+        
+        self.client.close()
+        self.cluster.close()
+    
+
     def run_after_editing(self,resume=False):
         """
             Full run from raw images from nikon or parsed images
@@ -746,6 +751,9 @@ class Pipeline():
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
 
+        self.client.close()
+        self.cluster.close()
+
 
     def run_short(self,resume=False):
         start = datetime.now()
@@ -770,7 +778,9 @@ class Pipeline():
 
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
-
+        
+        self.client.close()
+        self.cluster.close()
 
     def run_eel_processing_from_registration(self):
         """
@@ -814,3 +824,6 @@ class Pipeline():
         else:
             self.logger.error(f"{self.experiment_fpath.stem} missing files with raw counts")
             raise FileNotFoundError
+        
+        self.client.close()
+        self.cluster.close()
