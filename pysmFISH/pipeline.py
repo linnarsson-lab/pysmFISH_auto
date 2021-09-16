@@ -804,20 +804,20 @@ class Pipeline():
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
-            step_start = datetime.now()
-            self.microscope_stitched_remove_dots_eel_graph_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
+            # step_start = datetime.now()
+            # self.microscope_stitched_remove_dots_eel_graph_step()
+            # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+            #         removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
 
-            step_start = datetime.now()
-            self.QC_registration_error_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            # step_start = datetime.now()
+            # self.QC_registration_error_step()
+            # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+            #         QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
             
-            step_start = datetime.now()
-            self.stitch_and_remove_dots_eel_graph_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            # step_start = datetime.now()
+            # self.stitch_and_remove_dots_eel_graph_step()
+            # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+            #         Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
