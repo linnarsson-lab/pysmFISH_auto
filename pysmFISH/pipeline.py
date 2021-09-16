@@ -789,7 +789,7 @@ class Pipeline():
             Requires raw files 
         """
 
-        raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_fov_*'))
+        raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_counts_channel_*_fov_*'))
 
         if raw_files_path:
             start = datetime.now()
