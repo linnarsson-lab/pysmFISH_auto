@@ -372,7 +372,7 @@ class Pipeline():
 
         fov_processing.processing_barcoded_eel_fov_after_dots_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tiles_org,self.metadata,
-                                    self.grpd_fovs, self.preprocessed_image_tag, self.client, self.chunks_size)
+                                    self.grpd_fovs, self.preprocessed_image_tag, self.client, self.chunk_size)
 
 
     def processing_serial_fish_step(self):
