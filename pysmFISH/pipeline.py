@@ -751,8 +751,8 @@ class Pipeline():
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
 
-        self.client.close()
-        self.cluster.close()
+        # self.client.close()
+        # self.cluster.close()
 
 
     def run_short(self,resume=False):
