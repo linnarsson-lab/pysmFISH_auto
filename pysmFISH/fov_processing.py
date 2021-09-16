@@ -407,15 +407,6 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
 
     io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
 
-    # ----------------------------------------------------------------
-    # GENERATE OUTPUT FOR PLOTTING
-    selected_Hdistance = 3 / metadata['barcode_length']
-    stitching_selected = 'microscope_stitched'
-    io.simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client,file_tag='decoded')
-    # ----------------------------------------------------------------  
-
-
-
 
 
 def processing_barcoded_eel_fov_graph_from_decoding(experiment_fpath: str,
