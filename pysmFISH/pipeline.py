@@ -342,13 +342,13 @@ class Pipeline():
                                     self.preprocessed_image_tag,self.client,self.chunk_size,self.save_bits_int,
                                     self.start_from_preprocessed_imgs)
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata['barcode_length']
-        stitching_selected = 'microscope_stitched'
-        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='decoded')
-        # ----------------------------------------------------------------  
+        # # ----------------------------------------------------------------
+        # # GENERATE OUTPUT FOR PLOTTING
+        # selected_Hdistance = 3 / self.metadata['barcode_length']
+        # stitching_selected = 'microscope_stitched'
+        # io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+        #                         selected_Hdistance, self.client,file_tag='decoded')
+        # # ----------------------------------------------------------------  
 
 
 
