@@ -280,7 +280,7 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
     barcode_length = metadata['barcode_length']
     registration_errors = Registration_errors()
 
-    stitching_channel = registered_counts_df['stitching_channel'].iloc[0]
+    stitching_channel = metadata['stitching_channel']
     
  
     registered_counts_df.dropna(subset=['dot_id'],inplace=True)
