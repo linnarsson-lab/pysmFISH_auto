@@ -481,7 +481,8 @@ def processing_barcoded_eel_fov_graph_from_decoding(experiment_fpath: str,
                 name = 'decode_' +experiment_name + '_' + processing_channel + '_' \
                                     + '_fov_' +str(fov_num) + '-' + tokenize()
                 decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(counts_fov, 
-                                                                        analysis_parameters,codebook_dict[processing_channel])
+                                                                        analysis_parameters,codebook_dict[processing_channel],
+                                                                        metadata)
 
 
                 # Stitch to the microscope reference coords

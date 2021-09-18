@@ -260,7 +260,7 @@ def merge_with_concat(dfs: list)->pd.DataFrame:
 
 
 def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, analysis_parameters: Dict,
-                codebook_df: pd.DataFrame)-> Tuple[pd.DataFrame,pd.DataFrame]:
+                codebook_df: pd.DataFrame, metadata:dict)-> Tuple[pd.DataFrame,pd.DataFrame]:
     """Function used to extract the barcodes from the registered
     counts using nearest neighbour. if there is a problem with the registration the barcode assigned 
     will be 0*barcode_length
@@ -277,7 +277,7 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
 
     barcodes_extraction_resolution = analysis_parameters['BarcodesExtractionResolution']
     RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
-    barcode_length = registered_counts_df.loc[0]['barcode_length']
+    barcode_length = metadata['barcode_length']
     registration_errors = Registration_errors()
 
     stitching_channel = registered_counts_df['stitching_channel'].iloc[0]
