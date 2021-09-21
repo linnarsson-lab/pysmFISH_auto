@@ -475,40 +475,41 @@ def processing_barcoded_eel_fov_graph_from_decoding(experiment_fpath: str,
                                 + '_fov_' +str(fov_num) + '-' + tokenize()
             counts_fov = delayed(pd.read_parquet,name=name)(counts_fpath)
 
-            all_stitched_coords = []
-            for processing_channel in fish_channels:
+            # all_stitched_coords = []
+            # for processing_channel in fish_channels:
 
-                # Decoded fish
-                name = 'decode_' +experiment_name + '_' + processing_channel + '_' \
-                                    + '_fov_' +str(fov_num) + '-' + tokenize()
-                decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(counts_fov, 
-                                                                        analysis_parameters,codebook_dict[processing_channel],
-                                                                        metadata)
+            #     # Decoded fish
+            #     name = 'decode_' +experiment_name + '_' + processing_channel + '_' \
+            #                         + '_fov_' +str(fov_num) + '-' + tokenize()
+            #     decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(counts_fov, 
+            #                                                             analysis_parameters,codebook_dict[processing_channel],
+            #                                                             metadata)
 
 
-                # Stitch to the microscope reference coords
-                name = 'stitch_to_mic_coords_' +experiment_name + '_' + processing_channel + '_' \
-                                    + '_fov_' +str(fov_num) + '-' + tokenize()  
-                stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],
-                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
-                                                                metadata,tag='microscope_stitched')
+            #     # Stitch to the microscope reference coords
+            #     name = 'stitch_to_mic_coords_' +experiment_name + '_' + processing_channel + '_' \
+            #                         + '_fov_' +str(fov_num) + '-' + tokenize()  
+            #     stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],
+            #                                                     tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+            #                                                     metadata,tag='microscope_stitched')
             
 
-                all_stitched_coords.append(stitched_coords)
+            #     all_stitched_coords.append(stitched_coords)
 
             
-            name = 'concat_' +experiment_name + \
-                                    '_fov_' + str(fov_num) + '-' + tokenize()
-            all_stitched_coords = delayed(pd.concat,name=name)(all_stitched_coords,axis=0,ignore_index=True) 
+            # name = 'concat_' +experiment_name + \
+            #                         '_fov_' + str(fov_num) + '-' + tokenize()
+            # all_stitched_coords = delayed(pd.concat,name=name)(all_stitched_coords,axis=0,ignore_index=True) 
                 
                 
-            name = 'save_df_' +experiment_name + '_' \
-                                + '_fov_' +str(fov_num) + '-' + tokenize() 
-            saved_file = delayed(all_stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-                            '_decoded_fov_' + str(fov_num) + '.parquet'),index=False)
+            # name = 'save_df_' +experiment_name + '_' \
+            #                     + '_fov_' +str(fov_num) + '-' + tokenize() 
+            # saved_file = delayed(all_stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+            #                 '_decoded_fov_' + str(fov_num) + '.parquet'),index=False)
                         
             
-            all_processing.append(saved_file)
+            # all_processing.append(saved_file)
+            all_processing.append(counts_fov)
 
 
         _ = dask.compute(*all_processing)
