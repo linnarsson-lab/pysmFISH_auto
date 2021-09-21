@@ -302,7 +302,7 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
         return registered_counts_df, all_decoded_dots_df
         
     else:
-    
+        barcoded_round = []
         for ref_round_number in np.arange(1,barcode_length+1):
 
             #ref_round_number = 1
@@ -400,7 +400,7 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
             all_decoded_dots_df['barcode_reference_dot_id'] = np.nan
             all_decoded_dots_df['raw_barcodes'] = np.nan
             all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
-            barcoded_round = []
+
         
         # Save barcoded_round and all_decoded_dots_df
         return barcoded_round, all_decoded_dots_df
