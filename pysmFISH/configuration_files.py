@@ -607,13 +607,13 @@ def create_function_runner(experiment_fpath: str,metadata: dict)-> dict:
 
     if stitching_type == 'large-beads':
             running_functions['reference_channels_preprocessing'] = 'large_beads_preprocessing'
-            running_functions['reference_channels_dots_calling'] = 'osmFISH_peak_based_detection_fast'
+            running_functions['reference_channels_dots_calling'] = 'beads_peak_based_detection'
     elif stitching_type == 'small-beads':
             running_functions['reference_channels_preprocessing'] = 'standard_not_norm_preprocessing'
-            running_functions['reference_channels_dots_calling'] = 'osmFISH_peak_based_detection_fast'
+            running_functions['reference_channels_dots_calling'] = 'beads_peak_based_detection'
     elif stitching_type == 'both-beads':
             running_functions['reference_channels_preprocessing'] = 'both_beads_preprocessing'
-            running_functions['reference_channels_dots_calling'] = 'both_beads_peak_based_detection'
+            running_functions['reference_channels_dots_calling'] = 'beads_peak_based_detection'
         
         
     elif stitching_type == 'nuclei':
