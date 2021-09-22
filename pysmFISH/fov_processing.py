@@ -115,7 +115,7 @@ def single_fov_round_processing_eel(fov_subdataset: pd.Series,
             dgrp.attrs[k] = v
         fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
         dgrp.attrs['fov_name'] = fov_name
-        img = utils.convert_to_uint16(filt_out[0][0]) # Changed to save final processed image 
+        img = utils.convert_to_uint16(filt_out[0][-1]) # Must change to zero to save final processed image 
         dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=None,overwrite=True)
 
         # counts.to_parquet(raw_counts_path / (fname + '.parquet'),index=False)
