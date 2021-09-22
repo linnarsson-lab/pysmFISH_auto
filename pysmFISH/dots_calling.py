@@ -690,7 +690,7 @@ def beads_peak_based_detection(img: np.ndarray,
         pd.DataFrame: Beads counts
     """
 
-    stitching_type = fov_subdataset.stitching_type.values      
+    stitching_type = fov_subdataset.stitching_type      
 
     LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
     LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
