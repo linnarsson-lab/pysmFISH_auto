@@ -292,9 +292,11 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
         ref_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,:]
 
         while True:
-            if ref_counts_df.shape[0]:
+            if not ref_counts_df.shape[0]:
                 stitching_channel_df = stitching_channel_df.append({'round_num':reference_round_num}, ignore_index=True)
+                
                 all_rounds_shifts[reference_round_num] = np.nan
+
                 if  reference_round_num == analysis_parameters['RegistrationReferenceHybridization']:
                     stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,
                                 'min_number_matching_dots_registration'] = registration_errors.missing_counts_reference_channel
@@ -311,6 +313,9 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
 
                 if reference_round_num > metadata['total_rounds']:
                     break
+
+            else:
+                break
                 
         if reference_round_num > metadata['total_rounds']:
             stitching_channel_df['r_px_registered'] = np.nan
