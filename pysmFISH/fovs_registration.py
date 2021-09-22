@@ -384,7 +384,7 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
                                 'min_number_matching_dots_registration'] =  registration_errors.number_beads_below_tolerance_counts
 
                 else:
-                    
+
                     stitching_channel_df = stitching_channel_df.append({'round_num':tran_round_num}, ignore_index=True)
                     stitching_channel_df.loc[stitching_channel_df.round_num == tran_round_num,
                                 'min_number_matching_dots_registration'] = registration_errors.missing_counts_in_round
@@ -429,7 +429,7 @@ def beads_based_registration_fish(all_counts_fov: pd.DataFrame,
     # Determine if there are counts in the fish channel
     all_counts_fov = all_counts_fov.dropna()
     
-    if all_counts_fov.shape[0]:    
+    if not all_counts_fov.shape[0]:    
         all_counts_fov = all_counts_fov.append({'min_number_matching_dots_registration':registration_errors.missing_counts_fish_channel}, 
                                                                                                                     ignore_index=True)
 
