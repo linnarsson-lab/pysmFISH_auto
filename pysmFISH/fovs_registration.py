@@ -299,9 +299,9 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
 
                 if  reference_round_num == analysis_parameters['RegistrationReferenceHybridization']:
                     stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,
-                                'min_number_matching_dots_registration'] = registration_errors.missing_counts_reference_channel
+                                'min_number_matching_dots_registration'] = registration_errors.missing_counts_reference_round
 
-                    all_rounds_matching_dots[reference_round_num] = registration_errors.missing_counts_reference_channel 
+                    all_rounds_matching_dots[reference_round_num] = registration_errors.missing_counts_reference_round
                 else:
                     stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,
                                 'min_number_matching_dots_registration'] = registration_errors.missing_counts_in_round

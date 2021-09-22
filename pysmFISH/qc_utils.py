@@ -16,6 +16,7 @@ from dask import dataframe as dd
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.patches as mpatches
 
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.configuration_files import load_experiment_config_file
@@ -70,6 +71,7 @@ class QC_registration_error():
         #     registration_error_df.columns = ["_".join(x) for x in registration_error_df.columns.ravel()]
         self.error_output_df.to_parquet(self.experiment_fpath / 'results' / 'registration_error.parquet')
 
+        
     def plot_error(self):
         """Method used to visualize the error for the different tiles
         """
@@ -80,6 +82,21 @@ class QC_registration_error():
         fovs = self.error_output_df['fov_num'].values.astype(int)
         rounds_num = self.error_output_df['round_num'].values.astype(int)
         min_errors = self.error_output_df['min_number_matching_dots_registration'].values.astype(int)
+
+
+        colors = np.zeros_like(min_errors,dtype='U10')
+
+        # Vlist correspond to the errors in the registration
+
+        vlist = [-6,-5,-4,-3,-2,-1]
+        clist = ['black','dimgrey','silver','orange','green','violet']
+
+        for v,c in zip(vlist,clist):
+                colors[min_errors == v] = c
+
+        colors[min_errors > 0] = 'steelblue'
+        #colors[(min_errors < RegistrationMinMatchingBeads) & (min_errors > 0)] = 'tomato'
+
 
         fig = plt.figure(figsize=(30,20))
         ax = fig.add_subplot(111)
@@ -92,16 +109,16 @@ class QC_registration_error():
         to_zero_c_coords = c_coords - c_coords_min
 
 
-        errors_normalized = (min_errors -min(min_errors)) / (max(min_errors -min(min_errors)))
-        threshold = (RegistrationMinMatchingBeads-min(min_errors)) / (max(min_errors -min(min_errors)))
-        nodes = [0,threshold, threshold, 1.0]
+        # errors_normalized = (min_errors -min(min_errors)) / (max(min_errors -min(min_errors)))
+        # threshold = (RegistrationMinMatchingBeads-min(min_errors)) / (max(min_errors -min(min_errors)))
+        # nodes = [0,threshold, threshold, 1.0]
 
-        colors = ["black", "black", "blue", "magenta"]
-        cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colors)))
-        cmap.set_under("black")
-
-    
-        sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
+        # colors = ["black", "black", "blue", "magenta"]
+        # cmap = LinearSegmentedColormap.from_list("", list(zip(nodes, colors)))
+        # cmap.set_under("black")
+        # sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=errors_normalized,cmap=cmap, s = 1000)
+        
+        sc = ax.scatter(to_zero_c_coords,to_zero_r_coords,c=colors, s = 1000)
         plt.gca().invert_yaxis()
         for fov, round_num, match, x, y in zip(fovs,rounds_num, min_errors, to_zero_c_coords,to_zero_r_coords):
             
@@ -116,7 +133,14 @@ class QC_registration_error():
             ax.annotate('m' + str(match), xy=(x, y), xytext=(0, -10), color='white', weight='bold', 
                             textcoords='offset points', fontsize=5, ha='center', va='center')
     
+        patch_1 = mpatches.Patch(color='black', label='missing_counts_fish_channel')
+        patch_2 = mpatches.Patch(color='dimgrey', label='missing_counts_reg_channel')
+        patch_3 = mpatches.Patch(color='silver', label='missing_counts_reference_round')
+        patch_4 = mpatches.Patch(color='orange', label='missing_counts_in_round')
+        patch_5 = mpatches.Patch(color='tomato', label='number_beads_below_tolerance_counts')
 
+        plt.legend(handles=[patch_1,patch_2,patch_3,patch_4,patch_5])    
+    
         ax.set_aspect('equal')
         ax.axis('off')
         plt.tight_layout()
