@@ -27,7 +27,7 @@ class QC_registration_error():
     """
 
     def __init__(self, client, experiment_fpath: str, 
-                analysis_parameters: dict, tiles_coords: np.ndarray):
+                analysis_parameters: dict, metadata: Dict, tiles_coords: np.ndarray):
         """Class initialization
 
         Args:
@@ -35,12 +35,14 @@ class QC_registration_error():
                 processing of some of the QC steps
             experiment_fpath (str): Path to the experiment to process
             analysis_parameters (dict): Parameters for the processing
+            metadata (dict): Overall experimental parameters
             tiles_coords (np.ndarray): Stage coords of the acquired FOVS
         """
     # def __init__(self, client, experiment_fpath, analysis_parameters, tiles_coords, img_width, img_height):
         self.client = client
         self.experiment_fpath = Path(experiment_fpath)
         self.analysis_parameters = analysis_parameters
+        self.metadata = metadata
         self.tiles_coords = tiles_coords
         # self.img_width = img_width
         # self.img_height = img_height

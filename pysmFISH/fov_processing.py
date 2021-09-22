@@ -331,7 +331,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
 
             
             registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov_concat[stitching_channel],
-                                                    analysis_parameters)
+                                                    analysis_parameters,metadata)
 
             stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots = registration_stitching_channel_output[0], \
                                                                                 registration_stitching_channel_output[1], \

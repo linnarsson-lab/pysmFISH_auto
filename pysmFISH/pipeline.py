@@ -571,10 +571,11 @@ class Pipeline():
         """
         assert self.client, self.logger.error(f'cannot run QC on registration because missing client attr')
         assert self.analysis_parameters, self.logger.error(f'cannot run QC on registration because missing analysis_parameters attr')
+        assert self.metadata, self.logger.error(f'cannot process smFISH fovs because missing metadata attr')
         assert isinstance(self.tile_corners_coords_pxl, np.ndarray), self.logger.error(f'cannot run QC on registration because missing tile_corners_coords_pxl attr')
         
         qc_reg = qc_utils.QC_registration_error(self.client, self.experiment_fpath, 
-                    self.analysis_parameters, self.tile_corners_coords_pxl)
+                    self.analysis_parameters, self.metadata, self.tile_corners_coords_pxl)
 
         qc_reg.run_qc()
 
