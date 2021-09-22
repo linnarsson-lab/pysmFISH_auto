@@ -690,7 +690,7 @@ def beads_peak_based_detection(img: np.ndarray,
         pd.DataFrame: Beads counts
     """
 
-    stitching_type = fov_subdataset.stitching_type.values[0]         
+    stitching_type = fov_subdataset.stitching_type.values      
 
     LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
     LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
@@ -731,7 +731,7 @@ def beads_peak_based_detection(img: np.ndarray,
         counts_df = pd.concat([large_beads_counts_df,small_beads_counts_df], axis=0, copy=False)  
 
     elif stitching_type == 'small-beads':
-        counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters_small)
+        counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
         counts_df['mapped_beads_type'] = 'small'
 
     elif stitching_type == 'large-beads':
