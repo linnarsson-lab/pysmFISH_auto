@@ -88,8 +88,8 @@ class QC_registration_error():
 
         # Vlist correspond to the errors in the registration
 
-        vlist = [-6,-5,-4,-3,-2,-1]
-        clist = ['black','dimgrey','silver','orange','green','violet']
+        vlist = [-6,-5,-4,-3,-2]
+        clist = ['black','dimgrey','silver','orange','green']
 
         for v,c in zip(vlist,clist):
                 colors[min_errors == v] = c
