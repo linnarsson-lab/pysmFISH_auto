@@ -94,7 +94,7 @@ class Pipeline():
                                     (default htcondor). If engine == local the parameters that define the cluster
                                     will be ignored
             cores (int): Number of cores/job to use in htcondor or in the local processing (default 20)
-            memory (str): Total memory for all the cores (default 200GB)
+            memory (str): Total memory for all the cores in condor (default 200GB) or per core in local setup
             disk (str): Size of the spillover disk for dask (default 0.1GB)
             local_directory (str): Directory where to spill over on the node (default /tmp)
             logs_directory: (str): Directory where to store dask and htcondor logs
@@ -258,7 +258,7 @@ class Pipeline():
        
         self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
         self.client = Client(self.cluster,asynchronous=True)
-        self.logger.debug(f'Dask dashboard info {self.client.scheduler_info()}')
+        # self.logger.debug(f'Dask dashboard info {self.client.scheduler_info()}')
 
 
     def nikon_nd2_parsing_graph_step(self):
