@@ -346,7 +346,7 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
             ref_coords = ref_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
             img_ref = create_fake_image((img_width, img_height),ref_coords)
 
-            all_rounds = stitching_channel_df.round_num.unique()
+            all_rounds = np.arange(metadata['total_rounds'])
             all_rounds = all_rounds[all_rounds > reference_round_num]
             print(f"{all_rounds}")
             for tran_round_num in all_rounds:
