@@ -279,7 +279,6 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
     # Dropna to determine if the dataframe is empty or not. Also will remove the
     # rounds without counts
     stitching_channel_df = stitching_channel_df.dropna()
-    print(f"{stitching_channel_df.shape}")
     if stitching_channel_df.shape[0]:
     
         stitching_channel_df['r_px_registered'] = np.nan
@@ -293,6 +292,7 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
 
         while True:
             if not ref_counts_df.shape[0]:
+
                 stitching_channel_df = stitching_channel_df.append({'round_num':reference_round_num}, ignore_index=True)
                 
                 all_rounds_shifts[reference_round_num] = np.nan
@@ -310,14 +310,15 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
 
                 reference_round_num += 1 # Valid only if the reference round is one if it is different you need to find
                                         # another logic for the processing
-
+                
                 if reference_round_num > metadata['total_rounds']:
                     break
+                else:
+                    ref_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,:]
 
             else:
                 break
                 
-        print(f"{reference_round_num}")
         if reference_round_num > metadata['total_rounds']:
             stitching_channel_df['r_px_registered'] = np.nan
             stitching_channel_df['c_px_registered'] = np.nan
@@ -328,7 +329,7 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
 
         else:
 
-            ref_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,:]
+            # ref_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == reference_round_num,:]
             stitching_channel_df.loc[ref_counts_df.index,'r_px_registered'] =  \
                     ref_counts_df.loc[ref_counts_df.round_num == reference_round_num,'r_px_original']
             stitching_channel_df.loc[ref_counts_df.index,'c_px_registered'] =  \
@@ -340,23 +341,23 @@ def beads_based_registration_stitching_channel(stitching_channel_df: pd.DataFram
             all_rounds_shifts[reference_round_num] = np.array([0,0])
             all_rounds_matching_dots[reference_round_num] = 1000
 
+
             # Create reference fake image for registration
-            img_width = ref_counts_df.iloc[0]['img_width']
-            img_height = ref_counts_df.iloc[0]['img_height']
+            img_width = metadata['img_width']
+            img_height = metadata['img_height']
             ref_coords = ref_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
+
             img_ref = create_fake_image((img_width, img_height),ref_coords)
 
-            all_rounds = np.arange(metadata['total_rounds'])
+            all_rounds = np.arange(1,metadata['total_rounds']+1)
             all_rounds = all_rounds[all_rounds > reference_round_num]
-            print(f"{all_rounds}")
+
             for tran_round_num in all_rounds:
             
                 tran_counts_df = stitching_channel_df.loc[stitching_channel_df.round_num == tran_round_num,:]
                 
                 if tran_counts_df.shape[0]:
     
-                    img_width = tran_counts_df.iloc[0]['img_width']
-                    img_height = tran_counts_df.iloc[0]['img_height']
                     tran_coords = tran_counts_df.loc[:,['r_px_original', 'c_px_original']].to_numpy()
                     img_tran = create_fake_image((img_width, img_height),tran_coords)
 
