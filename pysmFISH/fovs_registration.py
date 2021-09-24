@@ -437,13 +437,21 @@ def beads_based_registration_fish(all_counts_fov: pd.DataFrame,
     elif isinstance(all_rounds_shifts,dict):
 
         for round_num, shift in all_rounds_shifts.items():
-                
-            all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_px_registered'] =  all_counts_fov['r_px_original'] + shift[0] 
-            all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_px_registered'] =  all_counts_fov['c_px_original'] + shift[1]
-            all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_shift_px'] =  shift[0] 
-            all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_shift_px'] =  shift[1]
-            all_counts_fov.loc[all_counts_fov.round_num == round_num,
-                        'min_number_matching_dots_registration'] =  all_rounds_matching_dots[round_num]
+            if isinstance(shift,np.ndarray):
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_px_registered'] =  all_counts_fov['r_px_original'] + shift[0] 
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_px_registered'] =  all_counts_fov['c_px_original'] + shift[1]
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_shift_px'] =  shift[0] 
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_shift_px'] =  shift[1]
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,
+                            'min_number_matching_dots_registration'] =  all_rounds_matching_dots[round_num]
+            else:
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_px_registered'] =  np.nan
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_px_registered'] =  np.nan
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'r_shift_px'] = np.nan
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,'c_shift_px'] =  np.nan
+                all_counts_fov.loc[all_counts_fov.round_num == round_num,
+                            'min_number_matching_dots_registration'] =  all_rounds_matching_dots[round_num]
+
     else:
 
         all_counts_fov['r_px_registered'] = np.nan
