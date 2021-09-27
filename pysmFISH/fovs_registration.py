@@ -53,7 +53,7 @@ def create_fake_image(img_shape: np.ndarray,coords: np.ndarray)->np.ndarray:
     Returns:
         np.ndarray: synthetic image used for registration
     """
-    gaussian_sigma = 5
+    gaussian_sigma = 2 # original is 5 
     img = np.zeros(img_shape,dtype=np.float64)
     img[coords[:,0].astype(int),coords[:,1].astype(int)] = 1000
     img = filters.gaussian(img,sigma=gaussian_sigma)
