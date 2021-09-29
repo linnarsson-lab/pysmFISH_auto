@@ -69,7 +69,7 @@ def local_cluster_setup(cores:int, memory:str):
     # worker_memory = 10000000000
     # cluster = LocalCluster(n_workers=cores, threads_per_worker=1, memory_limit=worker_memory)
     # cluster = LocalCluster(n_workers=cores, memory_limit=worker_memory)
-    cluster = LocalCluster(n_workers=cores, memory_limit=memory)
+    cluster = LocalCluster(n_workers=cores, memory_limit=memory, processes=True,threads_per_worker=1)
 
 
 
