@@ -891,11 +891,11 @@ class Pipeline():
         """
 
         raw_files_path = list((self.experiment_fpath / 'results').glob('*_decoded_fov_*'))
-
+        start = datetime.now()
+        self.run_parsing_only()
+        self.run_required_steps()
+        
         if raw_files_path:
-            start = datetime.now()
-            self.run_parsing_only()
-            self.run_required_steps()
             
             step_start = datetime.now()  
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
