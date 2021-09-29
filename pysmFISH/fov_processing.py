@@ -523,117 +523,158 @@ def processing_barcoded_eel_fov_graph_from_decoding(experiment_fpath: str,
 
 
 
-
-
-
 # # TODO check if it needs to be ported to multiple colors barcode
-# def processing_barcoded_eel_fov_after_dots_graph(experiment_fpath: str,
-#                                     analysis_parameters: dict,
-#                                     running_functions: dict, 
-#                                     tiles_org,
-#                                     metadata: dict,
-#                                     grpd_fovs: pd.DataFrame, 
-#                                     preprocessed_image_tag: str, 
-#                                     client,
-#                                     chunks_size: int):
-#     """Processing graph for runnning analysis of eel type experiments
-#     skipping the preprocessing and counting. It is useful when there
-#     are issue with the registration of the different rounds. The
-#     processing restart with the registration of the differen rounds.
-#     1) Register all imaging rounds
-#     2) Identification of the barcodes (decoding)
-#     3) Stitching using the stage coords
-#     4) Generate an output file with the counts for visualisation
+def processing_barcoded_eel_fov_after_dots_graph(experiment_fpath: str,
+                                    analysis_parameters: dict,
+                                    running_functions: dict, 
+                                    tiles_org,
+                                    metadata: dict,
+                                    grpd_fovs: pd.DataFrame,
+                                    save_intermediate_steps: bool, 
+                                    preprocessed_image_tag: str, 
+                                    client, 
+                                    chunks_size: int, 
+                                    save_bits_int: int,
+                                    start_from_preprocessed_imgs: False):
+    """Processing graph for runnning analysis of eel type experiments
+    skipping the preprocessing and counting. It is useful when there
+    are issue with the registration of the different rounds. The
+    processing restart with the registration of the differen rounds.
+    1) Register all imaging rounds
+    2) Identification of the barcodes (decoding)
+    3) Stitching using the stage coords
+    4) Generate an output file with the counts for visualisation
 
-#     IMPORTANT:
-#     Because some of the processing steps take quite a bit of time it is necessary
-#     to process the FOV in chunks to avoid that the processes will fail (workers get
-#     lost and not comunicate with the scheduler).
+    IMPORTANT:
+    Because some of the processing steps take quite a bit of time it is necessary
+    to process the FOV in chunks to avoid that the processes will fail (workers get
+    lost and not comunicate with the scheduler).
 
-#     Args:
-#         experiment_fpath (str): Path to the experiment to process
-#         analysis_parameters (dict): Parameters to use for the processing
-#         running_functions (dict): Function to run for preprocessing and counting
-#         tiles_org (tile_org): Organization of the tiles in the large image
-#         metadata (dict): Metadata describing the experiment
-#         grpd_fovs (pd.DataFrame): Database of the experiment grouped by fov
-#         preprocessed_image_tag (str): Tag to label the preprocessed images zarr container
-#         client (distributed.Client): Dask Client that take care of the graph processing
-#         chunks_size (int): Number of FOVs to process in one go
-#     """
+    Args:
+        experiment_fpath (str): Path to the experiment to process
+        analysis_parameters (dict): Parameters to use for the processing
+        running_functions (dict): Function to run for preprocessing and counting
+        tiles_org (tile_org): Organization of the tiles in the large image
+        metadata (dict): Metadata describing the experiment
+        grpd_fovs (pd.DataFrame): Database of the experiment grouped by fov
+        preprocessed_image_tag (str): Tag to label the preprocessed images zarr container
+        client (distributed.Client): Dask Client that take care of the graph processing
+        chunks_size (int): Number of FOVs to process in one go
+    """
         
 
 
-#     experiment_fpath = Path(experiment_fpath)
-#     experiment_name = experiment_fpath.stem
+    experiment_fpath = Path(experiment_fpath)
+    experiment_name = experiment_fpath.stem
 
-#     preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
+    preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
 
-#     analysis_parameters = delayed(analysis_parameters)
-#     running_functions = delayed(running_functions)
-#     tile_corners_coords_pxl = delayed(tiles_org.tile_corners_coords_pxl)
+    analysis_parameters = delayed(analysis_parameters)
+    running_functions = delayed(running_functions)
+    tile_corners_coords_pxl = delayed(tiles_org.tile_corners_coords_pxl)
 
-#     codebook = configuration_files.load_codebook(experiment_fpath,metadata)
-#     codebook_df = delayed(codebook)
+    codebook_dict = configuration_files.load_codebook(experiment_fpath,metadata)
+    codebook_dict = delayed(codebook_dict)
     
+    list_all_channels = metadata['list_all_channels']
+    stitching_channel = metadata['stitching_channel']
+    fish_channels = set(list_all_channels)^set([stitching_channel])
+    
+    all_processing = []
 
-#     all_processing = []
+    all_fovs = list(grpd_fovs.groups.keys())
+    chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
+    for chunk in chunks:
+        all_processing = []
+        for fov_num in chunk:
+            fov_group = grpd_fovs.get_group(fov_num)
+            channel_grpd = fov_group.groupby('channel')
 
-#     all_fovs = list(grpd_fovs.groups.keys())
-#     chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
-#     for chunk in chunks:
-#         all_processing = []
-#         for fov_num in chunk:
+            # Load and process the stitching channel
+
+            stitching_channel_fpath = list((experiment_fpath / 'results').glob('*_raw_counts_channel_'+stitching_channel + '_fov_'+str(fov_num)+'.parquet'))[0]
             
-#             # Modify for channels name
+            name = 'load_counts_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
+            all_counts_fov = delayed(pd.read_parquet,name=name)(stitching_channel_fpath)
 
-#             counts_fpath = list((experiment_fpath / 'results').glob('*_raw_counts_channel_*_fov_'+str(fov_num)+'.parquet'))[0]
+            registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov,
+                                                    analysis_parameters,metadata)
 
-#             name = 'load_counts_' +experiment_name + '_' \
-#                                 + '_fov_' +str(fov_num) + '-' + tokenize()
-#             all_counts_fov = delayed(pd.read_parquet,name=name)(counts_fpath)
-            
-            
-#             registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov_concat[stitching_channel],
-#                                                     analysis_parameters)
-            
-            
-            
-#             name = 'register_' +experiment_name + '_' \
-#                                 + '_fov_' +str(fov_num) + '-' + tokenize()
-#             registered_counts = delayed(fovs_registration.beads_based_registration_fish,name=name)(all_counts_fov,
-#                                                 analysis_parameters)
-
-#             name = 'decode_' +experiment_name + '_' \
-#                                 + '_fov_' +str(fov_num) + '-' + tokenize()
-#             decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast,name=name)(registered_counts, 
-#                                                                         analysis_parameters,codebook_df)                                                        
-            
-#             name = 'stitch_to_mic_coords_' +experiment_name + '_' \
-#                                 + '_fov_' +str(fov_num) + '-' + tokenize()  
+            stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots = registration_stitching_channel_output[0], \
+                                                                                registration_stitching_channel_output[1], \
+                                                                                registration_stitching_channel_output[2]
 
 
-#             stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],tile_corners_coords_pxl,
-#                                                         tiles_org.reference_corner_fov_position,
-#                                                         metadata, tag='microscope_stitched')
+            stitched_coords_reference_df = delayed(stitching.stitch_using_coords_general,name=name)(stitching_channel_df,
+                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                                metadata,tag='microscope_stitched')
+            all_stitched_coords = []
+            all_stitched_coords.append(stitched_coords_reference_df)
+
+            for processing_channel in fish_channels:
+                
+                # Register fish
+                name = 'register_fish_channels_' +experiment_name + '_' + processing_channel + '_' \
+                                + '_fov_' +str(fov_num) + '-' + tokenize()
+
+                channel_fpath = list((experiment_fpath / 'results').glob('*_raw_counts_channel_'+processing_channel + '_fov_'+str(fov_num)+'.parquet'))[0]
             
-#             name = 'save_df_' +experiment_name + '_' \
-#                                 + '_fov_' +str(fov_num) + '-' + tokenize() 
-#             saved_file = delayed(stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
-#                             '_decoded_fov_' + str(fov_num) + '.parquet'),index=False)
-        
-#             all_processing.append(saved_file)
-        
-#         _ = dask.compute(*all_processing)
+                name = 'load_counts_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
+                fish_counts_fov = delayed(pd.read_parquet,name=name)(channel_fpath)
+                
 
-#     io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
+                registered_counts = delayed(fovs_registration.beads_based_registration_fish,name=name)(fish_counts_fov,
+                                                    all_rounds_shifts, all_rounds_matching_dots, analysis_parameters)
 
-#     # ----------------------------------------------------------------
-#     # GENERATE OUTPUT FOR PLOTTING
-#     selected_Hdistance = 3 / metadata['barcode_length']
-#     stitching_selected = 'microscope_stitched'
-#     io.simple_output_plotting(experiment_fpath, stitching_selected, selected_Hdistance, client,file_tag='decoded')
-#     # ----------------------------------------------------------------  
+                # Decoded fish
+                name = 'decode_' +experiment_name + '_' + processing_channel + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
+                decoded = delayed(barcodes_analysis.extract_barcodes_NN_fast_multicolor,name=name)(registered_counts, 
+                                                                        analysis_parameters,codebook_dict[processing_channel],
+                                                                        metadata)                                                        
+            
+                # Stitch to the microscope reference coords
+                name = 'stitch_to_mic_coords_' +experiment_name + '_' + processing_channel + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()  
+                stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],
+                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                                metadata,tag='microscope_stitched')
+            
+                all_stitched_coords.append(stitched_coords)
+
+            
+            name = 'concat_' +experiment_name + \
+                                    '_fov_' + str(fov_num) + '-' + tokenize()
+            all_stitched_coords = delayed(pd.concat,name=name)(all_stitched_coords,axis=0,ignore_index=True) 
+                
+                
+            name = 'save_df_' +experiment_name + '_' \
+                                + '_fov_' +str(fov_num) + '-' + tokenize() 
+            saved_file = delayed(all_stitched_coords.to_parquet,name=name)(Path(experiment_fpath) / 'results'/ (experiment_name + \
+                            '_decoded_fov_' + str(fov_num) + '.parquet'),index=False)
+                        
+            
+            all_processing.append(saved_file)
+
+            if save_bits_int:
+                name = 'combine_shifted_images_' +experiment_name + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize() 
+
+                combined_shift_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,
+                                            metadata,all_rounds_shifts)
+                
+                name = 'extract_dots_intensities_' +experiment_name + '_' \
+                                + '_fov_' +str(fov) + '-' + tokenize()
+                extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(all_stitched_coords,
+                                        combined_shift_images,experiment_fpath)
+
+                all_processing.append(extracted_intensities)
+
+
+        _ = dask.compute(*all_processing)
+
 
 
 
