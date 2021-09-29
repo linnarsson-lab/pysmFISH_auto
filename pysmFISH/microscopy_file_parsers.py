@@ -587,6 +587,7 @@ def nikon_nd2_parser_simple_mfov(nd2_file_path: str):
             dgrp.attrs['strain'] = 'undefined'
             dgrp.attrs['tissue'] = 'undefined'
             dgrp.attrs['pipeline'] = 'undefined'
+            dgrp.attrs['processing_type'] = 'undefined'
 
             dgrp.attrs['round_num'] = 1
 
