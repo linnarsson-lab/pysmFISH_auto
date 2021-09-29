@@ -891,7 +891,7 @@ class Pipeline():
             Requires raw files 
         """
 
-        raw_files_path = list((self.experiment_fpath / 'results').glob('*_decoded_fov_*'))
+        raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_counts_*'))
         start = datetime.now()
         self.run_parsing_only()
         self.run_required_steps()
