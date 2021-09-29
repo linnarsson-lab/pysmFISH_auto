@@ -528,7 +528,7 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
                                     grpd_fovs: pd.DataFrame,
                                     preprocessed_image_tag: str, 
                                     client, 
-                                    chunks_size: int, 
+                                    chunk_size: int, 
                                     save_bits_int: int,):
     """Processing graph for runnning analysis of eel type experiments
     skipping the preprocessing and counting. It is useful when there
@@ -576,7 +576,7 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
     all_processing = []
 
     all_fovs = list(grpd_fovs.groups.keys())
-    chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
+    chunks = [all_fovs[x:x+chunk_size] for x in range(0, len(all_fovs), chunk_size)]
         
     for chunk in chunks:
         all_processing = []

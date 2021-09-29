@@ -414,7 +414,7 @@ class Pipeline():
                                     self.grpd_fovs,
                                     self.preprocessed_image_tag, 
                                     self.client, 
-                                    self.chunks_size, 
+                                    self.chunk_size, 
                                     self.save_bits_int)
 
         # ----------------------------------------------------------------
