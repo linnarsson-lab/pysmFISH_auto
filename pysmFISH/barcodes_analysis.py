@@ -49,7 +49,7 @@ class simplify_barcodes_reference():
         converted_codeword = converted_codeword.tobytes()
         return converted_codeword
 
-    def convert_barcode(self):
+    def convert_codebook(self):
         used_gene_codebook_df = pd.read_excel(self.barcode_fpath)
         # used_gene_codebook_df = pd.read_parquet(self.barcode_fpath)
         self.codebook_df = used_gene_codebook_df.loc[:,['Barcode','Gene']]
