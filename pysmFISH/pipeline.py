@@ -808,10 +808,10 @@ class Pipeline():
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
-            step_start = datetime.now()
-            self.QC_registration_error_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            # step_start = datetime.now()
+            # self.QC_registration_error_step()
+            # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+            #         QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
