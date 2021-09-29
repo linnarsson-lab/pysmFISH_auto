@@ -381,7 +381,8 @@ class Pipeline():
 
     def rerun_from_registration(self):
         """
-            Create and run a dask delayed task graph from the registration step
+            Create and run a dask delayed task graph from the registration step.
+            Requires the raw_counts files
             
             It runs:
             (1) Field of view registration
