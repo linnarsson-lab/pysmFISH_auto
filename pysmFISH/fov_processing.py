@@ -520,22 +520,16 @@ def processing_barcoded_eel_fov_graph_from_decoding(experiment_fpath: str,
 
        
 
-
-
-
-# # TODO check if it needs to be ported to multiple colors barcode
-def processing_barcoded_eel_fov_after_dots_graph(experiment_fpath: str,
+def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpath: str,
                                     analysis_parameters: dict,
                                     running_functions: dict, 
                                     tiles_org,
                                     metadata: dict,
                                     grpd_fovs: pd.DataFrame,
-                                    save_intermediate_steps: bool, 
                                     preprocessed_image_tag: str, 
                                     client, 
                                     chunks_size: int, 
-                                    save_bits_int: int,
-                                    start_from_preprocessed_imgs: False):
+                                    save_bits_int: int,):
     """Processing graph for runnning analysis of eel type experiments
     skipping the preprocessing and counting. It is useful when there
     are issue with the registration of the different rounds. The
@@ -566,7 +560,6 @@ def processing_barcoded_eel_fov_after_dots_graph(experiment_fpath: str,
 
     experiment_fpath = Path(experiment_fpath)
     experiment_name = experiment_fpath.stem
-
     preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
 
     analysis_parameters = delayed(analysis_parameters)
@@ -579,18 +572,15 @@ def processing_barcoded_eel_fov_after_dots_graph(experiment_fpath: str,
     list_all_channels = metadata['list_all_channels']
     stitching_channel = metadata['stitching_channel']
     fish_channels = set(list_all_channels)^set([stitching_channel])
-    
+    total_rounds = metadata['total_rounds']
     all_processing = []
 
     all_fovs = list(grpd_fovs.groups.keys())
     chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
+        
     for chunk in chunks:
         all_processing = []
         for fov_num in chunk:
-            fov_group = grpd_fovs.get_group(fov_num)
-            channel_grpd = fov_group.groupby('channel')
-
-            # Load and process the stitching channel
 
             stitching_channel_fpath = list((experiment_fpath / 'results').glob('*_raw_counts_channel_'+stitching_channel + '_fov_'+str(fov_num)+'.parquet'))[0]
             
@@ -659,14 +649,27 @@ def processing_barcoded_eel_fov_after_dots_graph(experiment_fpath: str,
             all_processing.append(saved_file)
 
             if save_bits_int:
+                all_filtered_images = {}
+                fov_group = grpd_fovs.get_group(fov_num)
+                channel_grpd = fov_group.groupby('channel')
+                for pchannel in fish_channels:
+                    all_filtered_images[pchannel] = {}
+                    group = channel_grpd.get_group(pchannel)
+                    for index_value, fov_subdataset in group.iterrows():
+                        round_num = fov_subdataset.round_num
+                        name = 'load_filtered_image_' +experiment_name + '_' \
+                                + '_fov_' +str(fov_num) + '-' + tokenize()
+                        filt_out = delayed(io.load_general_zarr,name=name)(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
+                        all_filtered_images[pchannel][round_num] = filt_out
+                    
                 name = 'combine_shifted_images_' +experiment_name + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize() 
+                                + '_fov_' +str(fov_num) + '-' + tokenize() 
 
                 combined_shift_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,
                                             metadata,all_rounds_shifts)
                 
                 name = 'extract_dots_intensities_' +experiment_name + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize()
+                                + '_fov_' +str(fov_num) + '-' + tokenize()
                 extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(all_stitched_coords,
                                         combined_shift_images,experiment_fpath)
 

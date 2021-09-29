@@ -378,6 +378,44 @@ class Pipeline():
                                     self.grpd_fovs, self.client, self.chunk_size)
 
 
+
+    def rerun_from_registration(self):
+        """
+            Create and run a dask delayed task graph from the registration step
+            
+            It runs:
+            (1) Field of view registration
+            (2) Barcode decoding
+            (3) Registration to the microscope coords
+            
+            The following attributes created by another step must be accessible:
+            - metadata
+            - analysis_parameters
+            - running_functions
+            - grpd_fovs
+            - client
+            - tiles_org
+
+        """
+
+        assert self.metadata, self.logger.error(f'cannot process eel fovs because missing metadata attr')
+        assert self.analysis_parameters, self.logger.error(f'cannot process eel fovs because missing analysis_parameters attr')
+        assert self.running_functions, self.logger.error(f'cannot process eel fovs because missing running_functions attr')
+        assert self.grpd_fovs, self.logger.error(f'cannot process eel fovs because missing grpd_fovs attr')
+        assert self.client, self.logger.error(f'cannot process eel fovs because missing client attr')
+        assert self.tiles_org, self.logger.error(f'cannot process eel fovs because missing tiles organization attr')
+        
+        fov_processing.processing_barcoded_eel_fov_starting_from_registration_graph(self.experiment_fpath,
+                                    self.analysis_parameters,
+                                    self.running_functions, 
+                                    self.tiles_org,
+                                    self.metadata,
+                                    self.grpd_fovs,
+                                    self.preprocessed_image_tag, 
+                                    self.client, 
+                                    self.chunks_size, 
+                                    self.save_bits_int)
+
     def processing_serial_fish_step(self):
         """
             Create and run a dask delayed task graph used to process serial smFISH experiments
