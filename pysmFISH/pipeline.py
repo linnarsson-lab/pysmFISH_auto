@@ -379,7 +379,7 @@ class Pipeline():
 
 
 
-    def rerun_from_registration(self):
+    def rerun_from_registration_step(self):
         """
             Create and run a dask delayed task graph from the registration step.
             Requires the raw_counts files
@@ -416,6 +416,14 @@ class Pipeline():
                                     self.client, 
                                     self.chunks_size, 
                                     self.save_bits_int)
+
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / self.metadata['barcode_length']
+        stitching_selected = 'microscope_stitched'
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                selected_Hdistance, self.client,file_tag='microscope_stitched')
+        # ----------------------------------------------------------------  
 
     def processing_serial_fish_step(self):
         """
@@ -727,16 +735,17 @@ class Pipeline():
             self.processing_barcoded_eel_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
-
+            
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
             step_start = datetime.now()
             self.microscope_stitched_remove_dots_eel_graph_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
 
-            step_start = datetime.now()
-            self.QC_registration_error_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
             
             step_start = datetime.now()
             try: 
@@ -799,6 +808,11 @@ class Pipeline():
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
 
@@ -827,6 +841,11 @@ class Pipeline():
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
         
@@ -854,6 +873,58 @@ class Pipeline():
             self.rerun_decoding_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+        else:
+            self.logger.error(f"{self.experiment_fpath.stem} missing files with raw counts")
+            raise FileNotFoundError
+        
+        self.client.close()
+        self.cluster.close()
+
+
+    def test_run_from_registration(self):
+        """
+            Run analysis starting from the raw data files.
+            Requires raw files 
+        """
+
+        raw_files_path = list((self.experiment_fpath / 'results').glob('*_decoded_fov_*'))
+
+        if raw_files_path:
+            start = datetime.now()
+            self.run_parsing_only()
+            self.run_required_steps()
+            
+            step_start = datetime.now()  
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.rerun_from_registration_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.microscope_stitched_remove_dots_eel_graph_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
+            step_start = datetime.now()
+            try: 
+                self.stitch_and_remove_dots_eel_graph_step()
+            except:
+                self.logger.info(f"Stitching using dots didn't work")
+                pass
+            else:
+                self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
