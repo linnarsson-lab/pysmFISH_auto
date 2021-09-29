@@ -816,8 +816,8 @@ class Pipeline():
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
 
-        # self.client.close()
-        # self.cluster.close()
+        self.client.close()
+        self.cluster.close()
 
 
     def test_run_short(self,resume=False):
@@ -860,10 +860,11 @@ class Pipeline():
 
         raw_files_path = list((self.experiment_fpath / 'results').glob('*_decoded_fov_*'))
 
+        start = datetime.now()
+        self.run_parsing_only()
+        self.run_required_steps()
         if raw_files_path:
-            start = datetime.now()
-            self.run_parsing_only()
-            self.run_required_steps()
+            
             
             step_start = datetime.now()  
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
