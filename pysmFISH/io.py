@@ -145,7 +145,7 @@ def simple_output_plotting(experiment_fpath: str, stitching_selected: str,
     """
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*' +file_tag+'*.parquet'),engine='pyarrow')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*_decoded_fov' +'*.parquet'),engine='pyarrow')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 
