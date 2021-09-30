@@ -885,7 +885,7 @@ class Pipeline():
         self.cluster.close()
 
 
-    def test_run_from_registration(self):
+    def test_run_from_registration(self,resume=False):
         """
             Run analysis starting from the raw data files.
             Requires raw files 
@@ -897,6 +897,16 @@ class Pipeline():
         self.run_required_steps()
         
         if raw_files_path:
+
+            if resume:
+                already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
+                already_done_fovs = []
+                for fname in already_processed:
+                    fov_num = int(fname.stem.split('_')[-1])
+                    already_done_fovs.append(fov_num)
+                not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+                self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+                self.grpd_fovs = self.data.dataset.groupby('fov_num')
             
             step_start = datetime.now()  
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
