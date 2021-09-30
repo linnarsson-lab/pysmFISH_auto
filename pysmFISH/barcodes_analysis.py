@@ -302,14 +302,12 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
         return registered_counts_df, all_decoded_dots_df
         
     else:
-        all_rounds = list(range(1,barcode_length+1))
         for ref_round_number in np.arange(1,barcode_length+1):
 
             #ref_round_number = 1
             reference_round_df = dropping_counts.loc[dropping_counts.round_num == ref_round_number,:]
             # Step one (all dots not in round 1)
-            all_rounds.remove(ref_round_number)
-            compare_df = dropping_counts.loc[dropping_counts.round_num.isin(all_rounds),:]
+            compare_df = dropping_counts.loc[dropping_counts.round_num!=ref_round_number,:]
 
             if (not reference_round_df.empty):
                 if not compare_df.empty:
