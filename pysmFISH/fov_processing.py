@@ -564,7 +564,7 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
 
     analysis_parameters = delayed(analysis_parameters)
     running_functions = delayed(running_functions)
-    tile_corners_coords_pxl = delayed(tiles_org.tile_corners_coords_pxl)
+    # tile_corners_coords_pxl = delayed(tiles_org.tile_corners_coords_pxl)
 
     codebook_dict = configuration_files.load_codebook(experiment_fpath,metadata)
     codebook_dict = delayed(codebook_dict)
@@ -588,6 +588,9 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
                                     + '_fov_' +str(fov_num) + '-' + tokenize()
             all_counts_fov = delayed(pd.read_parquet,name=name)(stitching_channel_fpath)
 
+            
+            name = 'regitration_stitching_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
             registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov,
                                                     analysis_parameters,metadata)
 
@@ -596,8 +599,10 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
                                                                                 registration_stitching_channel_output[2]
 
 
+            name = 'stitching_to_microscope_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
             stitched_coords_reference_df = delayed(stitching.stitch_using_coords_general,name=name)(stitching_channel_df,
-                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                                tiles_org.tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
                                                                 metadata,tag='microscope_stitched')
             all_stitched_coords = []
             all_stitched_coords.append(stitched_coords_reference_df)
