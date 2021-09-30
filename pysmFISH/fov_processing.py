@@ -588,31 +588,31 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
                                     + '_fov_' +str(fov_num) + '-' + tokenize()
             all_counts_fov = delayed(pd.read_parquet,name=name)(stitching_channel_fpath)
 
-            # registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov,
-            #                                         analysis_parameters,metadata)
+            registration_stitching_channel_output = delayed(fovs_registration.beads_based_registration_stitching_channel,name=name)(all_counts_fov,
+                                                    analysis_parameters,metadata)
 
-            # stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots = registration_stitching_channel_output[0], \
-            #                                                                     registration_stitching_channel_output[1], \
-            #                                                                     registration_stitching_channel_output[2]
+            stitching_channel_df, all_rounds_shifts, all_rounds_matching_dots = registration_stitching_channel_output[0], \
+                                                                                registration_stitching_channel_output[1], \
+                                                                                registration_stitching_channel_output[2]
 
 
-            # stitched_coords_reference_df = delayed(stitching.stitch_using_coords_general,name=name)(stitching_channel_df,
-            #                                                     tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
-            #                                                     metadata,tag='microscope_stitched')
-            # all_stitched_coords = []
-            # all_stitched_coords.append(stitched_coords_reference_df)
+            stitched_coords_reference_df = delayed(stitching.stitch_using_coords_general,name=name)(stitching_channel_df,
+                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                                metadata,tag='microscope_stitched')
+            all_stitched_coords = []
+            all_stitched_coords.append(stitched_coords_reference_df)
 
-            for processing_channel in fish_channels:
+            # for processing_channel in fish_channels:
                 
-                # Register fish
-                name = 'register_fish_channels_' +experiment_name + '_' + processing_channel + '_' \
-                                + '_fov_' +str(fov_num) + '-' + tokenize()
+            #     # Register fish
+            #     name = 'register_fish_channels_' +experiment_name + '_' + processing_channel + '_' \
+            #                     + '_fov_' +str(fov_num) + '-' + tokenize()
 
-                channel_fpath = list((experiment_fpath / 'results').glob('*_raw_counts_channel_'+processing_channel + '_fov_'+str(fov_num)+'.parquet'))[0]
+            #     channel_fpath = list((experiment_fpath / 'results').glob('*_raw_counts_channel_'+processing_channel + '_fov_'+str(fov_num)+'.parquet'))[0]
             
-                name = 'load_counts_' +experiment_name + '_' \
-                                    + '_fov_' +str(fov_num) + '-' + tokenize()
-                fish_counts_fov = delayed(pd.read_parquet,name=name)(channel_fpath)
+            #     name = 'load_counts_' +experiment_name + '_' \
+            #                         + '_fov_' +str(fov_num) + '-' + tokenize()
+            #     fish_counts_fov = delayed(pd.read_parquet,name=name)(channel_fpath)
                 
 
             #     registered_counts = delayed(fovs_registration.beads_based_registration_fish,name=name)(fish_counts_fov,
@@ -647,8 +647,7 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
                         
             
             # all_processing.append(saved_file)
-            all_processing.append(all_counts_fov)
-            all_processing.append(fish_counts_fov)
+            all_processing.append(all_stitched_coords)
 
             # if save_bits_int:
             #     all_filtered_images = {}
