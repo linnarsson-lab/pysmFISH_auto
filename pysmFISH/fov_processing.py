@@ -422,10 +422,9 @@ def processing_barcoded_eel_fov_graph_from_decoding(experiment_fpath: str,
                                     client, 
                                     chunks_size: int):
     
-    """Processing graph for eel type of experiments. Run all the
-    steps that can be applied to a single FOV.
-    1) Filtering and counting
-    2) Register all imaging rounds
+    """Processing graph for eel type of experiments. Runs the decoding of
+    a preprocessed experiment
+
     3) Identification of the barcodes (decoding)
     4) Stitching using the stage coords
     5) Generate an output file with the counts for visualisation
@@ -438,18 +437,12 @@ def processing_barcoded_eel_fov_graph_from_decoding(experiment_fpath: str,
     Args:
         experiment_fpath (str): Path to the experiment to process
         analysis_parameters (dict): Parameters to use for the processing
-        running_functions (dict): Function to run for preprocessing and counting
         tiles_org (tile_org): Organization of the tiles in the large image
         metadata (dict): Metadata describing the experiment
         grpd_fovs (pd.DataFrame): Database of the experiment grouped by fov
-        save_intermediate_steps (bool): Save preprocessed images and raw counts
-        preprocessed_image_tag (str): Tag to label the preprocessed images zarr container
         client (distributed.Client): Dask Client that take care of the graph processing
         chunks_size (int): Number of FOVs to process in one go
-        save_bits_int (int): Save the intensity of the barcodes (also negative barcodes)
-                        and the position of the bits that are flipped
-        start_from_preprocessed_imgs (bool): Run the processing starting from the counting
-                using preprocessed images. default: False 
+
     """
         
     experiment_fpath = Path(experiment_fpath)
@@ -554,6 +547,8 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
         preprocessed_image_tag (str): Tag to label the preprocessed images zarr container
         client (distributed.Client): Dask Client that take care of the graph processing
         chunks_size (int): Number of FOVs to process in one go
+        save_bits_int (int): Save the intensity of the barcodes (also negative barcodes)
+                        and the position of the bits that are flipped
     """
         
 
@@ -562,12 +557,7 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
     experiment_name = experiment_fpath.stem
     preprocessed_zarr_fpath = experiment_fpath / (experiment_fpath.stem + '_' + preprocessed_image_tag + '.zarr')
 
-    #analysis_parameters = delayed(analysis_parameters)
-    #running_functions = delayed(running_functions)
-    # tile_corners_coords_pxl = delayed(tiles_org.tile_corners_coords_pxl)
-
     codebook_dict = configuration_files.load_codebook(experiment_fpath,metadata)
-    # codebook_dict = delayed(codebook_dict)
     
     list_all_channels = metadata['list_all_channels']
     stitching_channel = metadata['stitching_channel']
