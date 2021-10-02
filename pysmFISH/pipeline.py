@@ -893,8 +893,8 @@ class Pipeline():
 
         raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_counts_*'))
         start = datetime.now()
-        self.run_parsing_only()
-        self.run_required_steps()
+        # self.run_parsing_only()
+        # self.run_required_steps()
         
         if raw_files_path:
 
