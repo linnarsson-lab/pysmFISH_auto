@@ -28,7 +28,9 @@ setup(
 		'pyarrow',
 		'openpyxl',
 		'napari',
-		'papermill'
+		'papermill',
+		'pandas',
+		'bokeh'
 	],
 	
 	entry_points='''
