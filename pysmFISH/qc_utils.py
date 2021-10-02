@@ -59,7 +59,7 @@ class QC_registration_error():
         all_counts_dd = dd.read_parquet(all_counts_folder / search_key)
         registration_error_df = all_counts_dd.groupby('fov_num').agg({'min_number_matching_dots_registration': ['min']}).compute()
         for idx, row in registration_error_df.itertuples():
-            search_key = '*decoded_fov_' + str(idx) +'.parquet'
+            search_key = '*decoded_fov_' + str(int(idx)) +'.parquet'
             fname = list(all_counts_folder.glob(search_key))[0]
             fov_data_df = pd.read_parquet(fname)
             matching_rounds = fov_data_df.loc[(fov_data_df.fov_num == idx) &
@@ -137,8 +137,8 @@ class QC_registration_error():
         patch_2 = mpatches.Patch(color='dimgrey', label='missing_counts_reg_channel')
         patch_3 = mpatches.Patch(color='silver', label='missing_counts_reference_round')
         patch_4 = mpatches.Patch(color='orange', label='missing_counts_in_round')
-        patch_5 = mpatches.Patch(color='tomato', label='number_beads_below_tolerance_counts')
-
+        patch_5 = mpatches.Patch(color='green', label='number_beads_below_tolerance_counts')
+        
         plt.legend(handles=[patch_1,patch_2,patch_3,patch_4,patch_5])    
     
         ax.set_aspect('equal')
