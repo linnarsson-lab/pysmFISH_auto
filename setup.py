@@ -11,7 +11,7 @@ setup(
 	include_package_data=True,
 	install_requires=[
 		'Click',
-		'dask',
+		'dask==2021.8.1',
         'dask-jobqueue',
         'python-json-logger',
 		'scikit-learn',
