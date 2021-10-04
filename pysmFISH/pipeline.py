@@ -583,7 +583,7 @@ class Pipeline():
                                                 self.chunk_size,
                                                 tag_ref_beads= tag_ref_beads,
                                                 tag_nuclei= tag_nuclei,
-                                                parsing=parsing,
+                                                parsing= parsing,
                                                 save_steps_output=self.save_intermediate_steps)
 
 
