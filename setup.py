@@ -30,7 +30,8 @@ setup(
 		'napari',
 		'papermill',
 		'pandas',
-		'bokeh'
+		'bokeh',
+		'ipykernel'
 	],
 	
 	entry_points='''
