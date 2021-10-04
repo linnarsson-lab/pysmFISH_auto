@@ -31,7 +31,6 @@ from dask.base import tokenize
 from dask import dataframe as dd
 from dask import delayed
 
-
 # Import from pysmFISH package
 import pysmFISH
 
