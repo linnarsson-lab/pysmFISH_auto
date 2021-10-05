@@ -31,7 +31,8 @@ setup(
 		'papermill',
 		'pandas',
 		'bokeh',
-		'ipykernel'
+		'ipykernel',
+		'asyncssh'
 	],
 	
 	entry_points='''
