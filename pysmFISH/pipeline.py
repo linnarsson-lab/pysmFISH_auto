@@ -103,6 +103,8 @@ class Pipeline():
             save_bits_int: (bool): Save the intensity of the bits and the flipping direction
             start_from_preprocessed_imgs (bool): Run the processing starting from the counting
                 using preprocessed images. default: False 
+            resume: (bool): Restart the processsing. Determine automatically which files are already processed by checking
+                            the *_*decoded_* files in the results folder
 
         Attributes:
             storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -148,6 +150,7 @@ class Pipeline():
         self.adaptive = kwarg.pop('adaptive',True)
         self.maximum_jobs = kwarg.pop('maximum_jobs',15)
         self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
+        self.resume = kwarg.pop('resume',False)
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}
@@ -709,7 +712,7 @@ class Pipeline():
                 Required steps completed in {utils.nice_deltastring(datetime.now() - start)}.")
         self.logger.info(f"")
     
-    def run_full(self,resume=False):
+    def run_full(self):
         """
             Full run from raw images from nikon or parsed images
         """
@@ -718,7 +721,7 @@ class Pipeline():
         self.run_parsing_only()
         self.run_required_steps()    
         
-        if resume:
+        if self.resume:
             already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
             already_done_fovs = []
             for fname in already_processed:
@@ -784,13 +787,13 @@ class Pipeline():
         self.cluster.close()
     
 
-    def test_run_after_editing(self,resume=False):
+    def test_run_after_editing(self):
         """
             Full run from raw images from nikon or parsed images
         """
 
         start = datetime.now()    
-        if resume:
+        if self.resume:
             already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
             already_done_fovs = []
             for fname in already_processed:
@@ -819,11 +822,11 @@ class Pipeline():
         # self.cluster.close()
 
 
-    def test_run_short(self,resume=False):
+    def test_run_short(self):
         start = datetime.now()
         self.run_parsing_only()
         self.run_required_steps()
-        if resume:
+        if self.resume:
             already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
             already_done_fovs = []
             for fname in already_processed:
@@ -884,7 +887,7 @@ class Pipeline():
         self.cluster.close()
 
 
-    def test_run_from_registration(self,resume=False):
+    def test_run_from_registration(self):
         """
             Run analysis starting from the raw data files.
             Requires raw files 
@@ -897,7 +900,7 @@ class Pipeline():
         
         if raw_files_path:
 
-            if resume:
+            if self.resume:
                 already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
                 already_done_fovs = []
                 for fname in already_processed:
