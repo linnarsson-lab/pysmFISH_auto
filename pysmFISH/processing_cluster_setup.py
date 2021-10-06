@@ -83,7 +83,7 @@ def monod_unmanaged_cluster_setup(htcondor_cluster_setup):
     scheduler_address = htcondor_cluster_setup['scheduler_address']
     workers_addresses_list = htcondor_cluster_setup['workers_addresses_list']
     all_addresses = [scheduler_address] + workers_addresses_list
-    nprocs = htcondor_cluster_setup['nprocs']
+    nprocs = 1
     worker_options = {"nprocs":nprocs,
                      "memory_limit":memory,
                      "local_directory":local_directory}
