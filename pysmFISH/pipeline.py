@@ -742,7 +742,7 @@ class Pipeline():
         self.run_required_steps()    
         
         if self.resume:
-            already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
+            already_processed = (Path(self.experiment_fpath) / 'results').glob('*barcodes_max_array*.parquet')
             already_done_fovs = []
             for fname in already_processed:
                 fov_num = int(fname.stem.split('_')[-1])
