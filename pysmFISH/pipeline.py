@@ -162,7 +162,7 @@ class Pipeline():
         self.dashboard_port = kwarg.pop('dashboard_port',8787)
         self.nprocs = kwarg.pop('nprocs',1)
         self.scheduler_address = kwarg.pop('scheduler_address','localhost')
-        self.workers_addresses_list = kwarg.pop('workers_addresses_list',['monod11,monod12'])
+        self.workers_addresses_list = kwarg.pop('workers_addresses_list',['monod11','monod12'])
         
         self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
         self.resume = kwarg.pop('resume',False)
