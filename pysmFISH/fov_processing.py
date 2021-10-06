@@ -409,6 +409,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                 # all_processing.append(flip_direction)
 
         _ = dask.compute(*all_processing)
+        client.run(gc.collect)
 
     io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
 
