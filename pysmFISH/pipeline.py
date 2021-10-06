@@ -108,7 +108,8 @@ class Pipeline():
             scheduler_address (str): Address of the dask scheduler. Used for the unmanaged cluser. 
                                 'localhost' if running of the main node (default 'localhost)
             workers_addresses_list (list[str]): Addresses of the workers (default [monod11,monod12])
-            nprocs (int): number of processes for each workers (default 1)
+            nprocs (int): number of processes for each workers (default 40 for single node monod)
+            nthreads (int): number threads/process (default 1)
             save_bits_int: (bool): Save the intensity of the bits and the flipping direction
             start_from_preprocessed_imgs (bool): Run the processing starting from the counting
                 using preprocessed images. default: False 
@@ -160,7 +161,8 @@ class Pipeline():
         self.maximum_jobs = kwarg.pop('maximum_jobs',15)
         self.scheduler_port = kwarg.pop('scheduler_port',8786)
         self.dashboard_port = kwarg.pop('dashboard_port',8787)
-        self.nprocs = kwarg.pop('nprocs',1)
+        self.nprocs = kwarg.pop('nprocs',45)
+        self.nthreads = kwarg.pop('nthreads',1)
         self.scheduler_address = kwarg.pop('scheduler_address','localhost')
         self.workers_addresses_list = kwarg.pop('workers_addresses_list',['monod11','monod12'])
         
@@ -182,6 +184,7 @@ class Pipeline():
         self.processing_env_config['scheduler_address'] = self.scheduler_address
         self.processing_env_config['workers_addresses_list'] = self.workers_addresses_list
         self.processing_env_config['nprocs'] = self.nprocs
+        self.processing_env_config['nthreads'] = self.nthreads
 
 
         # Define the experiment folder location in the storage HD

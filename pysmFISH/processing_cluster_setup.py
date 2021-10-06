@@ -98,11 +98,14 @@ def unmanaged_cluster_setup(htcondor_cluster_setup:Dict):
     nprocs = htcondor_cluster_setup['nprocs']
     scheduler_address = htcondor_cluster_setup['scheduler_address']
     workers_addresses_list = htcondor_cluster_setup['workers_addresses_list']
+    nthreads = htcondor_cluster_setup['nthreads']
+    
     
     all_addresses = [scheduler_address] + workers_addresses_list
     
     worker_options = {"nprocs":nprocs,
                      "memory_limit":memory,
+                     "nthreads":nthreads,
                      "local_directory":local_directory}
     
     
