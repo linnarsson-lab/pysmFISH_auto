@@ -71,6 +71,41 @@ def local_cluster_setup(cores:int, memory:str):
     return cluster
 
 
+
+def monod_unmanaged_cluster_setup(htcondor_cluster_setup,
+                                scheduler_address='localhost', 
+                                workers_addresses_list=['monod11','monod12']):
+    
+    #logger = selected_logger()
+    #cores = htcondor_cluster_setup['cores']
+    memory = htcondor_cluster_setup['memory']
+    #disk = htcondor_cluster_setup['disk']
+    local_directory = htcondor_cluster_setup['local_directory']
+    #log_directory = htcondor_cluster_setup['logs_directory']
+    
+    all_addresses = [scheduler_address] + workers_addresses_list
+    
+    worker_options = {"nprocs":1,
+                     "memory_limit":memory,
+                     "local_directory":local_directory}
+    
+    
+    cluster = SSHCluster(
+        all_addresses,
+        connect_options={"known_hosts": None},
+        worker_options=worker_options,
+        scheduler_options={"port": 0, 
+                       "dashboard_address":25399}
+        )
+
+    return cluster
+
+
+
+
+
+
+
 def unmanaged_cluster_setup(htcondor_cluster_setup:Dict):
     """Create and start a unmanaged cluster. The cluster is
     created by ssh into the machines. Because there is bug in
