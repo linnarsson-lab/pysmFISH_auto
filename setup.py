@@ -32,7 +32,8 @@ setup(
 		'pandas',
 		'bokeh',
 		'ipykernel',
-		'asyncssh'
+		'asyncssh',
+		'jupyter-server-proxy'
 	],
 	
 	entry_points='''

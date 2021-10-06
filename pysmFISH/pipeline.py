@@ -49,6 +49,7 @@ from pysmFISH import fov_processing
 from pysmFISH import stitching
 from pysmFISH import qc_utils
 from pysmFISH import data_organization
+from pysmFISH import processing_cluster_setup
 
 
 
@@ -92,14 +93,22 @@ class Pipeline():
             processing_engine (str): Define the name of the system that will run the processing. Can be local/htcondor
                                     (default htcondor). If engine == local the parameters that define the cluster
                                     will be ignored
-            cores (int): Number of cores/job to use in htcondor or in the local processing (default 20)
+            cores (int): Number of cores/job to use in htcondor or in the local processing (default 20). In the
+                            the unmanaged cluster correspond to the nummber of core for each process (nprocs)
             memory (str): Total memory for all the cores in condor (default 200GB) or per core in local setup
+                        or per process (nprocs) in the unmanaged cluster
             disk (str): Size of the spillover disk for dask (default 0.1GB)
             local_directory (str): Directory where to spill over on the node (default /tmp)
             logs_directory: (str): Directory where to store dask and htcondor logs
             adaptive: (bool): Decide if the cluster can increase/decrease the number of worker accroding to
                                 the processig required. (default True)
             maximum_jobs (int): Max number of jobs to run in htcondor
+            scheduler_port (int): define the dask scheduler port. Used for the unmanaged cluster (default 8686) 
+            scheduler_port (int): define the dask dashboard port: Used for the unmanaged cluser (default 8787)
+            scheduler_address (str): Address of the dask scheduler. Used for the unmanaged cluser. 
+                                'localhost' if running of the main node (default 'localhost)
+            workers_addresses_list (list[str]): Addresses of the workers (default [monod11,monod12])
+            nprocs (int): number of processes for each workers (default 1)
             save_bits_int: (bool): Save the intensity of the bits and the flipping direction
             start_from_preprocessed_imgs (bool): Run the processing starting from the counting
                 using preprocessed images. default: False 
@@ -149,6 +158,12 @@ class Pipeline():
         self.save_bits_int = kwarg.pop('save_bits_int',True)
         self.adaptive = kwarg.pop('adaptive',True)
         self.maximum_jobs = kwarg.pop('maximum_jobs',15)
+        self.scheduler_port = kwarg.pop('scheduler_port',8786)
+        self.dashboard_port = kwarg.pop('dashboard_port',8787)
+        self.nprocs = kwarg.pop('nprocs',1)
+        self.scheduler_address = kwarg.pop('scheduler_address','localhost')
+        self.workers_addresses_list = kwarg.pop('workers_addresses_list',['monod11,monod12'])
+        
         self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
         self.resume = kwarg.pop('resume',False)
 
@@ -162,6 +177,11 @@ class Pipeline():
         self.processing_env_config['logs_directory'] = (self.experiment_fpath / 'logs').as_posix()
         self.processing_env_config['adaptive'] = self.adaptive
         self.processing_env_config['maximum_jobs'] = self.maximum_jobs
+        self.processing_env_config['scheduler_port'] = self.scheduler_port
+        self.processing_env_config['dashboard_port'] = self.dashboard_port
+        self.processing_env_config['scheduler_address'] = self.scheduler_address
+        self.processing_env_config['workers_addresses_list'] = self.workers_addresses_list
+        self.processing_env_config['nprocs'] = self.nprocs
 
 
         # Define the experiment folder location in the storage HD
@@ -785,6 +805,9 @@ class Pipeline():
         
         self.client.close()
         self.cluster.close()
+        if self.processing_engine == 'unamanaged cluster':
+            processing_cluster_setup.kill_process()
+
     
 
     def test_run_after_editing(self):
