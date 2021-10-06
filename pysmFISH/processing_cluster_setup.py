@@ -101,7 +101,7 @@ def unmanaged_cluster_setup(htcondor_cluster_setup:Dict):
     
     all_addresses = [scheduler_address] + workers_addresses_list
     
-    worker_options = {"nprocs":1,
+    worker_options = {"nprocs":nprocs,
                      "memory_limit":memory,
                      "local_directory":local_directory}
     
@@ -110,8 +110,8 @@ def unmanaged_cluster_setup(htcondor_cluster_setup:Dict):
         all_addresses,
         connect_options={"known_hosts": None},
         worker_options=worker_options,
-        scheduler_options={"port": scheduler_port, 
-                       "dashboard_address":dashboard_port}
+        scheduler_options={"port": 0, 
+                       "dashboard_address":25399}
         )
 
     return cluster
@@ -132,6 +132,8 @@ def kill_process(process_name:str='distributed.cli.dask.scheduler'):
     """
    # https://github.com/dask/distributed/issues/3420  
     # Ask user for the name of process
+    
+    logger = selected_logger()
     try:
         # iterating through each instance of the process
         for line in os.popen("ps ax | grep " + process_name + " | grep -v grep"):
@@ -142,10 +144,10 @@ def kill_process(process_name:str='distributed.cli.dask.scheduler'):
              
             # terminating process
             os.kill(int(pid), signal.SIGKILL)
-        print("Process Successfully terminated")
+        logger.info("Process Successfully terminated")
          
     except:
-        print("Error Encountered while running script")
+        logger.error("Error Encountered while running script")
 
 
 
