@@ -104,11 +104,11 @@ class Pipeline():
                                 the processig required. (default True)
             maximum_jobs (int): Max number of jobs to run in htcondor
             scheduler_port (int): define the dask scheduler port. Used for the unmanaged cluster (default 8686) 
-            scheduler_port (int): define the dask dashboard port: Used for the unmanaged cluser (default 8787)
+            dashboard_port (int): define the dask dashboard port: Used for the unmanaged cluser (default 8787)
             scheduler_address (str): Address of the dask scheduler. Used for the unmanaged cluser. 
                                 'localhost' if running of the main node (default 'localhost)
-            workers_addresses_list (list[str]): Addresses of the workers (default [monod11,monod12])
-            nprocs (int): number of processes for each workers (default 40 for single node monod)
+            workers_addresses_list (list[str]): Addresses of the workers (default [monod10,monod11,monod12,monod33])
+            nprocs (int): number of processes for each workers (unmanaged cluster) (default 40 for single node monod)
             nthreads (int): number threads/process (default 1)
             save_bits_int: (bool): Save the intensity of the bits and the flipping direction
             start_from_preprocessed_imgs (bool): Run the processing starting from the counting
