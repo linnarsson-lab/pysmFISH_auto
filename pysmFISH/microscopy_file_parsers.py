@@ -223,7 +223,7 @@ def nikon_nd2_autoparser_zarr(nd2_file_path: str, parsed_raw_data_fpath: str, ex
     logger.debug(f'processing hybridization {hybridization_name}')
     
     try:
-        nd2fh = nd2reader.ND2Reader(nd2_file_path)
+        nd2fh = nd2reader.ND2Reader(nd2_file_path.as_posix())
     except:
         logger.error(f'Cannot load the nd2 file {nd2_file_path}')
         sys.exit(f'Cannot load the nd2 file {nd2_file_path}')
@@ -378,7 +378,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path: str,parsed_raw_data_fpath: str,experi
     hybridization_name = info_data['channels']['Hybridization']
     
     try:
-        nd2fh = nd2reader.ND2Reader(nd2_file_path)
+        nd2fh = nd2reader.ND2Reader(nd2_file_path.as_posix())
     except:
         logger.error(f'Cannot load the {nd2_fname} nd2 file')
         sys.exit('fCannot load the {nd2_fname} nd2 file')
