@@ -246,12 +246,12 @@ def QC_check_experiment_yaml_file(experiment_fpath:str):
             logger.error(f'Wrong Experiment_type selected in the experiment file')
             sys.exit(f'Wrong Experiment_type selected in the experiment file')
 
-        if not experiment_info['Probe_FASTA']:
+        if not experiment_info['Probes_FASTA']:
             logger.error(f'Experiment require the probes name')
             sys.exit(f'Probes keyword in the experiment file')
         else:
             missing_probes = []
-            for idx, probe in experiment_info['Probe_FASTA'].items():
+            for idx, probe in experiment_info['Probes_FASTA'].items():
                 if probe == 'None':
                         logger.debug(f'{idx} has None as probe')
                 elif (probe not in probe_sets_list) and (probe !='None'):
