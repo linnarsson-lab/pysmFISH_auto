@@ -115,6 +115,11 @@ class Pipeline():
                 using preprocessed images. default: False 
             resume: (bool): Restart the processsing. Determine automatically which files are already processed by checking
                             the *_*decoded_* files in the results folder
+            reuse_cluster (bool): Connect the pipeline to a previously created cluster (default False)
+            active_cluster (dask_cluster): Already active cluster to reconnect to when you want to reuse a cluster
+                                            (default None)
+            active_client (dask_client): Already active client to reconnect to when you want to reuse a cluster
+                                            (default None)
 
         Attributes:
             storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -164,7 +169,10 @@ class Pipeline():
         self.nprocs = kwarg.pop('nprocs',45)
         self.nthreads = kwarg.pop('nthreads',1)
         self.scheduler_address = kwarg.pop('scheduler_address','localhost')
-        self.workers_addresses_list = kwarg.pop('workers_addresses_list',['monod11','monod12'])
+        self.workers_addresses_list = kwarg.pop('workers_addresses_list',['monod10','monod11','monod12','monod33'])
+        self.reuse_cluster = kwarg.pop('reuse_cluster',False)
+        self.active_client = kwarg.pop('active_client',None)
+        self.active_cluster = kwarg.pop('active_cluster',None)
         
         self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
         self.resume = kwarg.pop('resume',False)
@@ -275,15 +283,18 @@ class Pipeline():
         
 
     def processing_cluster_init_step(self):
-        """
-            Start the processing dask cluster (dask-jobqueue for htcondor) and client
+        """Create new cluster and client or reuse a cluster and client previously created
 
         """
+
         # Start processing environment
-       
-        self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
-        self.client = Client(self.cluster,asynchronous=True)
-        # self.logger.debug(f'Dask dashboard info {self.client.scheduler_info()}')
+        if self.reuse_cluster:
+            self.cluster = self.active_cluster
+            self.client = self.active_client
+        else:
+            self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
+            self.client = Client(self.cluster,asynchronous=True)
+            # self.logger.debug(f'Dask dashboard info {self.client.scheduler_info()}')
 
 
     def nikon_nd2_parsing_graph_step(self):
