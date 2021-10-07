@@ -729,11 +729,7 @@ class Pipeline():
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                 Parsing completed in {utils.nice_deltastring(datetime.now() - start)}.")
         
-        step_start = datetime.now()
-        self.logger.info(f'Started creation of the dataset')
-        self.prepare_processing_dataset_step()
-        self.logger.info(f"{self.experiment_fpath.stem} timing:\
-                Dataset creation completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
     
     def run_parsing_only(self):
         """
@@ -778,6 +774,11 @@ class Pipeline():
 
         """
         start = datetime.now()
+        step_start = datetime.now()
+        self.logger.info(f'Started creation of the dataset')
+        self.prepare_processing_dataset_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing:\
+                Dataset creation completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
         self.create_analysis_config_file_from_dataset_step()
         self.logger.info(f'Created analysis_config.yaml file')
         self.determine_tiles_organization()
