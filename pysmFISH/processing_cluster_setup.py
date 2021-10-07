@@ -184,7 +184,7 @@ def start_processing_env(processing_env_config:Dict):
     elif processing_engine == 'local':
         cluster = local_cluster_setup(processing_env_config['cores'],processing_env_config['memory'])
         return cluster
-    elif processing_engine == 'unmanaged cluster':
+    elif processing_engine == 'unmanaged_cluster':
         cluster = unmanaged_cluster_setup(processing_env_config)
         logger.info(f"Started unmanaged cluster")
         return cluster
