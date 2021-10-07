@@ -680,7 +680,7 @@ def nikon_nd2_parsing_graph(experiment_fpath: str,
                                 parsed_raw_data_fpath=parsed_raw_data_fpath,
                                 experiment_info=experiment_info)
 
-    _ = client.gather(parsing_futures)
+        _ = client.gather(parsing_futures)
     consolidated_grp = io.consolidate_zarr_metadata(parsed_raw_data_fpath)
 
 
