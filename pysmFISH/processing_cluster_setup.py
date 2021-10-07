@@ -113,8 +113,8 @@ def unmanaged_cluster_setup(htcondor_cluster_setup:Dict):
         all_addresses,
         connect_options={"known_hosts": None},
         worker_options=worker_options,
-        scheduler_options={"port": 0, 
-                       "dashboard_address":25399}
+        scheduler_options={"port": scheduler_port, 
+                       "dashboard_address":dashboard_port}
         )
 
     return cluster
