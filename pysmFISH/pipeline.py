@@ -682,6 +682,48 @@ class Pipeline():
     # --------------------------------
     
 
+
+    def run_setup(self):
+        start = datetime.now()
+
+        self.create_folders_step()
+
+        self.logger = logger_utils.json_logger((self.experiment_fpath / 'logs'),'pipeline_run') 
+        self.logger.info(f"Start parsing")
+
+        self.save_git_commit()
+        self.logger.info(f'Saved current git commit version')
+
+        if self.run_type == 'original':
+            self.QC_check_experiment_yaml_file_step()
+            self.logger.info(f'Checked config file')
+        
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                Setup completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
+    def run_cluster_activation(self):
+        start = datetime.now()
+        self.processing_cluster_init_step()
+        self.logger.info(f'Started dask processing cluster')
+        self.logger.info(f"client dashboard {self.client.scheduler_info()['services']['dashboard']}")
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                Cluester activation completed in {utils.nice_deltastring(datetime.now() - start)}.")
+    
+    def run_parsing(self):
+        start = datetime.now()
+        # Run parsing only if required
+        self.logger.info(f'Parsing started')
+        if self.parsing_type != 'no_parsing':
+            self.nikon_nd2_parsing_graph_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                Parsing completed in {utils.nice_deltastring(datetime.now() - start)}.")
+        
+        step_start = datetime.now()
+        self.logger.info(f'Started creation of the dataset')
+        self.prepare_processing_dataset_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing:\
+                Dataset creation completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+    
     def run_parsing_only(self):
         """
             Pipeline running the data organization and the parsing
