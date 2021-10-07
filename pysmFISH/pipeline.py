@@ -795,7 +795,9 @@ class Pipeline():
         """
 
         start = datetime.now()
-        self.run_parsing_only()
+        self.run_setup()
+        self.run_cluster_activation()
+        self.run_parsing()
         self.run_required_steps()    
         
         if self.resume:
