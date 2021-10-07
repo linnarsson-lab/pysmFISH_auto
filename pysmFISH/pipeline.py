@@ -31,7 +31,6 @@ from dask.base import tokenize
 from dask import dataframe as dd
 from dask import delayed
 
-
 # Import from pysmFISH package
 import pysmFISH
 
@@ -50,6 +49,7 @@ from pysmFISH import fov_processing
 from pysmFISH import stitching
 from pysmFISH import qc_utils
 from pysmFISH import data_organization
+from pysmFISH import processing_cluster_setup
 
 
 
@@ -93,15 +93,33 @@ class Pipeline():
             processing_engine (str): Define the name of the system that will run the processing. Can be local/htcondor
                                     (default htcondor). If engine == local the parameters that define the cluster
                                     will be ignored
-            cores (int): Number of cores to use in htcondor or in the local processing (default 20)
-            memory (str): Total memory for all the cores (default 200GB)
+            cores (int): Number of cores/job to use in htcondor or in the local processing (default 20). In the
+                            the unmanaged cluster correspond to the nummber of core for each process (nprocs)
+            memory (str): Total memory for all the cores in condor (default 200GB) or per core in local setup
+                        or per process (nprocs) in the unmanaged cluster
             disk (str): Size of the spillover disk for dask (default 0.1GB)
             local_directory (str): Directory where to spill over on the node (default /tmp)
             logs_directory: (str): Directory where to store dask and htcondor logs
             adaptive: (bool): Decide if the cluster can increase/decrease the number of worker accroding to
                                 the processig required. (default True)
             maximum_jobs (int): Max number of jobs to run in htcondor
+            scheduler_port (int): define the dask scheduler port. Used for the unmanaged cluster (default 8686) 
+            dashboard_port (int): define the dask dashboard port: Used for the unmanaged cluser (default 8787)
+            scheduler_address (str): Address of the dask scheduler. Used for the unmanaged cluser. 
+                                'localhost' if running of the main node (default 'localhost)
+            workers_addresses_list (list[str]): Addresses of the workers (default [monod10,monod11,monod12,monod33])
+            nprocs (int): number of processes for each workers (unmanaged cluster) (default 40 for single node monod)
+            nthreads (int): number threads/process (default 1)
             save_bits_int: (bool): Save the intensity of the bits and the flipping direction
+            start_from_preprocessed_imgs (bool): Run the processing starting from the counting
+                using preprocessed images. default: False 
+            resume: (bool): Restart the processsing. Determine automatically which files are already processed by checking
+                            the *_*decoded_* files in the results folder
+            reuse_cluster (bool): Connect the pipeline to a previously created cluster (default False)
+            active_cluster (dask_cluster): Already active cluster to reconnect to when you want to reuse a cluster
+                                            (default None)
+            active_client (dask_client): Already active client to reconnect to when you want to reuse a cluster
+                                            (default None)
 
         Attributes:
             storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -146,6 +164,18 @@ class Pipeline():
         self.save_bits_int = kwarg.pop('save_bits_int',True)
         self.adaptive = kwarg.pop('adaptive',True)
         self.maximum_jobs = kwarg.pop('maximum_jobs',15)
+        self.scheduler_port = kwarg.pop('scheduler_port',8786)
+        self.dashboard_port = kwarg.pop('dashboard_port',8787)
+        self.nprocs = kwarg.pop('nprocs',45)
+        self.nthreads = kwarg.pop('nthreads',1)
+        self.scheduler_address = kwarg.pop('scheduler_address','localhost')
+        self.workers_addresses_list = kwarg.pop('workers_addresses_list',['monod10','monod11','monod12','monod33'])
+        self.reuse_cluster = kwarg.pop('reuse_cluster',False)
+        self.active_client = kwarg.pop('active_client',None)
+        self.active_cluster = kwarg.pop('active_cluster',None)
+        
+        self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
+        self.resume = kwarg.pop('resume',False)
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}
@@ -157,6 +187,12 @@ class Pipeline():
         self.processing_env_config['logs_directory'] = (self.experiment_fpath / 'logs').as_posix()
         self.processing_env_config['adaptive'] = self.adaptive
         self.processing_env_config['maximum_jobs'] = self.maximum_jobs
+        self.processing_env_config['scheduler_port'] = self.scheduler_port
+        self.processing_env_config['dashboard_port'] = self.dashboard_port
+        self.processing_env_config['scheduler_address'] = self.scheduler_address
+        self.processing_env_config['workers_addresses_list'] = self.workers_addresses_list
+        self.processing_env_config['nprocs'] = self.nprocs
+        self.processing_env_config['nthreads'] = self.nthreads
 
 
         # Define the experiment folder location in the storage HD
@@ -247,15 +283,18 @@ class Pipeline():
         
 
     def processing_cluster_init_step(self):
-        """
-            Start the processing dask cluster (dask-jobqueue for htcondor) and client
+        """Create new cluster and client or reuse a cluster and client previously created
 
         """
+
         # Start processing environment
-       
-        self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
-        self.client = Client(self.cluster,asynchronous=True)
-        self.logger.debug(f'Dask dashboard info {self.client.scheduler_info()}')
+        if self.reuse_cluster:
+            self.cluster = self.active_cluster
+            self.client = self.active_client
+        else:
+            self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
+            self.client = Client(self.cluster,asynchronous=True)
+            # self.logger.debug(f'Dask dashboard info {self.client.scheduler_info()}')
 
 
     def nikon_nd2_parsing_graph_step(self):
@@ -336,19 +375,55 @@ class Pipeline():
         fov_processing.processing_barcoded_eel_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tiles_org,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_image_tag,self.client,self.chunk_size,self.save_bits_int)
+                                    self.preprocessed_image_tag,self.client,self.chunk_size,self.save_bits_int,
+                                    self.start_from_preprocessed_imgs)
+
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / self.metadata['barcode_length']
+        stitching_selected = 'microscope_stitched'
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                selected_Hdistance, self.client,file_tag='microscope_stitched')
+        # ----------------------------------------------------------------  
 
 
 
-    def processing_barcoded_eel_after_dots_step(self):
+    def rerun_decoding_step(self):
         """
             Create and run a dask delayed task graph used to process barcoded eel experiments
+            It runs:
+            (2) Barcode decoding
+            (3) Registration to the microscope coords
+            
+            The following attributes created by another step must be accessible:
+            - metadata
+            - analysis_parameters
+            - grpd_fovs
+            - client
+
+        """
+        assert self.metadata, self.logger.error(f'cannot process eel fovs because missing metadata attr')
+        assert self.analysis_parameters, self.logger.error(f'cannot process eel fovs because missing analysis_parameters attr')
+        assert self.grpd_fovs, self.logger.error(f'cannot process eel fovs because missing grpd_fovs attr')
+        assert self.client, self.logger.error(f'cannot process eel fovs because missing client attr')
+        assert self.tiles_org, self.logger.error(f'cannot process eel fovs because missing tiles organization attr')
+    
+
+        fov_processing.processing_barcoded_eel_fov_graph_from_decoding(self.experiment_fpath,self.analysis_parameters,
+                                    self.tiles_org,self.metadata,
+                                    self.grpd_fovs, self.client, self.chunk_size)
+
+
+
+    def rerun_from_registration_step(self):
+        """
+            Create and run a dask delayed task graph from the registration step.
+            Requires the raw_counts files
+            
             It runs:
             (1) Field of view registration
             (2) Barcode decoding
             (3) Registration to the microscope coords
-            (4) Consolidate the processed images zarr file metadata
-            (5) Create a simple output for quick visualization
             
             The following attributes created by another step must be accessible:
             - metadata
@@ -356,20 +431,35 @@ class Pipeline():
             - running_functions
             - grpd_fovs
             - client
+            - tiles_org
 
         """
+
         assert self.metadata, self.logger.error(f'cannot process eel fovs because missing metadata attr')
         assert self.analysis_parameters, self.logger.error(f'cannot process eel fovs because missing analysis_parameters attr')
         assert self.running_functions, self.logger.error(f'cannot process eel fovs because missing running_functions attr')
         assert self.grpd_fovs, self.logger.error(f'cannot process eel fovs because missing grpd_fovs attr')
         assert self.client, self.logger.error(f'cannot process eel fovs because missing client attr')
         assert self.tiles_org, self.logger.error(f'cannot process eel fovs because missing tiles organization attr')
-    
+        
+        fov_processing.processing_barcoded_eel_fov_starting_from_registration_graph(self.experiment_fpath,
+                                    self.analysis_parameters,
+                                    self.running_functions, 
+                                    self.tiles_org,
+                                    self.metadata,
+                                    self.grpd_fovs,
+                                    self.preprocessed_image_tag, 
+                                    self.client, 
+                                    self.chunk_size, 
+                                    self.save_bits_int)
 
-        fov_processing.processing_barcoded_eel_fov_after_dots_graph(self.experiment_fpath,self.analysis_parameters,
-                                    self.running_functions, self.tiles_org,self.metadata,
-                                    self.grpd_fovs, self.preprocessed_image_tag, self.client, self.chunks_size)
-
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / self.metadata['barcode_length']
+        stitching_selected = 'microscope_stitched'
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                selected_Hdistance, self.client,file_tag='microscope_stitched')
+        # ----------------------------------------------------------------  
 
     def processing_serial_fish_step(self):
         """
@@ -473,38 +563,38 @@ class Pipeline():
                             self.logger.error(f'cannot remove duplicated dots because tiles_org is missing attr')
         
         
-        self.adjusted_coords, self.global_stitching_done = stitching.stitching_graph(self.experiment_fpath,self.metadata['stitching_channel'],
+        self.adjusted_coords = stitching.stitching_graph(self.experiment_fpath,self.metadata['stitching_channel'],
                                                                     self.tiles_org, self.metadata,
                                                                     self.analysis_parameters['RegistrationReferenceHybridization'], 
                                                                     self.client)
         
-        if self.global_stitching_done:
-            # Recalculate the overlapping regions after stitching
-            self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
-            self.tiles_org.determine_overlapping_regions()
-            
-            # Removed the dots on the global stitched
-            self.stitching_selected = 'global_stitched'
+        
+        # Recalculate the overlapping regions after stitching
+        self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
+        self.tiles_org.determine_overlapping_regions()
+        
+        # Removed the dots on the global stitched
+        self.stitching_selected = 'global_stitched'
 
-            stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
-                                    self.hamming_distance,self.same_dot_radius_duplicate_dots, 
-                                        self.stitching_selected, self.client)
+        stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
+                                self.hamming_distance,self.same_dot_radius_duplicate_dots, 
+                                    self.stitching_selected, self.client)
 
-            # ----------------------------------------------------------------
-            # GENERATE OUTPUT FOR PLOTTING
-            selected_Hdistance = 3 / self.metadata['barcode_length']
-            stitching_selected = 'global_stitched'
-            io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                    selected_Hdistance, self.client,file_tag='cleaned')
-            # ----------------------------------------------------------------  
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / self.metadata['barcode_length']
+        stitching_selected = 'global_stitched'
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                selected_Hdistance, self.client,file_tag='cleaned')
+        # ----------------------------------------------------------------  
 
-            # ----------------------------------------------------------------
-            # GENERATE OUTPUT FOR PLOTTING
-            selected_Hdistance = 3 / self.metadata['barcode_length']
-            stitching_selected = 'global_stitched'
-            io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                    selected_Hdistance, self.client,file_tag='removed')
-            # ---------------------------------------------------------------- 
+        # ----------------------------------------------------------------
+        # GENERATE OUTPUT FOR PLOTTING
+        selected_Hdistance = 3 / self.metadata['barcode_length']
+        stitching_selected = 'global_stitched'
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
+                                selected_Hdistance, self.client,file_tag='removed')
+        # ---------------------------------------------------------------- 
 
 
     def processing_fresh_tissue_step(self,parsing=True,
@@ -526,9 +616,11 @@ class Pipeline():
         assert self.running_functions, self.logger.error(f'cannot process fresh tissue because missing running_functions attr')
         fov_processing.process_fresh_sample_graph(self.experiment_fpath,self.running_functions,
                                                 self.analysis_parameters, self.client,
+                                                self.chunk_size,
                                                 tag_ref_beads= tag_ref_beads,
                                                 tag_nuclei= tag_nuclei,
-                                                parsing=parsing)
+                                                parsing= parsing,
+                                                save_steps_output=self.save_intermediate_steps)
 
 
     # --------------------------------
@@ -564,10 +656,11 @@ class Pipeline():
         """
         assert self.client, self.logger.error(f'cannot run QC on registration because missing client attr')
         assert self.analysis_parameters, self.logger.error(f'cannot run QC on registration because missing analysis_parameters attr')
+        assert self.metadata, self.logger.error(f'cannot process smFISH fovs because missing metadata attr')
         assert isinstance(self.tile_corners_coords_pxl, np.ndarray), self.logger.error(f'cannot run QC on registration because missing tile_corners_coords_pxl attr')
         
         qc_reg = qc_utils.QC_registration_error(self.client, self.experiment_fpath, 
-                    self.analysis_parameters, self.tile_corners_coords_pxl)
+                    self.analysis_parameters, self.metadata, self.tile_corners_coords_pxl)
 
         qc_reg.run_qc()
 
@@ -600,6 +693,44 @@ class Pipeline():
     # --------------------------------
     
 
+
+    def run_setup(self):
+        start = datetime.now()
+
+        self.create_folders_step()
+
+        self.logger = logger_utils.json_logger((self.experiment_fpath / 'logs'),'pipeline_run') 
+        self.logger.info(f"Start parsing")
+
+        self.save_git_commit()
+        self.logger.info(f'Saved current git commit version')
+
+        if self.run_type == 'original':
+            self.QC_check_experiment_yaml_file_step()
+            self.logger.info(f'Checked config file')
+        
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                Setup completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
+    def run_cluster_activation(self):
+        start = datetime.now()
+        self.processing_cluster_init_step()
+        self.logger.info(f'Started dask processing cluster')
+        self.logger.info(f"client dashboard {self.client.scheduler_info()['services']['dashboard']}")
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                Cluester activation completed in {utils.nice_deltastring(datetime.now() - start)}.")
+    
+    def run_parsing(self):
+        start = datetime.now()
+        # Run parsing only if required
+        self.logger.info(f'Parsing started')
+        if self.parsing_type != 'no_parsing':
+            self.nikon_nd2_parsing_graph_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                Parsing completed in {utils.nice_deltastring(datetime.now() - start)}.")
+        
+
+    
     def run_parsing_only(self):
         """
             Pipeline running the data organization and the parsing
@@ -643,6 +774,11 @@ class Pipeline():
 
         """
         start = datetime.now()
+        step_start = datetime.now()
+        self.logger.info(f'Started creation of the dataset')
+        self.prepare_processing_dataset_step()
+        self.logger.info(f"{self.experiment_fpath.stem} timing:\
+                Dataset creation completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
         self.create_analysis_config_file_from_dataset_step()
         self.logger.info(f'Created analysis_config.yaml file')
         self.determine_tiles_organization()
@@ -653,17 +789,19 @@ class Pipeline():
                 Required steps completed in {utils.nice_deltastring(datetime.now() - start)}.")
         self.logger.info(f"")
     
-    def run_full(self,resume=False):
+    def run_full(self):
         """
             Full run from raw images from nikon or parsed images
         """
 
         start = datetime.now()
-        self.run_parsing_only()
+        self.run_setup()
+        self.run_cluster_activation()
+        self.run_parsing()
         self.run_required_steps()    
         
-        if resume:
-            already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
+        if self.resume:
+            already_processed = (Path(self.experiment_fpath) / 'results').glob('*barcodes_max_array*.parquet')
             already_done_fovs = []
             for fname in already_processed:
                 fov_num = int(fname.stem.split('_')[-1])
@@ -678,20 +816,26 @@ class Pipeline():
             self.processing_barcoded_eel_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
-
-            step_start = datetime.now()
-            self.microscope_stitched_remove_dots_eel_graph_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
-
+            
             step_start = datetime.now()
             self.QC_registration_error_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
             
             step_start = datetime.now()
-            self.stitch_and_remove_dots_eel_graph_step()
+            self.microscope_stitched_remove_dots_eel_graph_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            
+            step_start = datetime.now()
+            try: 
+                self.stitch_and_remove_dots_eel_graph_step()
+            except:
+                self.logger.info(f"Stitching using dots didn't work")
+                pass
+            else:
+                self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
             step_start = datetime.now()
@@ -717,42 +861,164 @@ class Pipeline():
         self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
 
+        
+        self.client.close()
+        self.cluster.close()
+        if self.processing_engine == 'unamanaged cluster':
+            processing_cluster_setup.kill_process()
 
-    def run_eel_processing_from_registration(self):
+    
+
+    def test_run_after_editing(self):
+        """
+            Full run from raw images from nikon or parsed images
+        """
+
+        start = datetime.now()    
+        if self.resume:
+            already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
+            already_done_fovs = []
+            for fname in already_processed:
+                fov_num = int(fname.stem.split('_')[-1])
+                already_done_fovs.append(fov_num)
+            not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+            self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+            self.grpd_fovs = self.data.dataset.groupby('fov_num')
+
+
+        if self.metadata['experiment_type'] == 'eel-barcoded':
+            step_start = datetime.now()
+            self.processing_barcoded_eel_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            # step_start = datetime.now()
+            # self.QC_registration_error_step()
+            # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+            #         QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
+        # self.client.close()
+        # self.cluster.close()
+
+
+    def test_run_short(self):
+        start = datetime.now()
+        self.run_parsing_only()
+        self.run_required_steps()
+        if self.resume:
+            already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
+            already_done_fovs = []
+            for fname in already_processed:
+                fov_num = int(fname.stem.split('_')[-1])
+                already_done_fovs.append(fov_num)
+            not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+            self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+            self.grpd_fovs = self.data.dataset.groupby('fov_num')
+
+
+        if self.metadata['experiment_type'] == 'eel-barcoded':
+            step_start = datetime.now()
+            self.processing_barcoded_eel_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+        
+        self.client.close()
+        self.cluster.close()
+
+    def test_run_decoding(self):
         """
             Run analysis starting from the raw data files.
             Requires raw files 
         """
 
-        raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_fov_*'))
+        raw_files_path = list((self.experiment_fpath / 'results').glob('*_decoded_fov_*'))
 
+        start = datetime.now()
+        self.run_parsing_only()
+        self.run_required_steps()
         if raw_files_path:
-            start = datetime.now()
-            self.run_parsing_only()
-            self.run_required_steps()
+            
             
             step_start = datetime.now()  
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
             step_start = datetime.now()
-            self.processing_barcoded_eel_after_dots_step()
+            self.rerun_decoding_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+        else:
+            self.logger.error(f"{self.experiment_fpath.stem} missing files with raw counts")
+            raise FileNotFoundError
+        
+        self.client.close()
+        self.cluster.close()
+
+
+    def test_run_from_registration(self):
+        """
+            Run analysis starting from the raw data files.
+            Requires raw files 
+        """
+
+        raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_counts_*'))
+        start = datetime.now()
+        # self.run_parsing_only()
+        # self.run_required_steps()
+        
+        if raw_files_path:
+
+            if self.resume:
+                already_processed = (Path(self.experiment_fpath) / 'results').glob('*decoded*.parquet')
+                already_done_fovs = []
+                for fname in already_processed:
+                    fov_num = int(fname.stem.split('_')[-1])
+                    already_done_fovs.append(fov_num)
+                not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+                self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+                self.grpd_fovs = self.data.dataset.groupby('fov_num')
+            
+            step_start = datetime.now()  
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
             step_start = datetime.now()
-            self.microscope_stitched_remove_dots_eel_graph_step()
+            self.rerun_from_registration_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
+                    eel fov processing from dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
             step_start = datetime.now()
             self.QC_registration_error_step()
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            step_start = datetime.now()
+            self.microscope_stitched_remove_dots_eel_graph_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
             
             step_start = datetime.now()
-            self.stitch_and_remove_dots_eel_graph_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+            try: 
+                self.stitch_and_remove_dots_eel_graph_step()
+            except:
+                self.logger.info(f"Stitching using dots didn't work")
+                pass
+            else:
+                self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
             self.logger.info(f"{self.experiment_fpath.stem} timing: \
@@ -760,3 +1026,6 @@ class Pipeline():
         else:
             self.logger.error(f"{self.experiment_fpath.stem} missing files with raw counts")
             raise FileNotFoundError
+        
+        self.client.close()
+        self.cluster.close()

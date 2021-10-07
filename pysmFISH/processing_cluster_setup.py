@@ -1,12 +1,13 @@
 from typing import *
 import dask
+import os
+import signal
 import sys
 from dask_jobqueue.htcondor import HTCondorCluster
-from dask.distributed import LocalCluster
+from dask.distributed import LocalCluster, SSHCluster
 from psutil import virtual_memory
 
 from pysmFISH.logger_utils import selected_logger
-
 
 def htcondor_cluster_setup(htcondor_cluster_setup: dict):
     """Utility function to start a HTCondor cluster
@@ -14,12 +15,6 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
     Args:
         htcondor_cluster_setup (dict): cluster_setup_dictionary
         dictionary with the info for the cluster setup
-        {
-            cores: number of cores
-            memory: RAM to use
-            disk: space on disk to use
-            local_directory: Dask worker local directory for file spilling.        
-        }
 
     """
 
@@ -45,34 +40,120 @@ def htcondor_cluster_setup(htcondor_cluster_setup: dict):
 # death_timeout=5000,
 
 
-def local_cluster_setup(cores:int):
+def local_cluster_setup(cores:int, memory:str):
     """Utility to set up a dask cluster on a local computer. I will use
     all the cpus-1 and scatter the memory. In thi
 
     Args:
-        cores: number of cores of the computer to use for processing
+        cores (int): number of cores of the computer to use for processing
+        memory (str): memory for each core (ex. 5GB) 
     Returns:
        cluster: dask cluster
     """
 
-    total_ram = virtual_memory()
-    total_ram = total_ram.available
+    # total_ram = virtual_memory()
+    # total_ram = total_ram.available
+    
     # cores = dask.multiprocessing.multiprocessing.cpu_count()-1
 
     # Calculate the total ram to use for each worker
-    worker_memory_limit = 0.9
-    worker_memory = (total_ram*worker_memory_limit)/cores
+    # worker_memory_limit = 0.9
+    # worker_memory = (total_ram*worker_memory_limit)/cores
 
     #cores = 5
     # worker_memory = 10000000000
     # cluster = LocalCluster(n_workers=cores, threads_per_worker=1, memory_limit=worker_memory)
-    cluster = LocalCluster(n_workers=cores, memory_limit=worker_memory)
+    # cluster = LocalCluster(n_workers=cores, memory_limit=worker_memory)
+    cluster = LocalCluster(n_workers=cores, memory_limit=memory, processes=True,threads_per_worker=1)
+
 
 
     return cluster
 
 
-# TODO Run experiment with fixed size cluster (No adaptive)
+def unmanaged_cluster_setup(htcondor_cluster_setup:Dict):
+    """Create and start a unmanaged cluster. The cluster is
+    created by ssh into the machines. Because there is bug in
+    OpenSSH in not enough to kill the cluster by using
+    client.close()
+    cluster.close()
+    it is necessary to kill the distributed process using
+    kill_distributed_process()
+
+    Args:
+        htcondor_cluster_setup (Dict): dictionary with the info for the cluster setup
+
+    Returns:
+       cluster: dask cluster
+    """
+    
+    logger = selected_logger()
+    cores = htcondor_cluster_setup['cores']
+    memory = htcondor_cluster_setup['memory']
+    disk = htcondor_cluster_setup['disk']
+    local_directory = htcondor_cluster_setup['local_directory']
+    log_directory = htcondor_cluster_setup['logs_directory']
+    scheduler_port = htcondor_cluster_setup['scheduler_port']
+    dashboard_port = htcondor_cluster_setup['dashboard_port']
+    nprocs = htcondor_cluster_setup['nprocs']
+    scheduler_address = htcondor_cluster_setup['scheduler_address']
+    workers_addresses_list = htcondor_cluster_setup['workers_addresses_list']
+    nthreads = htcondor_cluster_setup['nthreads']
+    
+    
+    all_addresses = [scheduler_address] + workers_addresses_list
+    
+    worker_options = {"nprocs":nprocs,
+                     "memory_limit":memory,
+                     "nthreads":nthreads,
+                     "local_directory":local_directory}
+    
+    
+    cluster = SSHCluster(
+        all_addresses,
+        connect_options={"known_hosts": None},
+        worker_options=worker_options,
+        scheduler_options={"port": scheduler_port, 
+                       "dashboard_address":dashboard_port}
+        )
+
+    return cluster
+
+
+
+def kill_process(process_name:str='distributed.cli.dask.scheduler'):
+    """General function used to kill a process by name directly from a
+    script (https://www.geeksforgeeks.org/kill-a-process-by-name-using-python/)
+    
+    I needed the function to compensate for the bug in OpenSSH that
+    doesn't allow the destruction of the cluster using the standard
+    dask commands ( https://github.com/dask/distributed/issues/3420 ). 
+    By default the distributed process will be killed.
+
+    Args:
+        process_name (str, optional): [description]. Defaults to 'distributed.cli.dask.scheduler'.
+    """
+   # https://github.com/dask/distributed/issues/3420  
+    # Ask user for the name of process
+    
+    logger = selected_logger()
+    try:
+        # iterating through each instance of the process
+        for line in os.popen("ps ax | grep " + process_name + " | grep -v grep"):
+            fields = line.split()
+             
+            # extracting Process ID from the output
+            pid = fields[0]
+             
+            # terminating process
+            os.kill(int(pid), signal.SIGKILL)
+        logger.info("Process Successfully terminated")
+         
+    except:
+        logger.error("Error Encountered while running script")
+
+
+
 
 def start_processing_env(processing_env_config:Dict):
     """Function to start the processing env. In the current setup
@@ -101,7 +182,11 @@ def start_processing_env(processing_env_config:Dict):
             logger.info(f"Started non adaptive cluster")
         return cluster
     elif processing_engine == 'local':
-        cluster = local_cluster_setup(processing_env_config['cores'])
+        cluster = local_cluster_setup(processing_env_config['cores'],processing_env_config['memory'])
+        return cluster
+    elif processing_engine == 'unmanaged_cluster':
+        cluster = unmanaged_cluster_setup(processing_env_config)
+        logger.info(f"Started unmanaged cluster")
         return cluster
     else:
         logger.error(f'the processing engine is not defined check the name')

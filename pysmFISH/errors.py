@@ -18,20 +18,16 @@ class Registration_errors():
   
     def __init__(self):
 
-        # The registration file has no counts
-        self.missing_counts_reg_channel = -1
+        # Fish channel doesn't have counts
+        self.missing_counts_fish_channel = -6
+        
+        # The registration dataframe has no counts
+        self.missing_counts_reg_channel = -5
 
         # The registration file with the counts is missing
-        self.missing_file_reg_channel = -2
+        self.missing_counts_reference_round = -4
 
         # The file with the counts cannot be loaded
-        self.cannot_load_file_reg_channel = -3
+        self.missing_counts_in_round = -3
 
-        # Fish channel doesn't have counts
-        self.missing_counts_fish_channel = -4
-
-        # Fish channel cannot be loaded
-        self.cannot_load_file_fish_channel = -5
-
-        # Registration is below extraction resolution
-        self.registration_below_extraction_resolution = -6
+        self.number_beads_below_tolerance_counts = -2

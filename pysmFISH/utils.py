@@ -17,6 +17,7 @@ from datetime import datetime
 
 
 from pysmFISH.logger_utils import selected_logger
+from pysmFISH.configuration_files import create_general_analysis_config_file
 
 
 def create_dir(dir_path: str):
@@ -47,6 +48,23 @@ def get_git_hash() -> str:
     version = repo.head.object.hexsha
     logger.debug(f"current code version: {version}")
     return version
+
+
+def create_processing_env(processing_folder_path:str):
+    logger = selected_logger()
+    
+    processing_folder_path = Path(processing_folder_path)
+    config_path = processing_folder_path / 'config_db'
+    codebooks_path = processing_folder_path / 'codebooks'
+    probes_path = processing_folder_path / 'probes_sets'
+    
+    # Create the directories that will contain the files required for the processing
+    create_dir(config_path)
+    create_dir(codebooks_path)
+    create_dir(probes_path)
+
+    # Create the analysis master files
+    create_general_analysis_config_file(config_path)
 
 
 def nice_deltastring(delta) -> str:

@@ -11,13 +11,12 @@ setup(
 	include_package_data=True,
 	install_requires=[
 		'Click',
-		'dask[complete]=2021.07.0',
-		'ctoolz',
+		'dask',
         'dask-jobqueue',
         'python-json-logger',
 		'scikit-learn',
 		'scipy',
-		'scikit-image==0.17.2',
+		'scikit-image',
 		'zarr',
         'sympy',
         'Cython',
@@ -29,12 +28,16 @@ setup(
 		'pyarrow',
 		'openpyxl',
 		'napari',
-		'papermill'
+		'papermill',
+		'pandas',
+		'bokeh',
+		'ipykernel',
+		'asyncssh',
+		'jupyter-server-proxy'
 	],
 	
 	entry_points='''
 		[console_scripts]
-		pysmFISH:pysmFISH.cli.cli:pysmFISH_cli
 	''',
 
 	# metadata
@@ -44,3 +47,8 @@ setup(
 	license="MIT",
 	url="",
 )
+
+# dask[complete]=2021.07.0
+# 'ctoolz',
+# 'scikit-image==0.17.2'
+# python -m pip install 'fsspec>=0.3.3'

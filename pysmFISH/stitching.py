@@ -719,7 +719,8 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         decoded_df['c_px_'+tag] = np.nan
     else:
 
-        fov = decoded_df.iloc[0]['fov_num']
+        #fov = decoded_df.iloc[0]['fov_num']
+        fov = int(decoded_df.fov_num.unique()[0])
         r_microscope_coords = tile_corners_coords_pxl[fov,0]
         c_microscope_coords = tile_corners_coords_pxl[fov,1]
         
@@ -772,13 +773,13 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
     experiment_fpath = Path(experiment_fpath)
     
     try:
-        counts1_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
+        counts1_fpath = list((experiment_fpath / 'results').glob('*decoded_fov_' + str(cpl[0]) + '.parquet'))[0]
     except:
         logger.error(f'count file missing for fov {cpl[0]}')
     
     else:
         try:
-            counts2_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
+            counts2_fpath = list((experiment_fpath / 'results').glob('*decoded_fov_' + str(cpl[1]) + '.parquet'))[0]
         except:
             logger.error(f'count file missing for fov {cpl[1]}')
         else:
@@ -843,84 +844,109 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata,
     # Run registration only if there are not too many overlappig regions without 
     # dots
     
-    counts_cpls_missing_overlapping_dots = 0
-    cpls_missing_overlapping_dots = []
-    for cpl, registration_output in all_registrations_dict:
-        if np.isnan(registration_output[1]):
-            cpls_missing_overlapping_dots.append(cpl)
-            counts_cpls_missing_overlapping_dots += 1
+    # counts_cpls_missing_overlapping_dots = 0
+    # cpls_missing_overlapping_dots = []
+    # for cpl, registration_output in all_registrations_dict.items():
+    #     if np.isnan(registration_output[1]):
+    #         cpls_missing_overlapping_dots.append(cpl)
+    #         counts_cpls_missing_overlapping_dots += 1
     
-    global_stitching_done = 0
-    if cpls_missing_overlapping_dots > 10:
-        logger.error(f"Too many cpl of fovs without overlapping reference dots")
-        pickle.dump([cpls_missing_overlapping_dots,counts_cpls_missing_overlapping_dots ],
-            open(experiment_fpath / 'results' / 'fovs_without_overlapping_reference_dots_no_global_stitching.pkl','rb'))
-        global_stitching_done = 0
-        return tiles_org.tile_corners_coords_pxl, global_stitching_done
+    # global_stitching_done = 0
+    # if len(cpls_missing_overlapping_dots) > 10:
+    #     logger.error(f"Too many cpl of fovs without overlapping reference dots")
+    #     pickle.dump([cpls_missing_overlapping_dots,counts_cpls_missing_overlapping_dots ],
+    #         open(experiment_fpath / 'results' / 'fovs_without_overlapping_reference_dots_no_global_stitching.pkl','rb'))
+    #     global_stitching_done = 0
+    #     return tiles_org.tile_corners_coords_pxl, global_stitching_done
 
-    else:
-        global_stitching_done = 1
-        logger.error(f"The number of cpls of fovs without overlapping reference dots is low, test global stitching")
-        pickle.dump([cpls_missing_overlapping_dots,counts_cpls_missing_overlapping_dots ],
-            open(experiment_fpath / 'results' / 'fovs_without_overlapping_reference_dots_yes_global_stitching.pkl','rb'))
+    # else:
+    #     global_stitching_done = 1
+    #     logger.error(f"The number of cpls of fovs without overlapping reference dots is low, test global stitching")
+    #     pickle.dump([cpls_missing_overlapping_dots,counts_cpls_missing_overlapping_dots ],
+    #         open(experiment_fpath / 'results' / 'fovs_without_overlapping_reference_dots_yes_global_stitching.pkl','wb'))
 
-        overlapping_coords_reorganized = {}
-        for idx, cpl_dict in tiles_org.overlapping_regions.items():
-            overlapping_coords_reorganized.update(cpl_dict)
+    overlapping_coords_reorganized = {}
+    for idx, cpl_dict in tiles_org.overlapping_regions.items():
+        overlapping_coords_reorganized.update(cpl_dict)
 
-        all_registrations_removed_large_shift = {k:v for (k,v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)}
+    all_registrations_removed_large_shift = {k:v for (k,v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)}
 
-        cpls = all_registrations_removed_large_shift.keys()
-        # cpls = list(unfolded_overlapping_regions_dict.keys())
-        total_cpls = len(cpls)
-        nr_tiles = tiles_org.tile_corners_coords_pxl.shape[0]
+    cpls = all_registrations_removed_large_shift.keys()
+    # cpls = list(unfolded_overlapping_regions_dict.keys())
+    total_cpls = len(cpls)
+    nr_tiles = tiles_org.tile_corners_coords_pxl.shape[0]
 
-        weights_err1 = np.zeros((total_cpls * nr_dim))
-        weights_err2 = np.zeros((total_cpls * nr_dim))
-        P = np.zeros(total_cpls * nr_dim)
-        ZQ = np.zeros((total_cpls * nr_dim,nr_tiles * nr_dim))
+    weights_err1 = np.zeros((total_cpls * nr_dim))
+    weights_err2 = np.zeros((total_cpls * nr_dim))
+    P = np.zeros(total_cpls * nr_dim)
+    ZQ = np.zeros((total_cpls * nr_dim,nr_tiles * nr_dim))
 
-        weights_err = np.zeros((total_cpls * nr_dim))
-        for i, (a, b) in enumerate(cpls):
-            shift = all_registrations_removed_large_shift[(a,b)][0]
-            dr = shift[0]
-            dc = shift[1]
-            P[i * nr_dim] = dr
-            P[i * nr_dim +1 ] = dc
-            weights_err[i * nr_dim:i * nr_dim + nr_dim] = all_registrations_removed_large_shift[(a,b)][1]
+    weights_err = np.zeros((total_cpls * nr_dim))
+    for i, (a, b) in enumerate(cpls):
+        shift = all_registrations_removed_large_shift[(a,b)][0]
+        dr = shift[0]
+        dc = shift[1]
+        P[i * nr_dim] = dr
+        P[i * nr_dim +1 ] = dc
+        weights_err[i * nr_dim:i * nr_dim + nr_dim] = all_registrations_removed_large_shift[(a,b)][1]
 
-        for i, (a, b) in enumerate(cpls):
-            # Y row:
-            Z = np.zeros((nr_tiles * nr_dim))
-            Z[nr_dim * a:nr_dim * a + 1] = -1
-            Z[nr_dim * b:nr_dim * b + 1] = 1
-            ZQ[i * nr_dim, :] = Z
-            # X row
-            Z = np.zeros((nr_tiles * nr_dim))
-            Z[nr_dim * a + 1:nr_dim * a + 2] = -1
-            Z[nr_dim * b + 1:nr_dim * b + 2] = 1
-            ZQ[i * nr_dim + 1, :] = Z
+    for i, (a, b) in enumerate(cpls):
+        # Y row:
+        Z = np.zeros((nr_tiles * nr_dim))
+        Z[nr_dim * a:nr_dim * a + 1] = -1
+        Z[nr_dim * b:nr_dim * b + 1] = 1
+        ZQ[i * nr_dim, :] = Z
+        # X row
+        Z = np.zeros((nr_tiles * nr_dim))
+        Z[nr_dim * a + 1:nr_dim * a + 2] = -1
+        Z[nr_dim * b + 1:nr_dim * b + 2] = 1
+        ZQ[i * nr_dim + 1, :] = Z
 
-        lrg = linmod.LinearRegression(fit_intercept=False)
-        lrg.fit(ZQ,P)
-        global_translrg = lrg.coef_.reshape(nr_tiles, nr_dim)
-        gb =  -1 * (-lrg.coef_.reshape((nr_tiles, nr_dim)) \
-                                    + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :])
-        global_shift = gb.astype(int)
-        adjusted_coords = tiles_org.tile_corners_coords_pxl + global_shift
+    lrg = linmod.LinearRegression(fit_intercept=False)
+    lrg.fit(ZQ,P)
+    global_translrg = lrg.coef_.reshape(nr_tiles, nr_dim)
+    gb =  -1 * (-lrg.coef_.reshape((nr_tiles, nr_dim)) \
+                                + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :])
+    global_shift = gb.astype(int)
+    adjusted_coords = tiles_org.tile_corners_coords_pxl + global_shift
 
-        dec_fpath = (experiment_fpath / 'results').glob('*_decoded_fov*')
-        for fpath in dec_fpath:
-            global_stitched_decoded_df = stitch_using_coords_general(fpath,
-                                        adjusted_coords,
-                                        tiles_org.reference_corner_fov_position,
-                                        metadata,
-                                        'global_stitched')
-                        
-            global_stitched_decoded_df.to_parquet(fpath)
-        pickle.dump(global_shift,open(experiment_fpath / 'results'/ 'stitching_global_shift.pkl','wb'))
+    # Determine shift of missing tiles
 
-        return adjusted_coords, global_stitching_done
+    out_level = 1000
+    low = np.where(global_shift< -out_level)[0]
+    high = np.where(global_shift> out_level)[0]
+    low_high = np.hstack((low,high))
+
+    missing_tiles_id = np.unique(low_high)
+    missing_tiles_coords = tiles_org.tile_corners_coords_pxl[missing_tiles_id,:]
+
+    if missing_tiles_coords.shape[0] >0:
+        coords_cl = np.delete(tiles_org.tile_corners_coords_pxl, missing_tiles_id, 0)
+        ad_coords_cl = np.delete(adjusted_coords, missing_tiles_id, 0 )
+        tst = linmod.LinearRegression(fit_intercept=False)
+        tst.fit(coords_cl,ad_coords_cl)
+        corrected_missing = tst.predict(missing_tiles_coords)
+
+        for idx, tile_id in enumerate(missing_tiles_id):
+            adjusted_coords[tile_id] = corrected_missing[idx]
+
+
+    dec_fpath = (experiment_fpath / 'results').glob('*_decoded_fov*')
+    for fpath in dec_fpath:
+        global_stitched_decoded_df = stitch_using_coords_general(fpath,
+                                    adjusted_coords,
+                                    tiles_org.reference_corner_fov_position,
+                                    metadata,
+                                    'global_stitched')
+                    
+        global_stitched_decoded_df.to_parquet(fpath)
+
+    global_shift = tiles_org.tile_corners_coords_pxl - adjusted_coords
+    pickle.dump(global_shift,open(experiment_fpath / 'results'/ 'stitching_global_shift.pkl','wb'))
+    pickle.dump(adjusted_coords,open(experiment_fpath / 'results'/ 'global_stitched_coords.pkl','wb'))
+
+    return adjusted_coords
+    # return adjusted_coords, global_stitching_done
 
 
 # REMOVE OVERLAPPING DOTS

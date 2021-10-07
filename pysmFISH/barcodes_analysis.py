@@ -49,7 +49,7 @@ class simplify_barcodes_reference():
         converted_codeword = converted_codeword.tobytes()
         return converted_codeword
 
-    def convert_barcode(self):
+    def convert_codebook(self):
         used_gene_codebook_df = pd.read_excel(self.barcode_fpath)
         # used_gene_codebook_df = pd.read_parquet(self.barcode_fpath)
         self.codebook_df = used_gene_codebook_df.loc[:,['Barcode','Gene']]
@@ -83,7 +83,7 @@ def dots_hoods(coords: np.ndarray,pxl: int)->np.ndarray:
     return chunks_coords
 
 
-def extract_dots_images(barcoded_df: pd.DataFrame,img_stack: np.ndarray,
+def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
                 experiment_fpath: str):
     """Function used to extract the images corresponding to a barcode
     after running the decoding identification. It can save the images
@@ -98,38 +98,47 @@ def extract_dots_images(barcoded_df: pd.DataFrame,img_stack: np.ndarray,
                     the imaging round correspond to the z-stack position
         experiment_fpath (str): Path to the folder of the experiment to process
     """
-    if barcoded_df.shape[0] >1 :
+    if isinstance(registered_img_stack, dict) and (barcoded_df.shape[0] >1):
         experiment_fpath = Path(experiment_fpath)
         fov = barcoded_df.fov_num.values[0]
         experiment_name = experiment_fpath.stem
-        channel = barcoded_df.channel.values[0]
-        
+        channels = list(registered_img_stack.keys())
+        channels.remove(barcoded_df.stitching_channel[0])
         trimmed_df = barcoded_df.loc[barcoded_df.dot_id == barcoded_df.barcode_reference_dot_id ,
-                                ['barcode_reference_dot_id', 'r_px_registered', 'c_px_registered','barcodes_extraction_resolution']]
-
-        barcodes_names = trimmed_df['barcode_reference_dot_id'].values
-        coords = trimmed_df.loc[:, ['r_px_registered', 'c_px_registered']].to_numpy()
-        barcodes_extraction_resolution = trimmed_df['barcodes_extraction_resolution'].values[0]
-
-        chunks_coords = dots_hoods(coords,barcodes_extraction_resolution)
-        chunks_coords[chunks_coords<0]=0
-        chunks_coords[chunks_coords>img_stack.shape[1]]= img_stack.shape[1]
+                                ['barcode_reference_dot_id', 'r_px_registered', 'c_px_registered',
+                                'barcodes_extraction_resolution', 'channel']]
         
         all_regions = {}
         all_max = {}
-        for idx in np.arange(chunks_coords.shape[0]):
-            selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
-            if selected_region.size >0:
-                max_array = selected_region.max(axis=(1,2))
-                all_regions[barcodes_names[idx]]= selected_region
-                all_max[barcodes_names[idx]]= max_array
-                # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
+        for channel in channels:
+            all_regions[channel] = {}
+            all_max[channel] = {}
+            img_stack = registered_img_stack[channel]
+            trimmed_df_channel = trimmed_df.loc[trimmed_df.channel == channel]
+            if trimmed_df_channel.shape[0] >0:
+
+                barcodes_names = trimmed_df_channel['barcode_reference_dot_id'].values
+                coords = trimmed_df_channel.loc[:, ['r_px_registered', 'c_px_registered']].to_numpy()
+                barcodes_extraction_resolution = trimmed_df_channel['barcodes_extraction_resolution'].values[0]
+
+                chunks_coords = dots_hoods(coords,barcodes_extraction_resolution)
+                chunks_coords[chunks_coords<0]=0
+                chunks_coords[chunks_coords>img_stack.shape[1]]= img_stack.shape[1]
+            
+            
+                for idx in np.arange(chunks_coords.shape[0]):
+                    selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
+                    if selected_region.size >0:
+                        max_array = selected_region.max(axis=(1,2))
+                        all_regions[channel][barcodes_names[idx]]= selected_region
+                        all_max[channel][barcodes_names[idx]]= max_array
+                    # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
 
         # fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_img_dict_fov_' + str(fov) + '.pkl')
         # pickle.dump(all_regions,open(fpath,'wb'))
-        fpath = experiment_fpath / 'results' / (experiment_name + '_' + channel + '_barcodes_max_array_dict_fov_' + str(fov) + '.pkl')
+        fpath = experiment_fpath / 'results' / (experiment_name + '_barcodes_max_array_dict_fov_' + str(fov) + '.pkl')
         pickle.dump(all_max,open(fpath,'wb'))
-        # return all_max
+        return all_max
 
 
 def identify_flipped_bits(codebook: pd.DataFrame, gene: str, 
@@ -156,14 +165,14 @@ def identify_flipped_bits(codebook: pd.DataFrame, gene: str,
     return flipped_positions,flipping_directions
 
 
-def define_flip_direction(codebook: pd.DataFrame,experiment_fpath: str, 
+def define_flip_direction(codebook_dict: dict,experiment_fpath: str, 
             output_df: pd.DataFrame):
     """Function used to determinethe the position of the bits that are
     flipped after the nearest neighbors and the definition of the
     acceptable hamming distance for fov.
 
     Args:
-        codebook (pd.DataFrame): Codebook used for the decoding
+        codebook (dict): Codebooks used for the decoding
         experiment_fpath (str): Path to the folder of the experiment to process
         output_df (pd.DataFrame): Dataframe with the decoded results for 
                     the specific fov.
@@ -173,21 +182,28 @@ def define_flip_direction(codebook: pd.DataFrame,experiment_fpath: str,
         selected_hamming_distance = 3 / output_df.iloc[0].barcode_length
         experiment_fpath = Path(experiment_fpath)
         experiment_name = experiment_fpath.stem
-        channel = output_df.channel.values[0]
-        fov = output_df.fov_num.values[0]
-        trimmed_df = output_df.loc[(output_df.dot_id == output_df.barcode_reference_dot_id) &
-                            (output_df['hamming_distance'] > correct_hamming_distance) &
-                            (output_df['hamming_distance'] < selected_hamming_distance),
-                                ['barcode_reference_dot_id', 'decoded_genes', 'raw_barcodes','hamming_distance']]
-        trimmed_df = trimmed_df.dropna(subset=['decoded_genes'])
-        trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,
-                                                                                    x.decoded_genes,x.raw_barcodes),axis=1)
-        trimmed_df['flip_position'] = trimmed_df['flip_and_direction'].apply(lambda x: x[0])
-        trimmed_df['flip_direction'] = trimmed_df['flip_and_direction'].apply(lambda x: x[1])
-        trimmed_df.drop(columns=['flip_and_direction'],inplace=True)
+        channels = codebook_dict.keys()
+        all_evaluated = []
+        for channel in channels: 
+            codebook = codebook_dict[channel]
+            fov = output_df.fov_num.values[0]
+            trimmed_df = output_df.loc[(output_df.dot_id == output_df.barcode_reference_dot_id) &
+                                (output_df.channel == channel) &
+                                (output_df['hamming_distance'] > correct_hamming_distance) &
+                                (output_df['hamming_distance'] < selected_hamming_distance),
+                                    ['barcode_reference_dot_id', 'decoded_genes', 'raw_barcodes','hamming_distance']]
+            trimmed_df = trimmed_df.dropna(subset=['decoded_genes'])
+            trimmed_df.loc[:,('flip_and_direction')] = trimmed_df.apply(lambda x: identify_flipped_bits(codebook,x.decoded_genes,x.raw_barcodes),axis=1)
+            trimmed_df['flip_position'] = trimmed_df['flip_and_direction'].apply(lambda x: x[0])
+            trimmed_df['flip_direction'] = trimmed_df['flip_and_direction'].apply(lambda x: x[1])
+            trimmed_df.drop(columns=['flip_and_direction'],inplace=True)
+            all_evaluated.append(trimmed_df)
+        
+        all_evaluated = pd.concat(all_evaluated,axis=0,ignore_index=True,inplace=True)
+
         
         fpath = experiment_fpath / 'results' / (experiment_name + '_' + channel + '_df_flip_direction_fov' + str(fov) + '.parquet')
-        trimmed_df.to_parquet(fpath)
+        all_evaluated.to_parquet(fpath)
         # return trimmed_df
 
 
@@ -244,7 +260,7 @@ def merge_with_concat(dfs: list)->pd.DataFrame:
 
 
 def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, analysis_parameters: Dict,
-                codebook_df: pd.DataFrame)-> Tuple[pd.DataFrame,pd.DataFrame]:
+                codebook_df: pd.DataFrame, metadata:dict)-> Tuple[pd.DataFrame,pd.DataFrame]:
     """Function used to extract the barcodes from the registered
     counts using nearest neighbour. if there is a problem with the registration the barcode assigned 
     will be 0*barcode_length
@@ -261,10 +277,10 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
 
     barcodes_extraction_resolution = analysis_parameters['BarcodesExtractionResolution']
     RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
-    barcode_length = registered_counts_df.loc[0]['barcode_length']
+    barcode_length = metadata['barcode_length']
     registration_errors = Registration_errors()
 
-    stitching_channel = registered_counts_df['stitching_channel'].iloc[0]
+    stitching_channel = metadata['stitching_channel']
     
  
     registered_counts_df.dropna(subset=['dot_id'],inplace=True)
@@ -272,7 +288,7 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
     dropping_counts = registered_counts_df.copy(deep=True)
 
     all_decoded_dots_list = []
-
+    barcoded_round = []
     if registered_counts_df['r_px_registered'].isnull().values.any():
         
         all_decoded_dots_df = pd.DataFrame(columns = registered_counts_df.columns)
@@ -286,40 +302,60 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
         return registered_counts_df, all_decoded_dots_df
         
     else:
-    
         for ref_round_number in np.arange(1,barcode_length+1):
 
             #ref_round_number = 1
             reference_round_df = dropping_counts.loc[dropping_counts.round_num == ref_round_number,:]
             # Step one (all dots not in round 1)
-            compare_df = dropping_counts.loc[dropping_counts.round_num != ref_round_number,:]
+            compare_df = dropping_counts.loc[dropping_counts.round_num!=ref_round_number,:]
 
-            if (not reference_round_df.empty) and (not compare_df.empty):
-                nn = NearestNeighbors(1, metric="euclidean")
-                nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
-                dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
+            if (not reference_round_df.empty):
+                if not compare_df.empty:
+                    nn = NearestNeighbors(1, metric="euclidean")
+                    nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
+                    dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
 
-                # select only the nn that are below barcodes_extraction_resolution distance
-                idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
+                    # select only the nn that are below barcodes_extraction_resolution distance
+                    idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
 
-                comp_idx = idx_distances_below_resolution
-                ref_idx = indices[comp_idx].flatten()
+                    comp_idx = idx_distances_below_resolution
+                    ref_idx = indices[comp_idx].flatten()
 
-                # Subset the dataframe according to the selected points
-                # The reference selected will have repeated points
-                comp_selected_df = compare_df.iloc[comp_idx]
-                ref_selected_df = reference_round_df.iloc[ref_idx]
+                    # Subset the dataframe according to the selected points
+                    # The reference selected will have repeated points
+                    comp_selected_df = compare_df.iloc[comp_idx]
+                    ref_selected_df = reference_round_df.iloc[ref_idx]
 
-               # The size of ref_selected_df w/o duplicates may be smaller of reference_round_df if 
-                # some of the dots in reference_round_df have no neighbours
+                    # The size of ref_selected_df w/o duplicates may be smaller of reference_round_df if 
+                    # some of the dots in reference_round_df have no neighbours
 
-                # Test approach where we get rid of the single dots
-                comp_selected_df.loc[:,'barcode_reference_dot_id'] = ref_selected_df['dot_id'].values
-                ref_selected_df_no_duplicates = ref_selected_df.drop_duplicates()
-                ref_selected_df_no_duplicates.loc[:,'barcode_reference_dot_id'] = ref_selected_df_no_duplicates['dot_id'].values
+                    # Test approach where we get rid of the single dots
+                    comp_selected_df.loc[:,'barcode_reference_dot_id'] = ref_selected_df['dot_id'].values
+                    ref_selected_df_no_duplicates = ref_selected_df.drop_duplicates()
+                    ref_selected_df_no_duplicates.loc[:,'barcode_reference_dot_id'] = ref_selected_df_no_duplicates['dot_id'].values
 
-                barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates], axis=0,ignore_index=False)
-                barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
+                    # Collect singletons
+                    # Remeber that this method works only because there are no duplicates inside the dataframes
+                    # https://stackoverflow.com/questions/48647534/python-pandas-find-difference-between-two-data-frames
+                    if reference_round_df.shape[0] > ref_selected_df_no_duplicates.shape[0]:
+                        singletons_df = pd.concat([reference_round_df,ref_selected_df_no_duplicates]).drop_duplicates(keep=False)
+                        singletons_df.loc[:,'barcode_reference_dot_id'] = singletons_df['dot_id'].values
+                        barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
+                    else:
+                        barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates], axis=0,ignore_index=False)
+
+                    barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
+                    barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
+
+                    compare_df = compare_df.drop(comp_selected_df.index)
+                    dropping_counts = compare_df
+
+                else:
+                    # Collecting singleton of last bit
+                    reference_round_df.loc[:,'barcode_reference_dot_id'] = reference_round_df['dot_id'].values
+                    barcoded_round_grouped = reference_round_df.groupby('barcode_reference_dot_id')
+                    ref_selected_df_no_duplicates = reference_round_df
+
                 for brdi, grp in barcoded_round_grouped:
                     barcode = np.zeros([barcode_length],dtype=np.int8)
                     barcode[grp.round_num.values.astype(np.int8)-1] = 1
@@ -337,26 +373,34 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
 
                 all_decoded_dots_list.append(ref_selected_df_no_duplicates)
 
-                all_decoded_dots_df = pd.concat(all_decoded_dots_list,ignore_index=False)
+        if all_decoded_dots_list:
+            all_decoded_dots_df = pd.concat(all_decoded_dots_list,ignore_index=False)
+                    
                 
-                compare_df = compare_df.drop(comp_selected_df.index)
-                dropping_counts = compare_df
+            codebook_df = convert_str_codebook(codebook_df,'Code')
+            codebook_array = make_codebook_array(codebook_df,'Code')
+            nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
+            nn_sklearn.fit(codebook_array)
 
-        codebook_df = convert_str_codebook(codebook_df,'Code')
-        codebook_array = make_codebook_array(codebook_df,'Code')
-        nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
-        nn_sklearn.fit(codebook_array)
+            all_barcodes = np.vstack(all_decoded_dots_df.raw_barcodes.map(lambda x: np.frombuffer(x, np.int8)).values)
+            dists_arr, index_arr = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
+            genes=codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()
 
-        all_barcodes = np.vstack(all_decoded_dots_df.raw_barcodes.map(lambda x: np.frombuffer(x, np.int8)).values)
-        dists_arr, index_arr = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
-        genes=codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()
+            all_decoded_dots_df.loc[:,'decoded_genes'] = genes
+            all_decoded_dots_df.loc[:,'hamming_distance'] = dists_arr
+            all_decoded_dots_df.loc[:,'number_positive_bits'] = all_barcodes.sum(axis=1)
 
-        all_decoded_dots_df.loc[:,'decoded_genes'] = genes
-        all_decoded_dots_df.loc[:,'hamming_distance'] = dists_arr
-        all_decoded_dots_df.loc[:,'number_positive_bits'] = all_barcodes.sum(axis=1)
+            all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
+        else:
+            all_decoded_dots_df = pd.DataFrame(columns = registered_counts_df.columns)
+            all_decoded_dots_df['decoded_genes'] = np.nan
+            all_decoded_dots_df['hamming_distance'] = np.nan
+            all_decoded_dots_df['number_positive_bits'] = np.nan
+            all_decoded_dots_df['barcode_reference_dot_id'] = np.nan
+            all_decoded_dots_df['raw_barcodes'] = np.nan
+            all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
 
-        all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
-
+        
         # Save barcoded_round and all_decoded_dots_df
         return barcoded_round, all_decoded_dots_df
 

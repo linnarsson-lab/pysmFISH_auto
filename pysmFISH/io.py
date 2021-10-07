@@ -12,6 +12,7 @@ from pathlib import Path
 from dask import dataframe as dd
 from dask.distributed import Client
 
+from pysmFISH.utils import convert_from_uint16_to_float64
 from pysmFISH.logger_utils import selected_logger
 
 
@@ -104,7 +105,8 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->Tuple[np.ndarr
     return img, metadata
 
 
-def load_general_zarr(fov_subdataset: pd.Series ,parsed_raw_data_fpath:str, tag:str)->np.ndarray:
+
+def load_general_zarr(fov_subdataset: pd.Series ,parsed_raw_data_fpath:str, tag:str)->Tuple[np.ndarray,Dict]:
     """Function used to load images stored in a zarr file (ex. preprocessed zarr)
 
     Args:
@@ -113,7 +115,7 @@ def load_general_zarr(fov_subdataset: pd.Series ,parsed_raw_data_fpath:str, tag:
         tag (str): string used to specify the zarr file
 
     Returns:
-        np.ndarray: image
+         Tuple[np.ndarray,Dict]: return the selected image and the corresponding metadata
     """
     logger = selected_logger()
     st = zarr.DirectoryStore(parsed_raw_data_fpath)
@@ -121,7 +123,9 @@ def load_general_zarr(fov_subdataset: pd.Series ,parsed_raw_data_fpath:str, tag:
     fov_name = tag + '_fov_' + str(fov_subdataset.fov_num)
     grp_name = fov_subdataset.experiment_name +'_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
     img = root[grp_name][fov_name][...]
-    return img
+    img = convert_from_uint16_to_float64(img)
+    metadata = root[grp_name].attrs
+    return img, metadata
 
 
 
@@ -141,7 +145,7 @@ def simple_output_plotting(experiment_fpath: str, stitching_selected: str,
     """
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*' +file_tag+'*.parquet'),engine='pyarrow')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*_decoded_fov' +'*.parquet'),engine='pyarrow')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 

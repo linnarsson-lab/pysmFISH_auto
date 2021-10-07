@@ -674,7 +674,7 @@ def osmFISH_peak_based_detection_fast(ImgStack: np.ndarray,
 
 
 
-def both_beads_peak_based_detection(img: np.ndarray, 
+def beads_peak_based_detection(img: np.ndarray, 
                             fov_subdataset: pd.Series,
                             processing_parameters: Dict)->pd.DataFrame:
     """Counts the peaks in the reference images with small and large beads.
@@ -689,42 +689,55 @@ def both_beads_peak_based_detection(img: np.ndarray,
     Returns:
         pd.DataFrame: Beads counts
     """
-                        
+
+    stitching_type = fov_subdataset.stitching_type      
 
     LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
     LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
     LargeObjRemovalSelem = processing_parameters['LargeObjRemovalSelem']
 
-    large_beads_counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
-    large_beads_counts_df['mapped_beads_type'] = 'large'
-    
 
-    mask = np.zeros_like(img)
-    idx=  img > np.percentile(img,LargeObjRemovalPercentile)
-    mask[idx] = 1
+    if stitching_type == 'both-beads':
 
-    labels = nd.label(mask)
+        large_beads_counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        large_beads_counts_df['mapped_beads_type'] = 'large'
+        
 
-    properties = measure.regionprops(labels[0])    
-    for ob in properties:
-        if ob.area < LargeObjRemovalMinObjSize:
-            mask[ob.coords[:,0],ob.coords[:,1]]=0
+        mask = np.zeros_like(img)
+        idx=  img > np.percentile(img,LargeObjRemovalPercentile)
+        mask[idx] = 1
 
-    mask = morphology.binary_dilation(mask, selem=morphology.disk(LargeObjRemovalSelem))
-    mask = np.logical_not(mask)
+        labels = nd.label(mask)
 
-    masked_img = img*mask
+        properties = measure.regionprops(labels[0])    
+        for ob in properties:
+            if ob.area < LargeObjRemovalMinObjSize:
+                mask[ob.coords[:,0],ob.coords[:,1]]=0
 
-    processing_parameters_small = {
-            'CountingFishMinObjDistance': 5,
-            'CountingFishMaxObjSize': 20,
-            'CountingFishMinObjSize': 2,
-            'CountingFishNumPeaksPerLabel': 1}
+        mask = morphology.binary_dilation(mask, selem=morphology.disk(LargeObjRemovalSelem))
+        mask = np.logical_not(mask)
 
-    small_beads_counts_df = osmFISH_peak_based_detection_fast(masked_img,fov_subdataset,processing_parameters_small)
-    small_beads_counts_df['mapped_beads_type'] = 'small'
+        masked_img = img*mask
 
-    counts_df = pd.concat([large_beads_counts_df,small_beads_counts_df], axis=0, copy=False)  
+        processing_parameters_small = {
+                'CountingFishMinObjDistance': 5,
+                'CountingFishMaxObjSize': 20,
+                'CountingFishMinObjSize': 2,
+                'CountingFishNumPeaksPerLabel': 1}
+
+        small_beads_counts_df = osmFISH_peak_based_detection_fast(masked_img,fov_subdataset,processing_parameters_small)
+        small_beads_counts_df['mapped_beads_type'] = 'small'
+
+        counts_df = pd.concat([large_beads_counts_df,small_beads_counts_df], axis=0, copy=False)  
+
+    elif stitching_type == 'small-beads':
+        counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        counts_df['mapped_beads_type'] = 'small'
+
+    elif stitching_type == 'large-beads':
+        counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        counts_df['mapped_beads_type'] = 'large'
+        
 
     return counts_df
 
