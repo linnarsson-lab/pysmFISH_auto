@@ -366,7 +366,7 @@ def nikon_nd2_reparser_zarr(nd2_file_path: str,parsed_raw_data_fpath: str,experi
     logger = selected_logger()
     nd2_file_path = Path(nd2_file_path)
     nd2_fname = nd2_file_path.stem
-
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
     logger.debug(f'processing file {nd2_fname}')
 
     experiment_fpath = nd2_file_path.parent.parent
