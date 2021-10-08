@@ -311,7 +311,7 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
 
             if (not reference_round_df.empty):
                 if not compare_df.empty:
-                    nn = NearestNeighbors(1, metric="euclidean")
+                    nn = NearestNeighbors(n_neighbors=1, metric="euclidean")
                     nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
                     dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
 
@@ -461,7 +461,7 @@ class extract_barcodes_NN():
 
         if (reference_array.shape[0] >0) and (coords_compare.shape[0] >0):
             # initialize network
-            nn = NearestNeighbors(1, metric="euclidean")
+            nn = NearestNeighbors(n_neighbors=1, metric="euclidean")
             nn.fit(reference_array)
 
             # Get the nn
@@ -675,7 +675,7 @@ class extract_barcodes_NN_test():
 
         if (reference_array.shape[0] >0) and (coords_compare.shape[0] >0):
             # initialize network
-            nn = NearestNeighbors(1, metric="euclidean")
+            nn = NearestNeighbors(n_neighbors=1, metric="euclidean")
             nn.fit(reference_array)
 
             # Get the nn
@@ -873,7 +873,7 @@ class extract_barcodes_NN_new():
         
         if (reference_array.shape[0] >0) and (coords_compare.shape[0] >0):
             # initialize network
-            nn = NearestNeighbors(1, metric="euclidean")
+            nn = NearestNeighbors(n_neighbors=1, metric="euclidean")
             nn.fit(reference_array)
 
             # Get the nn
@@ -1089,7 +1089,7 @@ def extract_barcodes_NN_fast(registered_counts_df, analysis_parameters:Dict,code
             compare_df = dropping_counts.loc[dropping_counts.round_num != ref_round_number,:]
 
             if (not reference_round_df.empty) and (not compare_df.empty):
-                nn = NearestNeighbors(1, metric="euclidean")
+                nn = NearestNeighbors(n_neighbors=1, metric="euclidean")
                 nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
                 dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
 
