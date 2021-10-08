@@ -363,7 +363,8 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
                     #gene= codebook_df.loc[index_gene.reshape(index_gene.shape[0]),'Gene'].tolist()
 
                     barcode = barcode.tostring()
-                    ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'raw_barcodes'] = barcode
+                    if len(ref_selected_df_no_duplicates) !=  0:
+                        ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'raw_barcodes'] = barcode
                     #ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'decoded_gene_name'] = gene
                     #ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'hamming_distance'] = hamming_dist.flatten()[0]
 
