@@ -303,7 +303,7 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                                                 dask_key_name=dask_delayed_name)
                     counts, filt_out = fov_out[0], fov_out[1]
                     
-                    all_counts_fov[channel_proc].append(counts)
+                    all_counts_fov[channel_proc].append(counts) # store it if it gets too big
                         
                     if save_bits_int:
                         if channel_proc != fov_subdataset.stitching_channel:
@@ -374,19 +374,19 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                 
                 if save_bits_int:
 
-                    all_filtered_images = {}
-                    group_bits = channel_grpd.get_group(processing_channel)
-                    for index_value, fov_subdataset in group_bits.iterrows():
-                        round_num = fov_subdataset.round_num
-                        name = 'load_filtered_image_' +experiment_name + '_' \
-                                + '_fov_' +str(fov_num) + '-' + tokenize()
-                        filt_out = delayed(io.load_general_zarr,name=name)(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
-                        all_filtered_images[round_num] = filt_out
+                    # all_filtered_images = {}
+                    # group_bits = channel_grpd.get_group(processing_channel)
+                    # for index_value, fov_subdataset in group_bits.iterrows():
+                    #     round_num = fov_subdataset.round_num
+                    #     name = 'load_filtered_image_' +experiment_name + '_' \
+                    #             + '_fov_' +str(fov_num) + '-' + tokenize()
+                    #     filt_out = delayed(io.load_general_zarr,name=name)(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
+                        # all_filtered_images[round_num] = filt_out
                     
                     name = 'combine_shifted_images_' +experiment_name + '_' \
                                     + '_fov_' +str(fov_num) + '-' + tokenize() 
 
-                    combined_shift_images = delayed(fovs_registration.combine_register_filtered_image_single_channel,name=name)(all_filtered_images,
+                    combined_shift_images = delayed(fovs_registration.combine_register_filtered_image_single_channel,name=name)(all_filtered_images[processing_channel],
                                                 metadata,all_rounds_shifts)
                     
                     name = 'extract_dots_intensities_' +experiment_name + '_' \
