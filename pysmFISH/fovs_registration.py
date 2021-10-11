@@ -106,7 +106,7 @@ def combine_register_filtered_images(output_dict: dict, metadata: dict,
 
 
 def combine_register_filtered_image_single_channel(output_dict: dict, metadata: dict, 
-                                    all_rounds_shifts:dict, channel:str)->np.ndarray:
+                                    all_rounds_shifts:dict)->np.ndarray:
     """Function used to register the image throughout all rounds.
 
     Args:
@@ -120,9 +120,8 @@ def combine_register_filtered_image_single_channel(output_dict: dict, metadata: 
         np.ndarray: Image stack with all the rounds registered.
     """
     if isinstance(all_rounds_shifts, dict) and (output_dict):
-        all_rounds_data = output_dict[channel]
         img_stack = np.zeros([int(metadata['total_rounds']),int(metadata['img_width']),int(metadata['img_height'])])
-        for round_num, filt_out in all_rounds_data.items():
+        for round_num, filt_out in output_dict.items():
             img = filt_out[0][0]
             shift = all_rounds_shifts[int(round_num)]
             if isinstance(shift,np.ndarray):

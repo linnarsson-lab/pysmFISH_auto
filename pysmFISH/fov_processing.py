@@ -639,25 +639,24 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
                 
                 if save_bits_int:
                     all_filtered_images = {}
-                    all_filtered_images[processing_channel] = {}
                     group = channel_grpd.get_group(processing_channel)
                     for index_value, fov_subdataset in group.iterrows():
                         round_num = fov_subdataset.round_num
                         name = 'load_filtered_image_' +experiment_name + '_' \
                                 + '_fov_' +str(fov_num) + '-' + tokenize()
                         filt_out = delayed(io.load_general_zarr,name=name)(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
-                        all_filtered_images[processing_channel][round_num] = filt_out
+                        all_filtered_images[round_num] = filt_out
                     
-                        name = 'combine_shifted_images_' +experiment_name + '_' \
-                                        + '_fov_' +str(fov_num) + '-' + tokenize() 
+                    name = 'combine_shifted_images_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize() 
 
-                        combined_shift_images = delayed(fovs_registration.combine_register_filtered_image_single_channel,name=name)(all_filtered_images,
-                                                    metadata,all_rounds_shifts,processing_channel)
-                        
-                        name = 'extract_dots_intensities_' +experiment_name + '_' \
-                                        + '_fov_' +str(fov_num) + '-' + tokenize()
-                        extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(stitched_coords,
-                                                combined_shift_images,experiment_fpath,metadata)
+                    combined_shift_images = delayed(fovs_registration.combine_register_filtered_image_single_channel,name=name)(all_filtered_images,
+                                                metadata,all_rounds_shifts)
+                    
+                    name = 'extract_dots_intensities_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
+                    extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(stitched_coords,
+                                            combined_shift_images,experiment_fpath,metadata)
 
                     all_stitched_coords.append(extracted_intensities)
 
