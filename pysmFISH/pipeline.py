@@ -585,7 +585,7 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'global_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='cleaned')
+                                selected_Hdistance, self.client,file_tag='cleaned_global_stitched')
         # ----------------------------------------------------------------  
 
         # ----------------------------------------------------------------
@@ -593,7 +593,7 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'global_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='removed')
+                                selected_Hdistance, self.client,file_tag='removed_global_stitched')
         # ---------------------------------------------------------------- 
 
 
