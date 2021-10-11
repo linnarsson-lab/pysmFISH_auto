@@ -84,7 +84,7 @@ def dots_hoods(coords: np.ndarray,pxl: int)->np.ndarray:
 
 
 def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
-                experiment_fpath: str):
+                experiment_fpath: str, metadata: dict):
     """Function used to extract the images corresponding to a barcode
     after running the decoding identification. It can save the images
     but to avoid increasing too much the space occupied by a processed
@@ -97,6 +97,7 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
         img_stack (np.ndarray): Preprocessed image of a single field of view
                     the imaging round correspond to the z-stack position
         experiment_fpath (str): Path to the folder of the experiment to process
+        metadata (dict): Overall experiment info
     """
     if isinstance(registered_img_stack, dict) and (barcoded_df.shape[0] >1):
         experiment_fpath = Path(experiment_fpath)
@@ -107,6 +108,9 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
         trimmed_df = barcoded_df.loc[barcoded_df.dot_id == barcoded_df.barcode_reference_dot_id ,
                                 ['barcode_reference_dot_id', 'r_px_registered', 'c_px_registered',
                                 'barcodes_extraction_resolution', 'channel']]
+        round_intensity_labels = ['bit_' + str(el) + '_intensity' for el in np.arange(1,metadata['total_rounds']+1)]
+        barcoded_df.loc[:,round_intensity_labels] = np.nan
+
         
         all_regions = {}
         all_max = {}
@@ -130,15 +134,15 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
                     selected_region = img_stack[:,chunks_coords[idx,0]:chunks_coords[idx,1]+1,chunks_coords[idx,2]:chunks_coords[idx,3]+1]
                     if selected_region.size >0:
                         max_array = selected_region.max(axis=(1,2))
-                        all_regions[channel][barcodes_names[idx]]= selected_region
+                        # all_regions[channel][barcodes_names[idx]]= selected_region
                         all_max[channel][barcodes_names[idx]]= max_array
-                    # barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],'max_array'] = max_array
+                        barcoded_df.loc[barcoded_df.dot_id == barcodes_names[idx],round_intensity_labels] = max_array
 
         # fpath = experiment_fpath / 'tmp' / 'combined_rounds_images' / (experiment_name + '_' + channel + '_img_dict_fov_' + str(fov) + '.pkl')
         # pickle.dump(all_regions,open(fpath,'wb'))
-        fpath = experiment_fpath / 'results' / (experiment_name + '_barcodes_max_array_dict_fov_' + str(fov) + '.pkl')
-        pickle.dump(all_max,open(fpath,'wb'))
-        return all_max
+        # fpath = experiment_fpath / 'results' / (experiment_name + '_barcodes_max_array_dict_fov_' + str(fov) + '.pkl')
+        # pickle.dump(all_max,open(fpath,'wb'))
+        return barcoded_df
 
 
 def identify_flipped_bits(codebook: pd.DataFrame, gene: str, 
