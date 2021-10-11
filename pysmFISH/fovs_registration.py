@@ -119,10 +119,9 @@ def combine_register_filtered_image_single_channel(output_dict: dict, metadata: 
     Returns:
         np.ndarray: Image stack with all the rounds registered.
     """
-    if isinstance(all_rounds_shifts, dict) and (output_dict):
+    if isinstance(all_rounds_shifts, dict) and isinstance(output_dict,dict):
         img_stack = np.zeros([int(metadata['total_rounds']),int(metadata['img_width']),int(metadata['img_height'])])
-        for round_num, filt_out in output_dict.items():
-            img = filt_out[0][0]
+        for round_num, img in output_dict.items():
             shift = all_rounds_shifts[int(round_num)]
             if isinstance(shift,np.ndarray):
                 shifted_img = register_images(img,shift)
