@@ -371,7 +371,32 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                                                                 tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
                                                                 metadata,tag='microscope_stitched')
             
-                all_stitched_coords.append(stitched_coords)
+                
+                if save_bits_int:
+                    all_filtered_images = {}
+                    group = channel_grpd.get_group(processing_channel)
+                    for index_value, fov_subdataset in group.iterrows():
+                        round_num = fov_subdataset.round_num
+                        name = 'load_filtered_image_' +experiment_name + '_' \
+                                + '_fov_' +str(fov_num) + '-' + tokenize()
+                        filt_out = delayed(io.load_general_zarr,name=name)(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
+                        all_filtered_images[round_num] = filt_out
+                    
+                    name = 'combine_shifted_images_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize() 
+
+                    combined_shift_images = delayed(fovs_registration.combine_register_filtered_image_single_channel,name=name)(all_filtered_images,
+                                                metadata,all_rounds_shifts)
+                    
+                    name = 'extract_dots_intensities_' +experiment_name + '_' \
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()
+                    extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(stitched_coords,
+                                            combined_shift_images,experiment_fpath,metadata)
+
+                    all_stitched_coords.append(extracted_intensities)
+                
+                else:
+                    all_stitched_coords.append(stitched_coords)
 
             
             name = 'concat_' +experiment_name + \
@@ -387,26 +412,6 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
             
             all_processing.append(saved_file)
 
-            if save_bits_int:
-                name = 'combine_shifted_images_' +experiment_name + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize() 
-
-                combined_shift_images = delayed(fovs_registration.combine_register_filtered_images,name=name)(all_filtered_images,
-                                            metadata,all_rounds_shifts)
-                
-                name = 'extract_dots_intensities_' +experiment_name + '_' \
-                                + '_fov_' +str(fov) + '-' + tokenize()
-                extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(all_stitched_coords,
-                                        combined_shift_images,experiment_fpath,metadata)
-
-                all_processing.append(extracted_intensities)
-
-                # name = 'determine_flip_direction_' +experiment_name + '_' \
-                #                 + '_fov_' +str(fov) + '-' + tokenize()
-                # flip_direction = delayed(barcodes_analysis.define_flip_direction,name=name)(codebook_dict,
-                #                             experiment_fpath,all_stitched_coords)
-
-                # all_processing.append(flip_direction)
 
         _ = dask.compute(*all_processing)
         client.run(gc.collect)
