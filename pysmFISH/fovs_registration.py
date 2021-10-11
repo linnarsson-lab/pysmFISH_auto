@@ -880,7 +880,7 @@ def identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coord
     #if (ref_dots_coords_fov.shape[0] >0) and (tran_registered_coords.shape[0] >0):
             
     # initialize network
-    nn = NearestNeighbors(1, metric="euclidean")
+    nn = NearestNeighbors(n_neighbors=1, metric="euclidean")
     nn.fit(ref_dots_coords_fov)
 
     # Get the nn

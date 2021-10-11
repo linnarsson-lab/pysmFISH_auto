@@ -602,8 +602,11 @@ def osmFISH_peak_based_detection_fast(ImgStack: np.ndarray,
 
                 # Calculate the selected peaks after removal of the big and small objects
                 # Threshold the image using the selected threshold
-                if Selected_Thr > 0:
-                    ImgMask = ImgStack > Selected_Thr
+                # if Selected_Thr > 0:
+                #     ImgMask = ImgStack > Selected_Thr
+
+                ImgMask = ImgStack > Selected_Thr
+
 
                 Labels = nd.label(ImgMask)[0]
 
