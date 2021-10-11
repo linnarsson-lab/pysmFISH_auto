@@ -656,7 +656,7 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
                         
                         name = 'extract_dots_intensities_' +experiment_name + '_' \
                                         + '_fov_' +str(fov_num) + '-' + tokenize()
-                        extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(all_stitched_coords,
+                        extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(stitched_coords,
                                                 combined_shift_images,experiment_fpath,metadata)
 
                     all_stitched_coords.append(extracted_intensities)
