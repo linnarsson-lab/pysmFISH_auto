@@ -128,10 +128,9 @@ def combine_register_filtered_image_single_channel(output_dict: dict, metadata: 
             if isinstance(shift,np.ndarray):
                 shifted_img = register_images(img,shift)
                 img_stack[round_num-1,:,:] = shifted_img
-        registered_img_stack = img_stack
-        return registered_img_stack
+        return img_stack
     else:
-        registered_img_stack = np.nan
+        img_stack = np.nan
 
 
 

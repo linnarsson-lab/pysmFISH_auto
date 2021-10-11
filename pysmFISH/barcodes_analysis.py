@@ -83,7 +83,7 @@ def dots_hoods(coords: np.ndarray,pxl: int)->np.ndarray:
     return chunks_coords
 
 
-def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
+def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: np.ndarray,
                 experiment_fpath: str, metadata: dict):
     """Function used to extract the images corresponding to a barcode
     after running the decoding identification. It can save the images
@@ -94,12 +94,12 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: dict,
     Args:
         barcoded_df (pd.DataFrame): Dataframe with decoded barcodes 
                     for a specific field of view.
-        img_stack (np.ndarray): Preprocessed image of a single field of view
+        registered_img_stack (np.ndarray): Preprocessed image of a single field of view
                     the imaging round correspond to the z-stack position
         experiment_fpath (str): Path to the folder of the experiment to process
         metadata (dict): Overall experiment info
     """
-    if isinstance(registered_img_stack, dict) and (barcoded_df.shape[0] >1):
+    if isinstance(registered_img_stack, np.ndarray) and (barcoded_df.shape[0] >1):
         experiment_fpath = Path(experiment_fpath)
           
         round_intensity_labels = ['bit_' + str(el) +'_intensity' for el in np.arange(1,metadata['total_rounds']+1)]
