@@ -373,9 +373,10 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
             
                 
                 if save_bits_int:
+
                     all_filtered_images = {}
-                    group = channel_grpd.get_group(processing_channel)
-                    for index_value, fov_subdataset in group.iterrows():
+                    group_bits = channel_grpd.get_group(processing_channel)
+                    for index_value, fov_subdataset in group_bits.iterrows():
                         round_num = fov_subdataset.round_num
                         name = 'load_filtered_image_' +experiment_name + '_' \
                                 + '_fov_' +str(fov_num) + '-' + tokenize()
