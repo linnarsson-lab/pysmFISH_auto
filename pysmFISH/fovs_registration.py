@@ -105,6 +105,35 @@ def combine_register_filtered_images(output_dict: dict, metadata: dict,
         registered_img_stack = np.nan
 
 
+def combine_register_filtered_image_single_channel(output_dict: dict, metadata: dict, 
+                                    all_rounds_shifts:dict, channel:str)->np.ndarray:
+    """Function used to register the image throughout all rounds.
+
+    Args:
+        output_dict (dict): dict containg output of the filtering ((img,),metadata) organised
+                            by channe and round.
+        metadata (dict): Metadata that characterize the acquired images
+        registered_counts (pd.DataFrame): Counts after registration.
+        channel (str): processing channel
+
+    Returns:
+        np.ndarray: Image stack with all the rounds registered.
+    """
+    if isinstance(all_rounds_shifts, dict) and (output_dict):
+        all_rounds_data = output_dict[channel]
+        img_stack = np.zeros([int(metadata['total_rounds']),int(metadata['img_width']),int(metadata['img_height'])])
+        for round_num, filt_out in all_rounds_data.items():
+            img = filt_out[0][0]
+            shift = all_rounds_shifts[int(round_num)]
+            if isinstance(shift,np.ndarray):
+                shifted_img = register_images(img,shift)
+                img_stack[round_num-1,:,:] = shifted_img
+        registered_img_stack = img_stack
+        return registered_img_stack
+    else:
+        registered_img_stack = np.nan
+
+
 
 
 def identify_matching_register_dots_NN(ref_dots_coords_fov,tran_registered_coords,registration_tollerance_pxl):
