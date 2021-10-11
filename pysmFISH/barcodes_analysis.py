@@ -102,7 +102,7 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: np.ndarr
     if isinstance(registered_img_stack, np.ndarray) and (barcoded_df.shape[0] >1):
         experiment_fpath = Path(experiment_fpath)
           
-        round_intensity_labels = ['bit_' + str(el) +'_intensity' for el in np.arange(1,metadata['total_rounds']+1)]
+        round_intensity_labels = ['bit_' + str(el) +'_intensity' for el in np.arange(1,int(metadata['total_rounds'])+1)]
 
         barcodes_names = barcoded_df['barcode_reference_dot_id'].values
         coords = barcoded_df.loc[:, ['r_px_registered', 'c_px_registered']].to_numpy()
