@@ -147,7 +147,7 @@ def extract_dots_images(barcoded_df: pd.DataFrame,registered_img_stack: np.ndarr
         # pickle.dump(all_regions,open(fpath,'wb'))
         # fpath = experiment_fpath / 'results' / (experiment_name + '_barcodes_max_array_dict_fov_' + str(fov) + '.pkl')
         # pickle.dump(all_max,open(fpath,'wb'))
-        return barcoded_df
+    return barcoded_df
 
 
 
