@@ -56,9 +56,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishMaxObjSize'] = 200
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishNumPeaksPerLabel'] = 20
-    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 95
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalMinObjSize'] = 50
-    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -124,8 +124,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishNumPeaksPerLabel'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalPercentile'] = 95
-    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 100
-    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['PreprocessingFishFlatFieldKernel'] = (1,100,100)
     analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -192,8 +192,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['CountingFishNumPeaksPerLabel'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalPercentile'] = 95
-    analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalMinObjSize'] = 100
-    analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['PreprocessingFishFlatFieldKernel'] = (1,100,100)
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -202,7 +202,7 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['CountingFishMaxObjSize'] = 200
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['CountingFishNumPeaksPerLabel'] = 1
-    analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['LargeObjRemovalPercentile'] = 95
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['LargeObjRemovalMinObjSize'] = 50
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['LargeObjRemovalSelem'] = 3
 
@@ -260,9 +260,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishMaxObjSize'] = 200
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishNumPeaksPerLabel'] = 20
-    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalPercentile'] = 95
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalMinObjSize'] = 50
-    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -332,9 +332,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMaxObjSize'] = 200
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMinObjSize'] = 3
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishNumPeaksPerLabel'] = 20
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 95
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalMinObjSize'] = 50
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -404,8 +404,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['CountingFishNumPeaksPerLabel'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalPercentile'] = 95
-    analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 100
-    analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['smfish-serial']['ROBOFISH2']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH2']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -475,8 +475,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['CountingFishNumPeaksPerLabel'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalPercentile'] = 95
-    analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalMinObjSize'] = 100
-    analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['smfish-serial']['ROBOFISH3']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH3']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
