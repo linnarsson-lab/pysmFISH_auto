@@ -115,11 +115,12 @@ class Pipeline():
                 using preprocessed images. default: False 
             resume: (bool): Restart the processsing. Determine automatically which files are already processed by checking
                             the *_*decoded_* files in the results folder
-            reuse_cluster (bool): Connect the pipeline to a previously created cluster (default False)
+            reuse_cluster (str): Connect the pipeline to a previously created cluster (default False). Can be: 'connect_to_client' ,'connect_to_scheduler'
             active_cluster (dask_cluster): Already active cluster to reconnect to when you want to reuse a cluster
                                             (default None)
             active_client (dask_client): Already active client to reconnect to when you want to reuse a cluster
                                             (default None)
+            active_scheduler_address (str): Running cluster to connect when you want reuse a cluster
 
         Attributes:
             storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -173,6 +174,7 @@ class Pipeline():
         self.reuse_cluster = kwarg.pop('reuse_cluster',False)
         self.active_client = kwarg.pop('active_client',None)
         self.active_cluster = kwarg.pop('active_cluster',None)
+        self.active_scheduler_address = kwarg.pop('active_scheduler_address',None)
         
         self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
         self.resume = kwarg.pop('resume',False)
@@ -284,13 +286,16 @@ class Pipeline():
 
     def processing_cluster_init_step(self):
         """Create new cluster and client or reuse a cluster and client previously created
-
+           Can connect direclty to the client/cluster using the 'connect_to_client' flag or 
+           to the scheduler with the 'connect_to_scheduler'.
         """
 
         # Start processing environment
-        if self.reuse_cluster:
+        if self.reuse_cluster == 'connect_to_client':
             self.cluster = self.active_cluster
             self.client = self.active_client
+        elif self.reuse_cluster == 'connect_to_scheduler':
+            self.client = Client(self.active_scheduler_address)
         else:
             self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
             self.client = Client(self.cluster,asynchronous=True)
