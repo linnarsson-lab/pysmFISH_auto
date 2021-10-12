@@ -10,6 +10,7 @@ import sys
 import git
 import os
 import click
+import ctypes
 import numpy as np
 from skimage import img_as_float64
 from pathlib import Path
@@ -466,3 +467,8 @@ class OptionEatAll(click.Option):
                 our_parser.process = parser_process
                 break
         return retval
+
+
+def trim_memory() -> int:
+     libc = ctypes.CDLL("libc.so.6")
+     return libc.malloc_trim(0)

@@ -19,6 +19,7 @@ from typing import *
 import os
 import dask
 import sys
+import gc
 import yaml
 import pandas as pd
 import numpy as np
@@ -294,8 +295,12 @@ class Pipeline():
         if self.reuse_cluster == 'connect_to_client':
             self.cluster = self.active_cluster
             self.client = self.active_client
+            self.client.run(gc.collect)
+            self.client.run(utils.trim_memory)
         elif self.reuse_cluster == 'connect_to_scheduler':
             self.client = Client(self.active_scheduler_address)
+            self.client.run(gc.collect)
+            self.client.run(utils.trim_memory)
         else:
             self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
             self.client = Client(self.cluster,asynchronous=True)
