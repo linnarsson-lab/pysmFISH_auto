@@ -221,7 +221,7 @@ def collect_processing_files(experiment_fpath:str, experiment_info:Dict):
         machine = 'NOT_DEFINED'
 
 
-    for idx, probes in experiment_info['Probe_FASTA'].items():
+    for idx, probes in experiment_info['Probes_FASTA'].items():
         if probes != 'None':
             probes_fpath = experiment_fpath.parent / 'probes_sets' / probes
             try:
