@@ -130,7 +130,7 @@ def load_general_zarr(fov_subdataset: pd.Series ,parsed_raw_data_fpath:str, tag:
 
 
 def simple_output_plotting(experiment_fpath: str, stitching_selected: str, 
-                            selected_Hdistance: float, client, file_tag: str):
+                            selected_Hdistance: float, client, input_file_tag:str, file_tag: str):
     """Utility function used to create a pandas dataframe with a simplified
     version of the eel analysis output that can be used for quick visualization
 
@@ -141,11 +141,12 @@ def simple_output_plotting(experiment_fpath: str, stitching_selected: str,
         selected_Hdistance (float): Used to select the dots with hamming
             distance below this value
         client (Client): Dask client taking care of the processing 
+        input_file_tag (str): File type to load for the plotting
         file_tag (str): tag to label the output file
     """
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*_decoded_fov' +'*.parquet'),engine='pyarrow')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*' + input_file_tag +'*.parquet'),engine='pyarrow')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 

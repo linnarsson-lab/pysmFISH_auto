@@ -393,7 +393,9 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'microscope_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='microscope_stitched')
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'decoded_fov',
+                                file_tag='microscope_stitched')
         # ----------------------------------------------------------------  
 
 
@@ -468,7 +470,9 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'microscope_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='microscope_stitched')
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'decoded_fov',
+                                file_tag='microscope_stitched')
         # ----------------------------------------------------------------  
 
     def processing_serial_fish_step(self):
@@ -543,7 +547,9 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'microscope_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='removed_microscope_stitched')
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'microscope_stitched_cleaned',
+                                file_tag='removed_microscope_stitched')
         # ---------------------------------------------------------------- 
 
     def stitch_and_remove_dots_eel_graph_step(self):
@@ -585,7 +591,6 @@ class Pipeline():
         
         # Removed the dots on the global stitched
         self.stitching_selected = 'global_stitched'
-
         stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
                                 self.hamming_distance,self.same_dot_radius_duplicate_dots, 
                                     self.stitching_selected, self.client)
@@ -594,8 +599,10 @@ class Pipeline():
         # GENERATE OUTPUT FOR PLOTTING
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'global_stitched'
-        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='cleaned_global_stitched')
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected,
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'global_stitched_cleaned',
+                                file_tag='cleaned_global_stitched')
         # ----------------------------------------------------------------  
 
         # ----------------------------------------------------------------
@@ -603,7 +610,9 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'global_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='removed_global_stitched')
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'global_stitched_removed',
+                                file_tag='removed_global_stitched')
         # ---------------------------------------------------------------- 
 
 
