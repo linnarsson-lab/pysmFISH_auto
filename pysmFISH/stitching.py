@@ -709,8 +709,9 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         [type]: Decoded counts with coords of the dots adjusted to the stage
                 reference point
     """
-    
+    was_file = 0
     if not isinstance(decoded_df, pd.DataFrame):
+        was_file = 1
         decoded_df_fpath = copy.deepcopy(decoded_df)
         decoded_df = pd.read_parquet(decoded_df)
         
@@ -740,7 +741,7 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         # decoded_df['r_px_'+tag] =  r_microscope_coords - decoded_df['r_px_registered']
         # decoded_df['c_px_'+tag] =  c_microscope_coords - decoded_df['c_px_registered']
     
-    if not isinstance(decoded_df, pd.DataFrame):
+    if was_file:
         decoded_df.to_parquet(decoded_df_fpath,index=False)
     else:
         return decoded_df
@@ -1077,7 +1078,7 @@ def remove_overlapping_dots_fov(cpl: Tuple[int,int], chunk_coords: np.ndarray,
                     pass
                 else:
                     dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
-                                                                stitching_selected,same_dot_radius,tag_cleaned_file)
+                                                                stitching_selected,same_dot_radius)
                     if len(dots_id_to_remove):
                         all_dots_id_to_remove.append(dots_id_to_remove)
             all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]

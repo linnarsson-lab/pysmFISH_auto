@@ -303,11 +303,11 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                                                 dask_key_name=dask_delayed_name)
                     counts, filt_out = fov_out[0], fov_out[1]
                     
-                    all_counts_fov[channel_proc].append(counts) # store it if it gets too big
+                    all_counts_fov[channel_proc].append(counts) 
                         
                     if save_bits_int:
                         if channel_proc != fov_subdataset.stitching_channel:
-                            all_filtered_images[channel_proc][round_num] = filt_out
+                            all_filtered_images[channel_proc][round_num] = filt_out # store it if it gets too big
             
                 name = 'concat_' +experiment_name + '_' + channel_proc + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize()
@@ -1044,6 +1044,16 @@ def single_fov_fresh_tissue_beads(processing_tag: str,
         return filt_out
 
 
+
+def make_fresh_beads_count_like_eel(data,eel_metadata):
+    data['r_px_registered'] = data['r_px_original']
+    data['c_px_registered'] = data['c_px_original']
+    data['hamming_distance'] = 0
+    data['decoded_genes'] = 'beads'
+    data['machine'] = eel_metadata['machine']
+    return data
+
+
 def process_fresh_sample_graph(experiment_fpath: str, 
                             running_functions:dict, 
                             analysis_parameters: dict, 
@@ -1051,6 +1061,7 @@ def process_fresh_sample_graph(experiment_fpath: str,
                             chunks_size: int,
                             tag_ref_beads: str, 
                             tag_nuclei: str,
+                            eel_metadata: dict,
                             parsing: bool=True,
                             save_steps_output:bool=True):
     """Processing graph for the low magnification images of the 
@@ -1070,6 +1081,7 @@ def process_fresh_sample_graph(experiment_fpath: str,
         chunks_size (int): processing in chunks
         tag_ref_beads (str): str in the files name used to identify the images of the beads
         tag_nuclei (str): str in the files name used to identify the images of the nuclei
+        eel_metadata (dict): overall experiment info
         parsing (bool, optional): Determine if the images need to be parsed. Defaults to True.
         save_steps_output (bool): save the processed data
     """
@@ -1161,60 +1173,64 @@ def process_fresh_sample_graph(experiment_fpath: str,
 
     ds_beads.dataset['processing_type'] = 'undefined'
     ds_beads.dataset['overlapping_percentage'] = 5 / 100
-    ds_beads.dataset['machine'] = 'ROBOFISH2'
+    ds_beads.dataset['machine'] = eel_metadata['machine']
     ds_beads.dataset['round_num'] = 1
     metadata = ds_beads.collect_metadata(ds_beads.dataset)
 
     round_num = 1
     stitching_channel = 'Europium'
-    tiles_org = stitching.organize_square_tiles(experiment_fpath,ds_beads.dataset,metadata,round_num)
+    tiles_org = stitching.organize_square_tiles(base_path,ds_beads.dataset,metadata,round_num)
     tiles_org.run_tiles_organization()
 
     all_fovs = list(beads_grpd_fovs.groups.keys())
     chunks = [all_fovs[x:x+chunks_size] for x in range(0, len(all_fovs), chunks_size)]
     for chunk in chunks:
+        all_processing = []
         all_counts_beads = []
         for fov_num in chunk:
-            group = beads_grpd_fovs.get_group(fov_num)
-            for index_value, fov_subdataset in group.iterrows():
-                round_num = fov_subdataset.round_num
-                channel = fov_subdataset.channel
-                fov = fov_subdataset.fov_num
-                experiment_name = fov_subdataset.experiment_name
-                dask_delayed_name = 'filt_count_beads_fov'+ str(fov) + '_' + tokenize()
-                fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
-                                                processing_tag,
-                                                fov_subdataset,
-                                                analysis_parameters,
-                                                running_functions,
-                                                dark_img,
-                                                experiment_fpath,
-                                                preprocessed_zarr_fpath=beads_filtered_fpath,
-                                                save_steps_output=save_steps_output,
-                                                dask_key_name=dask_delayed_name)
-                counts, filt_out = fov_out[0], fov_out[1]
-                all_counts_beads.append(counts)
+            fov_subdataset = beads_grpd_fovs.get_group(fov_num).iloc[0] # Olny one round of imaging
+            
+            round_num = fov_subdataset.round_num
+            channel = fov_subdataset.channel
+            fov = fov_subdataset.fov_num
+            experiment_name = fov_subdataset.experiment_name
+            dask_delayed_name = 'filt_count_beads_fov'+ str(fov) + '_' + tokenize()
+            fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
+                                            processing_tag,
+                                            fov_subdataset,
+                                            analysis_parameters,
+                                            running_functions,
+                                            dark_img,
+                                            experiment_fpath,
+                                            preprocessed_zarr_fpath=beads_filtered_fpath,
+                                            save_steps_output=save_steps_output,
+                                            dask_key_name=dask_delayed_name)
+            counts, filt_out = fov_out[0], fov_out[1]
+        
         
 
-            name = 'concat_all_counts_beads_fresh_tissue'+ '-' + tokenize()
-            all_counts_fov = delayed(pd.concat,name=name)(all_counts_beads,axis=0,ignore_index=True)
+            # name = 'concat_all_counts_beads_fresh_tissue'+ '-' + tokenize()
+            # all_counts_fov = delayed(pd.concat,name=name)(all_counts_beads,axis=0,ignore_index=True)
+
+            name = 'add missing fields'+ '-' + tokenize()
+            counts_adj = delayed(make_fresh_beads_count_like_eel,name=name)(counts,eel_metadata)
 
 
             # Stitch to the microscope reference coords
             name = 'stitch_to_mic_coords_' +experiment_name + '_' \
                                 + '_fov_' +str(fov) + '-' + tokenize()  
-            stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(all_counts_fov,
+            stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(counts_adj,
                                                             tiles_org.tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
                                                             metadata,tag='microscope_stitched')
 
             # Add registration and recalculation of all the coords
             name = 'save_df_beads_fresh_tissue' +experiment_name + '_' + channel + '_' \
                                     + '_fov_' +str(fov) + '-' + tokenize() 
-            saved_file = delayed(all_counts_fov.to_parquet,name=name)(base_path / 'results'/ (experiment_name + \
+            saved_file = delayed(stitched_coords.to_parquet,name=name)(base_path / 'results'/ (experiment_name + \
                         '_counts_beads_fresh_tissue_decoded_fov_'+ str(fov_num) +'.parquet'),index=False)
 
-
-        _ = dask.compute(saved_file)
+            all_processing.append(saved_file)
+        _ = dask.compute(all_processing)
         client.run(gc.collect)
 
     processing_tag='nuclei'
@@ -1224,25 +1240,24 @@ def process_fresh_sample_graph(experiment_fpath: str,
     for chunk in chunks:
         all_processing_nuclei = []
         for fov_num in chunk:
-            group = nuclei_grpd_fovs.get_group(fov_num)
-            for index_value, fov_subdataset in group.iterrows():
-                round_num = fov_subdataset.round_num
-                channel = fov_subdataset.channel
-                fov = fov_subdataset.fov_num
-                experiment_name = fov_subdataset.experiment_name
-                dask_delayed_name = 'filt_nuclei_fov'+ str(fov) + '_' + tokenize()
-                fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
-                                                processing_tag,
-                                                fov_subdataset,
-                                                analysis_parameters,
-                                                running_functions,
-                                                dark_img,
-                                                experiment_fpath,
-                                                preprocessed_zarr_fpath=nuclei_filtered_fpath,
-                                                save_steps_output=save_steps_output,
-                                                dask_key_name=dask_delayed_name)
+            fov_subdataset = nuclei_grpd_fovs.get_group(fov_num).iloc[0] # Olny one round of imaging
+            round_num = fov_subdataset.round_num
+            channel = fov_subdataset.channel
+            fov = fov_subdataset.fov_num
+            experiment_name = fov_subdataset.experiment_name
+            dask_delayed_name = 'filt_nuclei_fov'+ str(fov) + '_' + tokenize()
+            fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
+                                            processing_tag,
+                                            fov_subdataset,
+                                            analysis_parameters,
+                                            running_functions,
+                                            dark_img,
+                                            experiment_fpath,
+                                            preprocessed_zarr_fpath=nuclei_filtered_fpath,
+                                            save_steps_output=save_steps_output,
+                                            dask_key_name=dask_delayed_name)
                 
-                all_processing_nuclei.append(fov_out)
+            all_processing_nuclei.append(fov_out)
 
  
         # end = delayed(combine_steps)(saved_file,all_processing_nuclei)
