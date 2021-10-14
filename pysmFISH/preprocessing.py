@@ -529,3 +529,39 @@ def fresh_nuclei_filtering(zarr_grp_name: str,
             # img = img.max(axis=0)
         
             return ((flattened_img,),metadata)
+
+
+def fresh_tissue_beads_preprocessing(zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict,
+        dark_img: np.ndarray)-> Tuple[Tuple[np.ndarray,],dict]:
+
+    """Function used filter the reference image containing large beads 
+
+    Args:
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+        dark_img (np.ndarray): Dark image used to remove camera dark noise
+
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((filtered_image,),metadata)
+    """
+
+    logger = selected_logger()
+    
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+
+    img, metadata = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+
+    img = convert_from_uint16_to_float64(img)
+    img = img.max(axis=0)
+
+    img -= filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+    img[img<0] = 0
+
+    return ((img,), metadata)
+
+    
