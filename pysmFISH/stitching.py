@@ -939,8 +939,8 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata,
                                     tiles_org.reference_corner_fov_position,
                                     metadata,
                                     'global_stitched')
-                    
-        global_stitched_decoded_df.to_parquet(fpath)
+        if isinstance(global_stitched_decoded_df,pd.DataFrame):
+            global_stitched_decoded_df.to_parquet(fpath)
 
     global_shift = tiles_org.tile_corners_coords_pxl - adjusted_coords
     pickle.dump(global_shift,open(experiment_fpath / 'results'/ 'stitching_global_shift.pkl','wb'))
