@@ -1101,8 +1101,8 @@ class Pipeline():
             self.grpd_fovs = self.data.dataset.groupby('fov_num')
 
         # Adjust the dataset because changes in the yaml files
-        self.data.dataset = self.data.dataset.loc[self.data.dataset.channel == 'Cy5','processing_type'] = 'fish'
-        self.data.dataset = self.data.dataset.loc[self.data.dataset.channel == 'Europium','processing_type'] = 'both-beads'
+        self.data.dataset.loc[self.data.dataset.channel == 'Cy5','processing_type'] = 'fish'
+        self.data.dataset.loc[self.data.dataset.channel == 'Europium','processing_type'] = 'both-beads'
 
 
         if self.metadata['experiment_type'] == 'eel-barcoded':
