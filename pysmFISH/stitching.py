@@ -709,8 +709,9 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         [type]: Decoded counts with coords of the dots adjusted to the stage
                 reference point
     """
-    
+    was_file = 0
     if not isinstance(decoded_df, pd.DataFrame):
+        was_file = 1
         decoded_df_fpath = copy.deepcopy(decoded_df)
         decoded_df = pd.read_parquet(decoded_df)
         
@@ -740,7 +741,7 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         # decoded_df['r_px_'+tag] =  r_microscope_coords - decoded_df['r_px_registered']
         # decoded_df['c_px_'+tag] =  c_microscope_coords - decoded_df['c_px_registered']
     
-    if not isinstance(decoded_df, pd.DataFrame):
+    if was_file:
         decoded_df.to_parquet(decoded_df_fpath,index=False)
     else:
         return decoded_df
@@ -938,8 +939,8 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata,
                                     tiles_org.reference_corner_fov_position,
                                     metadata,
                                     'global_stitched')
-                    
-        global_stitched_decoded_df.to_parquet(fpath)
+        if isinstance(global_stitched_decoded_df,pd.DataFrame):
+            global_stitched_decoded_df.to_parquet(fpath)
 
     global_shift = tiles_org.tile_corners_coords_pxl - adjusted_coords
     pickle.dump(global_shift,open(experiment_fpath / 'results'/ 'stitching_global_shift.pkl','wb'))
@@ -999,7 +1000,6 @@ def identify_duplicated_dots_sklearn(ref_tiles_df: pd.DataFrame,comp_tiles_df: p
             according to the stitching used to process the data
         same_dot_radius (int): searching radius used to define if two dots are
             the same
-
     Returns:
         list: dot ids to remove
     """
@@ -1084,13 +1084,15 @@ def remove_overlapping_dots_fov(cpl: Tuple[int,int], chunk_coords: np.ndarray,
             all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
             return {cpl:all_dots_id_to_remove}
 
-def clean_from_duplicated_dots(fov: int, dots_id_to_remove: list, experiment_fpath: str):
+def clean_from_duplicated_dots(fov: int, dots_id_to_remove: list, experiment_fpath: str,
+                                tag_cleaned_file:str):
     """Function to remove the dulicated dots.
 
     Args:
         fov (int): Field of view to process
         dots_id_to_remove (str): ids of the duplicated dots
         experiment_fpath (str): Path to the experiment to process
+        tag_cleaned_file (str): tag name of the file with cleaned counts
     """
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
@@ -1099,7 +1101,7 @@ def clean_from_duplicated_dots(fov: int, dots_id_to_remove: list, experiment_fpa
     except:
         logger.error(f'missing decoded file for fov {fov}')
     else:
-        save_name = fname.stem.split('_decoded_fov_')[0] + '_cleaned_df_fov_' + str(fov) + '.parquet'
+        save_name = fname.stem.split('_decoded_fov_')[0] + '_'+ tag_cleaned_file +'_cleaned_df_fov_' + str(fov) + '.parquet'
         save_name = experiment_fpath / 'results' / save_name
         if len(dots_id_to_remove):
             try:
@@ -1113,7 +1115,7 @@ def clean_from_duplicated_dots(fov: int, dots_id_to_remove: list, experiment_fpa
                 cleaned_df.to_parquet(save_name,index=False)
                 logger.error(f'saved {fname}')
 
-                save_name = fname.stem.split('_decoded_fov_')[0] + '_removed_df_fov_' + str(fov) + '.parquet'
+                save_name = fname.stem.split('_decoded_fov_')[0] + tag_cleaned_file + '_removed_df_fov_' + str(fov) + '.parquet'
                 save_name = experiment_fpath / 'results' / save_name
                 removed_df = counts_df.loc[counts_df.dot_id.isin(dots_id_to_remove), :]
                 removed_df.to_parquet(save_name,index=False)
@@ -1149,6 +1151,7 @@ def remove_duplicated_dots_graph(experiment_fpath: str,dataset: pd.DataFrame,
             according to the stitching used to process the data
         client (dask.distributed.Client): Dask client in charge of controlling
             the processing of the task graph.
+        tag_cleaned_file (str): tag name of the file with cleaned counts
     """
     
     logger = selected_logger()
@@ -1188,7 +1191,8 @@ def remove_duplicated_dots_graph(experiment_fpath: str,dataset: pd.DataFrame,
         future = client.submit(clean_from_duplicated_dots,
                                 fov = fov,
                                 dots_id_to_remove=dots_id_to_remove,
-                                experiment_fpath=experiment_fpath)
+                                experiment_fpath=experiment_fpath,
+                                tag_cleaned_file=stitching_selected)
 
         all_futures.append(future)
 

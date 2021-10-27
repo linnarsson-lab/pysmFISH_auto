@@ -19,6 +19,7 @@ from typing import *
 import os
 import dask
 import sys
+import gc
 import yaml
 import pandas as pd
 import numpy as np
@@ -115,11 +116,12 @@ class Pipeline():
                 using preprocessed images. default: False 
             resume: (bool): Restart the processsing. Determine automatically which files are already processed by checking
                             the *_*decoded_* files in the results folder
-            reuse_cluster (bool): Connect the pipeline to a previously created cluster (default False)
+            reuse_cluster (str): Connect the pipeline to a previously created cluster (default False). Can be: 'connect_to_client' ,'connect_to_scheduler'
             active_cluster (dask_cluster): Already active cluster to reconnect to when you want to reuse a cluster
                                             (default None)
             active_client (dask_client): Already active client to reconnect to when you want to reuse a cluster
                                             (default None)
+            active_scheduler_address (str): Running cluster to connect when you want reuse a cluster
 
         Attributes:
             storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -158,7 +160,7 @@ class Pipeline():
         self.dataset_path = kwarg.pop('dataset_path','')
         self.store_dataset = kwarg.pop('store_dataset',True)
         self.chunk_size = kwarg.pop('chunk_size',30)
-        self.same_dot_radius_duplicate_dots = kwarg.pop('same_dot_radius_duplicate_dots',10)
+        self.same_dot_radius_duplicate_dots = kwarg.pop('same_dot_radius_duplicate_dots',5)
         self.stitching_selected = kwarg.pop('stitching_selected','microscope_stitched')
         self.hamming_distance = kwarg.pop('hamming_distance',3)
         self.save_bits_int = kwarg.pop('save_bits_int',True)
@@ -173,6 +175,7 @@ class Pipeline():
         self.reuse_cluster = kwarg.pop('reuse_cluster',False)
         self.active_client = kwarg.pop('active_client',None)
         self.active_cluster = kwarg.pop('active_cluster',None)
+        self.active_scheduler_address = kwarg.pop('active_scheduler_address',None)
         
         self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
         self.resume = kwarg.pop('resume',False)
@@ -284,13 +287,20 @@ class Pipeline():
 
     def processing_cluster_init_step(self):
         """Create new cluster and client or reuse a cluster and client previously created
-
+           Can connect direclty to the client/cluster using the 'connect_to_client' flag or 
+           to the scheduler with the 'connect_to_scheduler'.
         """
 
         # Start processing environment
-        if self.reuse_cluster:
+        if self.reuse_cluster == 'connect_to_client':
             self.cluster = self.active_cluster
             self.client = self.active_client
+            self.client.run(gc.collect)
+            self.client.run(utils.trim_memory())
+        elif self.reuse_cluster == 'connect_to_scheduler':
+            self.client = Client(self.active_scheduler_address)
+            self.client.run(gc.collect)
+            self.client.run(utils.trim_memory())
         else:
             self.cluster = processing_cluster_setup.start_processing_env(self.processing_env_config)
             self.client = Client(self.cluster,asynchronous=True)
@@ -383,7 +393,9 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'microscope_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='microscope_stitched')
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'decoded_fov',
+                                file_tag='microscope_stitched')
         # ----------------------------------------------------------------  
 
 
@@ -458,7 +470,9 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'microscope_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='microscope_stitched')
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'decoded_fov',
+                                file_tag='microscope_stitched')
         # ----------------------------------------------------------------  
 
     def processing_serial_fish_step(self):
@@ -533,7 +547,9 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'microscope_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='removed_microscope_stitched')
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'microscope_stitched_cleaned',
+                                file_tag='removed_microscope_stitched')
         # ---------------------------------------------------------------- 
 
     def stitch_and_remove_dots_eel_graph_step(self):
@@ -575,7 +591,6 @@ class Pipeline():
         
         # Removed the dots on the global stitched
         self.stitching_selected = 'global_stitched'
-
         stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
                                 self.hamming_distance,self.same_dot_radius_duplicate_dots, 
                                     self.stitching_selected, self.client)
@@ -584,8 +599,10 @@ class Pipeline():
         # GENERATE OUTPUT FOR PLOTTING
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'global_stitched'
-        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='cleaned_global_stitched')
+        io.simple_output_plotting(self.experiment_fpath, stitching_selected,
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'global_stitched_cleaned',
+                                file_tag='cleaned_global_stitched')
         # ----------------------------------------------------------------  
 
         # ----------------------------------------------------------------
@@ -593,7 +610,9 @@ class Pipeline():
         selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'global_stitched'
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,file_tag='removed_global_stitched')
+                                selected_Hdistance, self.client,
+                                input_file_tag = 'global_stitched_removed',
+                                file_tag='removed_global_stitched')
         # ---------------------------------------------------------------- 
 
 
@@ -619,6 +638,7 @@ class Pipeline():
                                                 self.chunk_size,
                                                 tag_ref_beads= tag_ref_beads,
                                                 tag_nuclei= tag_nuclei,
+                                                eel_metadata= self.metadata,
                                                 parsing= parsing,
                                                 save_steps_output=self.save_intermediate_steps)
 
@@ -1029,3 +1049,76 @@ class Pipeline():
         
         self.client.close()
         self.cluster.close()
+
+    def test_run_no_fresh_tissue(self):
+        """
+            Full run from raw images from nikon or parsed images
+        """
+
+        start = datetime.now()
+        self.run_setup()
+        self.run_cluster_activation()
+        self.run_parsing()
+        self.run_required_steps()    
+        
+        if self.resume:
+            already_processed = (Path(self.experiment_fpath) / 'results').glob('*barcodes_max_array*.parquet')
+            already_done_fovs = []
+            for fname in already_processed:
+                fov_num = int(fname.stem.split('_')[-1])
+                already_done_fovs.append(fov_num)
+            not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+            self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+            self.grpd_fovs = self.data.dataset.groupby('fov_num')
+
+
+        if self.metadata['experiment_type'] == 'eel-barcoded':
+            step_start = datetime.now()
+            self.processing_barcoded_eel_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
+            step_start = datetime.now()
+            self.microscope_stitched_remove_dots_eel_graph_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            
+            step_start = datetime.now()
+            try: 
+                self.stitch_and_remove_dots_eel_graph_step()
+            except:
+                self.logger.info(f"Stitching using dots didn't work")
+                pass
+            else:
+                self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        elif self.metadata['experiment_type'] == 'smfish-serial':
+            step_start = datetime.now()
+            self.processing_serial_fish_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    serial smfish fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+        else:
+            self.logger.error(f"the experiment type {self.metadata['experiment_type']} is unknown")
+            sys.exit(f"the experiment type {self.metadata['experiment_type']} is unknown")
+
+
+        step_start = datetime.now()
+        # self.transfer_data_after_processing()
+        # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+        #             data transfer after processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
+        
+        self.client.close()
+        self.cluster.close()
+        if self.processing_engine == 'unamanaged cluster':
+            processing_cluster_setup.kill_process()
