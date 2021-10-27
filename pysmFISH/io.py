@@ -130,7 +130,7 @@ def load_general_zarr(fov_subdataset: pd.Series ,parsed_raw_data_fpath:str, tag:
 
 
 def simple_output_plotting(experiment_fpath: str, stitching_selected: str, 
-                            selected_Hdistance: float, client, file_tag: str):
+                            selected_Hdistance: float, client, input_file_tag:str, file_tag: str):
     """Utility function used to create a pandas dataframe with a simplified
     version of the eel analysis output that can be used for quick visualization
 
@@ -139,20 +139,25 @@ def simple_output_plotting(experiment_fpath: str, stitching_selected: str,
         stitching_selected (str): Define with stitched data will be selected
             for creating the simplified dataframe
         selected_Hdistance (float): Used to select the dots with hamming
-            distance below this value
+            distance below this value (if selected_Hdistance is 0 plot the perfect barcodes )
         client (Client): Dask client taking care of the processing 
+        input_file_tag (str): File type to load for the plotting
         file_tag (str): tag to label the output file
     """
 
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*_decoded_fov' +'*.parquet'),engine='pyarrow')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*' + input_file_tag +'*.parquet'),engine='pyarrow')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
 
-    counts_dd_below  = counts_dd.loc[counts_dd.hamming_distance < selected_Hdistance, :]
+    if selected_Hdistance == 0:
+        counts_dd_below  = counts_dd.loc[counts_dd.hamming_distance == selected_Hdistance, :]
+
+    else:
+        counts_dd_below  = counts_dd.loc[counts_dd.hamming_distance < selected_Hdistance, :]
 
     counts_df = counts_dd_below.loc[:,['fov_num',r_tag,c_tag, 'decoded_genes']].compute()
 

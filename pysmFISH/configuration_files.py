@@ -56,9 +56,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishMaxObjSize'] = 200
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['CountingFishNumPeaksPerLabel'] = 20
-    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 95
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalMinObjSize'] = 50
-    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['eel-barcoded']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -99,9 +99,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['beads']= {}
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
-    analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMaxObjSize'] = 200
-    analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishNumPeaksPerLabel'] = 1
 
     analysis_parameters['eel-barcoded']['ROBOFISH2'] = {}
@@ -124,8 +124,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['CountingFishNumPeaksPerLabel'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalPercentile'] = 95
-    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 100
-    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['PreprocessingFishFlatFieldKernel'] = (1,100,100)
     analysis_parameters['eel-barcoded']['ROBOFISH2']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -167,9 +167,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['beads']= {}
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
-    analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMaxObjSize'] = 200
-    analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishNumPeaksPerLabel'] = 1
     
     analysis_parameters['eel-barcoded']['ROBOFISH3'] = {}
@@ -192,8 +192,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['CountingFishNumPeaksPerLabel'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalPercentile'] = 95
-    analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalMinObjSize'] = 100
-    analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['eel-barcoded']['ROBOFISH3']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['PreprocessingFishFlatFieldKernel'] = (1,100,100)
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -202,7 +202,7 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['CountingFishMaxObjSize'] = 200
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['CountingFishNumPeaksPerLabel'] = 1
-    analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['LargeObjRemovalPercentile'] = 95
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['LargeObjRemovalMinObjSize'] = 50
     analysis_parameters['eel-barcoded']['ROBOFISH3']['small-beads']['LargeObjRemovalSelem'] = 3
 
@@ -235,9 +235,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['beads']= {}
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
-    analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMaxObjSize'] = 200
-    analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 20
     analysis_parameters['eel-barcoded']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishNumPeaksPerLabel'] = 1
     
 
@@ -260,9 +260,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishMaxObjSize'] = 200
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['CountingFishNumPeaksPerLabel'] = 20
-    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalPercentile'] = 95
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalMinObjSize'] = 50
-    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -303,9 +303,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['beads']= {}
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
-    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 20
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['beads']['CountingFishMaxObjSize'] = 200
-    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 20
     analysis_parameters['eel-barcoded']['NOT_DEFINED']['fresh-tissue']['beads']['CountingFishNumPeaksPerLabel'] = 1
     
 
@@ -332,9 +332,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMaxObjSize'] = 200
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMinObjSize'] = 3
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishNumPeaksPerLabel'] = 20
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 99
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 95
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalMinObjSize'] = 50
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -377,9 +377,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
     analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['beads']= {}
     analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMaxObjSize'] = 200
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH1']['fresh-tissue']['beads']['CountingFishNumPeaksPerLabel'] = 1
     
     analysis_parameters['smfish-serial']['ROBOFISH2'] = {}
@@ -404,8 +404,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['CountingFishNumPeaksPerLabel'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalPercentile'] = 95
-    analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 100
-    analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['smfish-serial']['ROBOFISH2']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['smfish-serial']['ROBOFISH2']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH2']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -448,9 +448,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
     analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['beads']= {}
     analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
-    analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMaxObjSize'] = 200
-    analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH2']['fresh-tissue']['beads']['CountingFishNumPeaksPerLabel'] = 1
     
     analysis_parameters['smfish-serial']['ROBOFISH3'] = {}
@@ -475,8 +475,8 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['CountingFishMinObjSize'] = 1
     analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['CountingFishNumPeaksPerLabel'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalPercentile'] = 95
-    analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalMinObjSize'] = 100
-    analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalSelem'] = 3
+    analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalMinObjSize'] = 50
+    analysis_parameters['smfish-serial']['ROBOFISH3']['fish']['LargeObjRemovalSelem'] = 7
 
     analysis_parameters['smfish-serial']['ROBOFISH3']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH3']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
@@ -519,9 +519,9 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['nuclei']['PreprocessingFreshNucleiLargeKernelSize'] =  (5,50,50)
     analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['beads']= {}
     analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['beads']['PreprocessingFishFlatFieldKernel'] = (100,100)
-    analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 2
+    analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMinObjDistance'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMaxObjSize'] = 200
-    analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 2
+    analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishMinObjSize'] = 20
     analysis_parameters['smfish-serial']['ROBOFISH3']['fresh-tissue']['beads']['CountingFishNumPeaksPerLabel'] = 1
 
     try:
@@ -554,7 +554,7 @@ def create_function_runner(experiment_fpath: str,metadata: dict)-> dict:
     if pipeline == 'eel-human-GBM':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
+                            'fresh_sample_reference_preprocessing':'fresh_tissue_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}  
   
@@ -563,7 +563,7 @@ def create_function_runner(experiment_fpath: str,metadata: dict)-> dict:
     elif pipeline == 'eel-human-adult-brain':
         running_functions = { 'fish_channels_preprocessing':'filter_remove_large_objs',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
+                            'fresh_sample_reference_preprocessing':'fresh_tissue_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}
         logger.info(f'selected functions for {pipeline}')
@@ -571,14 +571,14 @@ def create_function_runner(experiment_fpath: str,metadata: dict)-> dict:
     elif pipeline == 'eel-human-embryo':
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
+                            'fresh_sample_reference_preprocessing':'fresh_tissue_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}
 
     elif pipeline == 'eel-mouse-brain':
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast',
-                            'fresh_sample_reference_preprocessing':'large_beads_preprocessing',
+                            'fresh_sample_reference_preprocessing':'fresh_tissue_beads_preprocessing',
                             'fresh_sample_reference_dots_calling':'osmFISH_peak_based_detection_fast',
                             'fresh_sample_nuclei_preprocessing':'fresh_nuclei_filtering'}
 

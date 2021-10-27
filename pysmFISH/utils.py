@@ -10,6 +10,7 @@ import sys
 import git
 import os
 import click
+import ctypes
 import numpy as np
 from skimage import img_as_float64
 from pathlib import Path
@@ -221,7 +222,7 @@ def collect_processing_files(experiment_fpath:str, experiment_info:Dict):
         machine = 'NOT_DEFINED'
 
 
-    for idx, probes in experiment_info['Probe_FASTA'].items():
+    for idx, probes in experiment_info['Probes_FASTA'].items():
         if probes != 'None':
             probes_fpath = experiment_fpath.parent / 'probes_sets' / probes
             try:
@@ -466,3 +467,8 @@ class OptionEatAll(click.Option):
                 our_parser.process = parser_process
                 break
         return retval
+
+
+def trim_memory() -> int:
+     libc = ctypes.CDLL("libc.so.6")
+     return libc.malloc_trim(0)
