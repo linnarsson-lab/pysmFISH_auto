@@ -1100,6 +1100,10 @@ class Pipeline():
             self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
             self.grpd_fovs = self.data.dataset.groupby('fov_num')
 
+        # Adjust the dataset because changes in the yaml files
+        self.data.dataset = self.data.dataset.loc[self.data.dataset.channel == 'Cy5','processing_type'] = 'fish'
+        self.data.dataset = self.data.dataset.loc[self.data.dataset.channel == 'Europium','processing_type'] = 'both-beads'
+
 
         if self.metadata['experiment_type'] == 'eel-barcoded':
             step_start = datetime.now()
