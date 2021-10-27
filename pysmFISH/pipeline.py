@@ -160,7 +160,7 @@ class Pipeline():
         self.dataset_path = kwarg.pop('dataset_path','')
         self.store_dataset = kwarg.pop('store_dataset',True)
         self.chunk_size = kwarg.pop('chunk_size',30)
-        self.same_dot_radius_duplicate_dots = kwarg.pop('same_dot_radius_duplicate_dots',10)
+        self.same_dot_radius_duplicate_dots = kwarg.pop('same_dot_radius_duplicate_dots',5)
         self.stitching_selected = kwarg.pop('stitching_selected','microscope_stitched')
         self.hamming_distance = kwarg.pop('hamming_distance',3)
         self.save_bits_int = kwarg.pop('save_bits_int',True)
@@ -1049,3 +1049,76 @@ class Pipeline():
         
         self.client.close()
         self.cluster.close()
+
+    def test_run_no_fresh_tissue(self):
+        """
+            Full run from raw images from nikon or parsed images
+        """
+
+        start = datetime.now()
+        self.run_setup()
+        self.run_cluster_activation()
+        self.run_parsing()
+        self.run_required_steps()    
+        
+        if self.resume:
+            already_processed = (Path(self.experiment_fpath) / 'results').glob('*barcodes_max_array*.parquet')
+            already_done_fovs = []
+            for fname in already_processed:
+                fov_num = int(fname.stem.split('_')[-1])
+                already_done_fovs.append(fov_num)
+            not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+            self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+            self.grpd_fovs = self.data.dataset.groupby('fov_num')
+
+
+        if self.metadata['experiment_type'] == 'eel-barcoded':
+            step_start = datetime.now()
+            self.processing_barcoded_eel_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
+            step_start = datetime.now()
+            self.QC_registration_error_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    QC registration completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
+            step_start = datetime.now()
+            self.microscope_stitched_remove_dots_eel_graph_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    removal overlapping dots in microscope stitched {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+            
+            step_start = datetime.now()
+            try: 
+                self.stitch_and_remove_dots_eel_graph_step()
+            except:
+                self.logger.info(f"Stitching using dots didn't work")
+                pass
+            else:
+                self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        elif self.metadata['experiment_type'] == 'smfish-serial':
+            step_start = datetime.now()
+            self.processing_serial_fish_step()
+            self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    serial smfish fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+        else:
+            self.logger.error(f"the experiment type {self.metadata['experiment_type']} is unknown")
+            sys.exit(f"the experiment type {self.metadata['experiment_type']} is unknown")
+
+
+        step_start = datetime.now()
+        # self.transfer_data_after_processing()
+        # self.logger.info(f"{self.experiment_fpath.stem} timing: \
+        #             data transfer after processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+
+        self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                    Pipeline run completed in {utils.nice_deltastring(datetime.now() - start)}.")
+
+        
+        self.client.close()
+        self.cluster.close()
+        if self.processing_engine == 'unamanaged cluster':
+            processing_cluster_setup.kill_process()
