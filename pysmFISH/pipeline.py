@@ -341,6 +341,29 @@ class Pipeline():
         self.tile_corners_coords_pxl = self.tiles_org.tile_corners_coords_pxl
 
 
+    def determine_tiles_organization_before_room_reorganisation(self):
+        """
+            Determine the organization of the field of views in the dataset
+
+            The following attributes created by another step must be accessible:
+            - analysis_parameters
+            - dataset
+            - metadata
+
+        """
+        assert self.metadata, self.logger.error(f'cannot determine tiles organization because missing metadata attr')
+        assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(f'cannot determine tiles organization because missing dataset attr')
+        assert self.analysis_parameters, self.logger.error(f'cannot determine tiles organization because missing analysis_parameters attr')
+        self.reference_round = self.analysis_parameters['RegistrationReferenceHybridization']
+        self.tiles_org = stitching.organize_square_tiles_old_room(self.experiment_fpath,
+                                    self.data.dataset,self.metadata,
+                                    self.reference_round)
+        self.tiles_org.run_tiles_organization()
+        self.tile_corners_coords_pxl = self.tiles_org.tile_corners_coords_pxl
+
+
+
+
     def create_running_functions_step(self):
         """
             Create the dictionary with the function names used to run a specific pipeline as defined
@@ -1050,16 +1073,22 @@ class Pipeline():
         self.client.close()
         self.cluster.close()
 
-    def test_run_no_fresh_tissue(self):
+    def test_run_Lars_mouse_atlas(self):
         """
-            Full run from raw images from nikon or parsed images
+        The data were acquired before the rearrangement of the room and 
+        the fresh tissue data combined the DAPI/Europium in one single 
+        image. 
+        TODO: The fresh tissue processing need to be specifically implemented
+            for this experiment
+
         """
 
         start = datetime.now()
         self.run_setup()
         self.run_cluster_activation()
         self.run_parsing()
-        self.run_required_steps()    
+        self.run_required_steps()   
+        self.determine_tiles_organization_before_room_reorganisation() 
         
         if self.resume:
             already_processed = (Path(self.experiment_fpath) / 'results').glob('*barcodes_max_array*.parquet')
@@ -1099,11 +1128,6 @@ class Pipeline():
                 self.logger.info(f"{self.experiment_fpath.stem} timing: \
                     Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
-        elif self.metadata['experiment_type'] == 'smfish-serial':
-            step_start = datetime.now()
-            self.processing_serial_fish_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    serial smfish fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
         else:
             self.logger.error(f"the experiment type {self.metadata['experiment_type']} is unknown")
             sys.exit(f"the experiment type {self.metadata['experiment_type']} is unknown")
