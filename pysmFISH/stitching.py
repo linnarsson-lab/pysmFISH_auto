@@ -449,6 +449,7 @@ class organize_square_tiles_old_room():
             # in the center (0,0)
             # consider that we get the top-right corner of the image as well
 
+            self.reference_corner_fov_position = 'bottom-left'  # Not sure (i don't remember)
             # consider that we get the top-right corner of the image as well
             y_min = np.amin(self.y_coords)
             x_min = np.amin(self.x_coords)
@@ -479,7 +480,7 @@ class organize_square_tiles_old_room():
 
         elif self.metadata['machine'] == 'ROBOFISH1':
             # The current system has stage ref coords BOTTOM-RIGH
-           
+            self.reference_corner_fov_position = 'bottom-right'
             # Normalize to (0,0) still BOTTOM-RIGHT
             y_min = np.amin(self.y_coords)
             x_min = np.amin(self.x_coords)
@@ -746,7 +747,6 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         return decoded_df
 
 
-# TODO adjust the registration with dots (triangulation)
 
 def get_all_dots_in_overlapping_regions(counts_df, chunk_coords, stitching_selected='microscope_stitched'):    
     
@@ -763,6 +763,9 @@ def get_all_dots_in_overlapping_regions(counts_df, chunk_coords, stitching_selec
         
     return overlapping_ref_df
 
+
+
+# TODO adjust the registration with dots (triangulation)
 
 def register_cpl(cpl, chunk_coords, experiment_fpath,
                                     stitching_channel,
