@@ -661,7 +661,7 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
 
                     # Stitch to the microscope reference coords
                     name = 'stitch_to_mic_coords_' +experiment_name + '_' + processing_channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()  
+                                    + '_fov_' +str(fov_num) + '-' + tokenize()  
                     stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(extracted_intensities,
                                                                 tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
                                                                 metadata,tag='microscope_stitched')    

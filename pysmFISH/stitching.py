@@ -734,7 +734,7 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
             decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
             decoded_df['c_px_'+tag] =  c_microscope_coords - (metadata['img_width'] - decoded_df['c_px_registered'])
 
-        elif reference_corner_fov_position == 'bottom_left':
+        elif reference_corner_fov_position == 'bottom-left':
             decoded_df['r_px_'+tag] =  r_microscope_coords + (metadata['img_height'] - decoded_df['r_px_registered'])
             decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
 
