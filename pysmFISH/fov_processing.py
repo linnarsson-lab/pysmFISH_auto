@@ -364,14 +364,6 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                                                                         analysis_parameters,codebook_dict[processing_channel],
                                                                         metadata)                                                        
             
-                # Stitch to the microscope reference coords
-                name = 'stitch_to_mic_coords_' +experiment_name + '_' + processing_channel + '_' \
-                                    + '_fov_' +str(fov) + '-' + tokenize()  
-                stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],
-                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
-                                                                metadata,tag='microscope_stitched')
-            
-                
                 if save_bits_int:
 
                     # all_filtered_images = {}
@@ -394,10 +386,20 @@ def processing_barcoded_eel_fov_graph(experiment_fpath: str,
                     extracted_intensities = delayed(barcodes_analysis.extract_dots_images,name=name)(decoded[1],
                                             combined_shift_images,experiment_fpath,metadata)
 
-                    all_stitched_coords.append(extracted_intensities)
-                
+                    # Stitch to the microscope reference coords
+                    name = 'stitch_to_mic_coords_' +experiment_name + '_' + processing_channel + '_' \
+                                    + '_fov_' +str(fov) + '-' + tokenize()  
+                    stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(extracted_intensities,
+                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                                metadata,tag='microscope_stitched')    
+
                 else:
-                    all_stitched_coords.append(stitched_coords)
+                    stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(decoded[1],
+                                                                tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                                metadata,tag='microscope_stitched')    
+
+                    
+                all_stitched_coords.append(stitched_coords)
 
             
             name = 'concat_' +experiment_name + \
