@@ -710,6 +710,8 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         [type]: Decoded counts with coords of the dots adjusted to the stage
                 reference point
     """
+    logger = selected_logger()
+
     was_file = 0
     if not isinstance(decoded_df, pd.DataFrame):
         was_file = 1
@@ -738,7 +740,9 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
             decoded_df['r_px_'+tag] =  r_microscope_coords + (metadata['img_height'] - decoded_df['r_px_registered'])
             decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
 
-
+        else:
+            logger.error(f"the referernce corner fov position name is wrong")
+            sys.exit(f"the referernce corner fov position name is wrong")
         # decoded_df['r_px_'+tag] =  r_microscope_coords - decoded_df['r_px_registered']
         # decoded_df['c_px_'+tag] =  c_microscope_coords - decoded_df['c_px_registered']
     
