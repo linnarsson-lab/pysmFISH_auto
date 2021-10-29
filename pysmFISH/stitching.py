@@ -449,7 +449,7 @@ class organize_square_tiles_old_room():
             # in the center (0,0)
             # consider that we get the top-right corner of the image as well
 
-            self.reference_corner_fov_position = 'bottom-left'  # Not sure (i don't remember)
+            self.reference_corner_fov_position = 'old-room-robofish2'  # Not sure (i don't remember)
             # consider that we get the top-right corner of the image as well
             y_min = np.amin(self.y_coords)
             x_min = np.amin(self.x_coords)
@@ -739,6 +739,14 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         elif reference_corner_fov_position == 'bottom-left':
             decoded_df['r_px_'+tag] =  r_microscope_coords + (metadata['img_height'] - decoded_df['r_px_registered'])
             decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
+
+        elif reference_corner_fov_position == 'bottom-right':
+            decoded_df['r_px_'+tag] =  r_microscope_coords + (metadata['img_height'] - decoded_df['r_px_registered'])
+            decoded_df['c_px_'+tag] =  c_microscope_coords - (metadata['img_width'] - decoded_df['c_px_registered'])
+
+        elif reference_corner_fov_position == 'old-room-robofish2':
+            decoded_df['r_px_'+tag] =  r_microscope_coords -  decoded_df['r_px_registered']
+            decoded_df['c_px_'+tag] =  c_microscope_coords -  decoded_df['c_px_registered']
 
         else:
             logger.error(f"the referernce corner fov position name is wrong")
