@@ -304,6 +304,12 @@ def sort_data_into_folders(experiment_fpath:str,experiment_info:Dict):
             except FileNotFoundError:
                 os.mkdir(experiment_fpath / 'fresh_tissue')
                 os.chmod(experiment_fpath / 'fresh_tissue',0o777)
+
+                os.mkdir(experiment_fpath / 'fresh_tissue' / 'results')
+                os.chmod(experiment_fpath / 'fresh_tissue' / 'results',0o777)
+
+                os.mkdir(experiment_fpath / 'fresh_tissue' / 'output_figures')
+                os.chmod(experiment_fpath / 'fresh_tissue' / 'output_figures',0o777)
             
             for nuclei in nuclei_files:
                 shutil.move(nuclei.as_posix(), (experiment_fpath / 'fresh_tissue').as_posix())
