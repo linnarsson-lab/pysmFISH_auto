@@ -554,7 +554,9 @@ class Pipeline():
         """
         assert self.client, self.logger.error(f'cannot remove duplicated dots because missing client attr')
         assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(f'cannot remove duplicated dots because missing dataset attr')
-        assert isinstance(self.tiles_org,pysmFISH.stitching.organize_square_tiles), \
+        
+        assert (isinstance(self.tiles_org,pysmFISH.stitching.organize_square_tiles) | 
+                isinstance(self.tiles_org,pysmFISH.stitching.organize_square_tiles_old_room)), \
                             self.logger.error(f'cannot remove duplicated dots because tiles_org is missing attr')
         
         
