@@ -668,6 +668,15 @@ class Pipeline():
                                                 save_steps_output=self.save_intermediate_steps)
 
 
+        stitching.stitched_beads_on_nuclei_fresh_tissue(self.experiment_fpath,
+                                      self.client,
+                                      nuclei_tag=tag_nuclei,
+                                      beads_tag = tag_ref_beads,
+                                      round_num = 1,
+                                      overlapping_percentage=5,
+                                      machine=self.metadata['machine']
+
+
     # --------------------------------
     # QC STEPS (some other included in the graph function)
     # --------------------------------

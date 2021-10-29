@@ -17,6 +17,7 @@ import copy
 import itertools
 import math
 import pickle
+import zarr
 import sys
 import operator
 import numpy as np
@@ -33,6 +34,7 @@ from pynndescent import NNDescent
 
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.fovs_registration import create_fake_image
+from pysmFISH.data_models import Dataset
 
  
 
@@ -835,6 +837,84 @@ def register_cpl(cpl, chunk_coords, experiment_fpath,
             return registration
 
 
+
+
+def register_cpl_fresh_nuclei(cpl: Tuple, chunk_coords: np.ndarray, order: dict, 
+                              metadata:dict, experiment_fpath:str):
+    """Function to register orverlapping regions of nuclear staining for stitching
+
+    Args:
+        cpl (Tuple): overlapping tiles
+        chunk_coords (np.ndarray): coords of the overlapping region [r_tl,r_br,c_tl,c_br]
+        order (dict): description of the position of the tiles
+        metadata (dict): dictionary with the general experiment data
+        experiment_fpath (str): path to the experiment to process
+
+    Returns:
+        dict: registration output [shift, error]
+    """
+
+    logger = selected_logger()
+    registration = {}
+    experiment_fpath = Path(experiment_fpath)
+    img_width = metadata['img_width']
+    img_height = metadata['img_height']
+    experiment_name = metadata['experiment_name']
+    error = 0
+    
+    filtered_nuclei_fpath = experiment_fpath / 'fresh_tissue' / 'fresh_tissue_nuclei_preprocessed_img_data.zarr'
+    
+    try:
+        st = zarr.DirectoryStore(filtered_nuclei_fpath)
+        root = zarr.group(store=st, overwrite=False)
+    except:
+        logger.error(f'cannot load the zarr files with filtered nuclei')    
+        
+    else:
+        try:
+            img1 = root[experiment_name + '_fresh_tissue_nuclei_fov_' + str(cpl[0])]['preprocessed_data_fov_'+str(cpl[0])][...]
+        except:
+            logger.error(f'image file cannot be loaded for nuclei of fov {cpl[0]}')   
+            
+        else:
+            try:
+                img2 = root[experiment_name + '_fresh_tissue_nuclei_fov_' + str(cpl[1])]['preprocessed_data_fov_'+str(cpl[1])][...]
+            except:
+                logger.error(f'image file cannot be loaded for nuclei of fov {cpl[1]}')  
+                
+            else:
+
+                img_shape = np.array([np.abs(chunk_coords[1]-chunk_coords[0]),np.abs(chunk_coords[3]-chunk_coords[2])]).astype('int')
+                if order == {'row_order': ('top', 'bottom'), 'column_order': ('right', 'left')}:
+                    img1_slice = img1[(img_height-img_shape[0]):img_height,0:img_shape[1]]
+                    img2_slice = img2[0:img_shape[0],(img_width-img_shape[1]):img_width]
+                elif order == {'row_order': ('top', 'bottom'), 'column_order': ('left', 'right')}:
+                    img1_slice = img1[img_height-img_shape[0]:img_height,img_width-img_shape[1]:img_width]
+                    img2_slice = img2[0:img_shape[0],0:img_shape[1]]
+                elif order == {'row_order': ('bottom', 'top'), 'column_order': ('left', 'right')}:
+                    img1_slice = img1[0:img_shape[0],img_width-img_shape[1]:img_width]
+                    img2_slice = img2[img_height-img_shape[0]:img_height,0:img_shape[1]]
+                elif order == {'row_order': ('bottom', 'top'), 'column_order': ('right', 'left')}:
+                    img1_slice = img1[0:img_shape[0],0:img_shape[1]]
+                    img2_slice = img2[img_height-img_shape[0]:img_height,img_width-img_shape[1]:img_width]
+                else:
+                    logger.error(f'unknown fovs order')
+                    error = 1
+                
+                if error:
+                    shift = np.array([1000,1000])
+                    registration[cpl] = [shift, np.nan]
+                else:
+                    shift, error, diffphase = register_translation(img1_slice, img2_slice)
+                    registration[cpl] = [shift, error]
+    
+                return registration
+
+
+
+
+
+
 def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata, 
                     reference_round, client, nr_dim = 2):
     
@@ -965,7 +1045,210 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata,
     # return adjusted_coords, global_stitching_done
 
 
-# REMOVE OVERLAPPING DOTS
+def stitching_graph_fresh_nuclei(experiment_fpath,tiles_org, metadata, 
+                            client, nr_dim = 2):
+    
+    logger = selected_logger()
+    unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+    unfolded_overlapping_order_dict = {key:value for (k,v) in tiles_org.overlapping_order.items() for (key,value) in v.items()}
+
+
+    futures = []
+    for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
+
+        future = client.submit(register_cpl_fresh_nuclei,cpl, chunk_coords, 
+                            unfolded_overlapping_order_dict[cpl],
+                            metadata,
+                            experiment_fpath)
+
+        futures.append(future)
+    all_registrations = client.gather(futures)
+
+
+    all_registrations = [reg for reg in all_registrations if reg ]
+    all_registrations_dict = {}
+
+    for output_dict in all_registrations:
+        all_registrations_dict.update(output_dict)
+
+
+    overlapping_coords_reorganized = {}
+    for idx, cpl_dict in tiles_org.overlapping_regions.items():
+        overlapping_coords_reorganized.update(cpl_dict)
+
+    all_registrations_removed_large_shift = {k:v for (k,v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)}
+
+    cpls = all_registrations_removed_large_shift.keys()
+    # cpls = list(unfolded_overlapping_regions_dict.keys())
+    total_cpls = len(cpls)
+    nr_tiles = tiles_org.tile_corners_coords_pxl.shape[0]
+
+    weights_err1 = np.zeros((total_cpls * nr_dim))
+    weights_err2 = np.zeros((total_cpls * nr_dim))
+    P = np.zeros(total_cpls * nr_dim)
+    ZQ = np.zeros((total_cpls * nr_dim,nr_tiles * nr_dim))
+
+    weights_err = np.zeros((total_cpls * nr_dim))
+    for i, (a, b) in enumerate(cpls):
+        shift = all_registrations_removed_large_shift[(a,b)][0]
+        dr = shift[0]
+        dc = shift[1]
+        P[i * nr_dim] = dr
+        P[i * nr_dim +1 ] = dc
+        weights_err[i * nr_dim:i * nr_dim + nr_dim] = all_registrations_removed_large_shift[(a,b)][1]
+
+    for i, (a, b) in enumerate(cpls):
+        # Y row:
+        Z = np.zeros((nr_tiles * nr_dim))
+        Z[nr_dim * a:nr_dim * a + 1] = -1
+        Z[nr_dim * b:nr_dim * b + 1] = 1
+        ZQ[i * nr_dim, :] = Z
+        # X row
+        Z = np.zeros((nr_tiles * nr_dim))
+        Z[nr_dim * a + 1:nr_dim * a + 2] = -1
+        Z[nr_dim * b + 1:nr_dim * b + 2] = 1
+        ZQ[i * nr_dim + 1, :] = Z
+
+    lrg = linmod.LinearRegression(fit_intercept=False)
+    lrg.fit(ZQ,P)
+    global_translrg = lrg.coef_.reshape(nr_tiles, nr_dim)
+    gb =  -1 * (-lrg.coef_.reshape((nr_tiles, nr_dim)) \
+                                + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :])
+    global_shift = gb.astype(int)
+    adjusted_coords = tiles_org.tile_corners_coords_pxl + global_shift
+
+    # Determine shift of missing tiles
+
+    out_level = 1000
+    low = np.where(global_shift< -out_level)[0]
+    high = np.where(global_shift> out_level)[0]
+    low_high = np.hstack((low,high))
+
+    missing_tiles_id = np.unique(low_high)
+    missing_tiles_coords = tiles_org.tile_corners_coords_pxl[missing_tiles_id,:]
+
+    if missing_tiles_coords.shape[0] >0:
+        coords_cl = np.delete(tiles_org.tile_corners_coords_pxl, missing_tiles_id, 0)
+        ad_coords_cl = np.delete(adjusted_coords, missing_tiles_id, 0 )
+        tst = linmod.LinearRegression(fit_intercept=False)
+        tst.fit(coords_cl,ad_coords_cl)
+        corrected_missing = tst.predict(missing_tiles_coords)
+
+        for idx, tile_id in enumerate(missing_tiles_id):
+            adjusted_coords[tile_id] = corrected_missing[idx]
+
+
+    dec_fpath = (experiment_fpath / 'fresh_tissue'/ 'results').glob('*_decoded_fov*')
+    for fpath in dec_fpath:
+        global_stitched_decoded_df = stitch_using_coords_general(fpath,
+                                    adjusted_coords,
+                                    tiles_org.reference_corner_fov_position,
+                                    metadata,
+                                    'global_stitched_nuclei')
+        if isinstance(global_stitched_decoded_df,pd.DataFrame):
+            global_stitched_decoded_df.to_parquet(fpath)
+
+    global_shift = tiles_org.tile_corners_coords_pxl - adjusted_coords
+    pickle.dump(global_shift,open(experiment_fpath / 'fresh_tissue' /  'results'/ 'stitching_global_shift.pkl','wb'))
+    pickle.dump(adjusted_coords,open(experiment_fpath / 'fresh_tissue' / 'results'/ 'global_stitched_coords.pkl','wb'))
+
+    return adjusted_coords
+    # return adjusted_coords, global_stitching_done
+
+
+
+
+def stitched_beads_on_nuclei_fresh_tissue(experiment_fpath:str,
+                                      client,
+                                      nuclei_tag:str='_ChannelCy3_Nuclei_',
+                                      beads_tag:str='_ChannelEuropium_Cy3_',
+                                      round_num:int = 1,
+                                      overlapping_percentage:int=5,
+                                      machine:str='ROBOFISH2'
+                                     ):
+    """Function tun run the stitching of the dots in the fresh images using 
+    the nuclei images as reference
+
+    Args:
+        experiment_fpath (str): path of the experiment to process
+        client ([type]): dask client for parallel processing
+        nuclei_tag (str, optional): Tag to identify the nuclei dataset. Defaults to '_ChannelCy3_Nuclei_'.
+        beads_tag (str, optional): Tag to identify the beads dataset. Defaults to '_ChannelEuropium_Cy3_'.
+        round_num (int, optional): Reference round,for the fresh tissue there is only one. Defaults to 1.
+        overlapping_percentage (int, optional): Overlapping between the different tiles. Defaults to 5.
+        machine (str, optional): machine running the experiment. Defaults to 'ROBOFISH2'.
+    """
+    experiment_fpath = Path(experiment_fpath)
+    fresh_tissue_path = experiment_fpath / 'fresh_tissue'
+    beads_dataset_fpath = list(fresh_tissue_path.glob('*'+ beads_tag +'*.parquet'))[0]
+    nuclei_dataset_fpath = list(fresh_tissue_path.glob('*'+ nuclei_tag +'*.parquet'))[0]
+    
+    # Collect and adjust beads dataset with missing values
+    beads_data = Dataset()
+    beads_data.load_dataset(beads_dataset_fpath)
+    beads_data.dataset['processing_type'] = 'undefined'
+    beads_data.dataset['overlapping_percentage'] = overlapping_percentage / 100
+    beads_data.dataset['machine'] = machine
+
+    metadata_beads = beads_data.collect_metadata(beads_data.dataset)
+    beads_org_tiles = organize_square_tiles(experiment_fpath,beads_data.dataset,metadata_beads,round_num)
+    beads_org_tiles.run_tiles_organization()
+    flist = list((fresh_tissue_path / 'results').glob('*decoded_fov*.parquet'))
+
+    # duplicate registered
+    for fpath in flist:
+        data = pd.read_parquet(fpath)
+        data['r_px_registered'] = data['r_px_original']
+        data['c_px_registered'] = data['c_px_original']
+        data['hamming_distance'] = 0
+        data['decoded_genes'] = 'beads'
+        data.to_parquet(fpath)
+
+
+    all_futures = []
+    for fpath in flist:
+        future = client.submit(stitch_using_coords_general, fpath,
+                                              beads_org_tiles.tile_corners_coords_pxl,
+                                              beads_org_tiles.reference_corner_fov_position,
+                                              metadata_beads,tag='microscope_stitched')
+
+        all_futures.append(future)
+    _ = client.gather(all_futures)
+
+    io.simple_output_plotting(fresh_tissue_path,
+                              stitching_selected= 'microscope_stitched',
+                             selected_Hdistance=0,
+                             client = client,
+                             input_file_tag = 'decoded_fov',
+                             file_tag = 'stitched_microscope')
+
+
+    # Collect and adjust nuclei dataset with missing values
+    nuclei_data = Dataset()
+    nuclei_data.load_dataset(nuclei_dataset_fpath)
+    nuclei_data.dataset['processing_type'] = 'undefined'
+    nuclei_data.dataset['overlapping_percentage'] = overlapping_percentage / 100
+    nuclei_data.dataset['machine'] = machine
+
+    metadata_nuclei = nuclei_data.collect_metadata(nuclei_data.dataset)
+    nuclei_org_tiles = organize_square_tiles(experiment_fpath,nuclei_data.dataset,metadata_nuclei,round_num)
+    nuclei_org_tiles.run_tiles_organization()
+
+    _ =stitching_graph_fresh_nuclei(experiment_fpath,nuclei_org_tiles, metadata_nuclei, 
+                                client, nr_dim = 2)
+
+
+    io.simple_output_plotting(fresh_tissue_path,
+                              stitching_selected= 'global_stitched_nuclei',
+                             selected_Hdistance=0,
+                             client = client,
+                             input_file_tag = 'decoded_fov',
+                             file_tag = 'global_stitched_nuclei')
+
+
+
+
+
 
 
 
