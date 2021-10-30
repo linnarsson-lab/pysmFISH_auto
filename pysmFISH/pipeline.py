@@ -918,7 +918,7 @@ class Pipeline():
         
         self.client.close()
         self.cluster.close()
-        if self.processing_engine == 'unamanaged cluster':
+        if self.processing_engine == 'unmanaged cluster':
             processing_cluster_setup.kill_process()
 
     
@@ -1159,5 +1159,5 @@ class Pipeline():
         
         self.client.close()
         self.cluster.close()
-        if self.processing_engine == 'unamanaged cluster':
+        if self.processing_engine == 'unmanaged cluster':
             processing_cluster_setup.kill_process()
