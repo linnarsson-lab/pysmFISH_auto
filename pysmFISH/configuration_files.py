@@ -707,8 +707,7 @@ def create_analysis_config_file_from_dataset(experiment_fpath: str, metadata: di
     general_analysis_config_fpath = experiment_fpath.parent / 'config_db' / 'analysis_config.yaml'
     analysis_config = OrderedDict()
     analysis_config_fpath = experiment_fpath / 'pipeline_config' / 'analysis_config.yaml'
-    general_analysis_config = yaml.safe_load(open(general_analysis_config_fpath, 'rb'))
-
+    
     try:
         analysis_config = yaml.safe_load(open(analysis_config_fpath,'rb')) 
         logger.debug(f'The analysis config file is already present')
@@ -720,6 +719,7 @@ def create_analysis_config_file_from_dataset(experiment_fpath: str, metadata: di
             machine = 'NOT_DEFINED'
 
         try:
+            general_analysis_config = yaml.safe_load(open(general_analysis_config_fpath, 'rb'))
             experiment_type = metadata['experiment_type']
             analysis_config = general_analysis_config[experiment_type][machine]
             beads_keys = [el for el in analysis_config.keys() if 'beads' in el]
