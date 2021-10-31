@@ -674,7 +674,7 @@ class Pipeline():
                                       beads_tag = tag_ref_beads,
                                       round_num = 1,
                                       overlapping_percentage=5,
-                                      machine=self.metadata['machine']
+                                      machine=self.metadata['machine'])
 
 
     # --------------------------------
