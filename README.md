@@ -67,14 +67,16 @@ All the requirements are included in the [setup.py](setup.py) file.
 **ON PREMISES CLUSTER (MONOD)**
 The cluster has a shared file system
 
-```yaml
 
+__DRIVE 1 (fish) __:
+&nbsp;&nbsp; __current_folder__: symlink to the storage drive where all the raw data are saved.The data are stored in a different drive that is not backed up but on a RAID  
+
+```yaml
 DRIVE 1
 fish:
 |
 |-- current_folder: symlink to the storage drive where all the raw data are saved.  
-|		The data are stored in a different drive that is not   
-|   backed up but on a RAID  
+|		The data are stored in a different drive that is not backed up but on a RAID  
 |										
 |-- processing_folder:
 |		|
