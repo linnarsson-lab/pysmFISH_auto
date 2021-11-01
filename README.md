@@ -69,7 +69,8 @@ The cluster has a shared file system
 
 
 __DRIVE 1 (fish)__:  
-&nbsp;&nbsp; __current_folder__: symlink to the storage drive where all the raw data are saved.The data are stored in a different drive that is not backed up but on a RAID  
+&nbsp;&nbsp; __current_folder__: symlink to the storage drive where all the raw data  
+&nbsp;&nbsp;&nbsp;&nbsp;are saved. The data are stored in a different drive that is not backed up &nbsp;&nbsp;&nbsp;&nbsp;but on a RAID  
 
 ```yaml
 DRIVE 1
