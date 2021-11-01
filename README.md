@@ -73,8 +73,8 @@ DRIVE 1
 fish:
 |
 |-- current_folder: symlink to the storage drive where all the raw data are saved.  
-|								The data are stored in a different drive that is not   
-|     					backed up but on a RAID  
+|		The data are stored in a different drive that is not   
+|   backed up but on a RAID  
 |										
 |-- processing_folder:
 |		|
