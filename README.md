@@ -70,73 +70,36 @@ The cluster has a shared file system
 
 __DRIVE 1 (fish)__:  
 * __current_folder__: symlink to the storage drive where all the raw data are saved. The data are stored in a different drive that is not backed up but on a RAID  
+
 * __processing_folder__:
   * __experiment_name__: symlink to the experiment to process 
+  * __config_db__: contains the configuration files required for start the processing 
+  * __codebooks__: contains all the files with the codebooks used in the experiments
+  * __probes_sets__: contains all the fasta files with the probes used in the analysis
+  * __fish_projects__: contains folders named according to the project. Each folder will contain the symlink to the experiment folders associated to the specific experiment.  
 
-```yaml
-DRIVE 1
-fish:
-|
-|-- current_folder: symlink to the storage drive where all the raw data are saved.  
-|		The data are stored in a different drive that is not backed up but on a RAID  
-|										
-|-- processing_folder:
-|		|
-|		|-- experiment_name: symlink to the experiment to process  
-|		|
-|		|-- config_db: contains the configuration files required for   
-|		|								start the processing  
-|		|
-|		|-- codebooks: contains all the files with the codebooks used in the experiments
-|		|
-|		|-- probes_sets: contains all the fasta files with the probes used in the  
-|										  analysis
-|
-|-- fish_projects: contains folders named according to the project. Each folder  
-|									 will contain the symlink to the experiment folders associated  
-|									 to the specific experiment.  
-|
-|-- preprocessed_data_backup: contains folder for each experiment with     preprocessed   data and relevant metadata used for processing.
-  IMPORTANT: This folder is backed up in a diffent physical location (ex. outside KI)
+* __preprocessed_data_backup__: contains folder for each experiment with preprocessed data and relevant metadata used for processing. __IMPORTANT__: This folder is backed up in a diffent physical location (ex. outside Karolinska)
 
-**DRIVE 2**
-The drive is not backed up but is on a RAID
-datb:
-|
-|-- sl:
-|   |
-|   |-- fish_rawdata: Contains all the experiment folders with the raw data.
-|   |-- config_db:  simlink to the folder on **/fish drive** that 
-|		|							  contains the configuration files required for 
-|		|								start the processing
-|		|
-|		|-- codebooks: simlink to the folder on **/fish drive** that 
-|				contains all the files with the codebooks used in the experiments
-|		|
-|		|-- probes_sets: simlink to the folder on **/fish drive** that
-				contains all the fasta files with the probes used in the
-				analysis
 
-..................
+__DRIVE 2 (datb)__:  
+* sl: parent directory with the data of the `Linnarsson Lab`
+The drive is not backed up but is on a `RAID`
+  * __fish_rawdata__: Contains all the experiment folders with the fish data.
+    * __config_db__: symlink to the config_db folder on `DRIVE 1 (fish)`that contains the configuration files required for start the processing 
+    * __codebooks__: symlink to the codebooks folder on `DRIVE 1 (fish)`that contains all the files with the codebooks used in the experiments
+    * __probes_sets__: symlink to the config_db folder on `DRIVE 1 (fish)`that contains all the fasta files with the probes used in the analysis
+    * __experiment_name__: experiment to process 
 
-**DRIVE N**
-The drive is not backed up but is on a RAID
-datX:
-|
-|-- sl:
-|   |
-|   |-- fish_rawdata: Contains all the experiment folders with the raw data.
-|   |-- config_db:  simlink to the folder on **/fish drive** that 
-|		|							  contains the configuration files required for 
-|		|								start the processing
-|		|
-|		|-- codebooks: simlink to the folder on **/fish drive** that 
-|				contains all the files with the codebooks used in the experiments
-|		|
-|		|-- probes_sets: simlink to the folder on **/fish drive** that
-				contains all the fasta files with the probes used in the
-				analysis
-```
+
+__DRIVE N (datN)__:  
+* sl: parent directory with the data of the `Linnarsson Lab`
+The drive is not backed up but is on a `RAID`
+  * __fish_rawdata__: Contains all the experiment folders with the fish data.
+    * __config_db__: symlink to the config_db folder on `DRIVE 1 (fish)`that contains the configuration files required for start the processing 
+    * __codebooks__: symlink to the codebooks folder on `DRIVE 1 (fish)`that contains all the files with the codebooks used in the experiments
+    * __probes_sets__: symlink to the config_db folder on `DRIVE 1 (fish)`that contains all the fasta files with the probes used in the analysis
+    * __experiment_name__: experiment to process 
+
 
 ## Data flow
 
