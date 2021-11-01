@@ -1,80 +1,7 @@
-# pysmFISH auto
+# Table of contents
+[Introduction](#Introduction)
 
-# Meeting notes
 
-Create transfer function for running locally
-
-# TMP NOTES
-
-- [ ]  Add the structure of the metadata required for building the dataset. Create also an example file with the metadata
-- [x]  Make a note about the tiles organisation function
-- [ ]  Explain output of the preprocessing data ((img_preprocessed, img),metadata)
-- [ ]  explain what you need to run an experiment locally
-- [ ]  
-
-# THINGS TO IMPROVE
-
-- [ ]  Speed of barcode extraction. I think can be much quicker using GPUs or a faster KDE implementation
-
-## THINGS TO REMOVE
-
-- [x]  If not used for blocking the fovs with bad dots then remove `RegistrationMinMatchingBeads` from the configuration files NOT TO REMOVE
-
-## COMMENTS STATUS
-
-- [x]  utils.py
-- [x]  logger_utils.py
-- [x]  visualization.py
-- [x]  errors.py
-- [x]  data_models.py
-- [x]  configuration_files.py
-- [x]  dots_calling.py
-- [x]  preprocessing.py
-- [x]  processing_cluster_setup.py
-- [x]  microscope_file_parsers.py
-- [x]  pipeline.py
-- [x]  barcode_analysis.py
-- [x]  fovs_registration.py
-- [ ]  stitching.py
-- [x]  fov_processing.py
-- [x]  io.py
-- [x]  qc_utils.py
-
-## REMOVE UNUSED FUNCTIONS
-
-dots_calling.py
-
-microscope_file_parsers.py
-
-barcode_analysis.py
-
-fov_registration.py
-
-stitching.py
-
-fov_processing.py
-
-## EXAMPLE NOTEBOOKS
-
-- [ ]  Conversion codebook
-- [ ]  Test processing on few fov
-- [ ]  Visualize counts
-- [ ]  Template for parametrized run
-
-## DESCRIBE OUTPUT
-
-## COMMAND LINE COMMANDS
-
-```bash
-XXXentry_point_nameXXX
-	|
-	|-- **processing_env**
-	|		|-- setup_de_novo_env
-	|   |-- convert_codebook
-  |   |-- create_general_analysis_config
-```
-
-How to start creation of dataset when starting from a different data storage
 
 # Introduction
 
@@ -108,11 +35,10 @@ cd pysmFISH
 pip install --use-feature=in-tree-build .
 
 # Install the kernel to run with papermill
-python -m ipykernel install --user --name pysmFISH-env 
-														--display-name 'pysmFISH-env'
+python -m ipykernel install --user --name pysmFISH-env  --display-name 'pysmFISH-env'
 ```
 
-## Pip (TODO)
+## Pip
 
 ```bash
 # Create your conda env
@@ -122,17 +48,14 @@ conda activate pysmFISH-env
 pip install pysmFISH
 
 # Install the kernel to run with papermill
-python -m ipykernel install --user --name pysmFISH-env 
-														--display-name 'pysmFISH-env'
+python -m ipykernel install --user --name pysmFISH-env --display-name 'pysmFISH-env'
 ```
 
 ## pysmFISH requirements
 
-[setup.py](https://www.notion.so/453c3d8b07fe48b495bd68bccc0a9e4a)
+All the requirements are included in the [setup.py](setup.py) file.
 
-[dask-jobqueue](https://www.notion.so/dask-jobqueue-18ca8077e8b44bb8aa9c68f4020c6f8e)
-
-## Example of the EEL/smFISH data life cycle in the Linnarsson Lab
+# Example of the EEL/smFISH data life cycle in the Linnarsson Lab
 
 ## Data organisation for EEL/smFISH data:
 
