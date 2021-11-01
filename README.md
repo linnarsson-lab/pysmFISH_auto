@@ -1,6 +1,6 @@
 # Table of contents
-[Introduction](#Introduction)
-[Installation](#Installation)
+[Introduction](#Introduction)  
+[Installation](#Installation)  
   [Installation from source](##Install From Source)
 
 
