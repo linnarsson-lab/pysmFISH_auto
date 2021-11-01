@@ -1,7 +1,7 @@
 # Table of contents
 [Introduction](#Introduction)  
 [Installation](#Installation)  
-    [Installation from source](#InstallFromSource)
+> [Installation from source](#InstallFromSource)
 
 
 # Introduction <a name="Introduction"></a>
