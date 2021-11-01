@@ -1,10 +1,10 @@
 # Table of contents
 [Introduction](#Introduction)  
 [Installation](#Installation)  
-&nbsp;&nbsp;&nbsp;&nbsp;[Install from source](#InstallFromSource)
-&nbsp;&nbsp;&nbsp;&nbsp;[Pip install](#PipInstall)
+&nbsp;&nbsp;&nbsp;&nbsp;[Install from source](#InstallFromSource)  
+&nbsp;&nbsp;&nbsp;&nbsp;[Pip install](#PipInstall)  
 [Installation](#Requirements)  
-[Example of the EEL/smFISH data life cycle in the Linnarsson Lab](#LifeCycle)
+[Example of the EEL/smFISH data life cycle in the Linnarsson Lab](#LifeCycle)  
 
 # Introduction <a name="Introduction"></a>
 
@@ -64,37 +64,36 @@ All the requirements are included in the [setup.py](setup.py) file.
 
 ## Data organisation for EEL/smFISH data:
 
-```yaml
 **ON PREMISES CLUSTER (MONOD)**
 The cluster has a shared file system
 
-**DRIVE 1**
+```yaml
+
+DRIVE 1
 fish:
 |
-|-- current_folder: symlink to the storage drive where all the raw dataare saved.
-|								The data are stored in a different drive that is not 
-|     					backed up but on a RAID
+|-- current_folder: symlink to the storage drive where all the raw data are saved.  
+|								The data are stored in a different drive that is not   
+|     					backed up but on a RAID  
 |										
 |-- processing_folder:
 |		|
-|		|-- experiment_name: symlink to the experiment to process
+|		|-- experiment_name: symlink to the experiment to process  
 |		|
-|		|-- config_db: contains the configuration files required for 
-|		|								start the processing
+|		|-- config_db: contains the configuration files required for   
+|		|								start the processing  
 |		|
 |		|-- codebooks: contains all the files with the codebooks used in the experiments
 |		|
-|		|-- probes_sets: contains all the fasta files with the probes used in the
+|		|-- probes_sets: contains all the fasta files with the probes used in the  
 |										  analysis
 |
-|-- fish_projects: contains folders named according to the project. Each folder
-|									 will contain the symlink to the experiment folders associated
-|									 to the specific experiment.
+|-- fish_projects: contains folders named according to the project. Each folder  
+|									 will contain the symlink to the experiment folders associated  
+|									 to the specific experiment.  
 |
-|-- preprocessed_data_backup: contains folder for each experiment with preprocessed
-															data and relevant metadata used for processing.
-															**IMPORTANT:** This folder is backed up in a diffent
-															physical location (ex. outside KI)
+|-- preprocessed_data_backup: contains folder for each experiment with     preprocessed   data and relevant metadata used for processing.
+  IMPORTANT: This folder is backed up in a diffent physical location (ex. outside KI)
 
 **DRIVE 2**
 The drive is not backed up but is on a RAID
@@ -111,8 +110,8 @@ datb:
 |				contains all the files with the codebooks used in the experiments
 |		|
 |		|-- probes_sets: simlink to the folder on **/fish drive** that
-								contains all the fasta files with the probes used in the
-								analysis
+				contains all the fasta files with the probes used in the
+				analysis
 
 ..................
 
@@ -131,8 +130,8 @@ datX:
 |				contains all the files with the codebooks used in the experiments
 |		|
 |		|-- probes_sets: simlink to the folder on **/fish drive** that
-								contains all the fasta files with the probes used in the
-								analysis
+				contains all the fasta files with the probes used in the
+				analysis
 ```
 
 ## Data flow
