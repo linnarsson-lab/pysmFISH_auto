@@ -1,8 +1,10 @@
 # Table of contents
 [Introduction](#Introduction)  
 [Installation](#Installation)  
-&nbsp;&nbsp;&nbsp;&nbsp;[Installation from source](#InstallFromSource)
-
+&nbsp;&nbsp;&nbsp;&nbsp;[Install from source](#InstallFromSource)
+&nbsp;&nbsp;&nbsp;&nbsp;[Pip install](#PipInstall)
+[Installation](#Requirements)  
+[Example of the EEL/smFISH data life cycle in the Linnarsson Lab](#LifeCycle)
 
 # Introduction <a name="Introduction"></a>
 
@@ -14,7 +16,9 @@ The data can be analysed on a `local` computer or on a `HPC` cluster. The cluste
 
 You can install pysmFISH with `pip` or installing from source
 
-## Install From Source <a name="InstallFromSource"></a>
+## Install From Source <a name="InstallFromSource"></a>  
+__CORRECT THE LINK TO THE PACKAGE__
+
 
 ```bash
 # Create your conda env
@@ -39,7 +43,7 @@ pip install --use-feature=in-tree-build .
 python -m ipykernel install --user --name pysmFISH-env  --display-name 'pysmFISH-env'
 ```
 
-## Pip
+## Pip <a name="PipInstall"></a>
 
 ```bash
 # Create your conda env
@@ -52,11 +56,11 @@ pip install pysmFISH
 python -m ipykernel install --user --name pysmFISH-env --display-name 'pysmFISH-env'
 ```
 
-## pysmFISH requirements
+# Requirements <a name="Requirements"></a>
 
 All the requirements are included in the [setup.py](setup.py) file.
 
-# Example of the EEL/smFISH data life cycle in the Linnarsson Lab
+# Example of the EEL/smFISH data life cycle in the Linnarsson Lab <a name="LifeCycle"></a>
 
 ## Data organisation for EEL/smFISH data:
 
