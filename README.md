@@ -4,7 +4,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[Install from source](#InstallFromSource)  
 &nbsp;&nbsp;&nbsp;&nbsp;[Pip install](#PipInstall)  
 [Installation](#Requirements)  
-[Example of the EEL/smFISH data life cycle in the Linnarsson Lab](#LifeCycle)  
+[EEL/smFISH data life cycle in the Linnarsson Lab](#LifeCycle)  
 
 # Introduction <a name="Introduction"></a>
 
@@ -14,7 +14,7 @@ The data can be analysed on a `local` computer or on a `HPC` cluster. The cluste
 
 # Installation <a name="Installation"></a>
 
-You can install pysmFISH with `pip` or installing from source
+You can install pysmFISH with `pip` or from source
 
 ## Install From Source <a name="InstallFromSource"></a>  
 __CORRECT THE LINK TO THE PACKAGE__
@@ -60,12 +60,13 @@ python -m ipykernel install --user --name pysmFISH-env --display-name 'pysmFISH-
 
 All the requirements are included in the [setup.py](setup.py) file.
 
-# Example of the EEL/smFISH data life cycle in the Linnarsson Lab <a name="LifeCycle"></a>
+# EEL/smFISH data life cycle in the Linnarsson Lab <a name="LifeCycle"></a>
 
 ## Data organisation for EEL/smFISH data:
 
 **ON PREMISES CLUSTER (MONOD)**
-The cluster has a shared file system
+The cluster has a shared file system  
+Each experiment is labelled with a specific tag and 
 
 
 __DRIVE 1 (fish)__:  
