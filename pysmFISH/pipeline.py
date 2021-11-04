@@ -179,10 +179,11 @@ class Pipeline():
         
         self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
         self.resume = kwarg.pop('resume',False)
+        self.processing_engine = kwarg.pop('processing_engine','htcondor')
 
         # Parameters for processing in htcondor
         self.processing_env_config = {}
-        self.processing_env_config['processing_engine'] = kwarg.pop('processing_engine','htcondor')
+        self.processing_env_config['processing_engine'] = self.processing_engine
         self.processing_env_config['cores'] = kwarg.pop('cores',20)
         self.processing_env_config['memory'] = kwarg.pop('memory','200GB')
         self.processing_env_config['disk'] = kwarg.pop('disk','0.1GB')
