@@ -575,7 +575,7 @@ class Pipeline():
         io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
                                 selected_Hdistance, self.client,
                                 input_file_tag = 'microscope_stitched_cleaned',
-                                file_tag='removed_microscope_stitched')
+                                file_tag='cleaned_microscope_stitched')
         # ---------------------------------------------------------------- 
 
     def stitch_and_remove_dots_eel_graph_step(self):
