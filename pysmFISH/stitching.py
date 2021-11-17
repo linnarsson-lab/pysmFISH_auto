@@ -35,6 +35,7 @@ from pynndescent import NNDescent
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.fovs_registration import create_fake_image
 from pysmFISH.data_models import Dataset
+from pysmFISH import io
 
  
 
