@@ -693,6 +693,42 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(experiment_fpat
 
 
 
+
+
+
+def combine_filtered_images(output_list: list,experiment_fpath: str,
+                            metadata: pd.DataFrame, save:bool=False):
+    """Function used to combine all the filtered images for a fov/channel in a single
+        image stack
+    Args:
+        output_list (list): list containing the output of preprocessing 
+        experiment_fpath (str): path to the experiment to process
+        metadata (pd.DataFrame): dataframe containing the metadata
+        save (bool, optional): Determine if the filtered images should be stored Defaults to False.
+    Returns:
+        img_stack (np.ndarray): image stack of all the images for a fov. The position in the
+                stack correspond to round_num-1
+    """
+    experiment_fpath = Path(experiment_fpath)
+     
+    img_stack = np.zeros([metadata['total_rounds'],metadata['img_width'],metadata['img_height']])
+
+    for img, img_meta in output_list:
+        round_num = img_meta.round_num
+        img_stack[round_num-1,:,:] = img
+
+    if save:
+        # Add conversion to more compress ftype
+        img_meta = output_list[0][1]
+        channel = img_meta.channel
+        fov = img_meta.fov_num
+        fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_' + channel + '_combined_img_fov_' + fov + '.npy')
+        np.save(fpath, img_stack)
+    
+    return img_stack
+
+
+
 def processing_serial_fish_fov_graph(experiment_fpath: str,
                                     analysis_parameters: dict,
                                     running_functions: dict, 
@@ -820,9 +856,9 @@ def processing_serial_fish_fov_graph(experiment_fpath: str,
             name = 'stitch_to_mic_coords_' +experiment_name + '_' + channel + '_' \
                                 + '_fov_' +str(fov) + '-' + tokenize()  
 
-            stitched_coords = delayed(stitching.stitch_using_microscope_fov_coords,name=name)(registered_counts,tile_corners_coords_pxl,
-                                                        tiles_org.reference_corner_fov_position,
-                                                        metadata, tag='microscope_stitched')
+            stitched_coords = delayed(stitching.stitch_using_coords_general,name=name)(registered_counts,
+                                                            tile_corners_coords_pxl,tiles_org.reference_corner_fov_position,
+                                                            metadata,tag='microscope_stitched')
             
             name = 'register_and_combine_filt_imgs' +experiment_name + '_' + channel + '_' \
                                 + '_fov_' +str(fov) + '-' + tokenize() 
@@ -841,14 +877,7 @@ def processing_serial_fish_fov_graph(experiment_fpath: str,
 
     io.consolidate_zarr_metadata(preprocessed_zarr_fpath)
 
-    # # ----------------------------------------------------------------
-    # GENERATE OUTPUT FOR PLOTTING
-    stitching_selected = 'microscope_stitched'
-    io.simple_output_plotting_serial(experiment_fpath, stitching_selected, client, file_tag='decoded')
-    # ----------------------------------------------------------------  
-
-
-
+    
 
 def single_fov_fresh_tissue_beads(processing_tag: str,
                                    fov_subdataset: pd.Series,
