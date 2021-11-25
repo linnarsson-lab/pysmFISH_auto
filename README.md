@@ -58,7 +58,7 @@ git clone https://github.com/linnarsson-lab/pysmFISH_auto.git
 # currently the version
 
 # Install the package
-cd pysmFISH
+cd pysmFISH_auto
 pip install --use-feature=in-tree-build .
 
 # Install the kernel to run with papermill
