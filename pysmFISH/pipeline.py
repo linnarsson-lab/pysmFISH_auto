@@ -84,7 +84,7 @@ class Pipeline():
             dataset_path (str): Path to an existing dataset that will be used in the processing
             chunk_size (int): Number of FOV to process in parallel
             same_dot_radius_duplicate_dots (float): Searching distance that define two dots as identical
-                                    (default: 10)
+                                    (default: 5)
             stitching_selected (str): Define the stitched counts on which the overlapping dotes will be removed 
                                     (default: microscope_stitched) 
             hamming_distance (int): Value to select the barcodes that are passing the 
@@ -104,7 +104,7 @@ class Pipeline():
             adaptive: (bool): Decide if the cluster can increase/decrease the number of worker accroding to
                                 the processig required. (default True)
             maximum_jobs (int): Max number of jobs to run in htcondor
-            scheduler_port (int): define the dask scheduler port. Used for the unmanaged cluster (default 8686) 
+            scheduler_port (int): define the dask scheduler port. Used for the unmanaged cluster (default 23875) 
             dashboard_port (int): define the dask dashboard port: Used for the unmanaged cluser (default 8787)
             scheduler_address (str): Address of the dask scheduler. Used for the unmanaged cluser. 
                                 'localhost' if running of the main node (default 'localhost)
@@ -159,7 +159,7 @@ class Pipeline():
         self.save_intermediate_steps = kwarg.pop('save_intermediate_steps',True)
         self.dataset_path = kwarg.pop('dataset_path','')
         self.store_dataset = kwarg.pop('store_dataset',True)
-        self.chunk_size = kwarg.pop('chunk_size',30)
+        self.chunk_size = kwarg.pop('chunk_size',20)
         self.same_dot_radius_duplicate_dots = kwarg.pop('same_dot_radius_duplicate_dots',5)
         self.stitching_selected = kwarg.pop('stitching_selected','microscope_stitched')
         self.hamming_distance = kwarg.pop('hamming_distance',3)
@@ -168,7 +168,7 @@ class Pipeline():
         self.maximum_jobs = kwarg.pop('maximum_jobs',15)
         self.scheduler_port = kwarg.pop('scheduler_port',8786)
         self.dashboard_port = kwarg.pop('dashboard_port',8787)
-        self.nprocs = kwarg.pop('nprocs',45)
+        self.nprocs = kwarg.pop('nprocs',40)
         self.nthreads = kwarg.pop('nthreads',1)
         self.scheduler_address = kwarg.pop('scheduler_address','localhost')
         self.workers_addresses_list = kwarg.pop('workers_addresses_list',['monod10','monod11','monod12','monod33'])
@@ -789,11 +789,7 @@ class Pipeline():
         # ---------------------------------------------------------------- 
     
     
-    
-    
-    
-    
-    
+
     
     def processing_fresh_tissue_step(self,parsing=True,
                                     tag_ref_beads='_ChannelEuropium_Cy3_',
