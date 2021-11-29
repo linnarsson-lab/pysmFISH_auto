@@ -1,0 +1,63 @@
+fish:
+  PreprocessingFishFlatFieldKernel:
+  - 1
+  - 100
+  - 100
+  PreprocessingFishFilteringSmallKernel:
+  - 1
+  - 8
+  - 8
+  PreprocessingFishFilteringLaplacianKernel:
+  - 0.02
+  - 0.01
+  - 0.01
+  CountingFishMinObjDistance: 1
+  CountingFishMaxObjSize: 200
+  CountingFishMinObjSize: 1
+  CountingFishNumPeaksPerLabel: 20
+  LargeObjRemovalPercentile: 95
+  LargeObjRemovalMinObjSize: 100
+  LargeObjRemovalSelem: 3
+both-beads:
+  PreprocessingFishFilteringSmallKernel:
+  - 1
+  - 8
+  - 8
+  PreprocessingFishFilteringLaplacianKernel:
+  - 0.02
+  - 0.01
+  - 0.01
+  PreprocessingFishFlatFieldKernel:
+  - 1
+  - 100
+  - 100
+  CountingFishMinObjDistance: 5
+  CountingFishMaxObjSize: 600
+  CountingFishMinObjSize: 10
+  CountingFishNumPeaksPerLabel: 1
+  LargeObjRemovalPercentile: 95
+  LargeObjRemovalMinObjSize: 100
+  LargeObjRemovalSelem: 3
+staining:
+  PreprocessingStainingFlatFieldKernel:
+  - 2
+  - 100
+  - 100
+fresh-tissue:
+  nuclei:
+    PreprocessingFreshNucleiLargeKernelSize:
+    - 5
+    - 50
+    - 50
+  beads:
+    PreprocessingFishFlatFieldKernel:
+    - 100
+    - 100
+    CountingFishMinObjDistance: 20
+    CountingFishMaxObjSize: 200
+    CountingFishMinObjSize: 20
+    CountingFishNumPeaksPerLabel: 1
+BarcodesExtractionResolution: 2
+RegistrationReferenceHybridization: 1
+RegistrationTollerancePxl: 3
+RegistrationMinMatchingBeads: 5

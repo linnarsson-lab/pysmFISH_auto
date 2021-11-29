@@ -1,0 +1,58 @@
+Age: P41
+Barcode: 'True'
+Barcode_length: 16
+Chamber_EXP: Chamber1
+Chemistry: EELV2_all
+Codebooks:
+  Codebook_Atto425: None
+  Codebook_Cy3: None
+  Codebook_Cy5: Mouse-wholebrain-448genes-EELV2-647_HE_V5_extended_EELV2_codebook_16_6_5Alex647N.parquet
+  Codebook_Cy7: None
+  Codebook_DAPI: None
+  Codebook_FITC: None
+  Codebook_TxRed: None
+  Codebook_Europium: None
+Description: Mouse 448 genes saggital
+EXP_name: LBEXP20210718_EEL_Mouse_448_2
+Experiment_type: eel-barcoded
+Heatshock_temperature: 22.0
+Hyb_time_1_A: 0.16
+Hyb_time_1_B: None
+Hyb_time_1_C: None
+Hyb_time_2_A: None
+Hyb_time_2_B: None
+Hyb_time_2_C: None
+Hybmix_volume: 500
+Imaging_temperature: 20.0
+Machine: ROBOFISH2
+Multicolor_barcode: 'False'
+Operator: lars
+Orientation: Saggital
+Overlapping_percentage: '8'
+Pipeline: eel-human-embryo
+Position: None
+Probes_FASTA:
+  Probes_FASTA_Atto425: None
+  Probes_FASTA_Cy3: None
+  Probes_FASTA_Cy5: M448.fasta
+  Probes_FASTA_Cy7: None
+  Probes_FASTA_DAPI: None
+  Probes_FASTA_FITC: None
+  Probes_FASTA_TxRed: None
+  Probes_FASTA_Europium: None
+Program: None
+Protocols_io: https://www.protocols.io/edit/eel-t92er8e
+Readout_temperature: 22.0
+RegionImaged: Full section
+Sample: B275
+SectionID: Slide 7 section 12
+Species: Mus musculus
+Staining_temperature: 37.0
+Start_date: '20210718'
+StitchingChannel: Europium
+Stitching_type: both-beads
+Strain: CD1
+Stripping_temperature: 22.0
+Target_cycles: 16
+Tissue: Brain
+roi: '[1, 699]'
