@@ -28,6 +28,7 @@ from pathlib import Path
 from sklearn.neighbors import NearestNeighbors
 import sklearn.linear_model as linmod
 from skimage.feature import register_translation
+from skimage import measure
 from scipy.optimize import minimize
 
 from pynndescent import NNDescent
@@ -761,6 +762,59 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         decoded_df.to_parquet(decoded_df_fpath,index=False)
     else:
         return decoded_df
+
+
+
+
+def stitch_using_coords_general_segmented_objects(fov,obj_dict,tile_corners_coords_pxl,reference_corner_fov_position, metadata):
+    """
+    Function used to stitch the segmented object used for defining the cells.
+    """
+
+    r_microscope_coords = tile_corners_coords_pxl[fov,0]
+    c_microscope_coords = tile_corners_coords_pxl[fov,1]
+    
+    if obj_dict:
+        
+        if reference_corner_fov_position == 'top-left':
+            for el,coords_dict in obj_dict.items():
+                coords_dict['stitched_coords'] = np.vstack([r_microscope_coords + coords_dict['original_coords'][:,0],
+                                                            c_microscope_coords + coords_dict['original_coords'][:,1]]).T
+
+        elif reference_corner_fov_position == 'top-right':
+            for el,coords_dict in obj_dict.items():
+                coords_dict['stitched_coords'] = np.vstack([r_microscope_coords + coords_dict['original_coords'][:,0],
+                                                            c_microscope_coords - (metadata['img_width'] -coords_dict['original_coords'][:,1])]).T
+
+        elif reference_corner_fov_position == 'bottom_left':
+            for el,coords_dict in obj_dict.items():
+                coords_dict['stitched_coords'] = np.vstack([r_microscope_coords + (metadata['img_height'] -coords_dict['original_coords'][:,0]),
+                                                            c_microscope_coords + coords_dict['original_coords'][:,1]]).T
+
+    return obj_dict
+
+
+def register_coords_obj(fov,segmentation_output_path,
+                    stitching_parameters,
+                    reference_corner_fov_position,
+                    metadata):
+    """Function used to register the coords of the segmented object to th 
+
+    Args:
+        fov ([type]): [description]
+        segmentation_output_path ([type]): [description]
+    """
+    segmented_output = pickle.load(open(segmentation_output_path / ('preprocessed_data_fov_' + str(fov) + '_mask.pkl'), 'rb'))
+    segmented_regions = measure.regionprops(segmented_output)
+    segmented_regions_dict = {}
+    for prop in segmented_regions:
+        segmented_regions_dict[str(fov)+'-'+str(prop.label)] = {}
+        segmented_regions_dict[str(fov)+'-'+str(prop.label)]['original_coords']=prop.coords
+        segmented_regions_dict[str(fov)+'-'+str(prop.label)]['stitched_coords']= np.nan
+        segmented_regions_dict = stitch_using_coords_general_segmented_objects(fov,segmented_regions_dict,
+                                                                         stitching_parameters,reference_corner_fov_position, metadata)
+        pickle.dump(segmented_regions_dict,open(segmentation_output_path / ('registered_objs_dict_fov_' + str(fov) + '.pkl'), 'wb'))
+
 
 
 
