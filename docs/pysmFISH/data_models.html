@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pysmFISH.data_models API documentation</title>
+<meta name="description" content="Module containing classes and function used to organize data and metadata" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pysmFISH.data_models</code></h1>
+</header>
+<section id="section-intro">
+<p>Module containing classes and function used to organize data and metadata</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module containing classes and function used to organize data and metadata
+&#34;&#34;&#34;
+from typing import *
+import time
+
+import pandas as pd
+import sys
+import pickle
+from pathlib import Path
+import pandas as pd
+
+from pysmFISH.io import open_consolidated_metadata
+from pysmFISH.logger_utils import selected_logger
+
+
+class Dataset():
+    &#34;&#34;&#34;Dataset class used to collect all the info related to the
+    acquired images. It contains all the metadata needed during the
+    processing.
+    &#34;&#34;&#34;
+    
+    def __init__(self):
+        
+        self.logger = selected_logger()
+        
+    def load_dataset(self, dataset_fpath: str):
+        &#34;&#34;&#34;Load a pre-existing dataset
+
+        Args:
+            dataset_fpath (str): Path to the existing dataset
+        &#34;&#34;&#34;
+        self.dataset = pd.read_parquet(dataset_fpath)
+        
+    
+    # TODO Add support for other file types
+    def create_full_dataset_from_files(self, experiment_fpath: str, 
+                                       experiment_info: dict,
+                                       parsed_raw_data_fpath: str ,ftype: str = &#39;pkl&#39;):
+        
+        &#34;&#34;&#34; Utility function that can be used to create the dataset from a 
+        storage type different from the zarr structure used in pysmFISH. 
+        processing. It requires a file of type ftype containing all the metadata
+
+        
+
+        Args:
+            experiment_fpath (str): Path to the experiment to process
+            experiment_info (dict): Dictionary with the configuration data
+            parsed_raw_data_fpath (str): Path to the folder/zarr file with the parsed data
+            ftype (str, optional): Path to the files containing the metadata. Defaults to &#39;pkl&#39;.
+        &#34;&#34;&#34;    
+        
+        self.experiment_fpath = Path(experiment_fpath)
+        self.experiment_info = experiment_info
+        self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    
+        date_tag = time.strftime(&#34;%y%m%d_%H_%M_%S&#34;)
+        experiment_name = self.experiment_fpath.stem
+        self.dataset_fpath = self.experiment_fpath / (date_tag + &#39;_&#39; + experiment_name + &#39;_dataset.parquet&#39;)
+
+        self.dataset = pd.DataFrame()
+        all_pickle_list = list(self.parsed_raw_data_fpath.glob(&#39;*.&#39; + ftype))
+        if len(all_pickle_list):
+            if ftype == &#39;pkl&#39;:
+                for fdata in all_pickle_list:
+                    single = pickle.load(open(fdata,&#39;rb&#39;))
+                    fdata_loc = fdata.parent / fdata.stem
+                    single[&#39;raw_data_location&#39;] = fdata_loc.as_posix()
+                    single_df = pd.DataFrame(single,index=[0])
+                    self.dataset = pd.concat([self.dataset,single_df],axis=0,ignore_index=True)
+                self.dataset.to_parquet(self.dataset_fpath, index=False)
+            
+            # TODO Add support for other file types
+        else:
+            self.logger.error(f&#39;there are no files with the metadata dictionary&#39;)
+            sys.exit(f&#39;there are no files with the metadata dictionary&#39;)
+    
+    def create_full_dataset_from_zmetadata(self,
+                                       parsed_raw_data_fpath: str):
+        &#34;&#34;&#34;Function used to create the full dataset starting from the consolidated
+        metadata of the parsed zarr file
+
+        Args:
+            parsed_raw_data_fpath (str): Path to the zarr file with the parsed data
+        &#34;&#34;&#34;
+        
+        try:
+            consolidated_metadata = open_consolidated_metadata(parsed_raw_data_fpath)
+        except:
+            self.logger.error(f&#39;consolidated zarr metadata missing or broken&#39;)
+            sys.exit(f&#39;consolidated zarr metadata missing or broken&#39;)
+        else:
+            self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+            
+            date_tag = time.strftime(&#34;%y%m%d_%H_%M_%S&#34;)
+            experiment_name = self.parsed_raw_data_fpath.stem
+            self.dataset_fpath = self.parsed_raw_data_fpath.parent / (date_tag + &#39;_&#39; + experiment_name + &#39;_dataset.parquet&#39;)
+            
+            self.dataset = pd.DataFrame()
+            for name, grp in consolidated_metadata.items():
+                attrs_dict = dict(grp.attrs)
+                fdata_loc = self.parsed_raw_data_fpath / attrs_dict[&#39;grp_name&#39;]
+                attrs_dict[&#39;raw_data_location&#39;] = fdata_loc.as_posix()
+                attrs_df = pd.DataFrame(attrs_dict,index=[0])
+                self.dataset = pd.concat([self.dataset,attrs_df],axis=0,ignore_index=True)
+            self.dataset.to_parquet(self.dataset_fpath, index=False)
+        
+            
+    def collect_metadata(self,df:pd.DataFrame)-&gt; dict:
+        &#34;&#34;&#34;Function used to create a simplified metadata dictionary
+        used in the processing. This create a smaller size variable
+        compared to the dataset making it easier to send to all
+        the workers during the processing
+
+        Args:
+            df (pd.DataFrame): Dataset DataFrame
+
+        Returns:
+            dict: Dictionary with the compiled metadata
+        &#34;&#34;&#34;
+        self.metadata = {}
+        self.metadata[&#39;list_all_fovs&#39;] = df.fov_num.unique()
+        self.metadata[&#39;list_all_channels&#39;] = df.channel.unique()
+        self.metadata[&#39;total_rounds&#39;] = df.round_num.max()
+        self.metadata[&#39;stitching_channel&#39;] = df.iloc[0][&#39;stitching_channel&#39;]
+        self.metadata[&#39;img_width&#39;] = df.iloc[0][&#39;img_width&#39;]
+        self.metadata[&#39;img_height&#39;] = df.iloc[0][&#39;img_height&#39;]
+        self.metadata[&#39;img_zstack&#39;] = df.iloc[0][&#39;zstack&#39;]
+        self.metadata[&#39;pixel_microns&#39;] = df.iloc[0][&#39;pixel_microns&#39;]
+        self.metadata[&#39;experiment_name&#39;] = df.iloc[0][&#39;experiment_name&#39;]
+        self.metadata[&#39;overlapping_percentage&#39;] = df.iloc[0][&#39;overlapping_percentage&#39;]
+        self.metadata[&#39;machine&#39;] = df.iloc[0][&#39;machine&#39;]
+        self.metadata[&#39;barcode_length&#39;] = df.iloc[0][&#39;barcode_length&#39;]
+        self.metadata[&#39;processing_type&#39;] = df.iloc[0][&#39;processing_type&#39;]
+        self.metadata[&#39;experiment_type&#39;] = df.iloc[0][&#39;experiment_type&#39;]
+        self.metadata[&#39;pipeline&#39;] =  df.iloc[0][&#39;pipeline&#39;]
+        self.metadata[&#39;stitching_type&#39;] = df.iloc[0][&#39;stitching_type&#39;]
+        self.metadata[&#39;list_all_codebooks&#39;] = df.codebook.unique()
+        return self.metadata
+        
+
+    def grp_by_channel(self,df: pd.DataFrame)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Groupby the dataset by channel
+
+        Args:
+            df (pd.DataFrame): Dataset to groupby
+
+        Returns:
+            pd.DataFrame: Dataset grouped by channel
+        &#34;&#34;&#34;
+        subset_df = self.dataset.groupby(&#39;channel&#39;)
+        return subset_df
+    
+    def select_fovs_subset(self, df: pd.DataFrame, min_fov: int, max_fov: int)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Select a range of fovs between min and max values (extremites included)
+
+        Args:
+            df (pd.DataFrame): Dataset
+            min_fov (int): lowest fov to select
+            max_fov (int): highest fov to select
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing only the selected fovs 
+        &#34;&#34;&#34;
+        subset_df = df.loc[(df.fov_num &gt;= min_fov) &amp; (df.fov_num &lt;= max_fov),:]
+        return subset_df
+    
+    
+    def select_channel_subset(self,df: pd.DataFrame, channel: str)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Select all the fovs of a specific channel
+
+        Args:
+            df (pd.DataFrame): Dataset
+            channel (str): Imaging channel of interest
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the fovs of the
+                    selected channel
+        &#34;&#34;&#34;
+        subset_df = df.loc[(df.channel == channel),:]
+        return subset_df
+    
+    
+    def select_round_subset(self,df: pd.DataFrame, round_num: int)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Select all the fovs of a specific imaging round
+
+        Args:
+            df (pd.DataFrame): Dataset
+            round_num (int): Imaging round of interest
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the fovs of the
+                    selected round
+        &#34;&#34;&#34;
+        subset_df = df.loc[(df.round_num == round_num),:]
+        return subset_df
+    
+    
+    def select_specific_fov(self,df: pd.DataFrame, channel: str,round_num: int, fov_num: int)-&gt;pd.Series:
+        &#34;&#34;&#34;Select a specific fov according to fov number, channel and
+        round number
+
+        Args:
+            df (pd.DataFrame): Dataset
+            channel (str): Imaging channel of interest
+            round_num (int): Imaging round of interest
+            fov_num (int): Number of the fov of interest
+
+        Returns:
+            pd.Series: Sub-Dataset containing the fovs of the
+                    selected round
+        &#34;&#34;&#34;
+        subset_df = df.loc[(df.channel == channel) &amp; 
+                           (df.round_num == round_num) &amp; 
+                           (df.fov_num == fov_num),:]
+        return subset_df.squeeze()
+
+    def select_all_imgs_fov(self,df: pd.DataFrame, fovs_list: List)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Select a list of fovs
+
+        Args:
+            df (pd.DataFrame): Dataset
+            fovs_list (List): List of fov number to select
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the selected fovs
+        &#34;&#34;&#34;
+        
+        subset_df = df.loc[(df.fov_num.isin(fovs_list)),:]
+        return subset_df
+    
+    # TODO additional utliti functions
+    def load_to_numpy(self):
+        pass
+    
+    def load_to_xarray(self):
+        pass
+    
+    def merge_datasets(self):
+        pass
+
+    def save_dataset(self, df, fpath):
+        df.to_parquet(fpath)
+
+
+class Output_models():
+    &#34;&#34;&#34;
+    Utility class containing the definition of the output dataframes
+    &#34;&#34;&#34;
+
+    def __init__(self):
+
+        self.output_variables_dot_calling = [&#39;r_px_original&#39;,&#39;c_px_original&#39;,
+                                        &#39;dot_id&#39;,&#39;dot_intensity&#39;,&#39;selected_thr&#39;]
+
+        self.output_variables_specific_registration = [&#39;r_px_registered&#39;, &#39;c_px_registered&#39;,
+                            &#39;r_shift_px&#39;,&#39;c_shift_px&#39;,&#39;min_number_matching_dots_registration&#39;,
+                            &#39;reference_hyb&#39;, &#39;experiment_type&#39;,&#39;experiment_name&#39;,&#39;pxl_um&#39;,
+                            &#39;stitching_type&#39;, &#39;img_width_px&#39;,&#39;img_height_px&#39;,&#39;fov_acquisition_coords_x&#39;, 
+                            &#39;fov_acquisition_coords_y&#39;, &#39;fov_acquisition_coords_z&#39;]
+        
+        self.output_variables_specific_barcodes = [&#39;barcodes_extraction_resolution&#39;, &#39;barcode_reference_dot_id&#39;,
+                                &#39;raw_barcodes&#39;,&#39;all_Hdistance_genes&#39;,&#39;zeroHdistance_genes&#39;,&#39;below2Hdistance_genes&#39;,
+                                &#39;below3Hdistance_genes&#39;,&#39;number_positive_bits&#39;,&#39;hamming_distance&#39;]
+    
+    
+        self.dots_counts_dict = dict.fromkeys(self.output_variables_dot_calling)
+        self.dots_counts_df = pd.DataFrame(columns=self.output_variables_dot_calling)
+
+        # self.output_variables_registration = self.output_variables_dot_calling + self.output_variables_specific_registration
+        # self.output_registration_df = pd.DataFrame(columns=self.output_variables_registration)
+
+        # self.output_variables_barcodes = self.output_variables_registration + self.output_variables_specific_barcodes
+        # self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_barcodes)
+
+        self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_specific_barcodes)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pysmFISH.data_models.Dataset"><code class="flex name class">
+<span>class <span class="ident">Dataset</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dataset class used to collect all the info related to the
+acquired images. It contains all the metadata needed during the
+processing.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Dataset():
+    &#34;&#34;&#34;Dataset class used to collect all the info related to the
+    acquired images. It contains all the metadata needed during the
+    processing.
+    &#34;&#34;&#34;
+    
+    def __init__(self):
+        
+        self.logger = selected_logger()
+        
+    def load_dataset(self, dataset_fpath: str):
+        &#34;&#34;&#34;Load a pre-existing dataset
+
+        Args:
+            dataset_fpath (str): Path to the existing dataset
+        &#34;&#34;&#34;
+        self.dataset = pd.read_parquet(dataset_fpath)
+        
+    
+    # TODO Add support for other file types
+    def create_full_dataset_from_files(self, experiment_fpath: str, 
+                                       experiment_info: dict,
+                                       parsed_raw_data_fpath: str ,ftype: str = &#39;pkl&#39;):
+        
+        &#34;&#34;&#34; Utility function that can be used to create the dataset from a 
+        storage type different from the zarr structure used in pysmFISH. 
+        processing. It requires a file of type ftype containing all the metadata
+
+        
+
+        Args:
+            experiment_fpath (str): Path to the experiment to process
+            experiment_info (dict): Dictionary with the configuration data
+            parsed_raw_data_fpath (str): Path to the folder/zarr file with the parsed data
+            ftype (str, optional): Path to the files containing the metadata. Defaults to &#39;pkl&#39;.
+        &#34;&#34;&#34;    
+        
+        self.experiment_fpath = Path(experiment_fpath)
+        self.experiment_info = experiment_info
+        self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    
+        date_tag = time.strftime(&#34;%y%m%d_%H_%M_%S&#34;)
+        experiment_name = self.experiment_fpath.stem
+        self.dataset_fpath = self.experiment_fpath / (date_tag + &#39;_&#39; + experiment_name + &#39;_dataset.parquet&#39;)
+
+        self.dataset = pd.DataFrame()
+        all_pickle_list = list(self.parsed_raw_data_fpath.glob(&#39;*.&#39; + ftype))
+        if len(all_pickle_list):
+            if ftype == &#39;pkl&#39;:
+                for fdata in all_pickle_list:
+                    single = pickle.load(open(fdata,&#39;rb&#39;))
+                    fdata_loc = fdata.parent / fdata.stem
+                    single[&#39;raw_data_location&#39;] = fdata_loc.as_posix()
+                    single_df = pd.DataFrame(single,index=[0])
+                    self.dataset = pd.concat([self.dataset,single_df],axis=0,ignore_index=True)
+                self.dataset.to_parquet(self.dataset_fpath, index=False)
+            
+            # TODO Add support for other file types
+        else:
+            self.logger.error(f&#39;there are no files with the metadata dictionary&#39;)
+            sys.exit(f&#39;there are no files with the metadata dictionary&#39;)
+    
+    def create_full_dataset_from_zmetadata(self,
+                                       parsed_raw_data_fpath: str):
+        &#34;&#34;&#34;Function used to create the full dataset starting from the consolidated
+        metadata of the parsed zarr file
+
+        Args:
+            parsed_raw_data_fpath (str): Path to the zarr file with the parsed data
+        &#34;&#34;&#34;
+        
+        try:
+            consolidated_metadata = open_consolidated_metadata(parsed_raw_data_fpath)
+        except:
+            self.logger.error(f&#39;consolidated zarr metadata missing or broken&#39;)
+            sys.exit(f&#39;consolidated zarr metadata missing or broken&#39;)
+        else:
+            self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+            
+            date_tag = time.strftime(&#34;%y%m%d_%H_%M_%S&#34;)
+            experiment_name = self.parsed_raw_data_fpath.stem
+            self.dataset_fpath = self.parsed_raw_data_fpath.parent / (date_tag + &#39;_&#39; + experiment_name + &#39;_dataset.parquet&#39;)
+            
+            self.dataset = pd.DataFrame()
+            for name, grp in consolidated_metadata.items():
+                attrs_dict = dict(grp.attrs)
+                fdata_loc = self.parsed_raw_data_fpath / attrs_dict[&#39;grp_name&#39;]
+                attrs_dict[&#39;raw_data_location&#39;] = fdata_loc.as_posix()
+                attrs_df = pd.DataFrame(attrs_dict,index=[0])
+                self.dataset = pd.concat([self.dataset,attrs_df],axis=0,ignore_index=True)
+            self.dataset.to_parquet(self.dataset_fpath, index=False)
+        
+            
+    def collect_metadata(self,df:pd.DataFrame)-&gt; dict:
+        &#34;&#34;&#34;Function used to create a simplified metadata dictionary
+        used in the processing. This create a smaller size variable
+        compared to the dataset making it easier to send to all
+        the workers during the processing
+
+        Args:
+            df (pd.DataFrame): Dataset DataFrame
+
+        Returns:
+            dict: Dictionary with the compiled metadata
+        &#34;&#34;&#34;
+        self.metadata = {}
+        self.metadata[&#39;list_all_fovs&#39;] = df.fov_num.unique()
+        self.metadata[&#39;list_all_channels&#39;] = df.channel.unique()
+        self.metadata[&#39;total_rounds&#39;] = df.round_num.max()
+        self.metadata[&#39;stitching_channel&#39;] = df.iloc[0][&#39;stitching_channel&#39;]
+        self.metadata[&#39;img_width&#39;] = df.iloc[0][&#39;img_width&#39;]
+        self.metadata[&#39;img_height&#39;] = df.iloc[0][&#39;img_height&#39;]
+        self.metadata[&#39;img_zstack&#39;] = df.iloc[0][&#39;zstack&#39;]
+        self.metadata[&#39;pixel_microns&#39;] = df.iloc[0][&#39;pixel_microns&#39;]
+        self.metadata[&#39;experiment_name&#39;] = df.iloc[0][&#39;experiment_name&#39;]
+        self.metadata[&#39;overlapping_percentage&#39;] = df.iloc[0][&#39;overlapping_percentage&#39;]
+        self.metadata[&#39;machine&#39;] = df.iloc[0][&#39;machine&#39;]
+        self.metadata[&#39;barcode_length&#39;] = df.iloc[0][&#39;barcode_length&#39;]
+        self.metadata[&#39;processing_type&#39;] = df.iloc[0][&#39;processing_type&#39;]
+        self.metadata[&#39;experiment_type&#39;] = df.iloc[0][&#39;experiment_type&#39;]
+        self.metadata[&#39;pipeline&#39;] =  df.iloc[0][&#39;pipeline&#39;]
+        self.metadata[&#39;stitching_type&#39;] = df.iloc[0][&#39;stitching_type&#39;]
+        self.metadata[&#39;list_all_codebooks&#39;] = df.codebook.unique()
+        return self.metadata
+        
+
+    def grp_by_channel(self,df: pd.DataFrame)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Groupby the dataset by channel
+
+        Args:
+            df (pd.DataFrame): Dataset to groupby
+
+        Returns:
+            pd.DataFrame: Dataset grouped by channel
+        &#34;&#34;&#34;
+        subset_df = self.dataset.groupby(&#39;channel&#39;)
+        return subset_df
+    
+    def select_fovs_subset(self, df: pd.DataFrame, min_fov: int, max_fov: int)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Select a range of fovs between min and max values (extremites included)
+
+        Args:
+            df (pd.DataFrame): Dataset
+            min_fov (int): lowest fov to select
+            max_fov (int): highest fov to select
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing only the selected fovs 
+        &#34;&#34;&#34;
+        subset_df = df.loc[(df.fov_num &gt;= min_fov) &amp; (df.fov_num &lt;= max_fov),:]
+        return subset_df
+    
+    
+    def select_channel_subset(self,df: pd.DataFrame, channel: str)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Select all the fovs of a specific channel
+
+        Args:
+            df (pd.DataFrame): Dataset
+            channel (str): Imaging channel of interest
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the fovs of the
+                    selected channel
+        &#34;&#34;&#34;
+        subset_df = df.loc[(df.channel == channel),:]
+        return subset_df
+    
+    
+    def select_round_subset(self,df: pd.DataFrame, round_num: int)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Select all the fovs of a specific imaging round
+
+        Args:
+            df (pd.DataFrame): Dataset
+            round_num (int): Imaging round of interest
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the fovs of the
+                    selected round
+        &#34;&#34;&#34;
+        subset_df = df.loc[(df.round_num == round_num),:]
+        return subset_df
+    
+    
+    def select_specific_fov(self,df: pd.DataFrame, channel: str,round_num: int, fov_num: int)-&gt;pd.Series:
+        &#34;&#34;&#34;Select a specific fov according to fov number, channel and
+        round number
+
+        Args:
+            df (pd.DataFrame): Dataset
+            channel (str): Imaging channel of interest
+            round_num (int): Imaging round of interest
+            fov_num (int): Number of the fov of interest
+
+        Returns:
+            pd.Series: Sub-Dataset containing the fovs of the
+                    selected round
+        &#34;&#34;&#34;
+        subset_df = df.loc[(df.channel == channel) &amp; 
+                           (df.round_num == round_num) &amp; 
+                           (df.fov_num == fov_num),:]
+        return subset_df.squeeze()
+
+    def select_all_imgs_fov(self,df: pd.DataFrame, fovs_list: List)-&gt;pd.DataFrame:
+        &#34;&#34;&#34;Select a list of fovs
+
+        Args:
+            df (pd.DataFrame): Dataset
+            fovs_list (List): List of fov number to select
+
+        Returns:
+            pd.DataFrame: Sub-Dataset containing the selected fovs
+        &#34;&#34;&#34;
+        
+        subset_df = df.loc[(df.fov_num.isin(fovs_list)),:]
+        return subset_df
+    
+    # TODO additional utliti functions
+    def load_to_numpy(self):
+        pass
+    
+    def load_to_xarray(self):
+        pass
+    
+    def merge_datasets(self):
+        pass
+
+    def save_dataset(self, df, fpath):
+        df.to_parquet(fpath)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pysmFISH.data_models.Dataset.collect_metadata"><code class="name flex">
+<span>def <span class="ident">collect_metadata</span></span>(<span>self, df: pandas.core.frame.DataFrame) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function used to create a simplified metadata dictionary
+used in the processing. This create a smaller size variable
+compared to the dataset making it easier to send to all
+the workers during the processing</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>Dataset DataFrame</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>Dictionary with the compiled metadata</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def collect_metadata(self,df:pd.DataFrame)-&gt; dict:
+    &#34;&#34;&#34;Function used to create a simplified metadata dictionary
+    used in the processing. This create a smaller size variable
+    compared to the dataset making it easier to send to all
+    the workers during the processing
+
+    Args:
+        df (pd.DataFrame): Dataset DataFrame
+
+    Returns:
+        dict: Dictionary with the compiled metadata
+    &#34;&#34;&#34;
+    self.metadata = {}
+    self.metadata[&#39;list_all_fovs&#39;] = df.fov_num.unique()
+    self.metadata[&#39;list_all_channels&#39;] = df.channel.unique()
+    self.metadata[&#39;total_rounds&#39;] = df.round_num.max()
+    self.metadata[&#39;stitching_channel&#39;] = df.iloc[0][&#39;stitching_channel&#39;]
+    self.metadata[&#39;img_width&#39;] = df.iloc[0][&#39;img_width&#39;]
+    self.metadata[&#39;img_height&#39;] = df.iloc[0][&#39;img_height&#39;]
+    self.metadata[&#39;img_zstack&#39;] = df.iloc[0][&#39;zstack&#39;]
+    self.metadata[&#39;pixel_microns&#39;] = df.iloc[0][&#39;pixel_microns&#39;]
+    self.metadata[&#39;experiment_name&#39;] = df.iloc[0][&#39;experiment_name&#39;]
+    self.metadata[&#39;overlapping_percentage&#39;] = df.iloc[0][&#39;overlapping_percentage&#39;]
+    self.metadata[&#39;machine&#39;] = df.iloc[0][&#39;machine&#39;]
+    self.metadata[&#39;barcode_length&#39;] = df.iloc[0][&#39;barcode_length&#39;]
+    self.metadata[&#39;processing_type&#39;] = df.iloc[0][&#39;processing_type&#39;]
+    self.metadata[&#39;experiment_type&#39;] = df.iloc[0][&#39;experiment_type&#39;]
+    self.metadata[&#39;pipeline&#39;] =  df.iloc[0][&#39;pipeline&#39;]
+    self.metadata[&#39;stitching_type&#39;] = df.iloc[0][&#39;stitching_type&#39;]
+    self.metadata[&#39;list_all_codebooks&#39;] = df.codebook.unique()
+    return self.metadata</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.create_full_dataset_from_files"><code class="name flex">
+<span>def <span class="ident">create_full_dataset_from_files</span></span>(<span>self, experiment_fpath: str, experiment_info: dict, parsed_raw_data_fpath: str, ftype: str = 'pkl')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Utility function that can be used to create the dataset from a
+storage type different from the zarr structure used in pysmFISH.
+processing. It requires a file of type ftype containing all the metadata</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>experiment_fpath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the experiment to process</dd>
+<dt><strong><code>experiment_info</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary with the configuration data</dd>
+<dt><strong><code>parsed_raw_data_fpath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the folder/zarr file with the parsed data</dd>
+<dt><strong><code>ftype</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>Path to the files containing the metadata. Defaults to 'pkl'.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_full_dataset_from_files(self, experiment_fpath: str, 
+                                   experiment_info: dict,
+                                   parsed_raw_data_fpath: str ,ftype: str = &#39;pkl&#39;):
+    
+    &#34;&#34;&#34; Utility function that can be used to create the dataset from a 
+    storage type different from the zarr structure used in pysmFISH. 
+    processing. It requires a file of type ftype containing all the metadata
+
+    
+
+    Args:
+        experiment_fpath (str): Path to the experiment to process
+        experiment_info (dict): Dictionary with the configuration data
+        parsed_raw_data_fpath (str): Path to the folder/zarr file with the parsed data
+        ftype (str, optional): Path to the files containing the metadata. Defaults to &#39;pkl&#39;.
+    &#34;&#34;&#34;    
+    
+    self.experiment_fpath = Path(experiment_fpath)
+    self.experiment_info = experiment_info
+    self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+
+    date_tag = time.strftime(&#34;%y%m%d_%H_%M_%S&#34;)
+    experiment_name = self.experiment_fpath.stem
+    self.dataset_fpath = self.experiment_fpath / (date_tag + &#39;_&#39; + experiment_name + &#39;_dataset.parquet&#39;)
+
+    self.dataset = pd.DataFrame()
+    all_pickle_list = list(self.parsed_raw_data_fpath.glob(&#39;*.&#39; + ftype))
+    if len(all_pickle_list):
+        if ftype == &#39;pkl&#39;:
+            for fdata in all_pickle_list:
+                single = pickle.load(open(fdata,&#39;rb&#39;))
+                fdata_loc = fdata.parent / fdata.stem
+                single[&#39;raw_data_location&#39;] = fdata_loc.as_posix()
+                single_df = pd.DataFrame(single,index=[0])
+                self.dataset = pd.concat([self.dataset,single_df],axis=0,ignore_index=True)
+            self.dataset.to_parquet(self.dataset_fpath, index=False)
+        
+        # TODO Add support for other file types
+    else:
+        self.logger.error(f&#39;there are no files with the metadata dictionary&#39;)
+        sys.exit(f&#39;there are no files with the metadata dictionary&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.create_full_dataset_from_zmetadata"><code class="name flex">
+<span>def <span class="ident">create_full_dataset_from_zmetadata</span></span>(<span>self, parsed_raw_data_fpath: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function used to create the full dataset starting from the consolidated
+metadata of the parsed zarr file</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>parsed_raw_data_fpath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the zarr file with the parsed data</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_full_dataset_from_zmetadata(self,
+                                   parsed_raw_data_fpath: str):
+    &#34;&#34;&#34;Function used to create the full dataset starting from the consolidated
+    metadata of the parsed zarr file
+
+    Args:
+        parsed_raw_data_fpath (str): Path to the zarr file with the parsed data
+    &#34;&#34;&#34;
+    
+    try:
+        consolidated_metadata = open_consolidated_metadata(parsed_raw_data_fpath)
+    except:
+        self.logger.error(f&#39;consolidated zarr metadata missing or broken&#39;)
+        sys.exit(f&#39;consolidated zarr metadata missing or broken&#39;)
+    else:
+        self.parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+        
+        date_tag = time.strftime(&#34;%y%m%d_%H_%M_%S&#34;)
+        experiment_name = self.parsed_raw_data_fpath.stem
+        self.dataset_fpath = self.parsed_raw_data_fpath.parent / (date_tag + &#39;_&#39; + experiment_name + &#39;_dataset.parquet&#39;)
+        
+        self.dataset = pd.DataFrame()
+        for name, grp in consolidated_metadata.items():
+            attrs_dict = dict(grp.attrs)
+            fdata_loc = self.parsed_raw_data_fpath / attrs_dict[&#39;grp_name&#39;]
+            attrs_dict[&#39;raw_data_location&#39;] = fdata_loc.as_posix()
+            attrs_df = pd.DataFrame(attrs_dict,index=[0])
+            self.dataset = pd.concat([self.dataset,attrs_df],axis=0,ignore_index=True)
+        self.dataset.to_parquet(self.dataset_fpath, index=False)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.grp_by_channel"><code class="name flex">
+<span>def <span class="ident">grp_by_channel</span></span>(<span>self, df: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Groupby the dataset by channel</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>Dataset to groupby</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>Dataset grouped by channel</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def grp_by_channel(self,df: pd.DataFrame)-&gt;pd.DataFrame:
+    &#34;&#34;&#34;Groupby the dataset by channel
+
+    Args:
+        df (pd.DataFrame): Dataset to groupby
+
+    Returns:
+        pd.DataFrame: Dataset grouped by channel
+    &#34;&#34;&#34;
+    subset_df = self.dataset.groupby(&#39;channel&#39;)
+    return subset_df</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.load_dataset"><code class="name flex">
+<span>def <span class="ident">load_dataset</span></span>(<span>self, dataset_fpath: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load a pre-existing dataset</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>dataset_fpath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the existing dataset</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_dataset(self, dataset_fpath: str):
+    &#34;&#34;&#34;Load a pre-existing dataset
+
+    Args:
+        dataset_fpath (str): Path to the existing dataset
+    &#34;&#34;&#34;
+    self.dataset = pd.read_parquet(dataset_fpath)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.load_to_numpy"><code class="name flex">
+<span>def <span class="ident">load_to_numpy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_to_numpy(self):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.load_to_xarray"><code class="name flex">
+<span>def <span class="ident">load_to_xarray</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_to_xarray(self):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.merge_datasets"><code class="name flex">
+<span>def <span class="ident">merge_datasets</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def merge_datasets(self):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.save_dataset"><code class="name flex">
+<span>def <span class="ident">save_dataset</span></span>(<span>self, df, fpath)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_dataset(self, df, fpath):
+    df.to_parquet(fpath)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.select_all_imgs_fov"><code class="name flex">
+<span>def <span class="ident">select_all_imgs_fov</span></span>(<span>self, df: pandas.core.frame.DataFrame, fovs_list: List) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Select a list of fovs</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>Dataset</dd>
+<dt><strong><code>fovs_list</code></strong> :&ensp;<code>List</code></dt>
+<dd>List of fov number to select</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>Sub-Dataset containing the selected fovs</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_all_imgs_fov(self,df: pd.DataFrame, fovs_list: List)-&gt;pd.DataFrame:
+    &#34;&#34;&#34;Select a list of fovs
+
+    Args:
+        df (pd.DataFrame): Dataset
+        fovs_list (List): List of fov number to select
+
+    Returns:
+        pd.DataFrame: Sub-Dataset containing the selected fovs
+    &#34;&#34;&#34;
+    
+    subset_df = df.loc[(df.fov_num.isin(fovs_list)),:]
+    return subset_df</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.select_channel_subset"><code class="name flex">
+<span>def <span class="ident">select_channel_subset</span></span>(<span>self, df: pandas.core.frame.DataFrame, channel: str) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Select all the fovs of a specific channel</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>Dataset</dd>
+<dt><strong><code>channel</code></strong> :&ensp;<code>str</code></dt>
+<dd>Imaging channel of interest</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>Sub-Dataset containing the fovs of the
+selected channel</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_channel_subset(self,df: pd.DataFrame, channel: str)-&gt;pd.DataFrame:
+    &#34;&#34;&#34;Select all the fovs of a specific channel
+
+    Args:
+        df (pd.DataFrame): Dataset
+        channel (str): Imaging channel of interest
+
+    Returns:
+        pd.DataFrame: Sub-Dataset containing the fovs of the
+                selected channel
+    &#34;&#34;&#34;
+    subset_df = df.loc[(df.channel == channel),:]
+    return subset_df</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.select_fovs_subset"><code class="name flex">
+<span>def <span class="ident">select_fovs_subset</span></span>(<span>self, df: pandas.core.frame.DataFrame, min_fov: int, max_fov: int) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Select a range of fovs between min and max values (extremites included)</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>Dataset</dd>
+<dt><strong><code>min_fov</code></strong> :&ensp;<code>int</code></dt>
+<dd>lowest fov to select</dd>
+<dt><strong><code>max_fov</code></strong> :&ensp;<code>int</code></dt>
+<dd>highest fov to select</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>Sub-Dataset containing only the selected fovs</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_fovs_subset(self, df: pd.DataFrame, min_fov: int, max_fov: int)-&gt;pd.DataFrame:
+    &#34;&#34;&#34;Select a range of fovs between min and max values (extremites included)
+
+    Args:
+        df (pd.DataFrame): Dataset
+        min_fov (int): lowest fov to select
+        max_fov (int): highest fov to select
+
+    Returns:
+        pd.DataFrame: Sub-Dataset containing only the selected fovs 
+    &#34;&#34;&#34;
+    subset_df = df.loc[(df.fov_num &gt;= min_fov) &amp; (df.fov_num &lt;= max_fov),:]
+    return subset_df</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.select_round_subset"><code class="name flex">
+<span>def <span class="ident">select_round_subset</span></span>(<span>self, df: pandas.core.frame.DataFrame, round_num: int) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Select all the fovs of a specific imaging round</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>Dataset</dd>
+<dt><strong><code>round_num</code></strong> :&ensp;<code>int</code></dt>
+<dd>Imaging round of interest</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>Sub-Dataset containing the fovs of the
+selected round</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_round_subset(self,df: pd.DataFrame, round_num: int)-&gt;pd.DataFrame:
+    &#34;&#34;&#34;Select all the fovs of a specific imaging round
+
+    Args:
+        df (pd.DataFrame): Dataset
+        round_num (int): Imaging round of interest
+
+    Returns:
+        pd.DataFrame: Sub-Dataset containing the fovs of the
+                selected round
+    &#34;&#34;&#34;
+    subset_df = df.loc[(df.round_num == round_num),:]
+    return subset_df</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.data_models.Dataset.select_specific_fov"><code class="name flex">
+<span>def <span class="ident">select_specific_fov</span></span>(<span>self, df: pandas.core.frame.DataFrame, channel: str, round_num: int, fov_num: int) ‑> pandas.core.series.Series</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Select a specific fov according to fov number, channel and
+round number</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
+<dd>Dataset</dd>
+<dt><strong><code>channel</code></strong> :&ensp;<code>str</code></dt>
+<dd>Imaging channel of interest</dd>
+<dt><strong><code>round_num</code></strong> :&ensp;<code>int</code></dt>
+<dd>Imaging round of interest</dd>
+<dt><strong><code>fov_num</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of the fov of interest</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.Series</code></dt>
+<dd>Sub-Dataset containing the fovs of the
+selected round</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_specific_fov(self,df: pd.DataFrame, channel: str,round_num: int, fov_num: int)-&gt;pd.Series:
+    &#34;&#34;&#34;Select a specific fov according to fov number, channel and
+    round number
+
+    Args:
+        df (pd.DataFrame): Dataset
+        channel (str): Imaging channel of interest
+        round_num (int): Imaging round of interest
+        fov_num (int): Number of the fov of interest
+
+    Returns:
+        pd.Series: Sub-Dataset containing the fovs of the
+                selected round
+    &#34;&#34;&#34;
+    subset_df = df.loc[(df.channel == channel) &amp; 
+                       (df.round_num == round_num) &amp; 
+                       (df.fov_num == fov_num),:]
+    return subset_df.squeeze()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pysmFISH.data_models.Output_models"><code class="flex name class">
+<span>class <span class="ident">Output_models</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Utility class containing the definition of the output dataframes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Output_models():
+    &#34;&#34;&#34;
+    Utility class containing the definition of the output dataframes
+    &#34;&#34;&#34;
+
+    def __init__(self):
+
+        self.output_variables_dot_calling = [&#39;r_px_original&#39;,&#39;c_px_original&#39;,
+                                        &#39;dot_id&#39;,&#39;dot_intensity&#39;,&#39;selected_thr&#39;]
+
+        self.output_variables_specific_registration = [&#39;r_px_registered&#39;, &#39;c_px_registered&#39;,
+                            &#39;r_shift_px&#39;,&#39;c_shift_px&#39;,&#39;min_number_matching_dots_registration&#39;,
+                            &#39;reference_hyb&#39;, &#39;experiment_type&#39;,&#39;experiment_name&#39;,&#39;pxl_um&#39;,
+                            &#39;stitching_type&#39;, &#39;img_width_px&#39;,&#39;img_height_px&#39;,&#39;fov_acquisition_coords_x&#39;, 
+                            &#39;fov_acquisition_coords_y&#39;, &#39;fov_acquisition_coords_z&#39;]
+        
+        self.output_variables_specific_barcodes = [&#39;barcodes_extraction_resolution&#39;, &#39;barcode_reference_dot_id&#39;,
+                                &#39;raw_barcodes&#39;,&#39;all_Hdistance_genes&#39;,&#39;zeroHdistance_genes&#39;,&#39;below2Hdistance_genes&#39;,
+                                &#39;below3Hdistance_genes&#39;,&#39;number_positive_bits&#39;,&#39;hamming_distance&#39;]
+    
+    
+        self.dots_counts_dict = dict.fromkeys(self.output_variables_dot_calling)
+        self.dots_counts_df = pd.DataFrame(columns=self.output_variables_dot_calling)
+
+        # self.output_variables_registration = self.output_variables_dot_calling + self.output_variables_specific_registration
+        # self.output_registration_df = pd.DataFrame(columns=self.output_variables_registration)
+
+        # self.output_variables_barcodes = self.output_variables_registration + self.output_variables_specific_barcodes
+        # self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_barcodes)
+
+        self.barcode_analysis_df = pd.DataFrame(columns=self.output_variables_specific_barcodes)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pysmFISH" href="index.html">pysmFISH</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pysmFISH.data_models.Dataset" href="#pysmFISH.data_models.Dataset">Dataset</a></code></h4>
+<ul class="">
+<li><code><a title="pysmFISH.data_models.Dataset.collect_metadata" href="#pysmFISH.data_models.Dataset.collect_metadata">collect_metadata</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.create_full_dataset_from_files" href="#pysmFISH.data_models.Dataset.create_full_dataset_from_files">create_full_dataset_from_files</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.create_full_dataset_from_zmetadata" href="#pysmFISH.data_models.Dataset.create_full_dataset_from_zmetadata">create_full_dataset_from_zmetadata</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.grp_by_channel" href="#pysmFISH.data_models.Dataset.grp_by_channel">grp_by_channel</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.load_dataset" href="#pysmFISH.data_models.Dataset.load_dataset">load_dataset</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.load_to_numpy" href="#pysmFISH.data_models.Dataset.load_to_numpy">load_to_numpy</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.load_to_xarray" href="#pysmFISH.data_models.Dataset.load_to_xarray">load_to_xarray</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.merge_datasets" href="#pysmFISH.data_models.Dataset.merge_datasets">merge_datasets</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.save_dataset" href="#pysmFISH.data_models.Dataset.save_dataset">save_dataset</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.select_all_imgs_fov" href="#pysmFISH.data_models.Dataset.select_all_imgs_fov">select_all_imgs_fov</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.select_channel_subset" href="#pysmFISH.data_models.Dataset.select_channel_subset">select_channel_subset</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.select_fovs_subset" href="#pysmFISH.data_models.Dataset.select_fovs_subset">select_fovs_subset</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.select_round_subset" href="#pysmFISH.data_models.Dataset.select_round_subset">select_round_subset</a></code></li>
+<li><code><a title="pysmFISH.data_models.Dataset.select_specific_fov" href="#pysmFISH.data_models.Dataset.select_specific_fov">select_specific_fov</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pysmFISH.data_models.Output_models" href="#pysmFISH.data_models.Output_models">Output_models</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

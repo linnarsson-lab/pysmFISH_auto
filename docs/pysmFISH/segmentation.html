@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pysmFISH.segmentation API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pysmFISH.segmentation</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import pickle
+import itertools
+import numpy as np
+
+
+
+
+
+def load_stitched_segmented_data(fov,segmentation_output_path):
+    segmented_region_img = pickle.load(open(segmentation_output_path / (&#39;registered_objs_dict_fov_&#39; + str(fov) + &#39;.pkl&#39;), &#39;rb&#39;))
+
+    obj_segmented_img = {el:coords_dict[&#39;stitched_coords&#39;] for (el,coords_dict) in segmented_region_img.items()}
+    return obj_segmented_img
+
+def objects_overlapping_region(obj_segmented_img,chunk_coords):
+    objs_list=list()
+    for lab in obj_segmented_img.keys():
+        if ((obj_segmented_img[lab][:,0] &gt;= chunk_coords[0]).any() and
+            (obj_segmented_img[lab][:,0] &lt;= chunk_coords[1]).any() and
+            (obj_segmented_img[lab][:,1] &gt;= chunk_coords[2]).any() and
+            (obj_segmented_img[lab][:,1] &lt;= chunk_coords[3]).any()):
+                objs_list.append(lab)
+    return objs_list
+
+def overlapping_objs(obj_segmented_img1,obj_segmented_img2,chunk_coords,min_overlapping_pixels_segmentation = 20):
+    objs_list_img1 = objects_overlapping_region(obj_segmented_img1,chunk_coords)
+    objs_list_img2 = objects_overlapping_region(obj_segmented_img2,chunk_coords)
+    
+    all_combinations = list(itertools.product(objs_list_img1,objs_list_img2))
+    
+    intersection = []
+    overlapping_sizes = {}
+    for couple in all_combinations:
+        obj1_set = set(map(tuple, obj_segmented_img1[couple[0]].astype(int)))
+        obj2_set = set(map(tuple, obj_segmented_img2[couple[1]].astype(int)))
+        result=not obj1_set.isdisjoint(obj2_set)
+        if result:
+            # Check minimum number of pixels to correct for potential error caused by the rounding
+            number_overlapping_pixels = len(obj1_set.intersection(obj2_set))
+            if number_overlapping_pixels &gt;= min_overlapping_pixels_segmentation:
+                intersection.append(result)
+                overlapping_sizes[couple] = number_overlapping_pixels
+            else:
+                intersection.append(not result)
+        else:
+            intersection.append(result)
+    if (np.array(intersection)).any():
+        all_combinations = np.array(all_combinations)
+        intersecting_cpls = all_combinations[intersection]
+    else:
+        intersecting_cpls = []
+    return intersecting_cpls, overlapping_sizes
+
+
+
+def correct_multiple_overlapping_objects(intersecting_cpls,overlapping_sizes):
+
+    intersecting_cpls_tpl_trimmed = []
+    intersecting_cpls_tpl = [tuple(x) for x in intersecting_cpls]
+    
+    intersecting_cpls_removed_overlapping = intersecting_cpls_tpl.copy()
+    tracker = intersecting_cpls_tpl.copy()
+
+    combined_intersecting_cpls_tpl = []
+    tracker = []
+    reducer = intersecting_cpls_tpl.copy()
+    for tpl in intersecting_cpls_tpl:
+        if tpl not in tracker:
+            combined = [tpl]
+            tracker.append(tpl)
+            reducer.remove(tpl)
+            runner = reducer
+            for cpl in runner:
+                if set(tpl).intersection(cpl):
+                    tracker.append(cpl)
+                    combined.append(cpl)
+                    reducer.remove(cpl)
+            combined_intersecting_cpls_tpl.append(combined)
+
+    #combined_intersecting_cpls_tpl = set(combined_intersecting_cpls_tpl)
+    for grp in combined_intersecting_cpls_tpl:
+        if len(grp) &gt;1 :
+            # Select the object with largest overlap (maybe not best criteria)
+            selected = { your_key: overlapping_sizes[your_key] for your_key in grp }
+            counts = list(selected.values())
+            keys = list(selected.keys())
+            selected_cpl = keys[counts.index(max(counts))]
+            intersecting_cpls_tpl_trimmed.append(selected_cpl)
+        else:
+            intersecting_cpls_tpl_trimmed.append(grp)
+    
+    return intersecting_cpls_removed_overlapping,overlapping_sizes
+
+
+
+def merge_objects(obj_segmented_img1,obj_segmented_img2,intersecting_cpls):
+    merged_objs = {}
+    for cpl in intersecting_cpls:
+        obj1 = obj_segmented_img1[cpl[0]].astype(int)
+        obj2 = obj_segmented_img2[cpl[1]].astype(int)
+        merged_obj = np.vstack((obj1,obj2))
+        merged_obj = np.unique(merged_obj,axis=0)
+        merged_objs[cpl[0]] = merged_obj
+    return merged_objs
+
+
+
+def adjust_overlapping_objects(obj_segmented_img1,obj_segmented_img2,chunk_coords,segmentation_output_path,min_overlapping_pixels_segmentation = 20):
+    
+    intersecting_cpls, overlapping_sizes = overlapping_objs(obj_segmented_img1,obj_segmented_img2,chunk_coords,min_overlapping_pixels_segmentation)
+    
+    # Correct for multiple overlapping large objects
+    intersecting_cpls,overlapping_sizes = correct_multiple_overlapping_objects(intersecting_cpls,overlapping_sizes)
+    
+    objs = merge_objects(obj_segmented_img1,obj_segmented_img2,intersecting_cpls)
+    
+    #for cpl in intersecting_cpls:
+     #   del obj_segmented_img1[cpl[0]]
+     #   del obj_segmented_img2[cpl[1]]
+     #   obj_segmented_img1[cpl[0]] = objs[cpl[0]]
+    
+    return intersecting_cpls, objs
+
+
+
+def remove_overlapping_obj(fov,
+                           nuclei_org_tiles,
+                          segmentation_output_path,
+                          min_overlapping_pixels_segmentation = 20):
+
+    overlapping_dict = nuclei_org_tiles.overlapping_regions[fov]
+    all_obj_segmented = {}
+    output_cpl = {}
+    corner_cpl = []
+    
+    
+    # Correct overlapping objects at the intersection between the images
+    for cpl, chunk_coords in overlapping_dict.items():
+        obj_segmented_img1 = load_stitched_segmented_data(cpl[0],segmentation_output_path)
+        obj_segmented_img2 = load_stitched_segmented_data(cpl[1],segmentation_output_path)
+        intersecting_cpls, objs = adjust_overlapping_objects(obj_segmented_img1,obj_segmented_img2,chunk_coords,segmentation_output_path,min_overlapping_pixels_segmentation)
+        all_obj_segmented[cpl[0]] = obj_segmented_img1
+        all_obj_segmented[cpl[1]] = obj_segmented_img2
+        output_cpl[cpl] = (intersecting_cpls, objs)
+        corner_cpl.append(cpl[1])
+
+        
+    # Check if processing fov has one single neighbour
+    if len(overlapping_dict.keys()) == 2:
+        # Correct overlapping objects at the corner
+        intersecting_cpls, objs = adjust_overlapping_objects(all_obj_segmented[corner_cpl[0]],all_obj_segmented[corner_cpl[1]],chunk_coords,segmentation_output_path,min_overlapping_pixels_segmentation)
+        all_obj_segmented[corner_cpl[0]] = obj_segmented_img1
+        all_obj_segmented[corner_cpl[1]] = obj_segmented_img2
+        output_cpl[tuple(corner_cpl)] = (intersecting_cpls, objs)
+    
+    
+    # Format the output
+    all_cpls = []
+    all_intersecting_step = []
+    all_obj_step = {}
+    for cpl, (intersecting_cpls, objs) in output_cpl.items():
+        all_intersecting_step.append(intersecting_cpls)
+        all_obj_step.update(objs)
+        all_cpls.append(cpl)
+
+    unraveled_intersecting_step = [val for big_list in all_intersecting_step for el in big_list for val in el ]
+    
+    # To use in case to sort by fov for parallelisation
+    #all_couples = set([el for cpl in all_cpls for el in cpl])
+    #for el in all_couples:
+     #   intersecting_step_dict[el] = [val for val in unraveled_intersecting_step if str(el) in val]
+
+    
+    return unraveled_intersecting_step,all_obj_step</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pysmFISH.segmentation.adjust_overlapping_objects"><code class="name flex">
+<span>def <span class="ident">adjust_overlapping_objects</span></span>(<span>obj_segmented_img1, obj_segmented_img2, chunk_coords, segmentation_output_path, min_overlapping_pixels_segmentation=20)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adjust_overlapping_objects(obj_segmented_img1,obj_segmented_img2,chunk_coords,segmentation_output_path,min_overlapping_pixels_segmentation = 20):
+    
+    intersecting_cpls, overlapping_sizes = overlapping_objs(obj_segmented_img1,obj_segmented_img2,chunk_coords,min_overlapping_pixels_segmentation)
+    
+    # Correct for multiple overlapping large objects
+    intersecting_cpls,overlapping_sizes = correct_multiple_overlapping_objects(intersecting_cpls,overlapping_sizes)
+    
+    objs = merge_objects(obj_segmented_img1,obj_segmented_img2,intersecting_cpls)
+    
+    #for cpl in intersecting_cpls:
+     #   del obj_segmented_img1[cpl[0]]
+     #   del obj_segmented_img2[cpl[1]]
+     #   obj_segmented_img1[cpl[0]] = objs[cpl[0]]
+    
+    return intersecting_cpls, objs</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.segmentation.correct_multiple_overlapping_objects"><code class="name flex">
+<span>def <span class="ident">correct_multiple_overlapping_objects</span></span>(<span>intersecting_cpls, overlapping_sizes)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correct_multiple_overlapping_objects(intersecting_cpls,overlapping_sizes):
+
+    intersecting_cpls_tpl_trimmed = []
+    intersecting_cpls_tpl = [tuple(x) for x in intersecting_cpls]
+    
+    intersecting_cpls_removed_overlapping = intersecting_cpls_tpl.copy()
+    tracker = intersecting_cpls_tpl.copy()
+
+    combined_intersecting_cpls_tpl = []
+    tracker = []
+    reducer = intersecting_cpls_tpl.copy()
+    for tpl in intersecting_cpls_tpl:
+        if tpl not in tracker:
+            combined = [tpl]
+            tracker.append(tpl)
+            reducer.remove(tpl)
+            runner = reducer
+            for cpl in runner:
+                if set(tpl).intersection(cpl):
+                    tracker.append(cpl)
+                    combined.append(cpl)
+                    reducer.remove(cpl)
+            combined_intersecting_cpls_tpl.append(combined)
+
+    #combined_intersecting_cpls_tpl = set(combined_intersecting_cpls_tpl)
+    for grp in combined_intersecting_cpls_tpl:
+        if len(grp) &gt;1 :
+            # Select the object with largest overlap (maybe not best criteria)
+            selected = { your_key: overlapping_sizes[your_key] for your_key in grp }
+            counts = list(selected.values())
+            keys = list(selected.keys())
+            selected_cpl = keys[counts.index(max(counts))]
+            intersecting_cpls_tpl_trimmed.append(selected_cpl)
+        else:
+            intersecting_cpls_tpl_trimmed.append(grp)
+    
+    return intersecting_cpls_removed_overlapping,overlapping_sizes</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.segmentation.load_stitched_segmented_data"><code class="name flex">
+<span>def <span class="ident">load_stitched_segmented_data</span></span>(<span>fov, segmentation_output_path)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_stitched_segmented_data(fov,segmentation_output_path):
+    segmented_region_img = pickle.load(open(segmentation_output_path / (&#39;registered_objs_dict_fov_&#39; + str(fov) + &#39;.pkl&#39;), &#39;rb&#39;))
+
+    obj_segmented_img = {el:coords_dict[&#39;stitched_coords&#39;] for (el,coords_dict) in segmented_region_img.items()}
+    return obj_segmented_img</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.segmentation.merge_objects"><code class="name flex">
+<span>def <span class="ident">merge_objects</span></span>(<span>obj_segmented_img1, obj_segmented_img2, intersecting_cpls)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def merge_objects(obj_segmented_img1,obj_segmented_img2,intersecting_cpls):
+    merged_objs = {}
+    for cpl in intersecting_cpls:
+        obj1 = obj_segmented_img1[cpl[0]].astype(int)
+        obj2 = obj_segmented_img2[cpl[1]].astype(int)
+        merged_obj = np.vstack((obj1,obj2))
+        merged_obj = np.unique(merged_obj,axis=0)
+        merged_objs[cpl[0]] = merged_obj
+    return merged_objs</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.segmentation.objects_overlapping_region"><code class="name flex">
+<span>def <span class="ident">objects_overlapping_region</span></span>(<span>obj_segmented_img, chunk_coords)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def objects_overlapping_region(obj_segmented_img,chunk_coords):
+    objs_list=list()
+    for lab in obj_segmented_img.keys():
+        if ((obj_segmented_img[lab][:,0] &gt;= chunk_coords[0]).any() and
+            (obj_segmented_img[lab][:,0] &lt;= chunk_coords[1]).any() and
+            (obj_segmented_img[lab][:,1] &gt;= chunk_coords[2]).any() and
+            (obj_segmented_img[lab][:,1] &lt;= chunk_coords[3]).any()):
+                objs_list.append(lab)
+    return objs_list</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.segmentation.overlapping_objs"><code class="name flex">
+<span>def <span class="ident">overlapping_objs</span></span>(<span>obj_segmented_img1, obj_segmented_img2, chunk_coords, min_overlapping_pixels_segmentation=20)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def overlapping_objs(obj_segmented_img1,obj_segmented_img2,chunk_coords,min_overlapping_pixels_segmentation = 20):
+    objs_list_img1 = objects_overlapping_region(obj_segmented_img1,chunk_coords)
+    objs_list_img2 = objects_overlapping_region(obj_segmented_img2,chunk_coords)
+    
+    all_combinations = list(itertools.product(objs_list_img1,objs_list_img2))
+    
+    intersection = []
+    overlapping_sizes = {}
+    for couple in all_combinations:
+        obj1_set = set(map(tuple, obj_segmented_img1[couple[0]].astype(int)))
+        obj2_set = set(map(tuple, obj_segmented_img2[couple[1]].astype(int)))
+        result=not obj1_set.isdisjoint(obj2_set)
+        if result:
+            # Check minimum number of pixels to correct for potential error caused by the rounding
+            number_overlapping_pixels = len(obj1_set.intersection(obj2_set))
+            if number_overlapping_pixels &gt;= min_overlapping_pixels_segmentation:
+                intersection.append(result)
+                overlapping_sizes[couple] = number_overlapping_pixels
+            else:
+                intersection.append(not result)
+        else:
+            intersection.append(result)
+    if (np.array(intersection)).any():
+        all_combinations = np.array(all_combinations)
+        intersecting_cpls = all_combinations[intersection]
+    else:
+        intersecting_cpls = []
+    return intersecting_cpls, overlapping_sizes</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.segmentation.remove_overlapping_obj"><code class="name flex">
+<span>def <span class="ident">remove_overlapping_obj</span></span>(<span>fov, nuclei_org_tiles, segmentation_output_path, min_overlapping_pixels_segmentation=20)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_overlapping_obj(fov,
+                           nuclei_org_tiles,
+                          segmentation_output_path,
+                          min_overlapping_pixels_segmentation = 20):
+
+    overlapping_dict = nuclei_org_tiles.overlapping_regions[fov]
+    all_obj_segmented = {}
+    output_cpl = {}
+    corner_cpl = []
+    
+    
+    # Correct overlapping objects at the intersection between the images
+    for cpl, chunk_coords in overlapping_dict.items():
+        obj_segmented_img1 = load_stitched_segmented_data(cpl[0],segmentation_output_path)
+        obj_segmented_img2 = load_stitched_segmented_data(cpl[1],segmentation_output_path)
+        intersecting_cpls, objs = adjust_overlapping_objects(obj_segmented_img1,obj_segmented_img2,chunk_coords,segmentation_output_path,min_overlapping_pixels_segmentation)
+        all_obj_segmented[cpl[0]] = obj_segmented_img1
+        all_obj_segmented[cpl[1]] = obj_segmented_img2
+        output_cpl[cpl] = (intersecting_cpls, objs)
+        corner_cpl.append(cpl[1])
+
+        
+    # Check if processing fov has one single neighbour
+    if len(overlapping_dict.keys()) == 2:
+        # Correct overlapping objects at the corner
+        intersecting_cpls, objs = adjust_overlapping_objects(all_obj_segmented[corner_cpl[0]],all_obj_segmented[corner_cpl[1]],chunk_coords,segmentation_output_path,min_overlapping_pixels_segmentation)
+        all_obj_segmented[corner_cpl[0]] = obj_segmented_img1
+        all_obj_segmented[corner_cpl[1]] = obj_segmented_img2
+        output_cpl[tuple(corner_cpl)] = (intersecting_cpls, objs)
+    
+    
+    # Format the output
+    all_cpls = []
+    all_intersecting_step = []
+    all_obj_step = {}
+    for cpl, (intersecting_cpls, objs) in output_cpl.items():
+        all_intersecting_step.append(intersecting_cpls)
+        all_obj_step.update(objs)
+        all_cpls.append(cpl)
+
+    unraveled_intersecting_step = [val for big_list in all_intersecting_step for el in big_list for val in el ]
+    
+    # To use in case to sort by fov for parallelisation
+    #all_couples = set([el for cpl in all_cpls for el in cpl])
+    #for el in all_couples:
+     #   intersecting_step_dict[el] = [val for val in unraveled_intersecting_step if str(el) in val]
+
+    
+    return unraveled_intersecting_step,all_obj_step</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pysmFISH" href="index.html">pysmFISH</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pysmFISH.segmentation.adjust_overlapping_objects" href="#pysmFISH.segmentation.adjust_overlapping_objects">adjust_overlapping_objects</a></code></li>
+<li><code><a title="pysmFISH.segmentation.correct_multiple_overlapping_objects" href="#pysmFISH.segmentation.correct_multiple_overlapping_objects">correct_multiple_overlapping_objects</a></code></li>
+<li><code><a title="pysmFISH.segmentation.load_stitched_segmented_data" href="#pysmFISH.segmentation.load_stitched_segmented_data">load_stitched_segmented_data</a></code></li>
+<li><code><a title="pysmFISH.segmentation.merge_objects" href="#pysmFISH.segmentation.merge_objects">merge_objects</a></code></li>
+<li><code><a title="pysmFISH.segmentation.objects_overlapping_region" href="#pysmFISH.segmentation.objects_overlapping_region">objects_overlapping_region</a></code></li>
+<li><code><a title="pysmFISH.segmentation.overlapping_objs" href="#pysmFISH.segmentation.overlapping_objs">overlapping_objs</a></code></li>
+<li><code><a title="pysmFISH.segmentation.remove_overlapping_obj" href="#pysmFISH.segmentation.remove_overlapping_obj">remove_overlapping_obj</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

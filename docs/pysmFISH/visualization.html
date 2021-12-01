@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pysmFISH.visualization API documentation</title>
+<meta name="description" content="Module with uility function used to browse throught the different steps
+of the processing" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pysmFISH.visualization</code></h1>
+</header>
+<section id="section-intro">
+<p>Module with uility function used to browse throught the different steps
+of the processing</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Module with uility function used to browse throught the different steps 
+of the processing
+&#34;&#34;&#34;
+import napari
+import sys
+import pandas as pd
+from pathlib import Path
+
+from pysmFISH import data_models
+from pysmFISH import io
+from pysmFISH.logger_utils import selected_logger
+
+def visualize_raw_counts(experiment_fpath:str,dataset_name:str,
+                        fov_num:int,channel:str):
+    &#34;&#34;&#34;Utility function to visualize the raw count for a FOV.
+    The preprocessed images for each round are combined with the
+    corresponding counts and plot on different napari layers
+
+    Args:
+        experiment_fpath (str): Path to the experiment to process
+        dataset_name (str): Name of the dataset
+        fov_num (int): Number of the field of view to visualize
+        channel (str): Channel to visualize
+    &#34;&#34;&#34;
+    
+    logger = selected_logger()
+    experiment_fpath = Path(experiment_fpath)
+    preprocessed_img_fpath = experiment_fpath / (experiment_fpath.stem + &#39;_preprocessed_img_data.zarr&#39;)
+    dataset_fpath = experiment_fpath / dataset_name
+
+    # Load the dataset
+    data = data_models.Dataset()
+    try:
+        data.load_dataset(dataset_fpath)
+    except:
+        logger.error(f&#34;missing dataset&#34;)
+        sys.exit(f&#34;missing dataset&#34;)
+    else:
+
+        fov_dataset = data.dataset.loc[(data.dataset.fov_num == fov_num) &amp;
+                                    (data.dataset.channel == channel),:]
+
+        counts_fname = fov_dataset.experiment_name.iloc[0] + &#39;_raw_counts_channel&#39; + channel + &#39;_fov_&#39; +str(fov_num) + &#39;.parquet&#39;
+        counts_fpath = experiment_fpath / &#39;results&#39; / counts_fname
+    
+        try:
+            all_counts_df = pd.read_parquet(counts_fpath)
+        except FileNotFoundError:
+            logger.error(f&#34;missing file with raw counts&#34;)
+            sys.exit(f&#34;missing file with raw counts&#34;)
+        else:
+            vw = napari.Viewer(title=&#39;raw counts fov &#39; + str(fov_num) + &#39;channel &#39; + channel)
+            for round_num in fov_dataset.round_num.unique():
+                fov_subdataset = fov_dataset.loc[fov_dataset.round_num == round_num,:].iloc[0]
+                preprocessed_img, metadata = io.load_general_zarr(fov_subdataset,
+                                                        preprocessed_img_fpath,
+                                                        tag=&#39;preprocessed_data&#39;)
+                counts_coords = all_counts_df.loc[all_counts_df.round_num == round_num,[&#39;r_px_original&#39;,&#39;c_px_original&#39;]].to_numpy()
+                
+                vw.add_image(preprocessed_img,name=&#39;img round &#39; + str(round_num), colormap=&#39;inferno&#39;,
+                            visible=False)
+                vw.add_points(counts_coords, name= &#39;counts round &#39;+ str(round_num), face_color=&#39;cyan&#39;,
+                            symbol=&#39;+&#39;, size=5, opacity=0.5,visible=False)
+
+                    # contrast_limits=(preprocessed_img.min(), preprocessed_img.max())
+    
+
+def visualize_barcodes(experiment_fpath:str,dataset_name:str,
+                        fov_num:int,channel:str):
+    &#34;&#34;&#34;Utility function to visualize the barcodes for a FOV.
+    The preprocessed images for each round are combined with the
+    corresponding counts and plot on different napari layers
+
+    Args:
+        experiment_fpath (str): Path to the experiment to process
+        dataset_name (str): Name of the dataset
+        fov_num (int): Number of the field of view to visualize
+        channel (str): Channel to visualize
+    &#34;&#34;&#34;
+    
+    logger = selected_logger()
+    experiment_fpath = Path(experiment_fpath)
+    preprocessed_img_fpath = experiment_fpath / (experiment_fpath.stem + &#39;_preprocessed_img_data.zarr&#39;)
+    dataset_fpath = experiment_fpath / dataset_name
+
+    # Load the dataset
+    data = data_models.Dataset()
+    try:
+        data.load_dataset(dataset_fpath)
+    except:
+        logger.error(f&#34;missing dataset&#34;)
+        sys.exit(f&#34;missing dataset&#34;)
+    else:
+
+        fov_dataset = data.dataset.loc[(data.dataset.fov_num == fov_num) &amp;
+                                    (data.dataset.channel == channel),:]
+
+        counts_fname = fov_dataset.experiment_name.iloc[0] + &#39;_decoded_fov_&#39; +str(fov_num) + &#39;.parquet&#39;
+        counts_fpath = experiment_fpath / &#39;results&#39; / counts_fname
+    
+        try:
+            all_counts_df = pd.read_parquet(counts_fpath)
+        except FileNotFoundError:
+            logger.error(f&#34;missing file with raw counts&#34;)
+            sys.exit(f&#34;missing file with raw counts&#34;)
+        else:
+            all_counts_df = all_counts_df.loc[all_counts_df.channel == channel, :]
+            vw = napari.Viewer(title=&#39;barcodes fov &#39; + str(fov_num) + &#39;channel &#39; + channel)
+            counts_coords = all_counts_df.loc[:,[&#39;r_px_original&#39;,&#39;c_px_original&#39;]].to_numpy()
+            vw.add_points(counts_coords, name= &#39;counts fov &#39;+ str(fov_num), face_color=&#39;cyan&#39;,
+                            symbol=&#39;+&#39;, size=5, opacity=0.5,visible=False)
+            for round_num in fov_dataset.round_num.unique():
+                fov_subdataset = fov_dataset.loc[fov_dataset.round_num == round_num,:].iloc[0]
+                preprocessed_img, metadata = io.load_general_zarr(fov_subdataset,
+                                                        preprocessed_img_fpath,
+                                                        tag=&#39;preprocessed_data&#39;)
+                
+                
+                vw.add_image(preprocessed_img,name=&#39;img round &#39; + str(round_num), colormap=&#39;inferno&#39;,
+                            visible=False)
+
+                    # contrast_limits=(preprocessed_img.min(), preprocessed_img.max())</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pysmFISH.visualization.visualize_barcodes"><code class="name flex">
+<span>def <span class="ident">visualize_barcodes</span></span>(<span>experiment_fpath: str, dataset_name: str, fov_num: int, channel: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Utility function to visualize the barcodes for a FOV.
+The preprocessed images for each round are combined with the
+corresponding counts and plot on different napari layers</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>experiment_fpath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the experiment to process</dd>
+<dt><strong><code>dataset_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the dataset</dd>
+<dt><strong><code>fov_num</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of the field of view to visualize</dd>
+<dt><strong><code>channel</code></strong> :&ensp;<code>str</code></dt>
+<dd>Channel to visualize</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def visualize_barcodes(experiment_fpath:str,dataset_name:str,
+                        fov_num:int,channel:str):
+    &#34;&#34;&#34;Utility function to visualize the barcodes for a FOV.
+    The preprocessed images for each round are combined with the
+    corresponding counts and plot on different napari layers
+
+    Args:
+        experiment_fpath (str): Path to the experiment to process
+        dataset_name (str): Name of the dataset
+        fov_num (int): Number of the field of view to visualize
+        channel (str): Channel to visualize
+    &#34;&#34;&#34;
+    
+    logger = selected_logger()
+    experiment_fpath = Path(experiment_fpath)
+    preprocessed_img_fpath = experiment_fpath / (experiment_fpath.stem + &#39;_preprocessed_img_data.zarr&#39;)
+    dataset_fpath = experiment_fpath / dataset_name
+
+    # Load the dataset
+    data = data_models.Dataset()
+    try:
+        data.load_dataset(dataset_fpath)
+    except:
+        logger.error(f&#34;missing dataset&#34;)
+        sys.exit(f&#34;missing dataset&#34;)
+    else:
+
+        fov_dataset = data.dataset.loc[(data.dataset.fov_num == fov_num) &amp;
+                                    (data.dataset.channel == channel),:]
+
+        counts_fname = fov_dataset.experiment_name.iloc[0] + &#39;_decoded_fov_&#39; +str(fov_num) + &#39;.parquet&#39;
+        counts_fpath = experiment_fpath / &#39;results&#39; / counts_fname
+    
+        try:
+            all_counts_df = pd.read_parquet(counts_fpath)
+        except FileNotFoundError:
+            logger.error(f&#34;missing file with raw counts&#34;)
+            sys.exit(f&#34;missing file with raw counts&#34;)
+        else:
+            all_counts_df = all_counts_df.loc[all_counts_df.channel == channel, :]
+            vw = napari.Viewer(title=&#39;barcodes fov &#39; + str(fov_num) + &#39;channel &#39; + channel)
+            counts_coords = all_counts_df.loc[:,[&#39;r_px_original&#39;,&#39;c_px_original&#39;]].to_numpy()
+            vw.add_points(counts_coords, name= &#39;counts fov &#39;+ str(fov_num), face_color=&#39;cyan&#39;,
+                            symbol=&#39;+&#39;, size=5, opacity=0.5,visible=False)
+            for round_num in fov_dataset.round_num.unique():
+                fov_subdataset = fov_dataset.loc[fov_dataset.round_num == round_num,:].iloc[0]
+                preprocessed_img, metadata = io.load_general_zarr(fov_subdataset,
+                                                        preprocessed_img_fpath,
+                                                        tag=&#39;preprocessed_data&#39;)
+                
+                
+                vw.add_image(preprocessed_img,name=&#39;img round &#39; + str(round_num), colormap=&#39;inferno&#39;,
+                            visible=False)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.visualization.visualize_raw_counts"><code class="name flex">
+<span>def <span class="ident">visualize_raw_counts</span></span>(<span>experiment_fpath: str, dataset_name: str, fov_num: int, channel: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Utility function to visualize the raw count for a FOV.
+The preprocessed images for each round are combined with the
+corresponding counts and plot on different napari layers</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>experiment_fpath</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to the experiment to process</dd>
+<dt><strong><code>dataset_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the dataset</dd>
+<dt><strong><code>fov_num</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of the field of view to visualize</dd>
+<dt><strong><code>channel</code></strong> :&ensp;<code>str</code></dt>
+<dd>Channel to visualize</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def visualize_raw_counts(experiment_fpath:str,dataset_name:str,
+                        fov_num:int,channel:str):
+    &#34;&#34;&#34;Utility function to visualize the raw count for a FOV.
+    The preprocessed images for each round are combined with the
+    corresponding counts and plot on different napari layers
+
+    Args:
+        experiment_fpath (str): Path to the experiment to process
+        dataset_name (str): Name of the dataset
+        fov_num (int): Number of the field of view to visualize
+        channel (str): Channel to visualize
+    &#34;&#34;&#34;
+    
+    logger = selected_logger()
+    experiment_fpath = Path(experiment_fpath)
+    preprocessed_img_fpath = experiment_fpath / (experiment_fpath.stem + &#39;_preprocessed_img_data.zarr&#39;)
+    dataset_fpath = experiment_fpath / dataset_name
+
+    # Load the dataset
+    data = data_models.Dataset()
+    try:
+        data.load_dataset(dataset_fpath)
+    except:
+        logger.error(f&#34;missing dataset&#34;)
+        sys.exit(f&#34;missing dataset&#34;)
+    else:
+
+        fov_dataset = data.dataset.loc[(data.dataset.fov_num == fov_num) &amp;
+                                    (data.dataset.channel == channel),:]
+
+        counts_fname = fov_dataset.experiment_name.iloc[0] + &#39;_raw_counts_channel&#39; + channel + &#39;_fov_&#39; +str(fov_num) + &#39;.parquet&#39;
+        counts_fpath = experiment_fpath / &#39;results&#39; / counts_fname
+    
+        try:
+            all_counts_df = pd.read_parquet(counts_fpath)
+        except FileNotFoundError:
+            logger.error(f&#34;missing file with raw counts&#34;)
+            sys.exit(f&#34;missing file with raw counts&#34;)
+        else:
+            vw = napari.Viewer(title=&#39;raw counts fov &#39; + str(fov_num) + &#39;channel &#39; + channel)
+            for round_num in fov_dataset.round_num.unique():
+                fov_subdataset = fov_dataset.loc[fov_dataset.round_num == round_num,:].iloc[0]
+                preprocessed_img, metadata = io.load_general_zarr(fov_subdataset,
+                                                        preprocessed_img_fpath,
+                                                        tag=&#39;preprocessed_data&#39;)
+                counts_coords = all_counts_df.loc[all_counts_df.round_num == round_num,[&#39;r_px_original&#39;,&#39;c_px_original&#39;]].to_numpy()
+                
+                vw.add_image(preprocessed_img,name=&#39;img round &#39; + str(round_num), colormap=&#39;inferno&#39;,
+                            visible=False)
+                vw.add_points(counts_coords, name= &#39;counts round &#39;+ str(round_num), face_color=&#39;cyan&#39;,
+                            symbol=&#39;+&#39;, size=5, opacity=0.5,visible=False)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pysmFISH" href="index.html">pysmFISH</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pysmFISH.visualization.visualize_barcodes" href="#pysmFISH.visualization.visualize_barcodes">visualize_barcodes</a></code></li>
+<li><code><a title="pysmFISH.visualization.visualize_raw_counts" href="#pysmFISH.visualization.visualize_raw_counts">visualize_raw_counts</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

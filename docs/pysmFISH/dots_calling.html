@@ -1,0 +1,2529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pysmFISH.dots_calling API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pysmFISH.dots_calling</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import *
+import numpy as np
+import argparse
+from toolz.itertoolz import get
+import zarr
+import re
+import sys
+import logging
+import pickle
+import pandas as pd
+from sympy import Point, Line
+from skimage import feature, measure, morphology, img_as_float
+from skimage.filters import rank_order
+from scipy import ndimage as nd
+from pathlib import Path
+
+from pysmFISH.utils import convert_from_uint16_to_float64
+from pysmFISH.data_models import Output_models
+
+from pysmFISH.logger_utils import selected_logger
+
+
+class osmFISH_dots_thr_selection():
+    &#34;&#34;&#34;
+    Class used to automatically define the threshold used to call the
+    signal peaks. This function calculate the threshold without masking large object 
+    and contamination. 
+    
+    This is the original class used in the osmFISH paper.
+    &#34;&#34;&#34;
+    
+    
+    def __init__(self, img:np.ndarray, parameters_dict:Dict, min_int:float=False, max_int:float=False,min_peaks:int=False):
+        &#34;&#34;&#34;Initialize the class
+
+        Args:
+            img (np.ndarray): Image to process
+            parameters_dict (Dict): Parameters used to define the peaks.
+            min_int (float, optional): Minimum intensity value to use for the binning of
+                    the signal intensities. Defaults to False.
+            max_int (float, optional): Maximum intensity value to use for the binning of
+                    the signal intensities. Defaults to False.
+            min_peaks (int, optional): Minimum number of peaks required for the
+                    calculation of the counting threshold. Defaults to False.
+        &#34;&#34;&#34;
+        self.img = img
+        self.parameters_dict = parameters_dict
+        self.min_int = min_int
+        self.max_int = max_int
+        self.min_peaks = min_peaks
+
+        if self.min_peaks == False:
+            self.min_peaks = 3
+        
+        self.min_distance = self.parameters_dict[&#39;min_distance&#39;]
+        
+        self.fill_value = np.nan
+
+        # List with the total peaks calculated for each threshold
+        self.total_peaks = []
+        self.thr_used = []
+
+    def counting_graph(self):
+        &#34;&#34;&#34;Function used for the construction of the number of peaks(Y) / thresholds(X)
+        graph used to define the threshold.
+        &#34;&#34;&#34;
+
+        binning = 100
+        # Define the range of thr to be tested
+        if self.min_int and self.max_int:
+            self.thr_array = np.linspace(self.min_int,self.max_int,num=binning)
+        elif self.min_int:
+            self.thr_array = np.linspace(self.min_int,self.img.max(),num=binning)
+        elif self.max_int:
+            self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.max_int,num=binning)
+        else:
+            self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.img.max(),num=binning)
+    
+        # Calculate the number of peaks for each threshold. In this calculation
+        # the size of the objects is not considered
+        self.peak_counter_min = 0
+        self.peak_counter_max = 0
+        for vl, thr in enumerate(self.thr_array):
+            # The border is excluded from the counting
+            self.peaks = feature.peak_local_max(self.img,min_distance=self.min_distance,\
+                threshold_abs=thr,exclude_border=False, indices=True,\
+                num_peaks=np.inf, footprint=None,labels=None)
+            
+            self.number_peaks = len(self.peaks)
+
+            # Stop the counting when the number of peaks detected falls below 3
+            if self.number_peaks&lt;=self.min_peaks:
+                self.stop_thr = thr # Move in the upper loop so you will stop at the previous thr
+                break
+            else:
+                self.total_peaks.append(len(self.peaks))
+                self.thr_used.append(thr)
+
+    def thr_identification(self):  
+        &#34;&#34;&#34;Function that use the number of peaks / thresholds graph to define the threshold
+        to used for the counting.
+        - calculate the gradient of the number of peaks / threshold function
+        - remove the initial minimum point
+        - calculate the segment that join the extremities of the gradient. This version
+          of the code uses sympy.
+        - Calculate the thr corresponding to the point of max distance from the segment
+        &#34;&#34;&#34;
+        # Consider the case of no detectected peaks or if there is only one Thr
+        # that create peaks (list total_peaks have only one element and )
+        # if np.array(total_peaks).sum()&gt;0 or len(total_peaks)&gt;1:
+        if len(self.total_peaks)&gt;1:
+
+            # Trim the threshold array in order to match the stopping point
+            # used the [0][0] to get the first number and then take it out from list
+            # thr_array = thr_array[:np.where(thr_array==stop_thr)[0][0]]
+            self.thr_array = np.array(self.thr_used)
+
+            # Calculate the gradient of the number of peaks distribution
+            grad = np.gradient(self.total_peaks)
+            
+            # Restructure the data in order to avoid to consider the min_peak in the
+            # calculations
+
+            # Coord of the gradient min_peak
+            grad_min_peak_coord = np.argmin(grad)
+            
+            # Trim the data to remove the peak.
+            self.trimmed_thr_array = self.thr_array[grad_min_peak_coord:]
+            self.trimmed_grad = grad[grad_min_peak_coord:]
+
+            if self.trimmed_thr_array.shape&gt;(1,):
+
+                # Trim the coords array in order to maintain the same length of the 
+                # tr and pk
+                self.trimmed_total_peaks = self.total_peaks[grad_min_peak_coord:]
+
+                # To determine the threshold we will determine the Thr with the biggest
+                # distance to the segment that join the end points of the calculated
+                # gradient
+
+                # Distances list
+                distances = []
+
+                # Calculate the coords of the end points of the gradient
+                p1 = Point(self.trimmed_thr_array[0],self.trimmed_grad[0])
+                p2 = Point(self.trimmed_thr_array[-1],self.trimmed_grad[-1])
+                
+                # Create a line that join the points
+                s = Line(p1,p2)
+                allpoints = np.arange(0,len(self.trimmed_thr_array))
+                
+                # Calculate the distance between all points and the line
+                for p in allpoints:
+                    dst = s.distance(Point(self.trimmed_thr_array[p],self.trimmed_grad[p]))
+                    distances.append(dst.evalf())
+
+                # Remove the end points from the lists
+                self.trimmed_thr_array = self.trimmed_thr_array[1:-1]
+                self.trimmed_grad = self.trimmed_grad[1:-1]
+                self.trimmed_total_peaks = self.trimmed_total_peaks[1:-1]
+                self.trimmed_distances = distances[1:-1]
+            
+                # Determine the coords of the selected Thr
+                # Converted trimmed_distances to array because it crashed
+                # on Sanger.
+                if self.trimmed_distances: # Most efficient way will be to consider the length of Thr list
+                    thr_idx = np.argmax(np.array(self.trimmed_distances))
+                    self.selected_thr = self.trimmed_thr_array[thr_idx]
+                    # The selected threshold usually causes oversampling of the number of dots
+                    # I added a stringency parameter (int n) to use to select the Thr+n 
+                    # for the counting. It selects a stringency only if the trimmed_thr_array
+                    # is long enough. Also consider the case in which the stringency in negative
+                else:
+                    self.selected_thr = self.fill_value
+                    self.trimmed_thr_array = self.fill_value
+            else:
+                self.selected_thr = self.fill_value
+                self.trimmed_thr_array = self.fill_value
+        else:
+            self.selected_thr = self.fill_value
+            self.trimmed_thr_array = self.fill_value
+
+
+
+class osmFISH_dots_mapping():
+    &#34;&#34;&#34;Function used to count the peaks after identification of the threshold
+    and masking of large objects.
+
+    This is the original class used in the osmFISH paper. 
+    &#34;&#34;&#34;
+
+    def __init__(self,img: np.ndarray,thr: float,parameters_dict: dict):
+        &#34;&#34;&#34;Class initialization
+
+        Args:
+            img (np.ndarray): Image to process
+            thr (float): Precalculate threshold for masking the image 
+            parameters_dict (dict): Parameters used to define the peaks.
+        &#34;&#34;&#34;
+       # Calculate the selected peaks after removal of the big and small objects
+        
+        self.img = img
+        self.thr = thr
+        # make an error if selected Thr &lt;0
+        self.parameters_dict = parameters_dict
+        
+        self.min_distance = self.parameters_dict[&#39;min_distance&#39;]
+        self.min_obj_size = self.parameters_dict[&#39;min_obj_size&#39;]
+        self.max_obj_size = self.parameters_dict[&#39;max_obj_size&#39;]
+        self.num_peaks_per_label = self.parameters_dict[&#39;num_peaks_per_label&#39;]
+
+        self.fill_value = np.nan
+
+        # Threshold the image using the selected threshold
+        img_mask = self.img&gt;self.thr
+    
+        labels = nd.label(img_mask)[0]
+        
+        properties = measure.regionprops(labels)
+            
+        for ob in properties:
+            if ob.area&lt;self.min_obj_size or ob.area&gt;self.max_obj_size:
+                img_mask[ob.coords[:,0],ob.coords[:,1]]=0
+        
+        labels = nd.label(img_mask)[0]
+
+        # Collect the properties of the labels after size selection
+        properties = measure.regionprops(labels,intensity_image=self.img)
+
+        self.selected_peaks = feature.peak_local_max(self.img, min_distance=self.min_distance, 
+                                threshold_abs=self.thr, exclude_border=True, 
+                                footprint=None, labels=labels,num_peaks_per_label=self.num_peaks_per_label)                            
+        
+        
+        # # calling peak_local_max without Labels argument
+        # selected_peaks_mask = feature.peak_local_max(self.img, min_distance=self.min_distance, 
+        #                 threshold_abs=self.thr, exclude_border=True,
+        #                 footprint=None,num_peaks=np.inf,indices=False).astype(int)                         
+                              
+        # # instead, make sure the selected peaks does not meet zeros at labels (background)
+        # labels_mask = (labels &gt; 0).astype(int)
+        # selected_peaks_mask = selected_peaks_mask * labels_mask
+        # self.selected_peaks = np.vstack(np.where(selected_peaks_mask)).T
+        
+        
+        if self.selected_peaks.size:
+            self.intensity_array = self.img[self.selected_peaks[:,0],self.selected_peaks[:,1]]
+        else:
+            self.intensity_array = np.nan
+
+
+def peak_thrs_local_max_fast(image: np.ndarray, min_distance: int=1, 
+                        threshold_abs: float=None,threshold_rel:float=None, 
+                        exclude_border: int=True, indices: bool=True,
+                        num_peaks: int=np.inf, footprint: np.ndarray=None, 
+                        labels: np.ndarray=None)-&gt;np.ndarray:
+    &#34;&#34;&#34;Function after modification:
+    returns the coordinates for a range of thresholds
+
+    Peaks are the local maxima in a region of `2 * min_distance + 1`
+    (i.e. peaks are separated by at least `min_distance`).
+
+    If peaks are flat (i.e. multiple adjacent pixels have identical
+    intensities), the coordinates of all such pixels are returned.
+
+    If both `threshold_abs` and `threshold_rel` are provided, the maximum
+    of the two is chosen as the minimum intensity threshold of peaks.
+
+    Notes
+    -----
+    The peak local maximum function returns the coordinates of local peaks
+    (maxima) in an image. A maximum filter is used for finding local maxima.
+    This operation dilates the original image. After comparison of the dilated
+    and original image, this function returns the coordinates or a mask of the
+    peaks where the dilated image equals the original image.
+
+    Examples
+    --------
+    &gt;&gt;&gt; img1 = np.zeros((7, 7))
+    &gt;&gt;&gt; img1[3, 4] = 1
+    &gt;&gt;&gt; img1[3, 2] = 1.5
+    &gt;&gt;&gt; img1
+    array([[ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  1.5,  0. ,  1. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ]])
+
+    &gt;&gt;&gt; peak_local_max(img1, min_distance=1)
+    array([[3, 2],
+           [3, 4]])
+
+    &gt;&gt;&gt; peak_local_max(img1, min_distance=2)
+    array([[3, 2]])
+
+    &gt;&gt;&gt; img2 = np.zeros((20, 20, 20))
+    &gt;&gt;&gt; img2[10, 10, 10] = 1
+    &gt;&gt;&gt; peak_local_max(img2, exclude_border=0)
+    array([[10, 10, 10]])
+
+    Args:
+        image (np.ndarray): Input image.
+        min_distance (int, optional): Minimum number of pixels separating peaks in a region of `2 *
+                    min_distance + 1` (i.e. peaks are separated by at least
+                    `min_distance`). Defaults to 1.
+        threshold_abs (float, optional): Minimum intensity of peaks. By default, the absolute threshold is
+                    the minimum intensity of the image. Defaults to None.
+        threshold_rel (float, optional): Minimum intensity of peaks, calculated as `max(image) * threshold_rel`. 
+                    Defaults to None.
+        exclude_border (int, optional): If nonzero, `exclude_border` excludes peaks from
+                    within `exclude_border`-pixels of the border of the image.. Defaults to True.
+        indices (bool, optional): If True, the output will be an array representing peak
+                    coordinates.  If False, the output will be a boolean array shaped as
+                    `image.shape` with peaks present at True elements.. Defaults to True.
+        num_peaks (int, optional): Maximum number of peaks. When the number of peaks exceeds `num_peaks`,
+                    return `num_peaks` peaks based on highest peak intensity.. Defaults to np.inf.
+        footprint (np.ndarray, optional): If provided, `footprint == 1` represents the local region within which
+                    to search for peaks at every point in `image`.  Overrides
+                    `min_distance` (also for `exclude_border`).. Defaults to None.
+        labels (np.ndarray, optional): If provided, each unique region `labels == value` represents a unique
+                    region to search for peaks. Zero is reserved for background.. Defaults to None.
+
+    Returns:
+        np.ndarray: If `indices = True`  : (row, column, ...) coordinates of peaks.
+                    If `indices = False` : Boolean array shaped like `image`, with peaks
+                    represented by True values.
+    &#34;&#34;&#34;
+
+    if type(exclude_border) == bool:
+        exclude_border = min_distance if exclude_border else 0
+
+    out = np.zeros_like(image, dtype=np.bool)
+
+    # In the case of labels, recursively build and return an output
+    # operating on each label separately
+    if labels is not None:
+        label_values = np.unique(labels)
+        # Reorder label values to have consecutive integers (no gaps)
+        if np.any(np.diff(label_values) != 1):
+            mask = labels &gt;= 1
+            labels[mask] = 1 + rank_order(labels[mask])[0].astype(labels.dtype)
+        labels = labels.astype(np.int32)
+
+        # New values for new ordering
+        label_values = np.unique(labels)
+        for label in label_values[label_values != 0]:
+            maskim = (labels == label)
+            out += feature.peak_local_max(image * maskim, min_distance=min_distance,
+                                  threshold_abs=threshold_abs,
+                                  threshold_rel=threshold_rel,
+                                  exclude_border=exclude_border,
+                                  indices=False, num_peaks=np.inf,
+                                  footprint=footprint, labels=None)
+
+        if indices is True:
+            return np.transpose(out.nonzero())
+        else:
+            return out.astype(np.bool)
+
+    if np.all(image == image.flat[0]):
+        if indices is True:
+            return np.empty((0, 2), np.int)
+        else:
+            return out
+
+    # Non maximum filter
+    if footprint is not None:
+        image_max = nd.maximum_filter(image, footprint=footprint,
+                                       mode=&#39;constant&#39;)
+    else:
+        size = 2 * min_distance + 1
+        image_max = nd.maximum_filter(image, size=size, mode=&#39;constant&#39;)
+    mask = image == image_max
+
+    if exclude_border:
+        # zero out the image borders
+        for i in range(mask.ndim):
+            mask = mask.swapaxes(0, i)
+            remove = (footprint.shape[i] if footprint is not None
+                      else 2 * exclude_border)
+            mask[:remove // 2] = mask[-remove // 2:] = False
+            mask = mask.swapaxes(0, i)
+
+    # find top peak candidates above a threshold
+    thresholds = []
+    if threshold_abs is None:
+        threshold_abs = image.min()
+    thresholds.append(threshold_abs)
+    if threshold_rel is not None:
+        thresholds.append(threshold_rel * image.max())
+    if thresholds:
+        mask_original = mask  # save the local maxima&#39;s of the image
+        thrs_coords = {}  # dictionary holds the coordinates correspond for each threshold
+        for threshold in thresholds[0]:
+            mask = mask_original
+            mask &amp;= image &gt; threshold
+
+            # get coordinates of peaks
+            coordinates = np.transpose(mask.nonzero())
+
+            if coordinates.shape[0] &gt; num_peaks:
+                intensities = image.flat[np.ravel_multi_index(coordinates.transpose(),
+                                                              image.shape)]
+                idx_maxsort = np.argsort(intensities)[::-1]
+                coordinates = coordinates[idx_maxsort][:num_peaks]
+
+            if indices is True:
+                thrs_coords[threshold] = coordinates
+            else:
+                nd_indices = tuple(coordinates.T)
+                out[nd_indices] = True
+                return out
+    if thresholds and thrs_coords:
+        return thrs_coords
+
+
+def osmFISH_peak_based_detection_fast(ImgStack: np.ndarray, 
+                            fov_subdataset: pd.Series,
+                            parameters_dict: dict,
+                            dimensions: int=2,
+                            stringency:int =0,
+                            min_int:float=False,     
+                            max_int:float=False,
+                            min_peaks:int=False)-&gt;pd.DataFrame:
+    
+    &#34;&#34;&#34;This function is used to calculate the threshold to use for the dots
+    counting in a 3D image. It is based on the function used in the osmFISH
+    paper but doesn’t require simpy. It integrate the peak_thrs_local_max_fast
+    and the calculation of the peaks on the masked image.
+
+    Args:
+        ImgStack (np.ndarray): preprocessed image used to count the dots
+        fov_subdataset (pd.Series): Series with the metadata info relative to the image to process
+        parameters_dict (dict): Parameters used to define the peaks.
+        dimensions (int, optional): Image dimension (2 for 2D or 3 for 3D). Defaults to 2.
+        stringency (int, optional): Select a thr before or after the one calculated
+                    automatically. Defaults to 0.
+        min_int (float, optional): Minimum intensity value to use for the binning of
+                    the signal intensities. Defaults to False.
+        max_int (float, optional): Maximum intensity value to use for the binning of
+                    the signal intensities. Defaults to False.
+        min_peaks (int, optional): Minimum number of peaks required for the
+                    calculation of the counting threshold. Defaults to False.
+
+    Returns:
+        pd.DataFrame: counts data
+    &#34;&#34;&#34;
+
+
+
+    
+    logger = selected_logger()
+    
+    
+    if min_peaks == False:
+        min_peaks = 3
+
+    fill_value = np.nan
+
+    # List with the total peaks calculated for each threshold
+    thr_used = []
+
+    binning = 100
+    # Define the range of thr to be tested
+    if min_int and max_int:
+        ThrArray = np.linspace(min_int,max_int,num=binning)
+    elif min_int:
+        ThrArray = np.linspace(min_int,ImgStack.max(),num=binning)
+    elif max_int:
+        ThrArray = np.linspace(np.min(ImgStack[np.nonzero(ImgStack)]),max_int,num=binning)
+    else:
+        ThrArray = np.linspace(np.min(ImgStack[np.nonzero(ImgStack)]),ImgStack.max(),num=binning)
+    
+
+    fov = fov_subdataset.fov_num
+    round_num = fov_subdataset.round_num
+    channel = fov_subdataset.channel
+    target_name = fov_subdataset.target_name
+    
+    fill_value = np.nan
+    data_models = Output_models()
+    counts_dict = data_models.dots_counts_dict
+    
+    # Initialise an empty version of the counts dict
+    counts_dict[&#39;r_px_original&#39;] = np.array([fill_value])
+    counts_dict[&#39;c_px_original&#39;] = np.array([fill_value])
+    counts_dict[&#39;dot_id&#39;] = np.array([fill_value])
+    counts_dict[&#39;dot_intensity&#39;] = np.array([fill_value])
+    counts_dict[&#39;selected_thr&#39;] = np.array([fill_value])
+    
+    min_distance = parameters_dict[&#39;CountingFishMinObjDistance&#39;]
+    min_obj_size = parameters_dict[&#39;CountingFishMinObjSize&#39;]
+    max_obj_size = parameters_dict[&#39;CountingFishMaxObjSize&#39;]
+    #num_peaks_per_label = self.parameters_dict[&#39;num_peaks_per_label&#39;]
+    
+    fov_subdataset_df = pd.DataFrame(fov_subdataset).T
+    
+    # List of ndarrays with the coords of the peaks calculated for each threshold
+    PeaksCoords = []
+    Selected_Peaks2_mask = None
+    # Determine if working in 2D or 3D 
+    if dimensions == 2:
+        if len(ImgStack.shape) &gt; 2:
+            ImgStack = np.amax(ImgStack, axis=0)
+
+    # Define the Thr array
+#     ThrArray = np.linspace(ImgStack.min(), ImgStack.max(), num=binning)
+
+
+    # Calculate the number of peaks for each threshold
+    # Exclude border beacause of artefact of image processing
+    thrs_peaks = peak_thrs_local_max_fast(ImgStack, min_distance=min_distance,
+                                     threshold_abs=ThrArray, exclude_border=True, indices=True,
+                                     num_peaks=np.inf, footprint=None, labels=None)
+    lists = sorted(thrs_peaks.items())  # sorted by key, return a list of tuples. tuple[0]: threshold, tuple[1]: coords
+    x, PeaksCoords = zip(*lists)  # unpack a list of pairs into two tuples
+    TotalPeaks = []
+    for j in range(len(PeaksCoords)):
+        TotalPeaks += (len(PeaksCoords[j]),)  # get number of peaks
+    # print(&#34;Thresholds distribution %.3f seconds&#34; % (timings[&#39;thrs_dist&#39;]))
+
+    # Consider the case of no detectected peaks or if there is only one Thr
+    # that create peaks (list TotalPeaks have only one element and )
+    # if np.array(TotalPeaks).sum()&gt;0 or len(TotalPeaks)&gt;1:
+    if len(TotalPeaks) &gt; 3:
+
+        # Trim the threshold array in order to match the stopping point
+        # used the [0][0] to get the first number and then take it out from list
+        # ThrArray = ThrArray[:np.where(ThrArray == StopThr)[0][0]]
+
+        # Trim and convert to types as Simone&#39;s
+        TotalPeaks = np.array(TotalPeaks)
+        TotalPeaks = list(TotalPeaks[TotalPeaks &gt; min_peaks])
+
+        ThrArray = ThrArray[:len(TotalPeaks)]
+
+        PeaksCoords = np.array(PeaksCoords)
+        PeaksCoords = PeaksCoords[:len(TotalPeaks)]
+        PeaksCoords = list(PeaksCoords)
+        # Calculate the gradient of the number of peaks distribution
+        # grad = np.gradient(TotalPeaks)
+        grad = np.gradient(TotalPeaks,edge_order=1)
+
+        # Restructure the data in order to avoid to consider the min_peak in the
+        # calculations
+
+        # Coord of the gradient min_peak
+        grad_min_peak_coord = np.argmin(grad)
+
+        # Trim the data to remove the peak.
+        trimmed_thr_array = ThrArray[grad_min_peak_coord:]
+        trimmed_grad = grad[grad_min_peak_coord:]
+
+        if trimmed_thr_array.shape &gt; (1,):
+
+            # Trim the coords array in order to maintain the same length of the 
+            # tr and pk
+            Trimmed_PeaksCoords = PeaksCoords[grad_min_peak_coord:]
+            trimmed_total_peaks = TotalPeaks[grad_min_peak_coord:]
+
+            # To determine the threshold we will determine the Thr with the biggest
+            # distance to the segment that join the end points of the calculated
+            # # gradient
+
+            # Calculate the coords of the end points of the gradient
+            p1 = np.array([trimmed_thr_array[0],trimmed_grad[0]])
+            p2 = np.array([trimmed_thr_array[-1],trimmed_grad[-1]])
+
+            # Create a line that join the points
+            allpoints = np.arange(0,len(trimmed_thr_array))
+            allpoints_coords = np.array([trimmed_thr_array[allpoints],trimmed_grad[allpoints]]).T
+
+            distances = []
+            for point in allpoints_coords:
+                distances.append(np.linalg.norm(np.cross(p2-p1, p1-point))/np.linalg.norm(p2-p1))
+
+
+            # Remove the end points from the lists
+            trimmed_thr_array = trimmed_thr_array[1:-1]
+            trimmed_grad = trimmed_grad[1:-1]
+            trimmed_total_peaks = trimmed_total_peaks[1:-1]
+            trimmed_distances = distances[1:-1]
+
+            # Determine the coords of the selected Thr
+            # Converted Trimmed_distances to array because it crashed
+            # on Sanger.
+            if trimmed_distances:  # Most efficient way will be to consider the length of Thr list
+                Thr_idx = np.argmax(np.array(trimmed_distances))
+                Calculated_Thr = trimmed_thr_array[Thr_idx]
+                # The selected threshold usually causes oversampling of the number of dots
+                # I added a stringency parameter (int n) to use to select the Thr+n 
+                # for the counting. It selects a stringency only if the Trimmed_ThrArray
+                # is long enough
+                if Thr_idx + stringency &lt; len(trimmed_thr_array):
+                    Selected_Thr = trimmed_thr_array[Thr_idx + stringency]
+                    Selected_Peaks = Trimmed_PeaksCoords[Thr_idx + stringency]
+                else:
+                    Selected_Thr = trimmed_thr_array[Thr_idx]
+                    Selected_Peaks = Trimmed_PeaksCoords[Thr_idx]
+
+                # Calculate the selected peaks after removal of the big and small objects
+                # Threshold the image using the selected threshold
+                # if Selected_Thr &gt; 0:
+                #     ImgMask = ImgStack &gt; Selected_Thr
+
+                ImgMask = ImgStack &gt; Selected_Thr
+
+
+                Labels = nd.label(ImgMask)[0]
+
+                Properties = measure.regionprops(Labels)
+
+                for ob in Properties:
+                    if ob.area &lt; min_obj_size or ob.area &gt; max_obj_size:
+                        ImgMask[ob.coords[:, 0], ob.coords[:, 1]] = 0
+
+                Labels = nd.label(ImgMask)[0]
+
+                # # calling peak_local_max without Labels argument
+                # Selected_Peaks2_mask = feature.peak_local_max(ImgStack, min_distance=min_distance, 
+                #                 threshold_abs=Selected_Thr, exclude_border=True, indices=False,
+                #                 footprint=None,num_peaks=np.inf).astype(int)                         
+                
+             
+                # # instead, make sure the selected peaks does not meet zeros at labels (background)
+                # Labels_mask = (Labels &gt; 0).astype(int)
+                # Selected_Peaks2_mask = Selected_Peaks2_mask * Labels_mask
+                # Selected_Peaks2 = np.vstack(np.where(Selected_Peaks2_mask)).T
+                
+                Selected_Peaks2 = feature.peak_local_max(ImgStack, min_distance=min_distance, 
+                                threshold_abs=Selected_Thr, exclude_border=True, indices=True,
+                                footprint=None,labels=Labels,num_peaks=np.inf).astype(int)        
+   
+                
+                if Selected_Peaks2.size:
+                    # Intensity counting of the max peaks
+#                     Selected_peaks_coords = np.where(Selected_Peaks2)
+#                     Selected_peaks_int = ImgStack[Selected_peaks_coords[0], Selected_peaks_coords[1]]
+                    Selected_peaks_int = ImgStack[Selected_Peaks2[:, 0], Selected_Peaks2[:, 1]]
+                                        
+                    # Peaks have been identified
+                    total_dots = Selected_Peaks2.shape[0]
+                    dot_id_array = np.array([str(fov)+&#39;_&#39;+str(round_num)+&#39;_&#39;+ channel +&#39;_&#39;+str(nid) for nid in range(total_dots)])
+                    thr_array = np.repeat(Selected_Thr,total_dots)
+                    channel_array = np.repeat(channel,total_dots)
+
+                    counts_dict[&#39;r_px_original&#39;]  = Selected_Peaks2[:,0]
+                    counts_dict[&#39;c_px_original&#39;] = Selected_Peaks2[:,1]
+                    counts_dict[&#39;dot_id&#39;] = dot_id_array
+                    counts_dict[&#39;dot_intensity&#39;] = Selected_peaks_int
+                    counts_dict[&#39;selected_thr&#39;] = thr_array
+                else:
+                    logger.info(f&#39; fov {fov} does not have counts (mapping)&#39;)
+
+            else:
+                logger.info(f&#39; fov {fov} Trimmed distance equal to zero&#39;)
+        else:
+            logger.info(f&#39; fov {fov} calculated Thr array to small for selection of Thr&#39;)
+
+
+
+    else:
+        logger.info(f&#39; fov {fov} does not have counts for calculating Thr&#39;)
+
+        
+        
+    counts_df = pd.DataFrame(counts_dict)
+    fov_subdataset_df = pd.DataFrame(fov_subdataset).T
+    fov_subdataset_df = pd.concat([fov_subdataset_df]*counts_df.shape[0],axis=0).sort_index().reset_index(drop=True)
+    counts_df = pd.concat([counts_df,fov_subdataset_df],axis=1)
+    
+    
+    return counts_df
+
+
+
+
+def beads_peak_based_detection(img: np.ndarray, 
+                            fov_subdataset: pd.Series,
+                            processing_parameters: Dict)-&gt;pd.DataFrame:
+    &#34;&#34;&#34;Counts the peaks in the reference images with small and large beads.
+    It first identify the large beads and then mask them and identify the
+    small ones.
+
+    Args:
+        img (np.ndarray): Reference image with large and small beads
+        fov_subdataset (pd.Series): Series with the metadata info relative to the image to process
+        processing_parameters (Dict): Parameters used to define the peaks.
+
+    Returns:
+        pd.DataFrame: Beads counts
+    &#34;&#34;&#34;
+
+    stitching_type = fov_subdataset.stitching_type      
+
+    LargeObjRemovalPercentile = processing_parameters[&#39;LargeObjRemovalPercentile&#39;]
+    LargeObjRemovalMinObjSize = processing_parameters[&#39;LargeObjRemovalMinObjSize&#39;]
+    LargeObjRemovalSelem = processing_parameters[&#39;LargeObjRemovalSelem&#39;]
+
+
+    if stitching_type == &#39;both-beads&#39;:
+
+        large_beads_counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        large_beads_counts_df[&#39;mapped_beads_type&#39;] = &#39;large&#39;
+        
+
+        mask = np.zeros_like(img)
+        idx=  img &gt; np.percentile(img,LargeObjRemovalPercentile)
+        mask[idx] = 1
+
+        labels = nd.label(mask)
+
+        properties = measure.regionprops(labels[0])    
+        for ob in properties:
+            if ob.area &lt; LargeObjRemovalMinObjSize:
+                mask[ob.coords[:,0],ob.coords[:,1]]=0
+
+        mask = morphology.binary_dilation(mask, selem=morphology.disk(LargeObjRemovalSelem))
+        mask = np.logical_not(mask)
+
+        masked_img = img*mask
+
+        processing_parameters_small = {
+                &#39;CountingFishMinObjDistance&#39;: 5,
+                &#39;CountingFishMaxObjSize&#39;: 20,
+                &#39;CountingFishMinObjSize&#39;: 2,
+                &#39;CountingFishNumPeaksPerLabel&#39;: 1}
+
+        small_beads_counts_df = osmFISH_peak_based_detection_fast(masked_img,fov_subdataset,processing_parameters_small)
+        small_beads_counts_df[&#39;mapped_beads_type&#39;] = &#39;small&#39;
+
+        counts_df = pd.concat([large_beads_counts_df,small_beads_counts_df], axis=0, copy=False)  
+
+    elif stitching_type == &#39;small-beads&#39;:
+        counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        counts_df[&#39;mapped_beads_type&#39;] = &#39;small&#39;
+
+    elif stitching_type == &#39;large-beads&#39;:
+        counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        counts_df[&#39;mapped_beads_type&#39;] = &#39;large&#39;
+        
+
+    return counts_df
+
+
+
+
+# TODO remove unused functions below
+
+def osmFISH_peak_based_detection(img_meta:Tuple[np.ndarray, Dict],
+                                        min_distance: np.float64,
+                                        min_obj_size: np.uint16,
+                                        max_obj_size: np.uint16,
+                                        num_peaks_per_label: np.uint16):
+    
+    &#34;&#34;&#34;
+    This funtion apply the same peak based detection strategy used for 
+    dots calling in the osmFISH paper
+    
+    Args:
+    -----------
+    img_meta: tuple
+        tuple containing (image np.ndarray and metadata dict)
+    min_distance: np.float64
+        minimum distance between two peaks
+    min_obj_size: np.uint16
+        minimum object size of the objects that will be processed for peak detection
+        objects below this value are discharged
+    max_obj_size: np.uint16
+        maximum object size of the objects that will be processed for peak detection
+        objects above this value are discharged
+    num_peaks_per_label: np.uint16
+        Max number of peaks detected in each segmented object. Use None for max detection
+
+    &#34;&#34;&#34;
+
+    
+    
+    logger = selected_logger()
+
+    img = img_meta[0]
+    img_metadata = img_meta[1]
+    fov = img_metadata[&#39;fov_num&#39;]
+    hybridization = img_metadata[&#39;hybridization_num&#39;]
+    target_name = img_metadata[&#39;target_name&#39;]
+    
+    logger.info(f&#39;logging osmFISH_peak_based_detection fov {fov}&#39;)
+    hybridization_num = img_metadata[&#39;hybridization_num&#39;]
+
+    counting_parameters_dict = {
+                            &#39;min_distance&#39;: min_distance,
+                            &#39;min_obj_size&#39;: min_obj_size,
+                            &#39;max_obj_size&#39;: max_obj_size,
+                            &#39;num_peaks_per_label&#39;: num_peaks_per_label,
+                                }
+    fill_value = np.nan
+    counts = osmFISH_dots_thr_selection(img,counting_parameters_dict)
+    counts.counting_graph()
+    counts.thr_identification()
+    data_models = Output_models()
+    counts_dict = data_models.dots_counts_dict
+
+    # Initialise an empty version of the counts dict
+    counts_dict[&#39;r_px_original&#39;] = np.array([fill_value])
+    counts_dict[&#39;c_px_original&#39;] = np.array([fill_value])
+    counts_dict[&#39;dot_id&#39;] = np.array([fill_value])
+    counts_dict[&#39;fov_num&#39;] = np.array(fov)
+    counts_dict[&#39;round_num&#39;] = np.array([img_metadata[&#39;hybridization_num&#39;]])
+    counts_dict[&#39;dot_intensity&#39;] = np.array([fill_value])
+    counts_dict[&#39;selected_thr&#39;] = np.array([fill_value])
+    counts_dict[&#39;dot_channel&#39;] = np.array([img_metadata[&#39;channel&#39;]])
+    counts_dict[&#39;target_name&#39;] = np.array([img_metadata[&#39;target_name&#39;]])
+                    
+    if not np.isnan(counts.selected_thr):
+            dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
+            if isinstance(dots.selected_peaks,np.ndarray):
+                # Peaks have been identified
+                total_dots = dots.selected_peaks.shape[0]
+                dot_id_array = np.array([str(fov)+&#39;_&#39;+str(hybridization_num)+&#39;_&#39;+ img_metadata[&#39;channel&#39;] +&#39;_&#39;+str(nid) for nid in range(total_dots)])
+                fov_array = np.repeat(fov,total_dots)
+                thr_array = np.repeat(counts.selected_thr,total_dots)
+                channel_array = np.repeat(img_metadata[&#39;channel&#39;],total_dots)
+                hybridization_num_array = np.repeat(img_metadata[&#39;hybridization_num&#39;],total_dots)
+                target_name_array = np.repeat(img_metadata[&#39;target_name&#39;],total_dots)
+
+                counts_dict[&#39;r_px_original&#39;]  = dots.selected_peaks[:,0]
+                counts_dict[&#39;c_px_original&#39;] = dots.selected_peaks[:,1]
+                counts_dict[&#39;dot_id&#39;] = dot_id_array
+                counts_dict[&#39;fov_num&#39;] = fov_array
+                counts_dict[&#39;round_num&#39;] = hybridization_num_array
+                counts_dict[&#39;dot_intensity&#39;] = dots.intensity_array
+                counts_dict[&#39;selected_thr&#39;] = thr_array
+                counts_dict[&#39;dot_channel&#39;] = channel_array
+                counts_dict[&#39;target_name&#39;] = target_name_array
+            else:
+                logger.info(f&#39; fov {fov} does not have counts (mapping)&#39;)
+                
+    else:
+        logger.info(f&#39; fov {fov} does not have counts (thr)&#39;)
+    
+    return (counts_dict, img_metadata)
+
+
+
+
+# def osmFISH_peak_based_detection_test(img:np.ndarray,
+#                                     fov_subdataset,
+#                                     processing_parameters:Dict):
+    
+#     &#34;&#34;&#34;
+#     This funtion apply the same peak based detection strategy used for 
+#     dots calling in the osmFISH paper
+    
+#     Args:
+#     -----------
+#     img_meta: tuple
+#         tuple containing (image np.ndarray and metadata dict)
+#     min_distance: np.float64
+#         minimum distance between two peaks
+#     min_obj_size: np.uint16
+#         minimum object size of the objects that will be processed for peak detection
+#         objects below this value are discharged
+#     max_obj_size: np.uint16
+#         maximum object size of the objects that will be processed for peak detection
+#         objects above this value are discharged
+#     num_peaks_per_label: np.uint16
+#         Max number of peaks detected in each segmented object. Use None for max detection
+
+#     &#34;&#34;&#34;
+
+    
+    
+#     logger = selected_logger()
+
+#     fov = fov_subdataset.fov_num
+#     round_num = fov_subdataset.round_num
+#     channel = fov_subdataset.channel
+#     target_name = fov_subdataset.target_name
+
+    
+#     logger.info(f&#39;logging osmFISH_peak_based_detection fov {fov}&#39;)
+
+#     counting_parameters_dict = {
+#                             &#39;min_distance&#39;: processing_parameters[&#39;CountingFishMinObjDistance&#39;],
+#                             &#39;min_obj_size&#39;: processing_parameters[&#39;CountingFishMinObjSize&#39;],
+#                             &#39;max_obj_size&#39;: processing_parameters[&#39;CountingFishMaxObjSize&#39;],
+#                             &#39;num_peaks_per_label&#39;: processing_parameters[&#39;CountingFishNumPeaksPerLabel&#39;],
+#                                 }
+
+
+#     fill_value = np.nan
+#     counts = osmFISH_dots_thr_selection(img,counting_parameters_dict)
+#     counts.counting_graph()
+#     counts.thr_identification()
+#     data_models = Output_models()
+#     counts_dict = data_models.dots_counts_dict
+
+#     # Initialise an empty version of the counts dict
+#     counts_dict[&#39;r_px_original&#39;] = np.array([fill_value])
+#     counts_dict[&#39;c_px_original&#39;] = np.array([fill_value])
+#     counts_dict[&#39;dot_id&#39;] = np.array([fill_value])
+#     counts_dict[&#39;dot_intensity&#39;] = np.array([fill_value])
+#     counts_dict[&#39;selected_thr&#39;] = np.array([fill_value])
+                    
+#     if not np.isnan(counts.selected_thr):
+#             dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
+#             if isinstance(dots.selected_peaks,np.ndarray):
+#                 # Peaks have been identified
+#                 total_dots = dots.selected_peaks.shape[0]
+#                 dot_id_array = np.array([str(fov)+&#39;_&#39;+str(round_num)+&#39;_&#39;+ channel +&#39;_&#39;+str(nid) for nid in range(total_dots)])
+#                 fov_array = np.repeat(fov,total_dots)
+#                 thr_array = np.repeat(counts.selected_thr,total_dots)
+#                 channel_array = np.repeat(channel,total_dots)
+#                 hybridization_num_array = np.repeat(round_num,total_dots)
+#                 target_name_array = np.repeat(target_name,total_dots)
+
+#                 counts_dict[&#39;r_px_original&#39;]  = dots.selected_peaks[:,0]
+#                 counts_dict[&#39;c_px_original&#39;] = dots.selected_peaks[:,1]
+#                 counts_dict[&#39;dot_id&#39;] = dot_id_array
+#                 counts_dict[&#39;dot_intensity&#39;] = dots.intensity_array
+#                 counts_dict[&#39;selected_thr&#39;] = thr_array
+#             else:
+#                 logger.info(f&#39; fov {fov} does not have counts (mapping)&#39;)
+                
+#     else:
+#         logger.info(f&#39; fov {fov} does not have counts (thr)&#39;)
+    
+#     counts_df = pd.DataFrame(counts_dict)
+#     fov_subdataset_df = pd.DataFrame(fov_subdataset).T
+#     fov_subdataset_df = pd.concat([fov_subdataset_df]*counts_df.shape[0],axis=0).sort_index().reset_index(drop=True)
+#     counts_df = pd.concat([counts_df,fov_subdataset_df],axis=1)
+#     return counts_df
+
+
+# def osmFISH_barcoded_peak_based_detection_masked_thr_test(img_meta:Tuple[np.ndarray, Dict],
+#                 masked_img:np.ndarray,
+#                 processing_parameters:Dict):
+
+#     # Need to add all the cases with no counts
+#     &#34;&#34;&#34;
+#     This class apply the same strategy used for dots calling in osmFISH
+#     on files that are structured for barcoded analysis using a masked image
+#     for the selection of the thr
+
+#     Attributes:
+#     -----------
+#     fov_name: str
+#         name of the fov that is processed ex. fov_1
+#     img_stack: np.ndarray
+#         image stack containing in which each layer 
+#         correspond to a round
+#     parameters_dic:
+#         dict with the parameters used for the counting
+
+#     &#34;&#34;&#34;
+
+#     logger = selected_logger()
+
+#     img = img_meta[0]
+#     img_metadata = img_meta[1]
+#     fov = img_metadata[&#39;fov_num&#39;]
+#     hybridization = img_metadata[&#39;hybridization_num&#39;]
+#     target_name = img_metadata[&#39;target_name&#39;]
+    
+#     logger.info(f&#39;logging osmFISH_peak_based_detection fov {fov}&#39;)
+#     hybridization_num = img_metadata[&#39;hybridization_num&#39;]
+
+#     counting_parameters_dict = {
+#                             &#39;min_distance&#39;: processing_parameters[&#39;CountingFishMinObjDistance&#39;],
+#                             &#39;min_obj_size&#39;: processing_parameters[&#39;CountingFishMinObjSize&#39;],
+#                             &#39;max_obj_size&#39;: processing_parameters[&#39;CountingFishMaxObjSize&#39;],
+#                             &#39;num_peaks_per_label&#39;: processing_parameters[&#39;CountingFishNumPeaksPerLabel&#39;],
+#                                 }
+
+#     fill_value = np.nan
+        
+
+#     counts = osmFISH_dots_thr_selection(masked_img,counting_parameters_dict)
+#     counts.counting_graph()
+#     counts.thr_identification()
+
+#     data_models = Output_models()
+#     counts_dict = data_models.dots_counts_dict
+
+#     # Initialise an empty version of the counts dict
+#     counts_dict[&#39;r_px_original&#39;] = np.array([fill_value])
+#     counts_dict[&#39;c_px_original&#39;] = np.array([fill_value])
+#     counts_dict[&#39;dot_id&#39;] = np.array([fill_value])
+#     counts_dict[&#39;fov_num&#39;] = np.array(fov)
+#     counts_dict[&#39;round_num&#39;] = np.array([img_metadata[&#39;hybridization_num&#39;]])
+#     counts_dict[&#39;dot_intensity&#39;] = np.array([fill_value])
+#     counts_dict[&#39;selected_thr&#39;] = np.array([fill_value])
+#     counts_dict[&#39;dot_channel&#39;] = np.array([img_metadata[&#39;channel&#39;]])
+#     counts_dict[&#39;target_name&#39;] = np.array([img_metadata[&#39;target_name&#39;]])
+                    
+#     if not np.isnan(counts.selected_thr):
+#             dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
+#             if isinstance(dots.selected_peaks,np.ndarray):
+#                 # Peaks have been identified
+#                 total_dots = dots.selected_peaks.shape[0]
+#                 dot_id_array = np.array([str(fov)+&#39;_&#39;+str(hybridization_num)+&#39;_&#39;+ img_metadata[&#39;channel&#39;] +&#39;_&#39;+str(nid) for nid in range(total_dots)])
+#                 fov_array = np.repeat(fov,total_dots)
+#                 thr_array = np.repeat(counts.selected_thr,total_dots)
+#                 channel_array = np.repeat(img_metadata[&#39;channel&#39;],total_dots)
+#                 hybridization_num_array = np.repeat(img_metadata[&#39;hybridization_num&#39;],total_dots)
+#                 target_name_array = np.repeat(img_metadata[&#39;target_name&#39;],total_dots)
+
+#                 counts_dict[&#39;r_px_original&#39;]  = dots.selected_peaks[:,0]
+#                 counts_dict[&#39;c_px_original&#39;] = dots.selected_peaks[:,1]
+#                 counts_dict[&#39;dot_id&#39;] = dot_id_array
+#                 counts_dict[&#39;fov_num&#39;] = fov_array
+#                 counts_dict[&#39;round_num&#39;] = hybridization_num_array
+#                 counts_dict[&#39;dot_intensity&#39;] = dots.intensity_array
+#                 counts_dict[&#39;selected_thr&#39;] = thr_array
+#                 counts_dict[&#39;dot_channel&#39;] = channel_array
+#                 counts_dict[&#39;target_name&#39;] = target_name_array
+#             else:
+#                 logger.info(f&#39; fov {fov} does not have counts (mapping)&#39;)
+                
+#     else:
+#         logger.info(f&#39; fov {fov} does not have counts (thr)&#39;)
+    
+#     return (counts_dict, img_metadata)
+
+
+
+
+
+# def osmFISH_barcoded_peak_based_detection_masked_thr(img_meta:Tuple[np.ndarray, Dict],
+#                 masked_img:np.ndarray,
+#                 min_distance: np.float64,
+#                 min_obj_size: np.uint16,
+#                 max_obj_size: np.uint16,
+#                 num_peaks_per_label: np.uint16):
+
+#     # Need to add all the cases with no counts
+#     &#34;&#34;&#34;
+#     This class apply the same strategy used for dots calling in osmFISH
+#     on files that are structured for barcoded analysis using a masked image
+#     for the selection of the thr
+
+#     Attributes:
+#     -----------
+#     fov_name: str
+#         name of the fov that is processed ex. fov_1
+#     img_stack: np.ndarray
+#         image stack containing in which each layer 
+#         correspond to a round
+#     parameters_dic:
+#         dict with the parameters used for the counting
+
+#     &#34;&#34;&#34;
+
+#     logger = selected_logger()
+
+#     img = img_meta[0]
+#     img_metadata = img_meta[1]
+#     fov = img_metadata[&#39;fov_num&#39;]
+#     hybridization = img_metadata[&#39;hybridization_num&#39;]
+#     target_name = img_metadata[&#39;target_name&#39;]
+    
+#     logger.info(f&#39;logging osmFISH_peak_based_detection fov {fov}&#39;)
+#     hybridization_num = img_metadata[&#39;hybridization_num&#39;]
+
+#     counting_parameters_dict = {
+#                             &#39;min_distance&#39;: min_distance,
+#                             &#39;min_obj_size&#39;: min_obj_size,
+#                             &#39;max_obj_size&#39;: max_obj_size,
+#                             &#39;num_peaks_per_label&#39;: num_peaks_per_label,
+#                                 }
+
+#     fill_value = np.nan
+        
+
+#     counts = osmFISH_dots_thr_selection(masked_img,counting_parameters_dict)
+#     counts.counting_graph()
+#     counts.thr_identification()
+
+#     data_models = Output_models()
+#     counts_dict = data_models.dots_counts_dict
+
+#     # Initialise an empty version of the counts dict
+#     counts_dict[&#39;r_px_original&#39;] = np.array([fill_value])
+#     counts_dict[&#39;c_px_original&#39;] = np.array([fill_value])
+#     counts_dict[&#39;dot_id&#39;] = np.array([fill_value])
+#     counts_dict[&#39;fov_num&#39;] = np.array(fov)
+#     counts_dict[&#39;round_num&#39;] = np.array([img_metadata[&#39;hybridization_num&#39;]])
+#     counts_dict[&#39;dot_intensity&#39;] = np.array([fill_value])
+#     counts_dict[&#39;selected_thr&#39;] = np.array([fill_value])
+#     counts_dict[&#39;dot_channel&#39;] = np.array([img_metadata[&#39;channel&#39;]])
+#     counts_dict[&#39;target_name&#39;] = np.array([img_metadata[&#39;target_name&#39;]])
+                    
+#     if not np.isnan(counts.selected_thr):
+#             dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
+#             if isinstance(dots.selected_peaks,np.ndarray):
+#                 # Peaks have been identified
+#                 total_dots = dots.selected_peaks.shape[0]
+#                 dot_id_array = np.array([str(fov)+&#39;_&#39;+str(hybridization_num)+&#39;_&#39;+ img_metadata[&#39;channel&#39;] +&#39;_&#39;+str(nid) for nid in range(total_dots)])
+#                 fov_array = np.repeat(fov,total_dots)
+#                 thr_array = np.repeat(counts.selected_thr,total_dots)
+#                 channel_array = np.repeat(img_metadata[&#39;channel&#39;],total_dots)
+#                 hybridization_num_array = np.repeat(img_metadata[&#39;hybridization_num&#39;],total_dots)
+#                 target_name_array = np.repeat(img_metadata[&#39;target_name&#39;],total_dots)
+
+#                 counts_dict[&#39;r_px_original&#39;]  = dots.selected_peaks[:,0]
+#                 counts_dict[&#39;c_px_original&#39;] = dots.selected_peaks[:,1]
+#                 counts_dict[&#39;dot_id&#39;] = dot_id_array
+#                 counts_dict[&#39;fov_num&#39;] = fov_array
+#                 counts_dict[&#39;round_num&#39;] = hybridization_num_array
+#                 counts_dict[&#39;dot_intensity&#39;] = dots.intensity_array
+#                 counts_dict[&#39;selected_thr&#39;] = thr_array
+#                 counts_dict[&#39;dot_channel&#39;] = channel_array
+#                 counts_dict[&#39;target_name&#39;] = target_name_array
+#             else:
+#                 logger.info(f&#39; fov {fov} does not have counts (mapping)&#39;)
+                
+#     else:
+#         logger.info(f&#39; fov {fov} does not have counts (thr)&#39;)
+    
+#     return (counts_dict, img_metadata)
+
+
+# def osmFISH_dots_thr_selection_np(img:np.ndarray, min_distance:int, 
+#                                min_int:float=False, 
+#                                max_int:float=False,
+#                                min_peaks:int=False):
+
+#     if min_peaks == False:
+#         min_peaks = 3
+
+
+#     fill_value = 9999
+
+#     # List with the total peaks calculated for each threshold
+#     total_peaks = []
+#     thr_used = []
+
+#     binning = 100
+#     # Define the range of thr to be tested
+#     if min_int and max_int:
+#         thr_array = np.linspace(min_int,max_int,num=binning)
+#     elif min_int:
+#         thr_array = np.linspace(min_int,img.max(),num=binning)
+#     elif max_int:
+#         thr_array = np.linspace(np.min(img[np.nonzero(img)]),max_int,num=binning)
+#     else:
+#         thr_array = np.linspace(np.min(img[np.nonzero(img)]),img.max(),num=binning)
+
+#     # Calculate the number of peaks for each threshold. In this calculation
+#     # the size of the objects is not considered
+#     peak_counter_min = 0
+#     peak_counter_max = 0
+#     for vl, thr in enumerate(thr_array):
+#         # The border is excluded from the counting
+#         peaks = feature.peak_local_max(img,min_distance=min_distance,\
+#             threshold_abs=thr,exclude_border=False, indices=True,\
+#             num_peaks=np.inf, footprint=None,labels=None)
+
+#         number_peaks = len(peaks)
+
+#         # Stop the counting when the number of peaks detected falls below 3
+#         if number_peaks&lt;=min_peaks:
+#             stop_thr = thr # Move in the upper loop so you will stop at the previous thr
+#             break
+#         else:
+#             total_peaks.append(len(peaks))
+#             thr_used.append(thr)
+
+#     # Consider the case of no detectected peaks or if there is only one Thr
+#     # that create peaks (list total_peaks have only one element and )
+#     # if np.array(total_peaks).sum()&gt;0 or len(total_peaks)&gt;1:
+#     if len(total_peaks)&gt;1:
+
+#         # Trim the threshold array in order to match the stopping point
+#         # used the [0][0] to get the first number and then take it out from list
+#         # thr_array = thr_array[:np.where(thr_array==stop_thr)[0][0]]
+#         thr_array = np.array(thr_used)
+
+#         # Calculate the gradient of the number of peaks distribution
+#         grad = np.gradient(total_peaks)
+
+#         # Restructure the data in order to avoid to consider the min_peak in the
+#         # calculations
+
+#         # Coord of the gradient min_peak
+#         grad_min_peak_coord = np.argmin(grad)
+
+#         # Trim the data to remove the peak.
+#         trimmed_thr_array = thr_array[grad_min_peak_coord:]
+#         trimmed_grad = grad[grad_min_peak_coord:]
+
+#         if trimmed_thr_array.shape&gt;(1,):
+
+#             # Trim the coords array in order to maintain the same length of the 
+#             # tr and pk
+#             trimmed_total_peaks = total_peaks[grad_min_peak_coord:]
+
+#             # To determine the threshold we will determine the Thr with the biggest
+#             # distance to the segment that join the end points of the calculated
+#             # gradient
+
+            
+#             # Calculate the coords of the end points of the gradient
+#             p1 = np.array([trimmed_thr_array[0],trimmed_grad[0]])
+#             p2 = np.array([trimmed_thr_array[-1],trimmed_grad[-1]])
+
+#             # Create a line that join the points
+#             allpoints = np.arange(0,len(trimmed_thr_array))
+#             allpoints_coords = np.array([trimmed_thr_array[allpoints],trimmed_grad[allpoints]]).T
+
+#             distances = []
+#             for point in allpoints_coords:
+#                 distances.append(np.linalg.norm(np.cross(p2-p1, p1-point))/np.linalg.norm(p2-p1))
+
+# #             # Calculate the distance between all points and the line
+# #             for p in allpoints:
+# #                 dst = s.distance(Point(trimmed_thr_array[p],trimmed_grad[p]))
+# #                 distances.append(dst.evalf())
+
+#             # Remove the end points from the lists
+#             trimmed_thr_array = trimmed_thr_array[1:-1]
+#             trimmed_grad = trimmed_grad[1:-1]
+#             trimmed_total_peaks = trimmed_total_peaks[1:-1]
+#             trimmed_distances = distances[1:-1]
+
+#             # Determine the coords of the selected Thr
+#             # Converted trimmed_distances to array because it crashed
+#             # on Sanger.
+#             if trimmed_distances: # Most efficient way will be to consider the length of Thr list
+#                 thr_idx = np.argmax(np.array(trimmed_distances))
+#                 selected_thr = trimmed_thr_array[thr_idx]
+#                 # The selected threshold usually causes oversampling of the number of dots
+#                 # I added a stringency parameter (int n) to use to select the Thr+n 
+#                 # for the counting. It selects a stringency only if the trimmed_thr_array
+#                 # is long enough. Also consider the case in which the stringency in negative
+#             else:
+#                 selected_thr = fill_value
+#                 trimmed_thr_array = fill_value
+#         else:
+#             selected_thr = fill_value
+#             trimmed_thr_array = fill_value
+#     else:
+#         selected_thr = fill_value
+#         trimmed_thr_array = fill_value
+    
+#     return selected_thr</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pysmFISH.dots_calling.beads_peak_based_detection"><code class="name flex">
+<span>def <span class="ident">beads_peak_based_detection</span></span>(<span>img: numpy.ndarray, fov_subdataset: pandas.core.series.Series, processing_parameters: Dict) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Counts the peaks in the reference images with small and large beads.
+It first identify the large beads and then mask them and identify the
+small ones.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>img</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>Reference image with large and small beads</dd>
+<dt><strong><code>fov_subdataset</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>Series with the metadata info relative to the image to process</dd>
+<dt><strong><code>processing_parameters</code></strong> :&ensp;<code>Dict</code></dt>
+<dd>Parameters used to define the peaks.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>Beads counts</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def beads_peak_based_detection(img: np.ndarray, 
+                            fov_subdataset: pd.Series,
+                            processing_parameters: Dict)-&gt;pd.DataFrame:
+    &#34;&#34;&#34;Counts the peaks in the reference images with small and large beads.
+    It first identify the large beads and then mask them and identify the
+    small ones.
+
+    Args:
+        img (np.ndarray): Reference image with large and small beads
+        fov_subdataset (pd.Series): Series with the metadata info relative to the image to process
+        processing_parameters (Dict): Parameters used to define the peaks.
+
+    Returns:
+        pd.DataFrame: Beads counts
+    &#34;&#34;&#34;
+
+    stitching_type = fov_subdataset.stitching_type      
+
+    LargeObjRemovalPercentile = processing_parameters[&#39;LargeObjRemovalPercentile&#39;]
+    LargeObjRemovalMinObjSize = processing_parameters[&#39;LargeObjRemovalMinObjSize&#39;]
+    LargeObjRemovalSelem = processing_parameters[&#39;LargeObjRemovalSelem&#39;]
+
+
+    if stitching_type == &#39;both-beads&#39;:
+
+        large_beads_counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        large_beads_counts_df[&#39;mapped_beads_type&#39;] = &#39;large&#39;
+        
+
+        mask = np.zeros_like(img)
+        idx=  img &gt; np.percentile(img,LargeObjRemovalPercentile)
+        mask[idx] = 1
+
+        labels = nd.label(mask)
+
+        properties = measure.regionprops(labels[0])    
+        for ob in properties:
+            if ob.area &lt; LargeObjRemovalMinObjSize:
+                mask[ob.coords[:,0],ob.coords[:,1]]=0
+
+        mask = morphology.binary_dilation(mask, selem=morphology.disk(LargeObjRemovalSelem))
+        mask = np.logical_not(mask)
+
+        masked_img = img*mask
+
+        processing_parameters_small = {
+                &#39;CountingFishMinObjDistance&#39;: 5,
+                &#39;CountingFishMaxObjSize&#39;: 20,
+                &#39;CountingFishMinObjSize&#39;: 2,
+                &#39;CountingFishNumPeaksPerLabel&#39;: 1}
+
+        small_beads_counts_df = osmFISH_peak_based_detection_fast(masked_img,fov_subdataset,processing_parameters_small)
+        small_beads_counts_df[&#39;mapped_beads_type&#39;] = &#39;small&#39;
+
+        counts_df = pd.concat([large_beads_counts_df,small_beads_counts_df], axis=0, copy=False)  
+
+    elif stitching_type == &#39;small-beads&#39;:
+        counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        counts_df[&#39;mapped_beads_type&#39;] = &#39;small&#39;
+
+    elif stitching_type == &#39;large-beads&#39;:
+        counts_df = osmFISH_peak_based_detection_fast(img,fov_subdataset,processing_parameters)
+        counts_df[&#39;mapped_beads_type&#39;] = &#39;large&#39;
+        
+
+    return counts_df</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.dots_calling.osmFISH_peak_based_detection"><code class="name flex">
+<span>def <span class="ident">osmFISH_peak_based_detection</span></span>(<span>img_meta: Tuple[numpy.ndarray, Dict], min_distance: numpy.float64, min_obj_size: numpy.uint16, max_obj_size: numpy.uint16, num_peaks_per_label: numpy.uint16)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This funtion apply the same peak based detection strategy used for
+dots calling in the osmFISH paper</p>
+<h2 id="args">Args:</h2>
+<p>img_meta: tuple
+tuple containing (image np.ndarray and metadata dict)
+min_distance: np.float64
+minimum distance between two peaks
+min_obj_size: np.uint16
+minimum object size of the objects that will be processed for peak detection
+objects below this value are discharged
+max_obj_size: np.uint16
+maximum object size of the objects that will be processed for peak detection
+objects above this value are discharged
+num_peaks_per_label: np.uint16
+Max number of peaks detected in each segmented object. Use None for max detection</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def osmFISH_peak_based_detection(img_meta:Tuple[np.ndarray, Dict],
+                                        min_distance: np.float64,
+                                        min_obj_size: np.uint16,
+                                        max_obj_size: np.uint16,
+                                        num_peaks_per_label: np.uint16):
+    
+    &#34;&#34;&#34;
+    This funtion apply the same peak based detection strategy used for 
+    dots calling in the osmFISH paper
+    
+    Args:
+    -----------
+    img_meta: tuple
+        tuple containing (image np.ndarray and metadata dict)
+    min_distance: np.float64
+        minimum distance between two peaks
+    min_obj_size: np.uint16
+        minimum object size of the objects that will be processed for peak detection
+        objects below this value are discharged
+    max_obj_size: np.uint16
+        maximum object size of the objects that will be processed for peak detection
+        objects above this value are discharged
+    num_peaks_per_label: np.uint16
+        Max number of peaks detected in each segmented object. Use None for max detection
+
+    &#34;&#34;&#34;
+
+    
+    
+    logger = selected_logger()
+
+    img = img_meta[0]
+    img_metadata = img_meta[1]
+    fov = img_metadata[&#39;fov_num&#39;]
+    hybridization = img_metadata[&#39;hybridization_num&#39;]
+    target_name = img_metadata[&#39;target_name&#39;]
+    
+    logger.info(f&#39;logging osmFISH_peak_based_detection fov {fov}&#39;)
+    hybridization_num = img_metadata[&#39;hybridization_num&#39;]
+
+    counting_parameters_dict = {
+                            &#39;min_distance&#39;: min_distance,
+                            &#39;min_obj_size&#39;: min_obj_size,
+                            &#39;max_obj_size&#39;: max_obj_size,
+                            &#39;num_peaks_per_label&#39;: num_peaks_per_label,
+                                }
+    fill_value = np.nan
+    counts = osmFISH_dots_thr_selection(img,counting_parameters_dict)
+    counts.counting_graph()
+    counts.thr_identification()
+    data_models = Output_models()
+    counts_dict = data_models.dots_counts_dict
+
+    # Initialise an empty version of the counts dict
+    counts_dict[&#39;r_px_original&#39;] = np.array([fill_value])
+    counts_dict[&#39;c_px_original&#39;] = np.array([fill_value])
+    counts_dict[&#39;dot_id&#39;] = np.array([fill_value])
+    counts_dict[&#39;fov_num&#39;] = np.array(fov)
+    counts_dict[&#39;round_num&#39;] = np.array([img_metadata[&#39;hybridization_num&#39;]])
+    counts_dict[&#39;dot_intensity&#39;] = np.array([fill_value])
+    counts_dict[&#39;selected_thr&#39;] = np.array([fill_value])
+    counts_dict[&#39;dot_channel&#39;] = np.array([img_metadata[&#39;channel&#39;]])
+    counts_dict[&#39;target_name&#39;] = np.array([img_metadata[&#39;target_name&#39;]])
+                    
+    if not np.isnan(counts.selected_thr):
+            dots = osmFISH_dots_mapping(img,counts.selected_thr,counting_parameters_dict)
+            if isinstance(dots.selected_peaks,np.ndarray):
+                # Peaks have been identified
+                total_dots = dots.selected_peaks.shape[0]
+                dot_id_array = np.array([str(fov)+&#39;_&#39;+str(hybridization_num)+&#39;_&#39;+ img_metadata[&#39;channel&#39;] +&#39;_&#39;+str(nid) for nid in range(total_dots)])
+                fov_array = np.repeat(fov,total_dots)
+                thr_array = np.repeat(counts.selected_thr,total_dots)
+                channel_array = np.repeat(img_metadata[&#39;channel&#39;],total_dots)
+                hybridization_num_array = np.repeat(img_metadata[&#39;hybridization_num&#39;],total_dots)
+                target_name_array = np.repeat(img_metadata[&#39;target_name&#39;],total_dots)
+
+                counts_dict[&#39;r_px_original&#39;]  = dots.selected_peaks[:,0]
+                counts_dict[&#39;c_px_original&#39;] = dots.selected_peaks[:,1]
+                counts_dict[&#39;dot_id&#39;] = dot_id_array
+                counts_dict[&#39;fov_num&#39;] = fov_array
+                counts_dict[&#39;round_num&#39;] = hybridization_num_array
+                counts_dict[&#39;dot_intensity&#39;] = dots.intensity_array
+                counts_dict[&#39;selected_thr&#39;] = thr_array
+                counts_dict[&#39;dot_channel&#39;] = channel_array
+                counts_dict[&#39;target_name&#39;] = target_name_array
+            else:
+                logger.info(f&#39; fov {fov} does not have counts (mapping)&#39;)
+                
+    else:
+        logger.info(f&#39; fov {fov} does not have counts (thr)&#39;)
+    
+    return (counts_dict, img_metadata)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.dots_calling.osmFISH_peak_based_detection_fast"><code class="name flex">
+<span>def <span class="ident">osmFISH_peak_based_detection_fast</span></span>(<span>ImgStack: numpy.ndarray, fov_subdataset: pandas.core.series.Series, parameters_dict: dict, dimensions: int = 2, stringency: int = 0, min_int: float = False, max_int: float = False, min_peaks: int = False) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This function is used to calculate the threshold to use for the dots
+counting in a 3D image. It is based on the function used in the osmFISH
+paper but doesn’t require simpy. It integrate the peak_thrs_local_max_fast
+and the calculation of the peaks on the masked image.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ImgStack</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>preprocessed image used to count the dots</dd>
+<dt><strong><code>fov_subdataset</code></strong> :&ensp;<code>pd.Series</code></dt>
+<dd>Series with the metadata info relative to the image to process</dd>
+<dt><strong><code>parameters_dict</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Parameters used to define the peaks.</dd>
+<dt><strong><code>dimensions</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Image dimension (2 for 2D or 3 for 3D). Defaults to 2.</dd>
+<dt><strong><code>stringency</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Select a thr before or after the one calculated
+automatically. Defaults to 0.</dd>
+<dt><strong><code>min_int</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Minimum intensity value to use for the binning of
+the signal intensities. Defaults to False.</dd>
+<dt><strong><code>max_int</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Maximum intensity value to use for the binning of
+the signal intensities. Defaults to False.</dd>
+<dt><strong><code>min_peaks</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Minimum number of peaks required for the
+calculation of the counting threshold. Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>counts data</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def osmFISH_peak_based_detection_fast(ImgStack: np.ndarray, 
+                            fov_subdataset: pd.Series,
+                            parameters_dict: dict,
+                            dimensions: int=2,
+                            stringency:int =0,
+                            min_int:float=False,     
+                            max_int:float=False,
+                            min_peaks:int=False)-&gt;pd.DataFrame:
+    
+    &#34;&#34;&#34;This function is used to calculate the threshold to use for the dots
+    counting in a 3D image. It is based on the function used in the osmFISH
+    paper but doesn’t require simpy. It integrate the peak_thrs_local_max_fast
+    and the calculation of the peaks on the masked image.
+
+    Args:
+        ImgStack (np.ndarray): preprocessed image used to count the dots
+        fov_subdataset (pd.Series): Series with the metadata info relative to the image to process
+        parameters_dict (dict): Parameters used to define the peaks.
+        dimensions (int, optional): Image dimension (2 for 2D or 3 for 3D). Defaults to 2.
+        stringency (int, optional): Select a thr before or after the one calculated
+                    automatically. Defaults to 0.
+        min_int (float, optional): Minimum intensity value to use for the binning of
+                    the signal intensities. Defaults to False.
+        max_int (float, optional): Maximum intensity value to use for the binning of
+                    the signal intensities. Defaults to False.
+        min_peaks (int, optional): Minimum number of peaks required for the
+                    calculation of the counting threshold. Defaults to False.
+
+    Returns:
+        pd.DataFrame: counts data
+    &#34;&#34;&#34;
+
+
+
+    
+    logger = selected_logger()
+    
+    
+    if min_peaks == False:
+        min_peaks = 3
+
+    fill_value = np.nan
+
+    # List with the total peaks calculated for each threshold
+    thr_used = []
+
+    binning = 100
+    # Define the range of thr to be tested
+    if min_int and max_int:
+        ThrArray = np.linspace(min_int,max_int,num=binning)
+    elif min_int:
+        ThrArray = np.linspace(min_int,ImgStack.max(),num=binning)
+    elif max_int:
+        ThrArray = np.linspace(np.min(ImgStack[np.nonzero(ImgStack)]),max_int,num=binning)
+    else:
+        ThrArray = np.linspace(np.min(ImgStack[np.nonzero(ImgStack)]),ImgStack.max(),num=binning)
+    
+
+    fov = fov_subdataset.fov_num
+    round_num = fov_subdataset.round_num
+    channel = fov_subdataset.channel
+    target_name = fov_subdataset.target_name
+    
+    fill_value = np.nan
+    data_models = Output_models()
+    counts_dict = data_models.dots_counts_dict
+    
+    # Initialise an empty version of the counts dict
+    counts_dict[&#39;r_px_original&#39;] = np.array([fill_value])
+    counts_dict[&#39;c_px_original&#39;] = np.array([fill_value])
+    counts_dict[&#39;dot_id&#39;] = np.array([fill_value])
+    counts_dict[&#39;dot_intensity&#39;] = np.array([fill_value])
+    counts_dict[&#39;selected_thr&#39;] = np.array([fill_value])
+    
+    min_distance = parameters_dict[&#39;CountingFishMinObjDistance&#39;]
+    min_obj_size = parameters_dict[&#39;CountingFishMinObjSize&#39;]
+    max_obj_size = parameters_dict[&#39;CountingFishMaxObjSize&#39;]
+    #num_peaks_per_label = self.parameters_dict[&#39;num_peaks_per_label&#39;]
+    
+    fov_subdataset_df = pd.DataFrame(fov_subdataset).T
+    
+    # List of ndarrays with the coords of the peaks calculated for each threshold
+    PeaksCoords = []
+    Selected_Peaks2_mask = None
+    # Determine if working in 2D or 3D 
+    if dimensions == 2:
+        if len(ImgStack.shape) &gt; 2:
+            ImgStack = np.amax(ImgStack, axis=0)
+
+    # Define the Thr array
+#     ThrArray = np.linspace(ImgStack.min(), ImgStack.max(), num=binning)
+
+
+    # Calculate the number of peaks for each threshold
+    # Exclude border beacause of artefact of image processing
+    thrs_peaks = peak_thrs_local_max_fast(ImgStack, min_distance=min_distance,
+                                     threshold_abs=ThrArray, exclude_border=True, indices=True,
+                                     num_peaks=np.inf, footprint=None, labels=None)
+    lists = sorted(thrs_peaks.items())  # sorted by key, return a list of tuples. tuple[0]: threshold, tuple[1]: coords
+    x, PeaksCoords = zip(*lists)  # unpack a list of pairs into two tuples
+    TotalPeaks = []
+    for j in range(len(PeaksCoords)):
+        TotalPeaks += (len(PeaksCoords[j]),)  # get number of peaks
+    # print(&#34;Thresholds distribution %.3f seconds&#34; % (timings[&#39;thrs_dist&#39;]))
+
+    # Consider the case of no detectected peaks or if there is only one Thr
+    # that create peaks (list TotalPeaks have only one element and )
+    # if np.array(TotalPeaks).sum()&gt;0 or len(TotalPeaks)&gt;1:
+    if len(TotalPeaks) &gt; 3:
+
+        # Trim the threshold array in order to match the stopping point
+        # used the [0][0] to get the first number and then take it out from list
+        # ThrArray = ThrArray[:np.where(ThrArray == StopThr)[0][0]]
+
+        # Trim and convert to types as Simone&#39;s
+        TotalPeaks = np.array(TotalPeaks)
+        TotalPeaks = list(TotalPeaks[TotalPeaks &gt; min_peaks])
+
+        ThrArray = ThrArray[:len(TotalPeaks)]
+
+        PeaksCoords = np.array(PeaksCoords)
+        PeaksCoords = PeaksCoords[:len(TotalPeaks)]
+        PeaksCoords = list(PeaksCoords)
+        # Calculate the gradient of the number of peaks distribution
+        # grad = np.gradient(TotalPeaks)
+        grad = np.gradient(TotalPeaks,edge_order=1)
+
+        # Restructure the data in order to avoid to consider the min_peak in the
+        # calculations
+
+        # Coord of the gradient min_peak
+        grad_min_peak_coord = np.argmin(grad)
+
+        # Trim the data to remove the peak.
+        trimmed_thr_array = ThrArray[grad_min_peak_coord:]
+        trimmed_grad = grad[grad_min_peak_coord:]
+
+        if trimmed_thr_array.shape &gt; (1,):
+
+            # Trim the coords array in order to maintain the same length of the 
+            # tr and pk
+            Trimmed_PeaksCoords = PeaksCoords[grad_min_peak_coord:]
+            trimmed_total_peaks = TotalPeaks[grad_min_peak_coord:]
+
+            # To determine the threshold we will determine the Thr with the biggest
+            # distance to the segment that join the end points of the calculated
+            # # gradient
+
+            # Calculate the coords of the end points of the gradient
+            p1 = np.array([trimmed_thr_array[0],trimmed_grad[0]])
+            p2 = np.array([trimmed_thr_array[-1],trimmed_grad[-1]])
+
+            # Create a line that join the points
+            allpoints = np.arange(0,len(trimmed_thr_array))
+            allpoints_coords = np.array([trimmed_thr_array[allpoints],trimmed_grad[allpoints]]).T
+
+            distances = []
+            for point in allpoints_coords:
+                distances.append(np.linalg.norm(np.cross(p2-p1, p1-point))/np.linalg.norm(p2-p1))
+
+
+            # Remove the end points from the lists
+            trimmed_thr_array = trimmed_thr_array[1:-1]
+            trimmed_grad = trimmed_grad[1:-1]
+            trimmed_total_peaks = trimmed_total_peaks[1:-1]
+            trimmed_distances = distances[1:-1]
+
+            # Determine the coords of the selected Thr
+            # Converted Trimmed_distances to array because it crashed
+            # on Sanger.
+            if trimmed_distances:  # Most efficient way will be to consider the length of Thr list
+                Thr_idx = np.argmax(np.array(trimmed_distances))
+                Calculated_Thr = trimmed_thr_array[Thr_idx]
+                # The selected threshold usually causes oversampling of the number of dots
+                # I added a stringency parameter (int n) to use to select the Thr+n 
+                # for the counting. It selects a stringency only if the Trimmed_ThrArray
+                # is long enough
+                if Thr_idx + stringency &lt; len(trimmed_thr_array):
+                    Selected_Thr = trimmed_thr_array[Thr_idx + stringency]
+                    Selected_Peaks = Trimmed_PeaksCoords[Thr_idx + stringency]
+                else:
+                    Selected_Thr = trimmed_thr_array[Thr_idx]
+                    Selected_Peaks = Trimmed_PeaksCoords[Thr_idx]
+
+                # Calculate the selected peaks after removal of the big and small objects
+                # Threshold the image using the selected threshold
+                # if Selected_Thr &gt; 0:
+                #     ImgMask = ImgStack &gt; Selected_Thr
+
+                ImgMask = ImgStack &gt; Selected_Thr
+
+
+                Labels = nd.label(ImgMask)[0]
+
+                Properties = measure.regionprops(Labels)
+
+                for ob in Properties:
+                    if ob.area &lt; min_obj_size or ob.area &gt; max_obj_size:
+                        ImgMask[ob.coords[:, 0], ob.coords[:, 1]] = 0
+
+                Labels = nd.label(ImgMask)[0]
+
+                # # calling peak_local_max without Labels argument
+                # Selected_Peaks2_mask = feature.peak_local_max(ImgStack, min_distance=min_distance, 
+                #                 threshold_abs=Selected_Thr, exclude_border=True, indices=False,
+                #                 footprint=None,num_peaks=np.inf).astype(int)                         
+                
+             
+                # # instead, make sure the selected peaks does not meet zeros at labels (background)
+                # Labels_mask = (Labels &gt; 0).astype(int)
+                # Selected_Peaks2_mask = Selected_Peaks2_mask * Labels_mask
+                # Selected_Peaks2 = np.vstack(np.where(Selected_Peaks2_mask)).T
+                
+                Selected_Peaks2 = feature.peak_local_max(ImgStack, min_distance=min_distance, 
+                                threshold_abs=Selected_Thr, exclude_border=True, indices=True,
+                                footprint=None,labels=Labels,num_peaks=np.inf).astype(int)        
+   
+                
+                if Selected_Peaks2.size:
+                    # Intensity counting of the max peaks
+#                     Selected_peaks_coords = np.where(Selected_Peaks2)
+#                     Selected_peaks_int = ImgStack[Selected_peaks_coords[0], Selected_peaks_coords[1]]
+                    Selected_peaks_int = ImgStack[Selected_Peaks2[:, 0], Selected_Peaks2[:, 1]]
+                                        
+                    # Peaks have been identified
+                    total_dots = Selected_Peaks2.shape[0]
+                    dot_id_array = np.array([str(fov)+&#39;_&#39;+str(round_num)+&#39;_&#39;+ channel +&#39;_&#39;+str(nid) for nid in range(total_dots)])
+                    thr_array = np.repeat(Selected_Thr,total_dots)
+                    channel_array = np.repeat(channel,total_dots)
+
+                    counts_dict[&#39;r_px_original&#39;]  = Selected_Peaks2[:,0]
+                    counts_dict[&#39;c_px_original&#39;] = Selected_Peaks2[:,1]
+                    counts_dict[&#39;dot_id&#39;] = dot_id_array
+                    counts_dict[&#39;dot_intensity&#39;] = Selected_peaks_int
+                    counts_dict[&#39;selected_thr&#39;] = thr_array
+                else:
+                    logger.info(f&#39; fov {fov} does not have counts (mapping)&#39;)
+
+            else:
+                logger.info(f&#39; fov {fov} Trimmed distance equal to zero&#39;)
+        else:
+            logger.info(f&#39; fov {fov} calculated Thr array to small for selection of Thr&#39;)
+
+
+
+    else:
+        logger.info(f&#39; fov {fov} does not have counts for calculating Thr&#39;)
+
+        
+        
+    counts_df = pd.DataFrame(counts_dict)
+    fov_subdataset_df = pd.DataFrame(fov_subdataset).T
+    fov_subdataset_df = pd.concat([fov_subdataset_df]*counts_df.shape[0],axis=0).sort_index().reset_index(drop=True)
+    counts_df = pd.concat([counts_df,fov_subdataset_df],axis=1)
+    
+    
+    return counts_df</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.dots_calling.peak_thrs_local_max_fast"><code class="name flex">
+<span>def <span class="ident">peak_thrs_local_max_fast</span></span>(<span>image: numpy.ndarray, min_distance: int = 1, threshold_abs: float = None, threshold_rel: float = None, exclude_border: int = True, indices: bool = True, num_peaks: int = inf, footprint: numpy.ndarray = None, labels: numpy.ndarray = None) ‑> numpy.ndarray</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function after modification:
+returns the coordinates for a range of thresholds</p>
+<p>Peaks are the local maxima in a region of <code>2 * min_distance + 1</code>
+(i.e. peaks are separated by at least <code>min_distance</code>).</p>
+<p>If peaks are flat (i.e. multiple adjacent pixels have identical
+intensities), the coordinates of all such pixels are returned.</p>
+<p>If both <code>threshold_abs</code> and <code>threshold_rel</code> are provided, the maximum
+of the two is chosen as the minimum intensity threshold of peaks.</p>
+<h2 id="notes">Notes</h2>
+<p>The peak local maximum function returns the coordinates of local peaks
+(maxima) in an image. A maximum filter is used for finding local maxima.
+This operation dilates the original image. After comparison of the dilated
+and original image, this function returns the coordinates or a mask of the
+peaks where the dilated image equals the original image.</p>
+<h2 id="examples">Examples</h2>
+<pre><code class="language-python-repl">&gt;&gt;&gt; img1 = np.zeros((7, 7))
+&gt;&gt;&gt; img1[3, 4] = 1
+&gt;&gt;&gt; img1[3, 2] = 1.5
+&gt;&gt;&gt; img1
+array([[ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+       [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+       [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+       [ 0. ,  0. ,  1.5,  0. ,  1. ,  0. ,  0. ],
+       [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+       [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+       [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ]])
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; peak_local_max(img1, min_distance=1)
+array([[3, 2],
+       [3, 4]])
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; peak_local_max(img1, min_distance=2)
+array([[3, 2]])
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; img2 = np.zeros((20, 20, 20))
+&gt;&gt;&gt; img2[10, 10, 10] = 1
+&gt;&gt;&gt; peak_local_max(img2, exclude_border=0)
+array([[10, 10, 10]])
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>image</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>Input image.</dd>
+<dt><strong><code>min_distance</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Minimum number of pixels separating peaks in a region of <code>2 *
+min_distance + 1</code> (i.e. peaks are separated by at least
+<code>min_distance</code>). Defaults to 1.</dd>
+<dt><strong><code>threshold_abs</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Minimum intensity of peaks. By default, the absolute threshold is
+the minimum intensity of the image. Defaults to None.</dd>
+<dt><strong><code>threshold_rel</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Minimum intensity of peaks, calculated as <code>max(image) * threshold_rel</code>.
+Defaults to None.</dd>
+<dt><strong><code>exclude_border</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>If nonzero, <code>exclude_border</code> excludes peaks from
+within <code>exclude_border</code>-pixels of the border of the image.. Defaults to True.</dd>
+<dt><strong><code>indices</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>If True, the output will be an array representing peak
+coordinates.
+If False, the output will be a boolean array shaped as
+<code>image.shape</code> with peaks present at True elements.. Defaults to True.</dd>
+<dt><strong><code>num_peaks</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Maximum number of peaks. When the number of peaks exceeds <code>num_peaks</code>,
+return <code>num_peaks</code> peaks based on highest peak intensity.. Defaults to np.inf.</dd>
+<dt><strong><code>footprint</code></strong> :&ensp;<code>np.ndarray</code>, optional</dt>
+<dd>If provided, <code>footprint == 1</code> represents the local region within which
+to search for peaks at every point in <code>image</code>.
+Overrides
+<code>min_distance</code> (also for <code>exclude_border</code>).. Defaults to None.</dd>
+<dt><strong><code>labels</code></strong> :&ensp;<code>np.ndarray</code>, optional</dt>
+<dd>If provided, each unique region <code>labels == value</code> represents a unique
+region to search for peaks. Zero is reserved for background.. Defaults to None.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>np.ndarray</code></dt>
+<dd>If <code>indices = True</code>
+: (row, column, &hellip;) coordinates of peaks.
+If <code>indices = False</code> : Boolean array shaped like <code>image</code>, with peaks
+represented by True values.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def peak_thrs_local_max_fast(image: np.ndarray, min_distance: int=1, 
+                        threshold_abs: float=None,threshold_rel:float=None, 
+                        exclude_border: int=True, indices: bool=True,
+                        num_peaks: int=np.inf, footprint: np.ndarray=None, 
+                        labels: np.ndarray=None)-&gt;np.ndarray:
+    &#34;&#34;&#34;Function after modification:
+    returns the coordinates for a range of thresholds
+
+    Peaks are the local maxima in a region of `2 * min_distance + 1`
+    (i.e. peaks are separated by at least `min_distance`).
+
+    If peaks are flat (i.e. multiple adjacent pixels have identical
+    intensities), the coordinates of all such pixels are returned.
+
+    If both `threshold_abs` and `threshold_rel` are provided, the maximum
+    of the two is chosen as the minimum intensity threshold of peaks.
+
+    Notes
+    -----
+    The peak local maximum function returns the coordinates of local peaks
+    (maxima) in an image. A maximum filter is used for finding local maxima.
+    This operation dilates the original image. After comparison of the dilated
+    and original image, this function returns the coordinates or a mask of the
+    peaks where the dilated image equals the original image.
+
+    Examples
+    --------
+    &gt;&gt;&gt; img1 = np.zeros((7, 7))
+    &gt;&gt;&gt; img1[3, 4] = 1
+    &gt;&gt;&gt; img1[3, 2] = 1.5
+    &gt;&gt;&gt; img1
+    array([[ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  1.5,  0. ,  1. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ],
+           [ 0. ,  0. ,  0. ,  0. ,  0. ,  0. ,  0. ]])
+
+    &gt;&gt;&gt; peak_local_max(img1, min_distance=1)
+    array([[3, 2],
+           [3, 4]])
+
+    &gt;&gt;&gt; peak_local_max(img1, min_distance=2)
+    array([[3, 2]])
+
+    &gt;&gt;&gt; img2 = np.zeros((20, 20, 20))
+    &gt;&gt;&gt; img2[10, 10, 10] = 1
+    &gt;&gt;&gt; peak_local_max(img2, exclude_border=0)
+    array([[10, 10, 10]])
+
+    Args:
+        image (np.ndarray): Input image.
+        min_distance (int, optional): Minimum number of pixels separating peaks in a region of `2 *
+                    min_distance + 1` (i.e. peaks are separated by at least
+                    `min_distance`). Defaults to 1.
+        threshold_abs (float, optional): Minimum intensity of peaks. By default, the absolute threshold is
+                    the minimum intensity of the image. Defaults to None.
+        threshold_rel (float, optional): Minimum intensity of peaks, calculated as `max(image) * threshold_rel`. 
+                    Defaults to None.
+        exclude_border (int, optional): If nonzero, `exclude_border` excludes peaks from
+                    within `exclude_border`-pixels of the border of the image.. Defaults to True.
+        indices (bool, optional): If True, the output will be an array representing peak
+                    coordinates.  If False, the output will be a boolean array shaped as
+                    `image.shape` with peaks present at True elements.. Defaults to True.
+        num_peaks (int, optional): Maximum number of peaks. When the number of peaks exceeds `num_peaks`,
+                    return `num_peaks` peaks based on highest peak intensity.. Defaults to np.inf.
+        footprint (np.ndarray, optional): If provided, `footprint == 1` represents the local region within which
+                    to search for peaks at every point in `image`.  Overrides
+                    `min_distance` (also for `exclude_border`).. Defaults to None.
+        labels (np.ndarray, optional): If provided, each unique region `labels == value` represents a unique
+                    region to search for peaks. Zero is reserved for background.. Defaults to None.
+
+    Returns:
+        np.ndarray: If `indices = True`  : (row, column, ...) coordinates of peaks.
+                    If `indices = False` : Boolean array shaped like `image`, with peaks
+                    represented by True values.
+    &#34;&#34;&#34;
+
+    if type(exclude_border) == bool:
+        exclude_border = min_distance if exclude_border else 0
+
+    out = np.zeros_like(image, dtype=np.bool)
+
+    # In the case of labels, recursively build and return an output
+    # operating on each label separately
+    if labels is not None:
+        label_values = np.unique(labels)
+        # Reorder label values to have consecutive integers (no gaps)
+        if np.any(np.diff(label_values) != 1):
+            mask = labels &gt;= 1
+            labels[mask] = 1 + rank_order(labels[mask])[0].astype(labels.dtype)
+        labels = labels.astype(np.int32)
+
+        # New values for new ordering
+        label_values = np.unique(labels)
+        for label in label_values[label_values != 0]:
+            maskim = (labels == label)
+            out += feature.peak_local_max(image * maskim, min_distance=min_distance,
+                                  threshold_abs=threshold_abs,
+                                  threshold_rel=threshold_rel,
+                                  exclude_border=exclude_border,
+                                  indices=False, num_peaks=np.inf,
+                                  footprint=footprint, labels=None)
+
+        if indices is True:
+            return np.transpose(out.nonzero())
+        else:
+            return out.astype(np.bool)
+
+    if np.all(image == image.flat[0]):
+        if indices is True:
+            return np.empty((0, 2), np.int)
+        else:
+            return out
+
+    # Non maximum filter
+    if footprint is not None:
+        image_max = nd.maximum_filter(image, footprint=footprint,
+                                       mode=&#39;constant&#39;)
+    else:
+        size = 2 * min_distance + 1
+        image_max = nd.maximum_filter(image, size=size, mode=&#39;constant&#39;)
+    mask = image == image_max
+
+    if exclude_border:
+        # zero out the image borders
+        for i in range(mask.ndim):
+            mask = mask.swapaxes(0, i)
+            remove = (footprint.shape[i] if footprint is not None
+                      else 2 * exclude_border)
+            mask[:remove // 2] = mask[-remove // 2:] = False
+            mask = mask.swapaxes(0, i)
+
+    # find top peak candidates above a threshold
+    thresholds = []
+    if threshold_abs is None:
+        threshold_abs = image.min()
+    thresholds.append(threshold_abs)
+    if threshold_rel is not None:
+        thresholds.append(threshold_rel * image.max())
+    if thresholds:
+        mask_original = mask  # save the local maxima&#39;s of the image
+        thrs_coords = {}  # dictionary holds the coordinates correspond for each threshold
+        for threshold in thresholds[0]:
+            mask = mask_original
+            mask &amp;= image &gt; threshold
+
+            # get coordinates of peaks
+            coordinates = np.transpose(mask.nonzero())
+
+            if coordinates.shape[0] &gt; num_peaks:
+                intensities = image.flat[np.ravel_multi_index(coordinates.transpose(),
+                                                              image.shape)]
+                idx_maxsort = np.argsort(intensities)[::-1]
+                coordinates = coordinates[idx_maxsort][:num_peaks]
+
+            if indices is True:
+                thrs_coords[threshold] = coordinates
+            else:
+                nd_indices = tuple(coordinates.T)
+                out[nd_indices] = True
+                return out
+    if thresholds and thrs_coords:
+        return thrs_coords</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pysmFISH.dots_calling.osmFISH_dots_mapping"><code class="flex name class">
+<span>class <span class="ident">osmFISH_dots_mapping</span></span>
+<span>(</span><span>img: numpy.ndarray, thr: float, parameters_dict: dict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function used to count the peaks after identification of the threshold
+and masking of large objects.</p>
+<p>This is the original class used in the osmFISH paper. </p>
+<p>Class initialization</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>img</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>Image to process</dd>
+<dt><strong><code>thr</code></strong> :&ensp;<code>float</code></dt>
+<dd>Precalculate threshold for masking the image </dd>
+<dt><strong><code>parameters_dict</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Parameters used to define the peaks.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class osmFISH_dots_mapping():
+    &#34;&#34;&#34;Function used to count the peaks after identification of the threshold
+    and masking of large objects.
+
+    This is the original class used in the osmFISH paper. 
+    &#34;&#34;&#34;
+
+    def __init__(self,img: np.ndarray,thr: float,parameters_dict: dict):
+        &#34;&#34;&#34;Class initialization
+
+        Args:
+            img (np.ndarray): Image to process
+            thr (float): Precalculate threshold for masking the image 
+            parameters_dict (dict): Parameters used to define the peaks.
+        &#34;&#34;&#34;
+       # Calculate the selected peaks after removal of the big and small objects
+        
+        self.img = img
+        self.thr = thr
+        # make an error if selected Thr &lt;0
+        self.parameters_dict = parameters_dict
+        
+        self.min_distance = self.parameters_dict[&#39;min_distance&#39;]
+        self.min_obj_size = self.parameters_dict[&#39;min_obj_size&#39;]
+        self.max_obj_size = self.parameters_dict[&#39;max_obj_size&#39;]
+        self.num_peaks_per_label = self.parameters_dict[&#39;num_peaks_per_label&#39;]
+
+        self.fill_value = np.nan
+
+        # Threshold the image using the selected threshold
+        img_mask = self.img&gt;self.thr
+    
+        labels = nd.label(img_mask)[0]
+        
+        properties = measure.regionprops(labels)
+            
+        for ob in properties:
+            if ob.area&lt;self.min_obj_size or ob.area&gt;self.max_obj_size:
+                img_mask[ob.coords[:,0],ob.coords[:,1]]=0
+        
+        labels = nd.label(img_mask)[0]
+
+        # Collect the properties of the labels after size selection
+        properties = measure.regionprops(labels,intensity_image=self.img)
+
+        self.selected_peaks = feature.peak_local_max(self.img, min_distance=self.min_distance, 
+                                threshold_abs=self.thr, exclude_border=True, 
+                                footprint=None, labels=labels,num_peaks_per_label=self.num_peaks_per_label)                            
+        
+        
+        # # calling peak_local_max without Labels argument
+        # selected_peaks_mask = feature.peak_local_max(self.img, min_distance=self.min_distance, 
+        #                 threshold_abs=self.thr, exclude_border=True,
+        #                 footprint=None,num_peaks=np.inf,indices=False).astype(int)                         
+                              
+        # # instead, make sure the selected peaks does not meet zeros at labels (background)
+        # labels_mask = (labels &gt; 0).astype(int)
+        # selected_peaks_mask = selected_peaks_mask * labels_mask
+        # self.selected_peaks = np.vstack(np.where(selected_peaks_mask)).T
+        
+        
+        if self.selected_peaks.size:
+            self.intensity_array = self.img[self.selected_peaks[:,0],self.selected_peaks[:,1]]
+        else:
+            self.intensity_array = np.nan</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.dots_calling.osmFISH_dots_thr_selection"><code class="flex name class">
+<span>class <span class="ident">osmFISH_dots_thr_selection</span></span>
+<span>(</span><span>img: numpy.ndarray, parameters_dict: Dict, min_int: float = False, max_int: float = False, min_peaks: int = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class used to automatically define the threshold used to call the
+signal peaks. This function calculate the threshold without masking large object
+and contamination. </p>
+<p>This is the original class used in the osmFISH paper.</p>
+<p>Initialize the class</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>img</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>Image to process</dd>
+<dt><strong><code>parameters_dict</code></strong> :&ensp;<code>Dict</code></dt>
+<dd>Parameters used to define the peaks.</dd>
+<dt><strong><code>min_int</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Minimum intensity value to use for the binning of
+the signal intensities. Defaults to False.</dd>
+<dt><strong><code>max_int</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>Maximum intensity value to use for the binning of
+the signal intensities. Defaults to False.</dd>
+<dt><strong><code>min_peaks</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Minimum number of peaks required for the
+calculation of the counting threshold. Defaults to False.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class osmFISH_dots_thr_selection():
+    &#34;&#34;&#34;
+    Class used to automatically define the threshold used to call the
+    signal peaks. This function calculate the threshold without masking large object 
+    and contamination. 
+    
+    This is the original class used in the osmFISH paper.
+    &#34;&#34;&#34;
+    
+    
+    def __init__(self, img:np.ndarray, parameters_dict:Dict, min_int:float=False, max_int:float=False,min_peaks:int=False):
+        &#34;&#34;&#34;Initialize the class
+
+        Args:
+            img (np.ndarray): Image to process
+            parameters_dict (Dict): Parameters used to define the peaks.
+            min_int (float, optional): Minimum intensity value to use for the binning of
+                    the signal intensities. Defaults to False.
+            max_int (float, optional): Maximum intensity value to use for the binning of
+                    the signal intensities. Defaults to False.
+            min_peaks (int, optional): Minimum number of peaks required for the
+                    calculation of the counting threshold. Defaults to False.
+        &#34;&#34;&#34;
+        self.img = img
+        self.parameters_dict = parameters_dict
+        self.min_int = min_int
+        self.max_int = max_int
+        self.min_peaks = min_peaks
+
+        if self.min_peaks == False:
+            self.min_peaks = 3
+        
+        self.min_distance = self.parameters_dict[&#39;min_distance&#39;]
+        
+        self.fill_value = np.nan
+
+        # List with the total peaks calculated for each threshold
+        self.total_peaks = []
+        self.thr_used = []
+
+    def counting_graph(self):
+        &#34;&#34;&#34;Function used for the construction of the number of peaks(Y) / thresholds(X)
+        graph used to define the threshold.
+        &#34;&#34;&#34;
+
+        binning = 100
+        # Define the range of thr to be tested
+        if self.min_int and self.max_int:
+            self.thr_array = np.linspace(self.min_int,self.max_int,num=binning)
+        elif self.min_int:
+            self.thr_array = np.linspace(self.min_int,self.img.max(),num=binning)
+        elif self.max_int:
+            self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.max_int,num=binning)
+        else:
+            self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.img.max(),num=binning)
+    
+        # Calculate the number of peaks for each threshold. In this calculation
+        # the size of the objects is not considered
+        self.peak_counter_min = 0
+        self.peak_counter_max = 0
+        for vl, thr in enumerate(self.thr_array):
+            # The border is excluded from the counting
+            self.peaks = feature.peak_local_max(self.img,min_distance=self.min_distance,\
+                threshold_abs=thr,exclude_border=False, indices=True,\
+                num_peaks=np.inf, footprint=None,labels=None)
+            
+            self.number_peaks = len(self.peaks)
+
+            # Stop the counting when the number of peaks detected falls below 3
+            if self.number_peaks&lt;=self.min_peaks:
+                self.stop_thr = thr # Move in the upper loop so you will stop at the previous thr
+                break
+            else:
+                self.total_peaks.append(len(self.peaks))
+                self.thr_used.append(thr)
+
+    def thr_identification(self):  
+        &#34;&#34;&#34;Function that use the number of peaks / thresholds graph to define the threshold
+        to used for the counting.
+        - calculate the gradient of the number of peaks / threshold function
+        - remove the initial minimum point
+        - calculate the segment that join the extremities of the gradient. This version
+          of the code uses sympy.
+        - Calculate the thr corresponding to the point of max distance from the segment
+        &#34;&#34;&#34;
+        # Consider the case of no detectected peaks or if there is only one Thr
+        # that create peaks (list total_peaks have only one element and )
+        # if np.array(total_peaks).sum()&gt;0 or len(total_peaks)&gt;1:
+        if len(self.total_peaks)&gt;1:
+
+            # Trim the threshold array in order to match the stopping point
+            # used the [0][0] to get the first number and then take it out from list
+            # thr_array = thr_array[:np.where(thr_array==stop_thr)[0][0]]
+            self.thr_array = np.array(self.thr_used)
+
+            # Calculate the gradient of the number of peaks distribution
+            grad = np.gradient(self.total_peaks)
+            
+            # Restructure the data in order to avoid to consider the min_peak in the
+            # calculations
+
+            # Coord of the gradient min_peak
+            grad_min_peak_coord = np.argmin(grad)
+            
+            # Trim the data to remove the peak.
+            self.trimmed_thr_array = self.thr_array[grad_min_peak_coord:]
+            self.trimmed_grad = grad[grad_min_peak_coord:]
+
+            if self.trimmed_thr_array.shape&gt;(1,):
+
+                # Trim the coords array in order to maintain the same length of the 
+                # tr and pk
+                self.trimmed_total_peaks = self.total_peaks[grad_min_peak_coord:]
+
+                # To determine the threshold we will determine the Thr with the biggest
+                # distance to the segment that join the end points of the calculated
+                # gradient
+
+                # Distances list
+                distances = []
+
+                # Calculate the coords of the end points of the gradient
+                p1 = Point(self.trimmed_thr_array[0],self.trimmed_grad[0])
+                p2 = Point(self.trimmed_thr_array[-1],self.trimmed_grad[-1])
+                
+                # Create a line that join the points
+                s = Line(p1,p2)
+                allpoints = np.arange(0,len(self.trimmed_thr_array))
+                
+                # Calculate the distance between all points and the line
+                for p in allpoints:
+                    dst = s.distance(Point(self.trimmed_thr_array[p],self.trimmed_grad[p]))
+                    distances.append(dst.evalf())
+
+                # Remove the end points from the lists
+                self.trimmed_thr_array = self.trimmed_thr_array[1:-1]
+                self.trimmed_grad = self.trimmed_grad[1:-1]
+                self.trimmed_total_peaks = self.trimmed_total_peaks[1:-1]
+                self.trimmed_distances = distances[1:-1]
+            
+                # Determine the coords of the selected Thr
+                # Converted trimmed_distances to array because it crashed
+                # on Sanger.
+                if self.trimmed_distances: # Most efficient way will be to consider the length of Thr list
+                    thr_idx = np.argmax(np.array(self.trimmed_distances))
+                    self.selected_thr = self.trimmed_thr_array[thr_idx]
+                    # The selected threshold usually causes oversampling of the number of dots
+                    # I added a stringency parameter (int n) to use to select the Thr+n 
+                    # for the counting. It selects a stringency only if the trimmed_thr_array
+                    # is long enough. Also consider the case in which the stringency in negative
+                else:
+                    self.selected_thr = self.fill_value
+                    self.trimmed_thr_array = self.fill_value
+            else:
+                self.selected_thr = self.fill_value
+                self.trimmed_thr_array = self.fill_value
+        else:
+            self.selected_thr = self.fill_value
+            self.trimmed_thr_array = self.fill_value</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pysmFISH.dots_calling.osmFISH_dots_thr_selection.counting_graph"><code class="name flex">
+<span>def <span class="ident">counting_graph</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function used for the construction of the number of peaks(Y) / thresholds(X)
+graph used to define the threshold.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def counting_graph(self):
+    &#34;&#34;&#34;Function used for the construction of the number of peaks(Y) / thresholds(X)
+    graph used to define the threshold.
+    &#34;&#34;&#34;
+
+    binning = 100
+    # Define the range of thr to be tested
+    if self.min_int and self.max_int:
+        self.thr_array = np.linspace(self.min_int,self.max_int,num=binning)
+    elif self.min_int:
+        self.thr_array = np.linspace(self.min_int,self.img.max(),num=binning)
+    elif self.max_int:
+        self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.max_int,num=binning)
+    else:
+        self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.img.max(),num=binning)
+
+    # Calculate the number of peaks for each threshold. In this calculation
+    # the size of the objects is not considered
+    self.peak_counter_min = 0
+    self.peak_counter_max = 0
+    for vl, thr in enumerate(self.thr_array):
+        # The border is excluded from the counting
+        self.peaks = feature.peak_local_max(self.img,min_distance=self.min_distance,\
+            threshold_abs=thr,exclude_border=False, indices=True,\
+            num_peaks=np.inf, footprint=None,labels=None)
+        
+        self.number_peaks = len(self.peaks)
+
+        # Stop the counting when the number of peaks detected falls below 3
+        if self.number_peaks&lt;=self.min_peaks:
+            self.stop_thr = thr # Move in the upper loop so you will stop at the previous thr
+            break
+        else:
+            self.total_peaks.append(len(self.peaks))
+            self.thr_used.append(thr)</code></pre>
+</details>
+</dd>
+<dt id="pysmFISH.dots_calling.osmFISH_dots_thr_selection.thr_identification"><code class="name flex">
+<span>def <span class="ident">thr_identification</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function that use the number of peaks / thresholds graph to define the threshold
+to used for the counting.
+- calculate the gradient of the number of peaks / threshold function
+- remove the initial minimum point
+- calculate the segment that join the extremities of the gradient. This version
+of the code uses sympy.
+- Calculate the thr corresponding to the point of max distance from the segment</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def thr_identification(self):  
+    &#34;&#34;&#34;Function that use the number of peaks / thresholds graph to define the threshold
+    to used for the counting.
+    - calculate the gradient of the number of peaks / threshold function
+    - remove the initial minimum point
+    - calculate the segment that join the extremities of the gradient. This version
+      of the code uses sympy.
+    - Calculate the thr corresponding to the point of max distance from the segment
+    &#34;&#34;&#34;
+    # Consider the case of no detectected peaks or if there is only one Thr
+    # that create peaks (list total_peaks have only one element and )
+    # if np.array(total_peaks).sum()&gt;0 or len(total_peaks)&gt;1:
+    if len(self.total_peaks)&gt;1:
+
+        # Trim the threshold array in order to match the stopping point
+        # used the [0][0] to get the first number and then take it out from list
+        # thr_array = thr_array[:np.where(thr_array==stop_thr)[0][0]]
+        self.thr_array = np.array(self.thr_used)
+
+        # Calculate the gradient of the number of peaks distribution
+        grad = np.gradient(self.total_peaks)
+        
+        # Restructure the data in order to avoid to consider the min_peak in the
+        # calculations
+
+        # Coord of the gradient min_peak
+        grad_min_peak_coord = np.argmin(grad)
+        
+        # Trim the data to remove the peak.
+        self.trimmed_thr_array = self.thr_array[grad_min_peak_coord:]
+        self.trimmed_grad = grad[grad_min_peak_coord:]
+
+        if self.trimmed_thr_array.shape&gt;(1,):
+
+            # Trim the coords array in order to maintain the same length of the 
+            # tr and pk
+            self.trimmed_total_peaks = self.total_peaks[grad_min_peak_coord:]
+
+            # To determine the threshold we will determine the Thr with the biggest
+            # distance to the segment that join the end points of the calculated
+            # gradient
+
+            # Distances list
+            distances = []
+
+            # Calculate the coords of the end points of the gradient
+            p1 = Point(self.trimmed_thr_array[0],self.trimmed_grad[0])
+            p2 = Point(self.trimmed_thr_array[-1],self.trimmed_grad[-1])
+            
+            # Create a line that join the points
+            s = Line(p1,p2)
+            allpoints = np.arange(0,len(self.trimmed_thr_array))
+            
+            # Calculate the distance between all points and the line
+            for p in allpoints:
+                dst = s.distance(Point(self.trimmed_thr_array[p],self.trimmed_grad[p]))
+                distances.append(dst.evalf())
+
+            # Remove the end points from the lists
+            self.trimmed_thr_array = self.trimmed_thr_array[1:-1]
+            self.trimmed_grad = self.trimmed_grad[1:-1]
+            self.trimmed_total_peaks = self.trimmed_total_peaks[1:-1]
+            self.trimmed_distances = distances[1:-1]
+        
+            # Determine the coords of the selected Thr
+            # Converted trimmed_distances to array because it crashed
+            # on Sanger.
+            if self.trimmed_distances: # Most efficient way will be to consider the length of Thr list
+                thr_idx = np.argmax(np.array(self.trimmed_distances))
+                self.selected_thr = self.trimmed_thr_array[thr_idx]
+                # The selected threshold usually causes oversampling of the number of dots
+                # I added a stringency parameter (int n) to use to select the Thr+n 
+                # for the counting. It selects a stringency only if the trimmed_thr_array
+                # is long enough. Also consider the case in which the stringency in negative
+            else:
+                self.selected_thr = self.fill_value
+                self.trimmed_thr_array = self.fill_value
+        else:
+            self.selected_thr = self.fill_value
+            self.trimmed_thr_array = self.fill_value
+    else:
+        self.selected_thr = self.fill_value
+        self.trimmed_thr_array = self.fill_value</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pysmFISH" href="index.html">pysmFISH</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pysmFISH.dots_calling.beads_peak_based_detection" href="#pysmFISH.dots_calling.beads_peak_based_detection">beads_peak_based_detection</a></code></li>
+<li><code><a title="pysmFISH.dots_calling.osmFISH_peak_based_detection" href="#pysmFISH.dots_calling.osmFISH_peak_based_detection">osmFISH_peak_based_detection</a></code></li>
+<li><code><a title="pysmFISH.dots_calling.osmFISH_peak_based_detection_fast" href="#pysmFISH.dots_calling.osmFISH_peak_based_detection_fast">osmFISH_peak_based_detection_fast</a></code></li>
+<li><code><a title="pysmFISH.dots_calling.peak_thrs_local_max_fast" href="#pysmFISH.dots_calling.peak_thrs_local_max_fast">peak_thrs_local_max_fast</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pysmFISH.dots_calling.osmFISH_dots_mapping" href="#pysmFISH.dots_calling.osmFISH_dots_mapping">osmFISH_dots_mapping</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pysmFISH.dots_calling.osmFISH_dots_thr_selection" href="#pysmFISH.dots_calling.osmFISH_dots_thr_selection">osmFISH_dots_thr_selection</a></code></h4>
+<ul class="">
+<li><code><a title="pysmFISH.dots_calling.osmFISH_dots_thr_selection.counting_graph" href="#pysmFISH.dots_calling.osmFISH_dots_thr_selection.counting_graph">counting_graph</a></code></li>
+<li><code><a title="pysmFISH.dots_calling.osmFISH_dots_thr_selection.thr_identification" href="#pysmFISH.dots_calling.osmFISH_dots_thr_selection.thr_identification">thr_identification</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
