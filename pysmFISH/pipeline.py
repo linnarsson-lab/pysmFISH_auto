@@ -73,12 +73,12 @@ class Pipeline():
                             original/no_parsing/reparsing_from_processing_folder/reparsing_from_storage
                             (default: original)
 
-        Optional KWargs:
-            raw_data_folder_storage_path (str): Path to the cold storage hard drive (default: /fish/rawdata)
-            parsed_image_tag (str): Tag to identify the zarr file with parsed images (default: img_data)
+        __Optional KWargs__:  
+            raw_data_folder_storage_path (str): Path to the cold storage hard drive (default: /fish/rawdata)  
+            parsed_image_tag (str): Tag to identify the zarr file with parsed images (default: img_data)  
             preprocessed_image_tag (str): Tag to identify the zarr file with preprocessed images 
-                                        (default: preprocessed_img_data)
-            dataset_folder_storage_path (str): Path to the location where the dataset are stored (default: /fish/fish_datasets)
+                                        (default: preprocessed_img_data)  
+            dataset_folder_storage_path (str): Path to the location where the dataset are stored (default: /fish/fish_datasets)  
             results_folder_storage_path (str): Path to the location where the dataset are stored (default: /fish/fish_results)
             save_intermediate_steps (bool): Determine if the processed images will be saved (default: True)
             dataset_path (str): Path to an existing dataset that will be used in the processing
