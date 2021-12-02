@@ -41,7 +41,7 @@ def visualize_raw_counts(experiment_fpath:str,dataset_name:str,
         fov_dataset = data.dataset.loc[(data.dataset.fov_num == fov_num) &
                                     (data.dataset.channel == channel),:]
 
-        counts_fname = fov_dataset.experiment_name.iloc[0] + '_raw_counts_channel' + channel + '_fov_' +str(fov_num) + '.parquet'
+        counts_fname = fov_dataset.experiment_name.iloc[0] + '_raw_counts_channel_' + channel + '_fov_' +str(fov_num) + '.parquet'
         counts_fpath = experiment_fpath / 'results' / counts_fname
     
         try:

@@ -1149,8 +1149,10 @@ class Pipeline():
         raw_files_path = list((self.experiment_fpath / 'results').glob('*_decoded_fov_*'))
 
         start = datetime.now()
-        self.run_parsing_only()
-        self.run_required_steps()
+        self.run_setup()
+        self.run_cluster_activation()
+        self.run_parsing()
+        self.run_required_steps()   
         if raw_files_path:
             
             
@@ -1181,8 +1183,11 @@ class Pipeline():
 
         raw_files_path = list((self.experiment_fpath / 'results').glob('*_raw_counts_*'))
         start = datetime.now()
-        # self.run_parsing_only()
-        # self.run_required_steps()
+        start = datetime.now()
+        self.run_setup()
+        self.run_cluster_activation()
+        self.run_parsing()
+        self.run_required_steps()   
         
         if raw_files_path:
 
