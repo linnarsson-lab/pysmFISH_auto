@@ -589,12 +589,12 @@ Chemistry: EELV2_corev2
 # NB: use the channel name and not the optical config name
 Codebooks:
   - Codebook_Atto425: None
-	- Codebook_Cy3: codebookHG2_20210508.parquet
-	- Codebook_Cy5: gene_hGBM20201124.parquet
-	- Codebook_Cy7: None
-	- Codebook_DAPI: None
+  - Codebook_Cy3: codebookHG2_20210508.parquet
+  - Codebook_Cy5: gene_hGBM20201124.parquet
+  - Codebook_Cy7: None
+  - Codebook_DAPI: None
   - Codebook_FITC: None
-	- Codebook_TexasRed: None
+  - Codebook_TexasRed: None
 
 EXP_name: LBEXP20210428_EEL_HE_3370um
 Start_date: '20210428'
