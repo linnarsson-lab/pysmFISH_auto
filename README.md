@@ -1399,3 +1399,19 @@ and access the dashboard on your web browser: `localhost:25399`
 
 # Notebooks <a name="JLNotebooks"></a>
 ## Download and organize test data <a name="TestData"></a>
+
+
+## Examples <a name="Examples"></a>  
+
+[Template running pysmFISH pipeline.ipynb](/notebooks/Template_running_pysmFISH_pipeline.ipynb) <a name="TemplatePipeline"></a>  
+[Setup processing environment.ipynb](/notebooks/01-Setup_processing_environment.ipynb) <a name="Processing_Env"></a>  
+[Create dark image from standalone file.ipynb](/notebooks/02-Create_dark_image_from_standalone_file.ipynb) <a name="CreateDarkImage"></a>  
+[Local processing cluster activation test.ipynb](/notebooks/03-Local_processing_cluster_activation_test.ipynb) <a name="LocalClusterActivation"></a>  
+[Convert excel codebook to parquet.ipynb](/notebooks/04-Convert_excel_codebook_to_parquet.ipynb) <a name="ConvertExcel"></a>  
+[Visualize raw counting.ipynb](/notebooks/05-Visualize_raw_counting.ipynb) <a name="VizRawCounting"></a>  
+[Test filtering and counting.ipynb](/notebooks/06-Test_filtering_counting.ipynb) <a name="FiltCount"></a>  
+[Process fresh tissue.ipynb](/notebooks/07-Process_fresh_tissue.ipynb) <a name="ProcessFreshTissue"></a>  
+[Stitching counts EEL.ipynb](/notebooks/08-Stitching_counts_EEL.ipynb) <a name="StitchingCountsEEL"></a>  
+[Create data for fishScale.ipynb](/notebooks/09-Create_data_for_fishScale.ipynb) <a name="DataFishScale"></a>  
+[QC Registration.ipynb](/notebooks/10-QC_Registration.ipynb) <a name="QCRegistration"></a>  
+
