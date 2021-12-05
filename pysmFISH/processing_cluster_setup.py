@@ -111,12 +111,13 @@ def unmanaged_cluster_setup(htcondor_cluster_setup:Dict):
     
     cluster = SSHCluster(
         all_addresses,
-        connect_options={"known_hosts": None},
+        connect_options={"known_hosts": workers_addresses_list},
         worker_options=worker_options,
         scheduler_options={"port": scheduler_port, 
                        "dashboard_address":dashboard_port}
         )
 
+    logger.info(f'cluster properties: htcondor_cluster_setup {htcondor_cluster_setup} ')
     return cluster
 
 
