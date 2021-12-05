@@ -111,7 +111,7 @@ def unmanaged_cluster_setup(htcondor_cluster_setup:Dict):
     
     cluster = SSHCluster(
         all_addresses,
-        connect_options={"known_hosts": workers_addresses_list},
+        connect_options={"known_hosts": None},
         worker_options=worker_options,
         scheduler_options={"port": scheduler_port, 
                        "dashboard_address":dashboard_port}
