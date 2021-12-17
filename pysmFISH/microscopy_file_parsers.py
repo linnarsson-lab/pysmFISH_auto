@@ -542,7 +542,11 @@ def nikon_nd2_parser_simple_mfov(nd2_file_path: str):
         fname = experiment_fpath / (tag_name + '_fovs_coords.npy')
         np.save(fname, fov_coords)
 
-        nd2fh.bundle_axes = 'zyx'
+        if 'z' in nd2fh.sizes.keys():
+            nd2fh.bundle_axes = 'zyx'
+        else:
+            nd2fh.bundle_axes = 'yx'
+
         # set iteration over the fields of view
         nd2fh.iter_axes = 'v'
         
