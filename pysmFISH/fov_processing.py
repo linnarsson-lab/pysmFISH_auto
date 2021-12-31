@@ -84,11 +84,13 @@ def single_fov_round_processing_eel(fov_subdataset: pd.Series,
         filtering_fun = running_functions['reference_channels_preprocessing']
         counting_fun = running_functions['reference_channels_dots_calling']
 
+    elif 'nuclei' in processing_type:
+        processing_parameters = analysis_parameters[processing_type]
+        filtering_fun = running_functions['reference_channels_preprocessing']
+
     elif processing_type != 'staining':
         processing_parameters = analysis_parameters[processing_type]
         filtering_fun = running_functions['reference_channels_preprocessing']
-        counting_fun = running_functions['reference_channels_dots_calling']
-
 
     if start_from_preprocessed_imgs:
         # Load already filtered data
