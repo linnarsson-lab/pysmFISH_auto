@@ -594,7 +594,7 @@ def create_function_runner(experiment_fpath: str,metadata: dict)-> dict:
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
 
-    elif pipeline == 'smFISH-serial':
+    elif pipeline == 'smfish-serial':
         running_functions = { 'fish_channels_preprocessing':'standard_not_norm_preprocessing',
                             'fish_channels_dots_calling':'osmFISH_peak_based_detection_fast'}
     
