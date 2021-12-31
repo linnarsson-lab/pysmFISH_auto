@@ -821,8 +821,9 @@ def processing_serial_fish_fov_graph(experiment_fpath: str,
                                                 dark_img,
                                                 experiment_fpath,
                                                 preprocessed_zarr_fpath,
-                                                save_steps_output=save_intermediate_steps)
-                    
+                                                save_steps_output=save_intermediate_steps,
+                                                start_from_preprocessed_imgs=False)
+
                     counts, filt_out = fov_out[0], fov_out[1]
                     all_counts_fov.append(counts)
                     
