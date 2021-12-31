@@ -539,127 +539,130 @@ def osmFISH_peak_based_detection_fast(ImgStack: np.ndarray,
         PeaksCoords = np.array(PeaksCoords)
         PeaksCoords = PeaksCoords[:len(TotalPeaks)]
         PeaksCoords = list(PeaksCoords)
-        # Calculate the gradient of the number of peaks distribution
-        # grad = np.gradient(TotalPeaks)
-        grad = np.gradient(TotalPeaks,edge_order=1)
+        
+        if len(TotalPeaks) > 3:
+            # Calculate the gradient of the number of peaks distribution
+            # grad = np.gradient(TotalPeaks)
+            grad = np.gradient(TotalPeaks,edge_order=1)
 
-        # Restructure the data in order to avoid to consider the min_peak in the
-        # calculations
+            # Restructure the data in order to avoid to consider the min_peak in the
+            # calculations
 
-        # Coord of the gradient min_peak
-        grad_min_peak_coord = np.argmin(grad)
+            # Coord of the gradient min_peak
+            grad_min_peak_coord = np.argmin(grad)
 
-        # Trim the data to remove the peak.
-        trimmed_thr_array = ThrArray[grad_min_peak_coord:]
-        trimmed_grad = grad[grad_min_peak_coord:]
+            # Trim the data to remove the peak.
+            trimmed_thr_array = ThrArray[grad_min_peak_coord:]
+            trimmed_grad = grad[grad_min_peak_coord:]
 
-        if trimmed_thr_array.shape > (1,):
+            if trimmed_thr_array.shape > (1,):
 
-            # Trim the coords array in order to maintain the same length of the 
-            # tr and pk
-            Trimmed_PeaksCoords = PeaksCoords[grad_min_peak_coord:]
-            trimmed_total_peaks = TotalPeaks[grad_min_peak_coord:]
+                # Trim the coords array in order to maintain the same length of the 
+                # tr and pk
+                Trimmed_PeaksCoords = PeaksCoords[grad_min_peak_coord:]
+                trimmed_total_peaks = TotalPeaks[grad_min_peak_coord:]
 
-            # To determine the threshold we will determine the Thr with the biggest
-            # distance to the segment that join the end points of the calculated
-            # # gradient
+                # To determine the threshold we will determine the Thr with the biggest
+                # distance to the segment that join the end points of the calculated
+                # # gradient
 
-            # Calculate the coords of the end points of the gradient
-            p1 = np.array([trimmed_thr_array[0],trimmed_grad[0]])
-            p2 = np.array([trimmed_thr_array[-1],trimmed_grad[-1]])
+                # Calculate the coords of the end points of the gradient
+                p1 = np.array([trimmed_thr_array[0],trimmed_grad[0]])
+                p2 = np.array([trimmed_thr_array[-1],trimmed_grad[-1]])
 
-            # Create a line that join the points
-            allpoints = np.arange(0,len(trimmed_thr_array))
-            allpoints_coords = np.array([trimmed_thr_array[allpoints],trimmed_grad[allpoints]]).T
+                # Create a line that join the points
+                allpoints = np.arange(0,len(trimmed_thr_array))
+                allpoints_coords = np.array([trimmed_thr_array[allpoints],trimmed_grad[allpoints]]).T
 
-            distances = []
-            for point in allpoints_coords:
-                distances.append(np.linalg.norm(np.cross(p2-p1, p1-point))/np.linalg.norm(p2-p1))
+                distances = []
+                for point in allpoints_coords:
+                    distances.append(np.linalg.norm(np.cross(p2-p1, p1-point))/np.linalg.norm(p2-p1))
 
 
-            # Remove the end points from the lists
-            trimmed_thr_array = trimmed_thr_array[1:-1]
-            trimmed_grad = trimmed_grad[1:-1]
-            trimmed_total_peaks = trimmed_total_peaks[1:-1]
-            trimmed_distances = distances[1:-1]
+                # Remove the end points from the lists
+                trimmed_thr_array = trimmed_thr_array[1:-1]
+                trimmed_grad = trimmed_grad[1:-1]
+                trimmed_total_peaks = trimmed_total_peaks[1:-1]
+                trimmed_distances = distances[1:-1]
 
-            # Determine the coords of the selected Thr
-            # Converted Trimmed_distances to array because it crashed
-            # on Sanger.
-            if trimmed_distances:  # Most efficient way will be to consider the length of Thr list
-                Thr_idx = np.argmax(np.array(trimmed_distances))
-                Calculated_Thr = trimmed_thr_array[Thr_idx]
-                # The selected threshold usually causes oversampling of the number of dots
-                # I added a stringency parameter (int n) to use to select the Thr+n 
-                # for the counting. It selects a stringency only if the Trimmed_ThrArray
-                # is long enough
-                if Thr_idx + stringency < len(trimmed_thr_array):
-                    Selected_Thr = trimmed_thr_array[Thr_idx + stringency]
-                    Selected_Peaks = Trimmed_PeaksCoords[Thr_idx + stringency]
+                # Determine the coords of the selected Thr
+                # Converted Trimmed_distances to array because it crashed
+                # on Sanger.
+                if trimmed_distances:  # Most efficient way will be to consider the length of Thr list
+                    Thr_idx = np.argmax(np.array(trimmed_distances))
+                    Calculated_Thr = trimmed_thr_array[Thr_idx]
+                    # The selected threshold usually causes oversampling of the number of dots
+                    # I added a stringency parameter (int n) to use to select the Thr+n 
+                    # for the counting. It selects a stringency only if the Trimmed_ThrArray
+                    # is long enough
+                    if Thr_idx + stringency < len(trimmed_thr_array):
+                        Selected_Thr = trimmed_thr_array[Thr_idx + stringency]
+                        Selected_Peaks = Trimmed_PeaksCoords[Thr_idx + stringency]
+                    else:
+                        Selected_Thr = trimmed_thr_array[Thr_idx]
+                        Selected_Peaks = Trimmed_PeaksCoords[Thr_idx]
+
+                    # Calculate the selected peaks after removal of the big and small objects
+                    # Threshold the image using the selected threshold
+                    # if Selected_Thr > 0:
+                    #     ImgMask = ImgStack > Selected_Thr
+
+                    ImgMask = ImgStack > Selected_Thr
+
+
+                    Labels = nd.label(ImgMask)[0]
+
+                    Properties = measure.regionprops(Labels)
+
+                    for ob in Properties:
+                        if ob.area < min_obj_size or ob.area > max_obj_size:
+                            ImgMask[ob.coords[:, 0], ob.coords[:, 1]] = 0
+
+                    Labels = nd.label(ImgMask)[0]
+
+                    # # calling peak_local_max without Labels argument
+                    # Selected_Peaks2_mask = feature.peak_local_max(ImgStack, min_distance=min_distance, 
+                    #                 threshold_abs=Selected_Thr, exclude_border=True, indices=False,
+                    #                 footprint=None,num_peaks=np.inf).astype(int)                         
+                    
+                
+                    # # instead, make sure the selected peaks does not meet zeros at labels (background)
+                    # Labels_mask = (Labels > 0).astype(int)
+                    # Selected_Peaks2_mask = Selected_Peaks2_mask * Labels_mask
+                    # Selected_Peaks2 = np.vstack(np.where(Selected_Peaks2_mask)).T
+                    
+                    Selected_Peaks2 = feature.peak_local_max(ImgStack, min_distance=min_distance, 
+                                    threshold_abs=Selected_Thr, exclude_border=True, indices=True,
+                                    footprint=None,labels=Labels,num_peaks=np.inf).astype(int)        
+    
+                    
+                    if Selected_Peaks2.size:
+                        # Intensity counting of the max peaks
+    #                     Selected_peaks_coords = np.where(Selected_Peaks2)
+    #                     Selected_peaks_int = ImgStack[Selected_peaks_coords[0], Selected_peaks_coords[1]]
+                        Selected_peaks_int = ImgStack[Selected_Peaks2[:, 0], Selected_Peaks2[:, 1]]
+                                            
+                        # Peaks have been identified
+                        total_dots = Selected_Peaks2.shape[0]
+                        dot_id_array = np.array([str(fov)+'_'+str(round_num)+'_'+ channel +'_'+str(nid) for nid in range(total_dots)])
+                        thr_array = np.repeat(Selected_Thr,total_dots)
+                        channel_array = np.repeat(channel,total_dots)
+
+                        counts_dict['r_px_original']  = Selected_Peaks2[:,0]
+                        counts_dict['c_px_original'] = Selected_Peaks2[:,1]
+                        counts_dict['dot_id'] = dot_id_array
+                        counts_dict['dot_intensity'] = Selected_peaks_int
+                        counts_dict['selected_thr'] = thr_array
+                    else:
+                        logger.info(f' fov {fov} does not have counts (mapping)')
+
                 else:
-                    Selected_Thr = trimmed_thr_array[Thr_idx]
-                    Selected_Peaks = Trimmed_PeaksCoords[Thr_idx]
-
-                # Calculate the selected peaks after removal of the big and small objects
-                # Threshold the image using the selected threshold
-                # if Selected_Thr > 0:
-                #     ImgMask = ImgStack > Selected_Thr
-
-                ImgMask = ImgStack > Selected_Thr
-
-
-                Labels = nd.label(ImgMask)[0]
-
-                Properties = measure.regionprops(Labels)
-
-                for ob in Properties:
-                    if ob.area < min_obj_size or ob.area > max_obj_size:
-                        ImgMask[ob.coords[:, 0], ob.coords[:, 1]] = 0
-
-                Labels = nd.label(ImgMask)[0]
-
-                # # calling peak_local_max without Labels argument
-                # Selected_Peaks2_mask = feature.peak_local_max(ImgStack, min_distance=min_distance, 
-                #                 threshold_abs=Selected_Thr, exclude_border=True, indices=False,
-                #                 footprint=None,num_peaks=np.inf).astype(int)                         
-                
-             
-                # # instead, make sure the selected peaks does not meet zeros at labels (background)
-                # Labels_mask = (Labels > 0).astype(int)
-                # Selected_Peaks2_mask = Selected_Peaks2_mask * Labels_mask
-                # Selected_Peaks2 = np.vstack(np.where(Selected_Peaks2_mask)).T
-                
-                Selected_Peaks2 = feature.peak_local_max(ImgStack, min_distance=min_distance, 
-                                threshold_abs=Selected_Thr, exclude_border=True, indices=True,
-                                footprint=None,labels=Labels,num_peaks=np.inf).astype(int)        
-   
-                
-                if Selected_Peaks2.size:
-                    # Intensity counting of the max peaks
-#                     Selected_peaks_coords = np.where(Selected_Peaks2)
-#                     Selected_peaks_int = ImgStack[Selected_peaks_coords[0], Selected_peaks_coords[1]]
-                    Selected_peaks_int = ImgStack[Selected_Peaks2[:, 0], Selected_Peaks2[:, 1]]
-                                        
-                    # Peaks have been identified
-                    total_dots = Selected_Peaks2.shape[0]
-                    dot_id_array = np.array([str(fov)+'_'+str(round_num)+'_'+ channel +'_'+str(nid) for nid in range(total_dots)])
-                    thr_array = np.repeat(Selected_Thr,total_dots)
-                    channel_array = np.repeat(channel,total_dots)
-
-                    counts_dict['r_px_original']  = Selected_Peaks2[:,0]
-                    counts_dict['c_px_original'] = Selected_Peaks2[:,1]
-                    counts_dict['dot_id'] = dot_id_array
-                    counts_dict['dot_intensity'] = Selected_peaks_int
-                    counts_dict['selected_thr'] = thr_array
-                else:
-                    logger.info(f' fov {fov} does not have counts (mapping)')
-
+                    logger.info(f' fov {fov} Trimmed distance equal to zero')
             else:
-                logger.info(f' fov {fov} Trimmed distance equal to zero')
+                logger.info(f' fov {fov} calculated Thr array to small for selection of Thr')
+
         else:
-            logger.info(f' fov {fov} calculated Thr array to small for selection of Thr')
-
-
+            logger.info(f' fov {fov} does not have counts for calculating Thr')
 
     else:
         logger.info(f' fov {fov} does not have counts for calculating Thr')
