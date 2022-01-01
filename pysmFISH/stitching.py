@@ -483,8 +483,8 @@ class organize_square_tiles_old_room():
             adjusted_coords[:,1] = self.x_coords
 
         elif self.metadata['machine'] == 'ROBOFISH1':
-            # The current system has stage ref coords BOTTOM-RIGH
-            self.reference_corner_fov_position = 'bottom-right'
+            # The current system has stage ref coords top-left
+            self.reference_corner_fov_position = 'top-left'
             # Normalize to (0,0) still BOTTOM-RIGHT
             y_min = np.amin(self.y_coords)
             x_min = np.amin(self.x_coords)
