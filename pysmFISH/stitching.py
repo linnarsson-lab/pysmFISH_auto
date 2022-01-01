@@ -1530,9 +1530,13 @@ def remove_overlapping_dots_fov(cpl: Tuple[int,int], chunk_coords: np.ndarray,
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
 
-            count1_grp = counts1_df.loc[counts1_df.hamming_distance < hamming_distance,:]
-            count2_grp = counts2_df.loc[counts2_df.hamming_distance < hamming_distance,:]
+            # count1_grp = counts1_df.loc[counts1_df.hamming_distance < hamming_distance,:]
+            # count2_grp = counts2_df.loc[counts2_df.hamming_distance < hamming_distance,:]
             
+            count1_df = counts1_df.loc[counts1_df.hamming_distance < hamming_distance,:]
+            count2_df = counts2_df.loc[counts2_df.hamming_distance < hamming_distance,:]
+            
+
             overlap_count1 = get_all_dots_in_overlapping_regions(counts1_df, chunk_coords, 
                             stitching_selected)
             overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
@@ -1555,6 +1559,69 @@ def remove_overlapping_dots_fov(cpl: Tuple[int,int], chunk_coords: np.ndarray,
                         all_dots_id_to_remove.append(dots_id_to_remove)
             all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
             return {cpl:all_dots_id_to_remove}
+
+
+def remove_overlapping_dots_serial_fov(cpl: Tuple[int,int], chunk_coords: np.ndarray, 
+                    experiment_fpath: str, stitching_selected:str,
+                    same_dot_radius: int)-> Dict[Tuple[int,int],List[str]]:
+    """Function that identify the overlapping dots between two different tiles. The duplicated dots
+    for all genes are identified
+
+    Args:
+        cpl (Tuple[int,int]): Adjacent tiles to compare
+        chunk_coords (np.ndarray): Coords of the overlapping regions between the two tiles to compare
+        experiment_fpath (str): Path to the experiment to process
+        stitching_selected (str): String that identify the coords of the pixels
+            according to the stitching used to process the data
+        same_dot_radius (int): searching radius used to define if two dots are
+            the same
+
+    Returns:
+        Dict[Tuple[int,int],List[str]]: {cpl:all_dots_id_to_remove}
+    """
+
+    logger = selected_logger()
+    all_dots_id_to_remove = []
+    experiment_fpath = Path(experiment_fpath)
+    
+    try:
+        counts1_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
+    except:
+        logger.error(f'count file missing for fov {cpl[0]}')
+    
+    else:
+        try:
+            counts2_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
+        except:
+            logger.error(f'count file missing for fov {cpl[1]}')
+        else:
+    
+            counts1_df = pd.read_parquet(counts1_fpath)
+            counts2_df = pd.read_parquet(counts2_fpath)
+            
+            overlap_count1 = get_all_dots_in_overlapping_regions(counts1_df, chunk_coords, 
+                            stitching_selected)
+            overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
+                            stitching_selected)
+            
+            count1_grp = overlap_count1.groupby('decoded_genes')
+            count2_grp = overlap_count2.groupby('decoded_genes')
+            
+            for gene, over_c1_df in count1_grp:
+                try:
+                    over_c2_df = count2_grp.get_group(gene)
+                except:
+                    pass
+                else:
+                    dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
+                                                                stitching_selected,same_dot_radius)
+                    if len(dots_id_to_remove):
+                        all_dots_id_to_remove.append(dots_id_to_remove)
+            all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
+            return {cpl:all_dots_id_to_remove}
+
+
+
 
 def clean_from_duplicated_dots(fov: int, dots_id_to_remove: list, experiment_fpath: str,
                                 tag_cleaned_file:str):
@@ -1670,6 +1737,74 @@ def remove_duplicated_dots_graph(experiment_fpath: str,dataset: pd.DataFrame,
 
     _ = client.gather(all_futures)
 
+
+"""
+    The overlapping dots are not removed right after being identified
+    to avoid race conditions
+    """
+def remove_duplicated_dots_serial_graph(experiment_fpath: str,dataset: pd.DataFrame,
+                                tiles_org,
+                                same_dot_radius: int, 
+                                stitching_selected: str, client):
+    """Dask task graph builder/runner function to parallel remove duplicated dots
+    The overlapping dots are not removed right after being identified
+    because the same fov can be part of two different overlapping couples.
+
+    Args:
+        experiment_fpath (str): Path to the experiment to process
+        dataset (pd.DataFrame): Properties of the images of the experiment
+        tiles_org ([type]): Organization of the tiles 
+        same_dot_radius (int): searching radius used to define if two dots are
+            the same
+        stitching_selected (str): String that identify the coords of the pixels
+            according to the stitching used to process the data
+        client (dask.distributed.Client): Dask client in charge of controlling
+            the processing of the task graph.
+        tag_cleaned_file (str): tag name of the file with cleaned counts
+    """
+    
+    logger = selected_logger()
+    fovs = dataset.loc[:,'fov_num'].unique()
+    unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+
+    # Prepare the dataframe
+    r_tag = 'r_px_' + stitching_selected
+    c_tag = 'c_px_' + stitching_selected
+
+    all_futures = []
+
+    for cpl,chunk_coords in unfolded_overlapping_regions_dict.items():
+        future = client.submit(remove_overlapping_dots_serial_fov,
+                                cpl = cpl,
+                                chunk_coords=chunk_coords,
+                                experiment_fpath=experiment_fpath,
+                                stitching_selected=stitching_selected,
+                                same_dot_radius = same_dot_radius)
+
+        all_futures.append(future)
+
+    to_remove = client.gather(all_futures)  
+    to_remove_comb = {k: v for d in to_remove for k, v in d.items()}
+
+    removed_dot_dict = {}
+    for key, items in to_remove_comb.items():
+        if key[1] not in removed_dot_dict.keys():
+            removed_dot_dict[key[1]] = []
+        removed_dot_dict[key[1]].append(items)
+    
+    for key, items in removed_dot_dict.items():
+        removed_dot_dict[key] = [el for tg in items for el in tg]
+
+    for fov,dots_id_to_remove in removed_dot_dict.items():
+        future = client.submit(clean_from_duplicated_dots,
+                                fov = fov,
+                                dots_id_to_remove=dots_id_to_remove,
+                                experiment_fpath=experiment_fpath,
+                                tag_cleaned_file=stitching_selected)
+
+        all_futures.append(future)
+
+    _ = client.gather(all_futures)
 
 
 

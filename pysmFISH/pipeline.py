@@ -535,8 +535,8 @@ class Pipeline():
         # Removed the dots on the microscope stitched
         self.stitching_selected = 'microscope_stitched'
 
-        stitching.remove_duplicated_dots_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
-                                self.hamming_distance,self.same_dot_radius_duplicate_dots, 
+        stitching.remove_duplicated_dots_serial_graph(self.experiment_fpath,self.data.dataset,self.tiles_org,
+                                    self.same_dot_radius_duplicate_dots, 
                                     self.stitching_selected, self.client)
  
         # ----------------------------------------------------------------
