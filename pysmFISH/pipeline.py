@@ -541,10 +541,9 @@ class Pipeline():
  
         # ----------------------------------------------------------------
         # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'microscope_stitched'
-        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,
+        io.simple_output_plotting_serial(self.experiment_fpath, stitching_selected, 
+                                self.client,
                                 input_file_tag = 'microscope_stitched_cleaned',
                                 file_tag='cleaned_microscope_stitched')
         # ---------------------------------------------------------------- 
@@ -703,28 +702,26 @@ class Pipeline():
                                     self.same_dot_radius_duplicate_dots, 
                                     self.stitching_selected, self.client)
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata['barcode_length']
-        stitching_selected = 'global_stitched'
-        io.simple_output_plotting(self.experiment_fpath, stitching_selected,
-                                selected_Hdistance, self.client,
-                                input_file_tag = 'global_stitched_cleaned',
-                                file_tag='cleaned_global_stitched')
-        # ----------------------------------------------------------------  
 
         # ----------------------------------------------------------------
         # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata['barcode_length']
         stitching_selected = 'global_stitched'
-        io.simple_output_plotting(self.experiment_fpath, stitching_selected, 
-                                selected_Hdistance, self.client,
-                                input_file_tag = 'global_stitched_removed',
-                                file_tag='removed_global_stitched')
+        io.simple_output_plotting_serial(self.experiment_fpath, stitching_selected, 
+                                self.client,
+                                input_file_tag = 'global_stitched_cleaned',
+                                file_tag='cleaned_global_stitched')
         # ---------------------------------------------------------------- 
 
 
-
+        # ----------------------------------------------------------------  
+        # GENERATE OUTPUT FOR PLOTTING
+        stitching_selected = 'global_stitched'
+        io.simple_output_plotting_serial(self.experiment_fpath, stitching_selected, 
+                                self.client,
+                                input_file_tag = 'global_stitched_removed',
+                                file_tag='removed_global_stitched')
+        # ---------------------------------------------------------------- 
+ 
     def stitch_and_remove_dots_eel_graph_old_room_step(self):
 
         """

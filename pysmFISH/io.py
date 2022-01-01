@@ -167,32 +167,31 @@ def simple_output_plotting(experiment_fpath: str, stitching_selected: str,
 
 
 def simple_output_plotting_serial(experiment_fpath: str, stitching_selected: str, 
-                                client,file_tag: str):
+                             client, input_file_tag:str, file_tag: str):
     """Utility function used to create a pandas dataframe with a simplified
-    version of the serial analysis output that can be used for quick visualization
+    version of the eel analysis output that can be used for quick visualization
 
     Args:
         experiment_fpath (str): Path to the experiment to process
         stitching_selected (str): Define with stitched data will be selected
             for creating the simplified dataframe
         client (Client): Dask client taking care of the processing 
+        input_file_tag (str): File type to load for the plotting
         file_tag (str): tag to label the output file
-
     """
 
-
     experiment_fpath = Path(experiment_fpath)
-    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*'+file_tag+'*.parquet'),engine='pyarrow')
+    counts_dd = dd.read_parquet(experiment_fpath / 'results' / ('*' + input_file_tag +'*.parquet'),engine='pyarrow')
 
     date_tag = time.strftime("%y%m%d_%H_%M_%S")
 
     r_tag = 'r_px_' + stitching_selected
     c_tag = 'c_px_' + stitching_selected
 
+    
 
     counts_df = counts_dd.loc[:,['fov_num',r_tag,c_tag, 'target_name']].compute()
 
     counts_df=counts_df.dropna(subset=['target_name'])
     fpath = experiment_fpath / 'results' / (date_tag + '_' + experiment_fpath.stem + '_data_summary_simple_plotting_'+file_tag+'.parquet')
     counts_df.to_parquet(fpath,index=False)
-
