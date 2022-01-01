@@ -1654,7 +1654,7 @@ def clean_from_duplicated_dots(fov: int, dots_id_to_remove: list, experiment_fpa
                 cleaned_df.to_parquet(save_name,index=False)
                 logger.error(f'saved {fname}')
 
-                save_name = fname.stem.split('_decoded_fov_')[0] + tag_cleaned_file + '_removed_df_fov_' + str(fov) + '.parquet'
+                save_name = fname.stem.split('_decoded_fov_')[0] + '_' + tag_cleaned_file + '_removed_df_fov_' + str(fov) + '.parquet'
                 save_name = experiment_fpath / 'results' / save_name
                 removed_df = counts_df.loc[counts_df.dot_id.isin(dots_id_to_remove), :]
                 removed_df.to_parquet(save_name,index=False)
