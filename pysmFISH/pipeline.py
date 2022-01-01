@@ -1431,63 +1431,63 @@ class Pipeline():
         if self.processing_engine == 'unmanaged_cluster':
             processing_cluster_setup.kill_process()
 
-def test_run_Alejandro_spinal_cord_atlas(self):
-        
-        """
-        TODO: The fresh tissue processing need to be specifically implemented
-            for this experiment
+    def test_run_Alejandro_spinal_cord_atlas(self):
+            
+            """
+            TODO: The fresh tissue processing need to be specifically implemented
+                for this experiment
 
-        """
+            """
 
-        start = datetime.now()
-        self.run_setup()
-        self.run_cluster_activation()
-        self.run_parsing()
-        self.run_required_steps()   
-        self.determine_tiles_organization_before_room_reorganisation() 
-        
-        if self.resume:
-            already_processed = (Path(self.experiment_fpath) / 'results').glob('*barcodes_max_array*.parquet')
-            already_done_fovs = []
-            for fname in already_processed:
-                fov_num = int(fname.stem.split('_')[-1])
-                already_done_fovs.append(fov_num)
-            not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
-            self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
-            self.grpd_fovs = self.data.dataset.groupby('fov_num')
+            start = datetime.now()
+            self.run_setup()
+            self.run_cluster_activation()
+            self.run_parsing()
+            self.run_required_steps()   
+            self.determine_tiles_organization_before_room_reorganisation() 
+            
+            if self.resume:
+                already_processed = (Path(self.experiment_fpath) / 'results').glob('*barcodes_max_array*.parquet')
+                already_done_fovs = []
+                for fname in already_processed:
+                    fov_num = int(fname.stem.split('_')[-1])
+                    already_done_fovs.append(fov_num)
+                not_processed_fovs = set(self.grpd_fovs.groups.keys()).difference(set(already_done_fovs))
+                self.data.dataset = self.data.dataset.loc[self.data.dataset.fov_num.isin(not_processed_fovs), :]
+                self.grpd_fovs = self.data.dataset.groupby('fov_num')
 
-        # Adjust the dataset because changes in the yaml files
-        self.data.dataset.loc[:,'pipeline'] = 'smfish-serial'
-        self.data.dataset.loc[:,'experiment_type'] = 'smfish-serial'
-        self.data.dataset.loc[:,'stitching_type'] = 'nuclei'
-        self.data.dataset.loc[:,'stitching_channel'] = 'DAPI'
-        self.data.dataset.loc[self.data.dataset.channel == 'DAPI','processing_type'] = 'nuclei'
-        self.data.dataset = self.data.dataset.loc[~(self.data.dataset.channel == 'Europium'),:]
-        self.data.dataset.loc[:,'machine'] = 'ROBOFISH1'
-        
+            # Adjust the dataset because changes in the yaml files
+            self.data.dataset.loc[:,'pipeline'] = 'smfish-serial'
+            self.data.dataset.loc[:,'experiment_type'] = 'smfish-serial'
+            self.data.dataset.loc[:,'stitching_type'] = 'nuclei'
+            self.data.dataset.loc[:,'stitching_channel'] = 'DAPI'
+            self.data.dataset.loc[self.data.dataset.channel == 'DAPI','processing_type'] = 'nuclei'
+            self.data.dataset = self.data.dataset.loc[~(self.data.dataset.channel == 'Europium'),:]
+            self.data.dataset.loc[:,'machine'] = 'ROBOFISH1'
+            
 
-        if self.metadata['experiment_type'] == 'smfish-serial':
-            step_start = datetime.now()
-            self.processing_serial_fish_step()
-            self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
-        
-            step_start = datetime.now()
-            try: 
-                self.stitch_and_remove_dots_serial_graph_step()
-            except:
-                self.logger.info(f"Stitching using dots didn't work")
-                pass
-            else:
+            if self.metadata['experiment_type'] == 'smfish-serial':
+                step_start = datetime.now()
+                self.processing_serial_fish_step()
                 self.logger.info(f"{self.experiment_fpath.stem} timing: \
-                    Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+                        eel fov processing completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
+            
+                step_start = datetime.now()
+                try: 
+                    self.stitch_and_remove_dots_serial_graph_step()
+                except:
+                    self.logger.info(f"Stitching using dots didn't work")
+                    pass
+                else:
+                    self.logger.info(f"{self.experiment_fpath.stem} timing: \
+                        Stitching and removal of duplicated dots completed in {utils.nice_deltastring(datetime.now() - step_start)}.")
 
-        else:
-            self.logger.error(f"the experiment type {self.metadata['experiment_type']} is unknown")
-            sys.exit(f"the experiment type {self.metadata['experiment_type']} is unknown")
+            else:
+                self.logger.error(f"the experiment type {self.metadata['experiment_type']} is unknown")
+                sys.exit(f"the experiment type {self.metadata['experiment_type']} is unknown")
 
-        
-        self.client.close()
-        self.cluster.close()
-        if self.processing_engine == 'unmanaged_cluster':
-            processing_cluster_setup.kill_process()
+            
+            self.client.close()
+            self.cluster.close()
+            if self.processing_engine == 'unmanaged_cluster':
+                processing_cluster_setup.kill_process()
