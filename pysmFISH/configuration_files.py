@@ -325,20 +325,20 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH1']['RegistrationMinMatchingBeads'] = 5
 
 
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFlatFieldKernel'] = (2,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFilteringLaplacianKernel'] = (0.2,0.1,0.1)
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['PreprocessingFishFilteringLaplacianKernel'] = (0.2,0.5,0.5)
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMinObjDistance'] = 2
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMaxObjSize'] = 200
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMinObjSize'] = 3
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishNumPeaksPerLabel'] = 20
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 95
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishMinObjSize'] = 2
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['CountingFishNumPeaksPerLabel'] = 1
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalPercentile'] = 99
     analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalMinObjSize'] = 50
-    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 7
+    analysis_parameters['smfish-serial']['ROBOFISH1']['fish']['LargeObjRemovalSelem'] = 3
 
-    analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFlatFieldKernel'] = (3,100,100)
+    analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFlatFieldKernel'] = (2,100,100)
     analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringSmallKernel'] = (1,8,8)
-    analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringLaplacianKernel'] = (0.2,0.1,0.1)
+    analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['PreprocessingFishFilteringLaplacianKernel'] = (0.2,0.5,0.5)
     analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['CountingFishMinObjDistance'] = 2
     analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['CountingFishMaxObjSize'] = 200
     analysis_parameters['smfish-serial']['ROBOFISH1']['small-beads']['CountingFishMinObjSize'] = 2
@@ -369,7 +369,7 @@ def create_general_analysis_config_file(config_db_path:str):
     analysis_parameters['smfish-serial']['ROBOFISH1']['both-beads']['LargeObjRemovalMinObjSize'] = 100
     analysis_parameters['smfish-serial']['ROBOFISH1']['both-beads']['LargeObjRemovalSelem'] = 3
 
-    analysis_parameters['smfish-serial']['ROBOFISH1']['nuclei']['PreprocessingNucleiFlatFieldKernel'] = (1,8,8)
+    analysis_parameters['smfish-serial']['ROBOFISH1']['nuclei']['PreprocessingNucleiFlatFieldKernel'] = (2,100,100)
     
     analysis_parameters['smfish-serial']['ROBOFISH1']['staining']['PreprocessingStainingFlatFieldKernel'] = (2,100, 100)
 
