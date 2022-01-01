@@ -1604,8 +1604,8 @@ def remove_overlapping_dots_serial_fov(cpl: Tuple[int,int], chunk_coords: np.nda
             overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
                             stitching_selected)
             
-            count1_grp = overlap_count1.groupby('decoded_genes')
-            count2_grp = overlap_count2.groupby('decoded_genes')
+            count1_grp = overlap_count1.groupby('target_name')
+            count2_grp = overlap_count2.groupby('target_name')
             
             for gene, over_c1_df in count1_grp:
                 try:
