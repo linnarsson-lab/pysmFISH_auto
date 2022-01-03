@@ -136,7 +136,8 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset: pd.Series,
                                    dark_img: np.ndarray,
                                    experiment_fpath: str,
                                    preprocessed_zarr_fpath: str,
-                                   save_steps_output=False)-> Tuple[np.ndarray,pd.Series]:
+                                   save_steps_output=False,
+                                   start_from_preprocessed_imgs=False)-> Tuple[np.ndarray,pd.Series]:
 
     """Function to run serial processing of nuclei
     Some of the input variable are not used but I wanted to keep the same type of input
@@ -160,41 +161,56 @@ def single_fov_round_processing_serial_nuclei(fov_subdataset: pd.Series,
     """
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
-
-    # Path of directory where to save the intermediate results
-    filtered_img_path = experiment_fpath / 'results'
-    raw_counts_path = experiment_fpath / 'results'
-    
     experiment_name = fov_subdataset.experiment_name
-    pipeline = fov_subdataset.pipeline
-    processing_type = fov_subdataset.processing_type
-    zarr_grp_name = fov_subdataset.grp_name
+
+    if start_from_preprocessed_imgs:
     
-    raw_data_location = Path(fov_subdataset.raw_data_location)
-    parsed_raw_data_fpath = raw_data_location.parent
-
-    processing_parameters = analysis_parameters[processing_type]
-
-    filt_out = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
-                                                                        zarr_grp_name,
-                                                                        parsed_raw_data_fpath,
-                                                                        processing_parameters)
-
-    if save_steps_output:
-
-        # Save the file as zarr
         store = zarr.DirectoryStore(preprocessed_zarr_fpath)
         root = zarr.group(store=store,overwrite=False)
         tag_name = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
-        dgrp = root.create_group(tag_name,overwrite=True)
-        for k, v in filt_out[1].items():
-            dgrp.attrs[k] = v
-        fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
-        dgrp.attrs['fov_name'] = fov_name
-        img = utils.convert_to_uint16(filt_out[0][-1])
-        dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=None,overwrite=True)
+    
+        # Load already filtered data
+        filt_out = io.load_general_zarr(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
+        filt_out = ((filt_out[0],),filt_out[1])
 
-    return (img,fov_subdataset)
+        return (filt_out[0][0],fov_subdataset)
+    
+    else:
+
+        # Path of directory where to save the intermediate results
+        filtered_img_path = experiment_fpath / 'results'
+        raw_counts_path = experiment_fpath / 'results'
+        
+        
+        pipeline = fov_subdataset.pipeline
+        processing_type = fov_subdataset.processing_type
+        zarr_grp_name = fov_subdataset.grp_name
+        
+        raw_data_location = Path(fov_subdataset.raw_data_location)
+        parsed_raw_data_fpath = raw_data_location.parent
+
+        processing_parameters = analysis_parameters[processing_type]
+
+        filt_out = getattr(pysmFISH.preprocessing,running_functions['reference_channels_preprocessing'])(
+                                                                            zarr_grp_name,
+                                                                            parsed_raw_data_fpath,
+                                                                            processing_parameters)
+
+        if save_steps_output:
+
+            # Save the file as zarr
+            store = zarr.DirectoryStore(preprocessed_zarr_fpath)
+            root = zarr.group(store=store,overwrite=False)
+            tag_name = experiment_name + '_' + fov_subdataset.channel + '_round_' + str(fov_subdataset.round_num) + '_fov_' + str(fov_subdataset.fov_num)
+            dgrp = root.create_group(tag_name,overwrite=True)
+            for k, v in filt_out[1].items():
+                dgrp.attrs[k] = v
+            fov_name = 'preprocessed_data_fov_' + str(fov_subdataset.fov_num)
+            dgrp.attrs['fov_name'] = fov_name
+            img = utils.convert_to_uint16(filt_out[0][-1])
+            dset = dgrp.create_dataset(fov_name, data=img, shape=img.shape, chunks=None,overwrite=True)
+
+        return (img,fov_subdataset)
 
 
 def processing_barcoded_eel_fov_graph(experiment_fpath: str,
@@ -740,7 +756,8 @@ def processing_serial_fish_fov_graph(experiment_fpath: str,
                                     save_intermediate_steps: bool, 
                                     preprocessed_image_tag: str, 
                                     client,
-                                    chunks_size: int):
+                                    chunks_size: int,
+                                    start_from_preprocessed_imgs=False):
     """Processing graph for serial type of experiments.
 
     Args:
@@ -807,7 +824,8 @@ def processing_serial_fish_fov_graph(experiment_fpath: str,
                                             dark_img,
                                             experiment_fpath,
                                             preprocessed_zarr_fpath,
-                                            save_steps_output=save_intermediate_steps)
+                                            save_steps_output=save_intermediate_steps,
+                                            start_from_preprocessed_imgs=start_from_preprocessed_imgs)
                     all_nuclei_fov.append(out_nuclei)
 
                 else:
@@ -820,7 +838,7 @@ def processing_serial_fish_fov_graph(experiment_fpath: str,
                                                 experiment_fpath,
                                                 preprocessed_zarr_fpath,
                                                 save_steps_output=save_intermediate_steps,
-                                                start_from_preprocessed_imgs=False)
+                                                start_from_preprocessed_imgs=start_from_preprocessed_imgs)
 
                     counts, filt_out = fov_out[0], fov_out[1]
                     all_counts_fov.append(counts)

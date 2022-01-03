@@ -529,7 +529,7 @@ class Pipeline():
         fov_processing.processing_serial_fish_fov_graph(self.experiment_fpath,self.analysis_parameters,
                                     self.running_functions, self.tiles_org,self.metadata,
                                     self.grpd_fovs,self.save_intermediate_steps, 
-                                    self.preprocessed_image_tag,self.client,self.chunk_size)
+                                    self.preprocessed_image_tag,self.client,self.chunk_size,self.start_from_preprocessed_imgs)
 
         
         # Removed the dots on the microscope stitched
