@@ -67,34 +67,39 @@ class osmFISH_dots_thr_selection():
 
         binning = 100
         # Define the range of thr to be tested
-        if self.min_int and self.max_int:
-            self.thr_array = np.linspace(self.min_int,self.max_int,num=binning)
-        elif self.min_int:
-            self.thr_array = np.linspace(self.min_int,self.img.max(),num=binning)
-        elif self.max_int:
-            self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.max_int,num=binning)
+        if self.img.max() == 0:
+            self.thr_array = []
+            self.total_peaks.append(0)
+            self.thr_used.append(0)
         else:
-            self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.img.max(),num=binning)
-    
-        # Calculate the number of peaks for each threshold. In this calculation
-        # the size of the objects is not considered
-        self.peak_counter_min = 0
-        self.peak_counter_max = 0
-        for vl, thr in enumerate(self.thr_array):
-            # The border is excluded from the counting
-            self.peaks = feature.peak_local_max(self.img,min_distance=self.min_distance,\
-                threshold_abs=thr,exclude_border=False, indices=True,\
-                num_peaks=np.inf, footprint=None,labels=None)
-            
-            self.number_peaks = len(self.peaks)
-
-            # Stop the counting when the number of peaks detected falls below 3
-            if self.number_peaks<=self.min_peaks:
-                self.stop_thr = thr # Move in the upper loop so you will stop at the previous thr
-                break
+            if self.min_int and self.max_int:
+                self.thr_array = np.linspace(self.min_int,self.max_int,num=binning)
+            elif self.min_int:
+                self.thr_array = np.linspace(self.min_int,self.img.max(),num=binning)
+            elif self.max_int:
+                self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.max_int,num=binning)
             else:
-                self.total_peaks.append(len(self.peaks))
-                self.thr_used.append(thr)
+                self.thr_array = np.linspace(np.min(self.img[np.nonzero(self.img)]),self.img.max(),num=binning)
+    
+            # Calculate the number of peaks for each threshold. In this calculation
+            # the size of the objects is not considered
+            self.peak_counter_min = 0
+            self.peak_counter_max = 0
+            for vl, thr in enumerate(self.thr_array):
+                # The border is excluded from the counting
+                self.peaks = feature.peak_local_max(self.img,min_distance=self.min_distance,\
+                    threshold_abs=thr,exclude_border=False, indices=True,\
+                    num_peaks=np.inf, footprint=None,labels=None)
+                
+                self.number_peaks = len(self.peaks)
+
+                # Stop the counting when the number of peaks detected falls below 3
+                if self.number_peaks<=self.min_peaks:
+                    self.stop_thr = thr # Move in the upper loop so you will stop at the previous thr
+                    break
+                else:
+                    self.total_peaks.append(len(self.peaks))
+                    self.thr_used.append(thr)
 
     def thr_identification(self):  
         """Function that use the number of peaks / thresholds graph to define the threshold
@@ -773,10 +778,7 @@ def osmFISH_peak_based_detection(ImgStack: np.ndarray,
 
     """
 
-    
-    
     logger = selected_logger()
-
 
     fov = fov_subdataset.fov_num
     round_num = fov_subdataset.round_num
@@ -802,9 +804,9 @@ def osmFISH_peak_based_detection(ImgStack: np.ndarray,
                             'min_distance': parameters_dict['CountingFishMinObjDistance'],
                             'min_obj_size': parameters_dict['CountingFishMinObjSize'],
                             'max_obj_size':  parameters_dict['CountingFishMaxObjSize'],
-                            'num_peaks_per_label':  parameters_dict['CountingFishNumPeaksPerLabel'],
+                            'num_peaks_per_label':  parameters_dict['CountingFishNumPeaksPerLabel']
                                 }
-    fill_value = np.nan
+
     counts = osmFISH_dots_thr_selection(ImgStack,counting_parameters_dict)
     counts.counting_graph()
     counts.thr_identification()
