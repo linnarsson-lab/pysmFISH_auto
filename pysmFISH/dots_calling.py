@@ -69,8 +69,6 @@ class osmFISH_dots_thr_selection():
         # Define the range of thr to be tested
         if self.img.max() == 0:
             self.thr_array = []
-            self.total_peaks.append(0)
-            self.thr_used.append(0)
         else:
             if self.min_int and self.max_int:
                 self.thr_array = np.linspace(self.min_int,self.max_int,num=binning)
@@ -813,7 +811,7 @@ def osmFISH_peak_based_detection(ImgStack: np.ndarray,
                     
     if not np.isnan(counts.selected_thr):
             dots = osmFISH_dots_mapping(ImgStack,counts.selected_thr,counting_parameters_dict)
-            if isinstance(dots.selected_peaks,np.ndarray):
+            if isinstance(dots.intensity_array,np.ndarray):
                 # Peaks have been identified
                 total_dots = dots.selected_peaks.shape[0]
                 dot_id_array = np.array([str(fov)+'_'+str(round_num)+'_'+ channel +'_'+str(nid) for nid in range(total_dots)])
