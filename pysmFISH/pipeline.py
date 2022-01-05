@@ -177,7 +177,7 @@ class Pipeline():
         self.active_cluster = kwarg.pop('active_cluster',None)
         self.active_scheduler_address = kwarg.pop('active_scheduler_address',None)
         
-        self.start_from_preprocessed_imgs = kwarg.pop('maximum_jobs',False)
+        self.start_from_preprocessed_imgs = kwarg.pop('start_from_preprocessed_imgs',False)
         self.resume = kwarg.pop('resume',False)
         self.processing_engine = kwarg.pop('processing_engine','htcondor')
 
