@@ -808,9 +808,6 @@ def osmFISH_peak_based_detection(ImgStack: np.ndarray,
     counts = osmFISH_dots_thr_selection(ImgStack,counting_parameters_dict)
     counts.counting_graph()
     counts.thr_identification()
-    data_models = Output_models()
-    counts_dict = data_models.dots_counts_dict
-
                     
     if not np.isnan(counts.selected_thr):
             dots = osmFISH_dots_mapping(ImgStack,counts.selected_thr,counting_parameters_dict)
