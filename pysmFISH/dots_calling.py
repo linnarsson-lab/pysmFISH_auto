@@ -802,7 +802,7 @@ def osmFISH_peak_based_detection(ImgStack: np.ndarray,
                             'min_distance': parameters_dict['CountingFishMinObjDistance'],
                             'min_obj_size': parameters_dict['CountingFishMinObjSize'],
                             'max_obj_size':  parameters_dict['CountingFishMaxObjSize'],
-                            'num_peaks_per_label':  parameters_dict['num_peaks_per_label'],
+                            'num_peaks_per_label':  parameters_dict['CountingFishNumPeaksPerLabel'],
                                 }
     fill_value = np.nan
     counts = osmFISH_dots_thr_selection(ImgStack,counting_parameters_dict)
