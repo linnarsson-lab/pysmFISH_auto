@@ -244,7 +244,7 @@ Copy the fasta files that will be used in the processing inside the `probes_sets
 
 ### (4) Create the processing codebook
 
-The reference codebooks [codebook example](docs/examples_config_files/Example_codebook.xlsx) are generated as `.xlsx` files with the following columns:
+The reference codebooks ([codebook example](docs/examples_config_files/Example_codebook.xlsx)) are generated as `.xlsx` files with the following columns:
 
 `Barcode, Index, Group, Fluorophore, Tail1, Tail2, Tail3, Tail4, Tail5, Tail6, Gene, Pool`. First copy the `.xlsx` file into the `codebooks` folder then run the conversion command `processing_env->convert_codebook` The processing codebook will have only the `Barcode, Gene` columns and will be stored as `.parquet` file. The barcode is stored as bytes (``np.int8`) in the parquet file. The output will look like:
  
