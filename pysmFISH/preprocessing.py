@@ -296,6 +296,78 @@ def filter_remove_large_objs(
         return ((masked_img,img),metadata)
 
 
+def filter_remove_large_objs_no_flat(
+        zarr_grp_name: str,
+        parsed_raw_data_fpath: str,
+        processing_parameters: dict,
+        dark_img: np.ndarray)-> Tuple[Tuple[np.ndarray,np.ndarray],dict]:
+
+    """Function used to mask large objects (ex. lipofuscin) present in the image
+        without flat field correction
+
+    Args:
+        zarr_grp_name (str): group name of the image to process
+        parsed_raw_data_fpath (str): path to the zarr file containing the parsed images
+        processing_parameters (dict): dictionary with the parameters used to process the images
+        dark_img (np.ndarray): Dark image used to remove camera dark noise
+
+    Returns:
+        Tuple[Tuple[np.ndarray,],dict]: ((masked_image, filtered_image),metadata)
+    """
+  
+
+    logger = selected_logger()
+    
+    parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+    LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
+    LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
+    LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
+    LargeObjRemovalSelem = processing_parameters['LargeObjRemovalSelem']
+
+    try:
+        img, metadata = load_raw_images(zarr_grp_name,
+                                    parsed_raw_data_fpath)
+    except:
+        logger.error(f'cannot load {zarr_grp_name} raw fish image')
+        sys.exit(f'cannot load {zarr_grp_name} raw fish image')
+    else:
+        logger.info(f'loaded {zarr_grp_name} raw fish image')
+
+        img = img_as_float64(img)
+        img -= dark_img
+        img[img<0] = 0
+
+        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        img = nd.gaussian_laplace(img,LaplacianKernel)
+        img = -img # the peaks are negative so invert the signal
+        img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
+        img = np.abs(img) # to avoid -0.0 issues
+        
+        img = img.max(axis=0)
+
+
+        mask = np.zeros_like(img)
+        idx=  img > np.percentile(img,LargeObjRemovalPercentile)
+        mask[idx] = 1
+    
+        labels = nd.label(mask)
+
+        properties = measure.regionprops(labels[0])    
+        for ob in properties:
+            if ob.area < LargeObjRemovalMinObjSize:
+                mask[ob.coords[:,0],ob.coords[:,1]]=0
+
+        mask = morphology.binary_dilation(mask, selem=morphology.disk(LargeObjRemovalSelem))
+        mask = np.logical_not(mask)
+
+        masked_img = img*mask
+
+        
+        return ((masked_img,img),metadata)
+
+
+
 def large_beads_preprocessing(zarr_grp_name: str,
         parsed_raw_data_fpath: str,
         processing_parameters: dict,
