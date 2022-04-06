@@ -134,3 +134,5 @@ class Segmenation_NN():
         plt.imshow(shuffeled_mask, cmap='hsv', alpha=alpha)
         if save:
             plt.savefig(save_name, dpi=dpi)
+
+
