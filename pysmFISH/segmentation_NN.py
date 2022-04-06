@@ -8,6 +8,21 @@ import matplotlib.pyplot as plt
 
 class Segmenation_NN():
     
+    def __init__(self, mode: str='stardist', diameter: float=25):
+        """Instantiate NeuralNet segmentation class.
+
+        Args:
+            mode (str, optional): Segmentation algorithm to use. Choose from
+                "stardist" or "cellpose", Defaults to 'stardist'.
+            diameter (int, optional): Only needed for Cellpose. Cell diameter 
+                prior in pixels. If None is given, Cellpose will calculate the 
+                diameter. Defaults to 25, which is a value that worked for mouse
+                adult brain nuclei imaged with the 40X objective. 
+                Defaults to 25.
+        """
+        self.mode = mode
+        self.diameter = diameter
+    
 
     def cellpose_init_model(self, gpu: bool=False, model_type: str='nuclei', 
                 net_avg: bool=True, device: object=None, 
@@ -95,6 +110,22 @@ class Segmenation_NN():
 
         #Retrun
         return mask
+    
+    def segment(self, image):
+        """Run segmentation with chosen method
+
+        Args:
+            image (np.ndarray): Numpy array with the image of the nuclei.
+
+        Returns:
+            np.ndarray : Resulting label mask
+        """
+        
+        if self.mode == 'cellpose':
+            return self.segment_cellpose(image, self.diameter)
+        
+        if self.mode == 'stardits':
+            return self.segment_stardist(image)
         
     def segmentation_inspect(self, image: np.ndarray, mask: np.ndarray, 
                         figsize: float=15, vmin: float=None, vmax: float=None,
