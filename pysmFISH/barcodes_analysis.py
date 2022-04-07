@@ -365,7 +365,7 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
                     else:
                         barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates], axis=0,ignore_index=False)
 
-                    barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
+                    # barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
                     barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
 
                     compare_df = compare_df.drop(comp_selected_df.index)
