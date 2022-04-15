@@ -1411,15 +1411,6 @@ def stitched_beads_on_nuclei_fresh_tissue(experiment_fpath:str,
     adjusted_coords =stitching_graph_fresh_nuclei(experiment_fpath,nuclei_org_tiles, metadata_nuclei, 
                                 client, nr_dim = 2)
 
-    all_futures = []
-    for fpath in flist:
-        future = client.submit(stitch_using_coords_general, fpath,
-                                              beads_org_tiles.tile_corners_coords_pxl,
-                                              adjusted_coords,
-                                              metadata_beads,tag='global_stitched_nuclei')
-
-        all_futures.append(future)
-    _ = client.gather(all_futures)
 
     io.simple_output_plotting(fresh_tissue_path,
                               stitching_selected= 'global_stitched_nuclei',
