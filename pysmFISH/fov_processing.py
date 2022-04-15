@@ -1442,39 +1442,36 @@ def make_fresh_beads_count_like_eel(data, eel_metadata):
     return data
 
 
-# TODO Enter the fov components
-def segmentation_NN_fov(segmented_file_path,
-                        fresh_tissue_segmentation_engine,
-                        diameter_size):
-
-    processing_tag: str,
+def segmentation_NN_fov(
+    segmented_file_path: str,
     fov_subdataset: pd.Series,
-    analysis_parameters: dict,
-    running_functions: dict,
-    dark_img: np.ndarray,
-    experiment_fpath: str,
-    preprocessed_zarr_fpath: str,
-    save_steps_output: bool = True,
-    nuclei_segmentation = segmentation_NN.Segmenation_NN(fresh_tissue_segmentation_engine,
-                                                            diameter_size)
+    fresh_tissue_segmentation_engine,
+    diameter_size,
+):
 
+    experiment_name = fov_subdataset.experiment_name
+    segmented_file_path = Path(segmented_file_path)
 
+    nuclei_segmentation = segmentation_NN.Segmenation_NN(
+        fresh_tissue_segmentation_engine, diameter_size
+    )
 
     # Save the file as zarr
-            store = zarr.DirectoryStore(preprocessed_zarr_fpath)
-            root = zarr.group(store=store, overwrite=False)
-            tag_name = (
-                experiment_name
-                + "_fresh_tissue_"
-                + processing_tag
-                + "_fov_"
-                + str(fov_subdataset.fov_num)
-            )
-            dgrp = root.create_group(tag_name, overwrite=True)
+    store = zarr.DirectoryStore(segmented_file_path)
+    root = zarr.group(store=store, overwrite=False)
+    tag_name = (
+        experiment_name + "_segmetented_fresh_tissue_fov_" + str(fov_subdataset.fov_num)
+    )
+    dgrp = root.create_group(tag_name, overwrite=True)
+    fov_name = "segmentation_mask_fov_" + str(fov_subdataset.fov_num)
 
-
-
-
+    dset = dgrp.create_dataset(
+        fov_name,
+        data=nuclei_segmentation,
+        shape=nuclei_segmentation.shape,
+        chunks=None,
+        overwrite=True,
+    )
 
 
 def process_fresh_sample_graph(
@@ -1614,8 +1611,7 @@ def process_fresh_sample_graph(
     )
     io.create_empty_zarr_file(base_path.as_posix(), tag="beads_preprocessed_img_data")
 
-    io.create_empty_zarr_file(base_path.as_posix(), tag='segmented_nuclei_data')
-
+    io.create_empty_zarr_file(base_path.as_posix(), tag="segmented_nuclei_data")
 
     client.run(gc.collect)
 
