@@ -124,7 +124,7 @@ class Segmenation_NN():
         if self.mode == 'cellpose':
             return self.segment_cellpose(image, self.diameter)
         
-        if self.mode == 'stardits':
+        if self.mode == 'stardist':
             return self.segment_stardist(image)
         
     def segmentation_inspect(self, image: np.ndarray, mask: np.ndarray, 
