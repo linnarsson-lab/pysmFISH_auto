@@ -1,10 +1,5 @@
-from cellpose import models
-from stardist.models import StarDist2D 
-from csbdeep.utils import normalize
 import numpy as np
-from os import path, makedirs
 import matplotlib.pyplot as plt
-
 
 class Segmenation_NN():
     
@@ -21,12 +16,23 @@ class Segmenation_NN():
                 Defaults to 25.
         """
         self.mode = mode
+        
+        if mode == 'stardist':
+            from stardist.models import StarDist2D
+            self.StarDist2D = StarDist2D
+            from csbdeep.utils import normalize
+            self.stardist_normalize = normalize
+            
+        if mode == 'cellpose':
+            from cellpose import models
+            self.cellpose_models = models
+            print(models)
+        
         self.diameter = diameter
     
 
     def cellpose_init_model(self, gpu: bool=False, model_type: str='nuclei', 
-                net_avg: bool=True, device: object=None, 
-                torch: bool=True) -> None:
+                net_avg: bool=True, device: object=None) -> None:
         """Initiate the Cellpose model.
 
         Initiates the model and returns it.
@@ -42,14 +48,11 @@ class Segmenation_NN():
                 documentation. Defaults to True.
             device (object, optional): Use saved model. See Cellpose 
                 documentation. Defaults to None.
-            torch (bool, optional): If True uses Torch instead of Mxnet.
-                Defaults to True.
         """
-        model = models.Cellpose(gpu = gpu,
+        model = self.cellpose_models.Cellpose(gpu = gpu,
                                 model_type = model_type,
                                 net_avg = net_avg,
-                                device = device,
-                                torch = torch)
+                                device = device)
         return model
         
     def segment_cellpose(self, image, diameter=25, model=None, gpu=False, 
@@ -81,8 +84,7 @@ class Segmenation_NN():
             model = self.cellpose_init_model(gpu = gpu,
                                         model_type = model_type, 
                                         net_avg = True, 
-                                        device = None,
-                                        torch = True)
+                                        device = None)
 
         #Segment
         mask, flow, style, diam = model.eval(image, diameter=diameter, channels=[0,0])
@@ -103,10 +105,10 @@ class Segmenation_NN():
         
         """
         #Instantiate model    
-        model = StarDist2D.from_pretrained('2D_versatile_fluo')
+        model = self.StarDist2D.from_pretrained('2D_versatile_fluo')
         
         #Segment
-        mask, _ = model.predict_instances(normalize(image))
+        mask, _ = model.predict_instances(self.stardist_normalize(image))
 
         #Retrun
         return mask
