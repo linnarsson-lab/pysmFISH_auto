@@ -1443,10 +1443,11 @@ def make_fresh_beads_count_like_eel(data, eel_metadata):
 
 
 def segmentation_NN_fov(
-    segmented_file_path: str,
+    img: np.ndarray,
     fov_subdataset: pd.Series,
-    fresh_tissue_segmentation_engine,
-    diameter_size,
+    segmented_file_path: str,
+    fresh_tissue_segmentation_engine:str,
+    diameter_size:int,
 ):
 
     experiment_name = fov_subdataset.experiment_name
@@ -1455,23 +1456,27 @@ def segmentation_NN_fov(
     nuclei_segmentation = segmentation_NN.Segmenation_NN(
         fresh_tissue_segmentation_engine, diameter_size
     )
+    mask = nuclei_segmentation.segment(img)
 
-    # Save the file as zarr
-    store = zarr.DirectoryStore(segmented_file_path)
-    root = zarr.group(store=store, overwrite=False)
-    tag_name = (
-        experiment_name + "_segmetented_fresh_tissue_fov_" + str(fov_subdataset.fov_num)
-    )
-    dgrp = root.create_group(tag_name, overwrite=True)
-    fov_name = "segmentation_mask_fov_" + str(fov_subdataset.fov_num)
+    if isinstance(mask, np.ndarray):
+        # Save the file as zarr
+        store = zarr.DirectoryStore(segmented_file_path)
+        root = zarr.group(store=store, overwrite=False)
+        tag_name = (
+            experiment_name
+            + "_segmetented_fresh_tissue_fov_"
+            + str(fov_subdataset.fov_num)
+        )
+        dgrp = root.create_group(tag_name, overwrite=True)
+        fov_name = "segmentation_mask_fov_" + str(fov_subdataset.fov_num)
 
-    dset = dgrp.create_dataset(
-        fov_name,
-        data=nuclei_segmentation,
-        shape=nuclei_segmentation.shape,
-        chunks=None,
-        overwrite=True,
-    )
+        dset = dgrp.create_dataset(
+            fov_name,
+            data=mask,
+            shape=mask.shape,
+            chunks=None,
+            overwrite=True,
+        )
 
 
 def process_fresh_sample_graph(
@@ -1612,6 +1617,7 @@ def process_fresh_sample_graph(
     io.create_empty_zarr_file(base_path.as_posix(), tag="beads_preprocessed_img_data")
 
     io.create_empty_zarr_file(base_path.as_posix(), tag="segmented_nuclei_data")
+    segmented_file_path = base_path / (base_path.stem + "_segmented_nuclei_data.zarr")
 
     client.run(gc.collect)
 
@@ -1742,8 +1748,16 @@ def process_fresh_sample_graph(
                 save_steps_output=save_steps_output,
                 dask_key_name=dask_delayed_name,
             )
+            dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
+            mask_out = delayed(segmentation_NN_fov, name=dask_delayed_name)(
+                fov_out[0][-1],
+                fov_subdataset,
+                segmented_file_path,
+                fresh_tissue_segmentation_engine,
+                diameter_size,
+            )
 
-            all_processing_nuclei.append(fov_out)
+            all_processing_nuclei.append(mask_out)
 
         # end = delayed(combine_steps)(saved_file,all_processing_nuclei)
 
