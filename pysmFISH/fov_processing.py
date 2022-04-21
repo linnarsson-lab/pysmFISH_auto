@@ -1446,8 +1446,8 @@ def segmentation_NN_fov(
     img: np.ndarray,
     fov_subdataset: pd.Series,
     segmented_file_path: str,
-    fresh_tissue_segmentation_engine:str,
-    diameter_size:int,
+    fresh_tissue_segmentation_engine: str,
+    diameter_size: int,
 ):
 
     experiment_name = fov_subdataset.experiment_name
