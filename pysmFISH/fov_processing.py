@@ -1448,6 +1448,7 @@ def segmentation_NN_fov(
     segmented_file_path: str,
     fresh_tissue_segmentation_engine: str,
     diameter_size: int,
+    model=None,
 ):
 
     experiment_name = fov_subdataset.experiment_name
@@ -1517,6 +1518,11 @@ def process_fresh_sample_graph(
 
     logger = selected_logger()
     all_parsing = []
+    if fresh_tissue_segmentation_engine == "stardist":
+        from stardist.models import StarDist2D
+
+        model = StarDist2D.from_pretrained("2D_versatile_fluo")
+        scattered_model = client.scatter(model)
 
     if parsing:
         presence_nuclei = 0
@@ -1755,6 +1761,7 @@ def process_fresh_sample_graph(
                 segmented_file_path,
                 fresh_tissue_segmentation_engine,
                 diameter_size,
+                scattered_model,
             )
 
             all_processing_nuclei.append(mask_out)
