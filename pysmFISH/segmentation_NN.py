@@ -16,6 +16,7 @@ class Segmenation_NN:
                 Defaults to 25.
         """
         self.mode = mode
+        self.model = model
 
         if mode == "stardist":
             from stardist.models import StarDist2D
@@ -98,7 +99,7 @@ class Segmenation_NN:
         # Return
         return mask
 
-    def segment_stardist(self, image, model="2D_versatile_fluo", diameter=None):
+    def segment_stardist(self, image, diameter=None):
         """Segment image with Stardist.
 
         Saves segmentation masks as numpy arrays in the output folder.
@@ -113,7 +114,7 @@ class Segmenation_NN:
         # model = self.StarDist2D.from_pretrained('2D_versatile_fluo')
 
         # Segment
-        mask, _ = model.predict_instances(self.stardist_normalize(image))
+        mask, _ = self.model.predict_instances(self.stardist_normalize(image))
 
         # Retrun
         return mask

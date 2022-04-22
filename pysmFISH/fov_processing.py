@@ -1455,7 +1455,7 @@ def segmentation_NN_fov(
     segmented_file_path = Path(segmented_file_path)
 
     nuclei_segmentation = segmentation_NN.Segmenation_NN(
-        fresh_tissue_segmentation_engine, diameter_size,model
+        fresh_tissue_segmentation_engine, diameter_size, model
     )
     mask = nuclei_segmentation.segment(img)
 
@@ -1644,89 +1644,89 @@ def process_fresh_sample_graph(
     )
     tiles_org.run_tiles_organization()
 
-    all_fovs = list(beads_grpd_fovs.groups.keys())
-    chunks = [
-        all_fovs[x : x + chunks_size] for x in range(0, len(all_fovs), chunks_size)
-    ]
-    for chunk in chunks:
-        all_processing = []
-        all_counts_beads = []
-        for fov_num in chunk:
-            fov_subdataset = beads_grpd_fovs.get_group(fov_num).iloc[
-                0
-            ]  # Olny one round of imaging
+    # all_fovs = list(beads_grpd_fovs.groups.keys())
+    # chunks = [
+    #     all_fovs[x : x + chunks_size] for x in range(0, len(all_fovs), chunks_size)
+    # ]
+    # for chunk in chunks:
+    #     all_processing = []
+    #     all_counts_beads = []
+    #     for fov_num in chunk:
+    #         fov_subdataset = beads_grpd_fovs.get_group(fov_num).iloc[
+    #             0
+    #         ]  # Olny one round of imaging
 
-            round_num = fov_subdataset.round_num
-            channel = fov_subdataset.channel
-            fov = fov_subdataset.fov_num
-            experiment_name = fov_subdataset.experiment_name
-            dask_delayed_name = "filt_count_beads_fov" + str(fov) + "_" + tokenize()
-            fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
-                processing_tag,
-                fov_subdataset,
-                analysis_parameters,
-                running_functions,
-                dark_img,
-                experiment_fpath,
-                preprocessed_zarr_fpath=beads_filtered_fpath,
-                save_steps_output=save_steps_output,
-                dask_key_name=dask_delayed_name,
-            )
-            counts, filt_out = fov_out[0], fov_out[1]
+    #         round_num = fov_subdataset.round_num
+    #         channel = fov_subdataset.channel
+    #         fov = fov_subdataset.fov_num
+    #         experiment_name = fov_subdataset.experiment_name
+    #         dask_delayed_name = "filt_count_beads_fov" + str(fov) + "_" + tokenize()
+    #         fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
+    #             processing_tag,
+    #             fov_subdataset,
+    #             analysis_parameters,
+    #             running_functions,
+    #             dark_img,
+    #             experiment_fpath,
+    #             preprocessed_zarr_fpath=beads_filtered_fpath,
+    #             save_steps_output=save_steps_output,
+    #             dask_key_name=dask_delayed_name,
+    #         )
+    #         counts, filt_out = fov_out[0], fov_out[1]
 
-            # name = 'concat_all_counts_beads_fresh_tissue'+ '-' + tokenize()
-            # all_counts_fov = delayed(pd.concat,name=name)(all_counts_beads,axis=0,ignore_index=True)
+    #         # name = 'concat_all_counts_beads_fresh_tissue'+ '-' + tokenize()
+    #         # all_counts_fov = delayed(pd.concat,name=name)(all_counts_beads,axis=0,ignore_index=True)
 
-            name = "add missing fields" + "-" + tokenize()
-            counts_adj = delayed(make_fresh_beads_count_like_eel, name=name)(
-                counts, eel_metadata
-            )
+    #         name = "add missing fields" + "-" + tokenize()
+    #         counts_adj = delayed(make_fresh_beads_count_like_eel, name=name)(
+    #             counts, eel_metadata
+    #         )
 
-            # Stitch to the microscope reference coords
-            name = (
-                "stitch_to_mic_coords_"
-                + experiment_name
-                + "_"
-                + "_fov_"
-                + str(fov)
-                + "-"
-                + tokenize()
-            )
-            stitched_coords = delayed(stitching.stitch_using_coords_general, name=name)(
-                counts_adj,
-                tiles_org.tile_corners_coords_pxl,
-                tiles_org.reference_corner_fov_position,
-                metadata,
-                tag="microscope_stitched",
-            )
+    #         # Stitch to the microscope reference coords
+    #         name = (
+    #             "stitch_to_mic_coords_"
+    #             + experiment_name
+    #             + "_"
+    #             + "_fov_"
+    #             + str(fov)
+    #             + "-"
+    #             + tokenize()
+    #         )
+    #         stitched_coords = delayed(stitching.stitch_using_coords_general, name=name)(
+    #             counts_adj,
+    #             tiles_org.tile_corners_coords_pxl,
+    #             tiles_org.reference_corner_fov_position,
+    #             metadata,
+    #             tag="microscope_stitched",
+    #         )
 
-            # Add registration and recalculation of all the coords
-            name = (
-                "save_df_beads_fresh_tissue"
-                + experiment_name
-                + "_"
-                + channel
-                + "_"
-                + "_fov_"
-                + str(fov)
-                + "-"
-                + tokenize()
-            )
-            saved_file = delayed(stitched_coords.to_parquet, name=name)(
-                base_path
-                / "results"
-                / (
-                    experiment_name
-                    + "_counts_beads_fresh_tissue_decoded_fov_"
-                    + str(fov_num)
-                    + ".parquet"
-                ),
-                index=False,
-            )
+    #         # Add registration and recalculation of all the coords
+    #         name = (
+    #             "save_df_beads_fresh_tissue"
+    #             + experiment_name
+    #             + "_"
+    #             + channel
+    #             + "_"
+    #             + "_fov_"
+    #             + str(fov)
+    #             + "-"
+    #             + tokenize()
+    #         )
+    #         saved_file = delayed(stitched_coords.to_parquet, name=name)(
+    #             base_path
+    #             / "results"
+    #             / (
+    #                 experiment_name
+    #                 + "_counts_beads_fresh_tissue_decoded_fov_"
+    #                 + str(fov_num)
+    #                 + ".parquet"
+    #             ),
+    #             index=False,
+    #         )
 
-            all_processing.append(saved_file)
-        _ = dask.compute(all_processing)
-        client.run(gc.collect)
+    #         all_processing.append(saved_file)
+    #     _ = dask.compute(all_processing)
+    #     client.run(gc.collect)
 
     processing_tag = "nuclei"
 
