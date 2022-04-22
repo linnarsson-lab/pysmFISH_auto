@@ -1455,7 +1455,7 @@ def segmentation_NN_fov(
     segmented_file_path = Path(segmented_file_path)
 
     nuclei_segmentation = segmentation_NN.Segmenation_NN(
-        fresh_tissue_segmentation_engine, diameter_size
+        fresh_tissue_segmentation_engine, diameter_size,model
     )
     mask = nuclei_segmentation.segment(img)
 
@@ -1523,6 +1523,8 @@ def process_fresh_sample_graph(
 
         model = StarDist2D.from_pretrained("2D_versatile_fluo")
         scattered_model = client.scatter(model)
+    else:
+        scattered_model = model
 
     if parsing:
         presence_nuclei = 0
