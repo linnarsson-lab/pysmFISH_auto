@@ -1492,6 +1492,7 @@ def process_fresh_sample_graph(
     fresh_tissue_segmentation_engine: str,
     diameter_size: int,
     parsing: bool = True,
+    overlapping_percentage: int = 5,
     save_steps_output: bool = True,
 ):
     """Processing graph for the low magnification images of the
@@ -1602,6 +1603,18 @@ def process_fresh_sample_graph(
     ds_beads.create_full_dataset_from_zmetadata(parsed_beads_fpath)
     ds_nuclei.create_full_dataset_from_zmetadata(parsed_nuclei_fpath)
 
+    ds_beads.dataset["processing_type"] = "undefined"
+    ds_beads.dataset["overlapping_percentage"] = overlapping_percentage
+    ds_beads.dataset["machine"] = eel_metadata["machine"]
+    ds_beads.dataset["round_num"] = 1
+    ds_beads.save_dataset(ds_beads.dataset, ds_beads.dataset_fpath)
+
+    ds_nuclei.dataset["processing_type"] = "undefined"
+    ds_nuclei.dataset["overlapping_percentage"] = overlapping_percentage
+    ds_nuclei.dataset["machine"] = eel_metadata["machine"]
+    ds_nuclei.dataset["round_num"] = 1
+    ds_nuclei.save_dataset(ds_nuclei.dataset, ds_nuclei.dataset_fpath)
+
     beads_grpd_fovs = ds_beads.dataset.groupby("fov_num")
     nuclei_grpd_fovs = ds_nuclei.dataset.groupby("fov_num")
 
@@ -1631,10 +1644,6 @@ def process_fresh_sample_graph(
 
     processing_tag = "beads"
 
-    ds_beads.dataset["processing_type"] = "undefined"
-    ds_beads.dataset["overlapping_percentage"] = 5 / 100
-    ds_beads.dataset["machine"] = eel_metadata["machine"]
-    ds_beads.dataset["round_num"] = 1
     metadata = ds_beads.collect_metadata(ds_beads.dataset)
 
     round_num = 1
@@ -1644,91 +1653,92 @@ def process_fresh_sample_graph(
     )
     tiles_org.run_tiles_organization()
 
-    # all_fovs = list(beads_grpd_fovs.groups.keys())
-    # chunks = [
-    #     all_fovs[x : x + chunks_size] for x in range(0, len(all_fovs), chunks_size)
-    # ]
-    # for chunk in chunks:
-    #     all_processing = []
-    #     all_counts_beads = []
-    #     for fov_num in chunk:
-    #         fov_subdataset = beads_grpd_fovs.get_group(fov_num).iloc[
-    #             0
-    #         ]  # Olny one round of imaging
+    all_fovs = list(beads_grpd_fovs.groups.keys())
+    chunks = [
+        all_fovs[x : x + chunks_size] for x in range(0, len(all_fovs), chunks_size)
+    ]
+    for chunk in chunks:
+        all_processing = []
+        all_counts_beads = []
+        for fov_num in chunk:
+            fov_subdataset = beads_grpd_fovs.get_group(fov_num).iloc[
+                0
+            ]  # Olny one round of imaging
 
-    #         round_num = fov_subdataset.round_num
-    #         channel = fov_subdataset.channel
-    #         fov = fov_subdataset.fov_num
-    #         experiment_name = fov_subdataset.experiment_name
-    #         dask_delayed_name = "filt_count_beads_fov" + str(fov) + "_" + tokenize()
-    #         fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
-    #             processing_tag,
-    #             fov_subdataset,
-    #             analysis_parameters,
-    #             running_functions,
-    #             dark_img,
-    #             experiment_fpath,
-    #             preprocessed_zarr_fpath=beads_filtered_fpath,
-    #             save_steps_output=save_steps_output,
-    #             dask_key_name=dask_delayed_name,
-    #         )
-    #         counts, filt_out = fov_out[0], fov_out[1]
+            round_num = fov_subdataset.round_num
+            channel = fov_subdataset.channel
+            fov = fov_subdataset.fov_num
+            experiment_name = fov_subdataset.experiment_name
+            dask_delayed_name = "filt_count_beads_fov" + str(fov) + "_" + tokenize()
+            fov_out = delayed(single_fov_fresh_tissue_beads, name=dask_delayed_name)(
+                processing_tag,
+                fov_subdataset,
+                analysis_parameters,
+                running_functions,
+                dark_img,
+                experiment_fpath,
+                preprocessed_zarr_fpath=beads_filtered_fpath,
+                save_steps_output=save_steps_output,
+                dask_key_name=dask_delayed_name,
+            )
+            counts, filt_out = fov_out[0], fov_out[1]
 
-    #         # name = 'concat_all_counts_beads_fresh_tissue'+ '-' + tokenize()
-    #         # all_counts_fov = delayed(pd.concat,name=name)(all_counts_beads,axis=0,ignore_index=True)
+            # name = 'concat_all_counts_beads_fresh_tissue'+ '-' + tokenize()
+            # all_counts_fov = delayed(pd.concat,name=name)(all_counts_beads,axis=0,ignore_index=True)
 
-    #         name = "add missing fields" + "-" + tokenize()
-    #         counts_adj = delayed(make_fresh_beads_count_like_eel, name=name)(
-    #             counts, eel_metadata
-    #         )
+            name = "add missing fields" + "-" + tokenize()
+            counts_adj = delayed(make_fresh_beads_count_like_eel, name=name)(
+                counts, eel_metadata
+            )
 
-    #         # Stitch to the microscope reference coords
-    #         name = (
-    #             "stitch_to_mic_coords_"
-    #             + experiment_name
-    #             + "_"
-    #             + "_fov_"
-    #             + str(fov)
-    #             + "-"
-    #             + tokenize()
-    #         )
-    #         stitched_coords = delayed(stitching.stitch_using_coords_general, name=name)(
-    #             counts_adj,
-    #             tiles_org.tile_corners_coords_pxl,
-    #             tiles_org.reference_corner_fov_position,
-    #             metadata,
-    #             tag="microscope_stitched",
-    #         )
+            # Stitch to the microscope reference coords
+            name = (
+                "stitch_to_mic_coords_"
+                + experiment_name
+                + "_"
+                + "_fov_"
+                + str(fov)
+                + "-"
+                + tokenize()
+            )
+            stitched_coords = delayed(stitching.stitch_using_coords_general, name=name)(
+                counts_adj,
+                tiles_org.tile_corners_coords_pxl,
+                tiles_org.reference_corner_fov_position,
+                metadata,
+                tag="microscope_stitched",
+            )
 
-    #         # Add registration and recalculation of all the coords
-    #         name = (
-    #             "save_df_beads_fresh_tissue"
-    #             + experiment_name
-    #             + "_"
-    #             + channel
-    #             + "_"
-    #             + "_fov_"
-    #             + str(fov)
-    #             + "-"
-    #             + tokenize()
-    #         )
-    #         saved_file = delayed(stitched_coords.to_parquet, name=name)(
-    #             base_path
-    #             / "results"
-    #             / (
-    #                 experiment_name
-    #                 + "_counts_beads_fresh_tissue_decoded_fov_"
-    #                 + str(fov_num)
-    #                 + ".parquet"
-    #             ),
-    #             index=False,
-    #         )
+            # Add registration and recalculation of all the coords
+            name = (
+                "save_df_beads_fresh_tissue"
+                + experiment_name
+                + "_"
+                + channel
+                + "_"
+                + "_fov_"
+                + str(fov)
+                + "-"
+                + tokenize()
+            )
+            saved_file = delayed(stitched_coords.to_parquet, name=name)(
+                base_path
+                / "results"
+                / (
+                    experiment_name
+                    + "_counts_beads_fresh_tissue_decoded_fov_"
+                    + str(fov_num)
+                    + ".parquet"
+                ),
+                index=False,
+            )
 
-    #         all_processing.append(saved_file)
-    #     _ = dask.compute(all_processing)
-    #     client.run(gc.collect)
+            all_processing.append(saved_file)
+        _ = dask.compute(all_processing)
+        client.run(gc.collect)
 
     processing_tag = "nuclei"
+    metadata = ds_nuclei.collect_metadata(ds_beads.dataset)
 
     all_fovs = list(nuclei_grpd_fovs.groups.keys())
     chunks = [
