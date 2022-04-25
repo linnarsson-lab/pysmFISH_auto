@@ -1585,8 +1585,8 @@ def stitching_graph_serial_nuclei(
 def stitched_beads_on_nuclei_fresh_tissue(
     experiment_fpath: str,
     client,
-    nuclei_tag: str = "_ChannelCy3_Nuclei_",
-    beads_tag: str = "_ChannelEuropium_Cy3_",
+    nuclei_data,
+    beads_data,
     round_num: int = 1,
 ):
     """Function tun run the stitching of the dots in the fresh images using
@@ -1602,14 +1602,6 @@ def stitched_beads_on_nuclei_fresh_tissue(
     """
     experiment_fpath = Path(experiment_fpath)
     fresh_tissue_path = experiment_fpath / "fresh_tissue"
-    beads_dataset_fpath = list(fresh_tissue_path.glob("*" + beads_tag + "*.parquet"))[0]
-    nuclei_dataset_fpath = list(fresh_tissue_path.glob("*" + nuclei_tag + "*.parquet"))[
-        0
-    ]
-
-    # Collect and adjust beads dataset with missing values
-    beads_data = Dataset()
-    beads_data.load_dataset(beads_dataset_fpath)
 
     metadata_beads = beads_data.collect_metadata(beads_data.dataset)
     beads_org_tiles = organize_square_tiles(
@@ -1651,8 +1643,6 @@ def stitched_beads_on_nuclei_fresh_tissue(
     )
 
     # Collect and adjust nuclei dataset with missing values
-    nuclei_data = Dataset()
-    nuclei_data.load_dataset(nuclei_dataset_fpath)
 
     metadata_nuclei = nuclei_data.collect_metadata(nuclei_data.dataset)
     nuclei_org_tiles = organize_square_tiles(
@@ -1660,11 +1650,6 @@ def stitched_beads_on_nuclei_fresh_tissue(
     )
     nuclei_org_tiles.run_tiles_organization()
     nuclei_org_tiles.determine_overlapping_regions()
-
-    nuclei_data.dataset[
-        "reference_corner_fov_position"
-    ] = nuclei_org_tiles.reference_corner_fov_position
-    nuclei_data.save_dataset(nuclei_data.dataset, nuclei_dataset_fpath)
 
     adjusted_coords = stitching_graph_fresh_nuclei(
         experiment_fpath, nuclei_org_tiles, metadata_nuclei, client, nr_dim=2
