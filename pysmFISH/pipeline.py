@@ -14,6 +14,7 @@ a step and required from another are present
 If additional functionality are
 required subclass Pipeline and add/replace the different functionality
 """
+from copyreg import pickle
 from typing import *
 
 import os
@@ -1213,6 +1214,25 @@ class Pipeline:
             self.ds_nuclei,
             self.ds_beads,
             round_num=1,
+        )
+
+        import pickle
+
+        pickle.dump(
+            [
+                self.ds_beads,
+                self.ds_nuclei,
+                self.metadata,
+                self.nuclei_org_tiles,
+                self.nuclei_adjusted_coords,
+            ],
+            open(
+                Path(self.experiment_fpath)
+                / "fresh_tissue"
+                / "segmentation"
+                / "tmp_data.pkl",
+                "wb",
+            ),
         )
 
         segmentation_output_path = (
