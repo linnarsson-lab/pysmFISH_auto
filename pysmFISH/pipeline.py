@@ -240,7 +240,10 @@ class Pipeline:
             self.experiment_fpath.stem + "_" + self.parsed_image_tag + ".zarr"
         )
 
-        self.min_overlapping_pixels_segmentation = kwarg.pop("min_overlapping_pixels_segmentation", 20)
+        self.min_overlapping_pixels_segmentation = kwarg.pop(
+            "min_overlapping_pixels_segmentation", 20
+        )
+
     # -----------------------------------
     # PROCESSING STEPS
     # ------------------------------------
@@ -1182,7 +1185,11 @@ class Pipeline:
         assert self.running_functions, self.logger.error(
             f"cannot process fresh tissue because missing running_functions attr"
         )
-        self.ds_beads, self.ds_nuclei,self.metadata = fov_processing.process_fresh_sample_graph(
+        (
+            self.ds_beads,
+            self.ds_nuclei,
+            self.metadata,
+        ) = fov_processing.process_fresh_sample_graph(
             self.experiment_fpath,
             self.running_functions,
             self.analysis_parameters,
@@ -1208,20 +1215,19 @@ class Pipeline:
             round_num=1,
         )
 
-        segmentation_output_path = Path(self.experiment_fpath) / 'fresh_tissue' / 'segmentation'
-        segmentation.create_label_image(self.experiment_fpath,
-                                        segmentation_output_path,
-                                        self.ds_nuclei,
-                                        self.nuclei_org_tiles,
-                                        self.nuclei_adjusted_coords,
-                                        self.metadata,
-                                        self.client,
-                                        self.min_overlapping_pixels_segmentation=20)
-
-
-
-
-
+        segmentation_output_path = (
+            Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
+        )
+        segmentation.create_label_image(
+            self.experiment_fpath,
+            segmentation_output_path,
+            self.ds_nuclei,
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+            self.metadata,
+            self.client,
+            self.min_overlapping_pixels_segmentation,
+        )
 
     # --------------------------------
     # QC STEPS (some other included in the graph function)
