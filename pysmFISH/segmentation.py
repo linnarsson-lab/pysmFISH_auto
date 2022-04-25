@@ -25,11 +25,11 @@ def load_segmented_data(fov_subdataset, experiment_path):
     return mask
 
 
-def load_stitched_segmented_data(fov_subdataset, segmentation_output_path):
+def load_stitched_segmented_data(fov_num, segmentation_output_path):
     segmented_region_img = pickle.load(
         open(
             segmentation_output_path
-            / ("registered_objs_dict_fov_" + str(fov_subdataset.fov_num) + ".pkl"),
+            / ("registered_objs_dict_fov_" + str(fov_num) + ".pkl"),
             "rb",
         )
     )
