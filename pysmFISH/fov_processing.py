@@ -1783,6 +1783,8 @@ def process_fresh_sample_graph(
         _ = dask.compute(all_processing_nuclei)
         client.run(gc.collect)
 
+    return ds_beads, ds_nuclei, metadata
+
 
 # TODO Remove functions
 

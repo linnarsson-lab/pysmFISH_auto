@@ -51,6 +51,7 @@ from pysmFISH import stitching
 from pysmFISH import qc_utils
 from pysmFISH import data_organization
 from pysmFISH import processing_cluster_setup
+from pysmFISH import segmentation
 
 
 # utils.nice_deltastring for calculate the time
@@ -107,7 +108,7 @@ class Pipeline:
         dashboard_port (int): define the dask dashboard port: Used for the unmanaged cluser (default 8787)
         scheduler_address (str): Address of the dask scheduler. Used for the unmanaged cluser.
                             'localhost' if running of the main node (default 'localhost)
-        workers_addresses_list (list[str]): Addresses of the workers (default [monod10,monod11,monod12,monod33])
+        workers_addresses_list (list[str]): Addresses of the workers (default)
         nprocs (int): number of processes for each workers (unmanaged cluster) (default 40 for single node monod)
         nthreads (int): number threads/process (default 1)
         save_bits_int: (bool): Save the intensity of the bits and the flipping direction
@@ -123,6 +124,7 @@ class Pipeline:
         active_scheduler_address (str): Running cluster to connect when you want reuse a cluster
         fresh_tissue_segmentation_engine (str): Stardist is the default because faster and doesn't require diameter
         diameter_size (int): Size of the diameter of the cells to segment using cellpose
+        min_overlapping_pixels_segmentation (int): Size of the overlapping label objects
 
     Attributes:
         storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -238,6 +240,7 @@ class Pipeline:
             self.experiment_fpath.stem + "_" + self.parsed_image_tag + ".zarr"
         )
 
+        self.min_overlapping_pixels_segmentation = kwarg.pop("min_overlapping_pixels_segmentation", 20)
     # -----------------------------------
     # PROCESSING STEPS
     # ------------------------------------
@@ -1179,7 +1182,7 @@ class Pipeline:
         assert self.running_functions, self.logger.error(
             f"cannot process fresh tissue because missing running_functions attr"
         )
-        fov_processing.process_fresh_sample_graph(
+        self.ds_beads, self.ds_nuclei,self.metadata = fov_processing.process_fresh_sample_graph(
             self.experiment_fpath,
             self.running_functions,
             self.analysis_parameters,
@@ -1194,15 +1197,31 @@ class Pipeline:
             save_steps_output=self.save_intermediate_steps,
         )
 
-        stitching.stitched_beads_on_nuclei_fresh_tissue(
+        (
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+        ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
             self.experiment_fpath,
             self.client,
             nuclei_tag=tag_nuclei,
             beads_tag=tag_ref_beads,
             round_num=1,
-            overlapping_percentage=5,
-            machine=self.metadata["machine"],
         )
+
+        segmentation_output_path = Path(self.experiment_fpath) / 'fresh_tissue' / 'segmentation'
+        segmentation.create_label_image(self.experiment_fpath,
+                                        segmentation_output_path,
+                                        self.ds_nuclei,
+                                        self.nuclei_org_tiles,
+                                        self.nuclei_adjusted_coords,
+                                        self.metadata,
+                                        self.client,
+                                        self.min_overlapping_pixels_segmentation=20)
+
+
+
+
+
 
     # --------------------------------
     # QC STEPS (some other included in the graph function)

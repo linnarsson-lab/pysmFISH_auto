@@ -38,20 +38,24 @@ from pysmFISH.fovs_registration import create_fake_image
 from pysmFISH.data_models import Dataset
 from pysmFISH import io
 
- 
 
-class organize_square_tiles():
-    
+class organize_square_tiles:
+
     """Class designed to determine the tile organization and identify the coords of the
-    overlapping regions between the tiles. 
-    
+    overlapping regions between the tiles.
+
     IMPORTANT: The normalize_coords method should be adjusted according to the
-                setup of the microscope. 
+                setup of the microscope.
 
     """
-   
-    def __init__(self, experiment_fpath:str,dataset: pd.DataFrame, 
-                                    metadata:Dict,round_num:int):
+
+    def __init__(
+        self,
+        experiment_fpath: str,
+        dataset: pd.DataFrame,
+        metadata: Dict,
+        round_num: int,
+    ):
         """Class initialization
 
         Args:
@@ -61,62 +65,65 @@ class organize_square_tiles():
             round_num (int): Reference acquisition round number
         """
 
-        
         self.logger = selected_logger()
         self.experiment_fpath = Path(experiment_fpath)
         self.dataset = dataset
         self.metadata = metadata
         self.round_num = round_num
-        
-        self.experiment_name = self.metadata['experiment_name']
-        self.stitching_channel = self.metadata['stitching_channel']
-        self.overlapping_percentage = int(self.metadata['overlapping_percentage']) / 100
-         
-        self.pixel_size = self.metadata['pixel_microns']
-        self.img_width = self.metadata['img_width']
-        self.img_height = self.metadata['img_height']
-        
-        logging.getLogger('matplotlib.font_manager').disabled = True
-        
-        if  self.img_width ==  self.img_height:
+
+        self.experiment_name = self.metadata["experiment_name"]
+        self.stitching_channel = self.metadata["stitching_channel"]
+        self.overlapping_percentage = int(self.metadata["overlapping_percentage"]) / 100
+
+        self.pixel_size = self.metadata["pixel_microns"]
+        self.img_width = self.metadata["img_width"]
+        self.img_height = self.metadata["img_height"]
+
+        logging.getLogger("matplotlib.font_manager").disabled = True
+
+        if self.img_width == self.img_height:
             self.img_size = self.img_width
         else:
-            self.logger.error(f'the images to stitch are not square')
-            sys.exit(f'the images to stitch are not square')
-            
-    
-    def extract_microscope_coords(self): 
+            self.logger.error(f"the images to stitch are not square")
+            sys.exit(f"the images to stitch are not square")
+
+    def extract_microscope_coords(self):
         """Method to extract images coords in the stage reference
         system"""
-        
 
-        selected = self.dataset.loc[self.dataset.round_num == self.round_num, 
-                                    ['round_num','fov_num','fov_acquisition_coords_x','fov_acquisition_coords_y']]
-        selected.drop_duplicates(subset=['fov_num'],inplace=True)
-        selected.sort_values(by='fov_num', ascending=True, inplace=True)
-        self.x_coords = selected.loc[:,'fov_acquisition_coords_x'].to_numpy()
-        self.y_coords = selected.loc[:,'fov_acquisition_coords_y'].to_numpy()
+        selected = self.dataset.loc[
+            self.dataset.round_num == self.round_num,
+            [
+                "round_num",
+                "fov_num",
+                "fov_acquisition_coords_x",
+                "fov_acquisition_coords_y",
+            ],
+        ]
+        selected.drop_duplicates(subset=["fov_num"], inplace=True)
+        selected.sort_values(by="fov_num", ascending=True, inplace=True)
+        self.x_coords = selected.loc[:, "fov_acquisition_coords_x"].to_numpy()
+        self.y_coords = selected.loc[:, "fov_acquisition_coords_y"].to_numpy()
 
-    
     def normalize_coords(self):
         """
         Normalize the coords according to how the stage/camera are set.
         This function must be modified according to the stage/camera setup.
 
-        ROBOFISH1 has stage with x increasing left-> right and y top->bottom 
+        ROBOFISH1 has stage with x increasing left-> right and y top->bottom
             ------> (x)
             |
             |
             V (y)
-        
-        ROBOFISH2 has stage with x increasing right-> left and y top->bottom 
+
+        ROBOFISH2 has stage with x increasing right-> left and y top->bottom
         (x) <------
                   |
                   |
                   V (y)
-        
 
-        ROBOFISH3 has stage with x increasing left-> right and y bottom->top 
+
+        ROBOFISH3 has stage with x increasing left-> right and y bottom->top
             ^ (y)
             |
             |
@@ -148,62 +155,60 @@ class organize_square_tiles():
         """
 
         # port the coords to image type coords
-        if self.metadata['machine'] == 'ROBOFISH2':
-            self.x_coords = - self.x_coords
-            self.reference_corner_fov_position = 'top-right'
-        elif self.metadata['machine'] == 'ROBOFISH3':
-            self.x_coords = - self.x_coords
-            self.y_coords = - self.y_coords
-            self.reference_corner_fov_position = 'bottom-left'
-        elif self.metadata['machine'] == 'ROBOFISH1':
-            self.reference_corner_fov_position = 'top-left'
-        elif self.metadata['machine'] == 'NOT_DEFINED':
-            self.logger.error(f'Need to define the specs for stitching NOT_DEFINED machine')
-            sys.exit(f'Need to define the specs for stitching NOT_DEFINED machine')
+        if self.metadata["machine"] == "ROBOFISH2":
+            self.x_coords = -self.x_coords
+            self.reference_corner_fov_position = "top-right"
+        elif self.metadata["machine"] == "ROBOFISH3":
+            self.x_coords = -self.x_coords
+            self.y_coords = -self.y_coords
+            self.reference_corner_fov_position = "bottom-left"
+        elif self.metadata["machine"] == "ROBOFISH1":
+            self.reference_corner_fov_position = "top-left"
+        elif self.metadata["machine"] == "NOT_DEFINED":
+            self.logger.error(
+                f"Need to define the specs for stitching NOT_DEFINED machine"
+            )
+            sys.exit(f"Need to define the specs for stitching NOT_DEFINED machine")
         else:
-            self.logger.error(f'define the right machine used to collected the data')
-            sys.exit(f'define the right machine used to collected the data')
+            self.logger.error(f"define the right machine used to collected the data")
+            sys.exit(f"define the right machine used to collected the data")
 
-        # shift the coords to reference point (0,0) 
+        # shift the coords to reference point (0,0)
         # consider that we get the top-right corner of the image as well
         y_min = np.amin(self.y_coords)
         x_min = np.amin(self.x_coords)
         x_max = np.amax(self.x_coords)
         y_max = np.amax(self.y_coords)
 
-
         # Put the coords to zero
-        if x_min >=0 :
+        if x_min >= 0:
             self.x_coords = self.x_coords - x_min
         else:
             self.x_coords = self.x_coords + np.abs(x_min)
-        
-        if y_min>0:
+
+        if y_min > 0:
             self.y_coords = self.y_coords - y_min
         else:
             self.y_coords = self.y_coords + np.abs(y_min)
-
 
         # if x_max >=0 :
         #     self.x_coords = self.x_coords - x_min
         # else:
         #     self.x_coords = self.x_coords + np.abs(x_min)
-        
+
         # if y_max>0:
         #     self.y_coords = self.y_coords - y_min
         # else:
         #     self.y_coords = self.y_coords + np.abs(y_min)
 
         # change the coords from x,y to r,c
-        adjusted_coords = np.zeros([self.x_coords.shape[0],2])
-        adjusted_coords[:,0] = self.y_coords
-        adjusted_coords[:,1] = self.x_coords
+        adjusted_coords = np.zeros([self.x_coords.shape[0], 2])
+        adjusted_coords[:, 0] = self.y_coords
+        adjusted_coords[:, 1] = self.x_coords
 
         # move coords to pxl space
         self.tile_corners_coords_pxl = adjusted_coords / self.pixel_size
 
-
-    
     # def save_graph_original_coords(self):
     # to correct because I already converted the coords to image
     #     # Turn interactive plotting off
@@ -221,52 +226,69 @@ class organize_square_tiles():
     #             textcoords='offset points', ha='center', va='bottom',fontsize=12)
     #     plt.tight_layout()
     #     plt.savefig(saving_fpath)
-    
-    
+
     def save_graph_image_space_coords(self):
-        """Method used to save the organization of the tiles
-        """
+        """Method used to save the organization of the tiles"""
         # Turn interactive plotting off
-        saving_fpath = self.experiment_fpath / 'output_figures' / 'image_space_tiles_organization.png'
+        saving_fpath = (
+            self.experiment_fpath
+            / "output_figures"
+            / "image_space_tiles_organization.png"
+        )
         plt.ioff()
         # Create image type axes
         labels = [str(nr) for nr in np.arange(self.tile_corners_coords_pxl.shape[0])]
-        fig = plt.figure(figsize=(20,10))
+        fig = plt.figure(figsize=(20, 10))
         plt.gca().invert_yaxis()
-        plt.plot(self.tile_corners_coords_pxl[:,1],self.tile_corners_coords_pxl[:,0],'or')
+        plt.plot(
+            self.tile_corners_coords_pxl[:, 1], self.tile_corners_coords_pxl[:, 0], "or"
+        )
 
-        for label, x, y in zip(labels, self.tile_corners_coords_pxl[:,1],self.tile_corners_coords_pxl[:,0]):
+        for label, x, y in zip(
+            labels,
+            self.tile_corners_coords_pxl[:, 1],
+            self.tile_corners_coords_pxl[:, 0],
+        ):
             plt.annotate(
                 label,
-                xy=(x,y), xytext=(-2, 2),
-                textcoords='offset points', ha='center', va='bottom',fontsize=12)
+                xy=(x, y),
+                xytext=(-2, 2),
+                textcoords="offset points",
+                ha="center",
+                va="bottom",
+                fontsize=12,
+            )
         plt.tight_layout()
         plt.savefig(saving_fpath)
-        
-    
-    def identify_adjacent_tiles(self):
-        """Method that use Nearest neighbors to identify the beighbouring tiles
-        """
-        shift_percent_tolerance = 0.05
-        searching_radius = self.img_size - (self.img_size*self.overlapping_percentage) + (self.img_size*shift_percent_tolerance)
-        nn = NearestNeighbors(n_neighbors=5,radius=searching_radius, metric='euclidean')
-        nn.fit(self.tile_corners_coords_pxl)
-        self.dists, self.indices = nn.kneighbors(self.tile_corners_coords_pxl, return_distance=True)
 
+    def identify_adjacent_tiles(self):
+        """Method that use Nearest neighbors to identify the beighbouring tiles"""
+        shift_percent_tolerance = 0.05
+        searching_radius = (
+            self.img_size
+            - (self.img_size * self.overlapping_percentage)
+            + (self.img_size * shift_percent_tolerance)
+        )
+        nn = NearestNeighbors(
+            n_neighbors=5, radius=searching_radius, metric="euclidean"
+        )
+        nn.fit(self.tile_corners_coords_pxl)
+        self.dists, self.indices = nn.kneighbors(
+            self.tile_corners_coords_pxl, return_distance=True
+        )
 
     def determine_overlapping_regions(self):
-        """Method used to calculate the coords of the overlapping regions between the tiles.
-        """
+        """Method used to calculate the coords of the overlapping regions between the tiles."""
         # remember that overlapping region can be an empty dictionary
         self.overlapping_regions = {}
-        self.overlapping_order ={}
+        self.overlapping_order = {}
         for idx in np.arange(self.indices.shape[0]):
             self.overlapping_regions[idx] = {}
             self.overlapping_order[idx] = {}
         for idx in np.arange(self.indices.shape[0]):
             # Determine the indices that identify the correct adjacent
-            processing_indices = self.indices[idx,:]
-            processing_dists = self.dists[idx,:]
+            processing_indices = self.indices[idx, :]
+            processing_dists = self.dists[idx, :]
             ref_tile = processing_indices[0]
             self.overlapping_regions[ref_tile] = {}
             self.overlapping_order[ref_tile] = {}
@@ -276,12 +298,16 @@ class organize_square_tiles():
             idx_adj = np.where(trimmed_dists < self.img_size)
             adj_tiles_id = trimmed_indices[idx_adj]
             adj_cpls = [(ref_tile, adj_tile) for adj_tile in adj_tiles_id]
-            
+
             # remove pairs that are already selected
-            only_new_cpls = [cpl for cpl in adj_cpls if (cpl[1],cpl[0]) not in self.overlapping_regions[cpl[1]].keys()]
+            only_new_cpls = [
+                cpl
+                for cpl in adj_cpls
+                if (cpl[1], cpl[0]) not in self.overlapping_regions[cpl[1]].keys()
+            ]
             # only_new_cpls = [cpl for cpl in adj_cpls]
 
-            if self.reference_corner_fov_position == 'top-left':
+            if self.reference_corner_fov_position == "top-left":
                 for cpl in only_new_cpls:
                     tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
                     tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
@@ -289,33 +315,36 @@ class organize_square_tiles():
                     tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
 
                     if tile1_r_coords > tile2_r_coords:
-                            r_tl = tile1_r_coords
-                            r_br = tile2_r_coords + self.img_height
+                        r_tl = tile1_r_coords
+                        r_br = tile2_r_coords + self.img_height
 
-                            row_order = ('bottom','top')
+                        row_order = ("bottom", "top")
 
                     else:
                         r_tl = tile2_r_coords
                         r_br = tile1_r_coords + self.img_height
 
-                        row_order = ('top','bottom')
+                        row_order = ("top", "bottom")
 
                     if tile1_c_coords > tile2_c_coords:
                         c_tl = tile1_c_coords
                         c_br = tile2_c_coords + self.img_width
 
-                        col_order = ('right','left')
+                        col_order = ("right", "left")
 
                     else:
                         c_tl = tile2_c_coords
                         c_br = tile1_c_coords + self.img_width
 
-                        col_order = ('left','right')
+                        col_order = ("left", "right")
 
                     self.overlapping_regions[ref_tile][cpl] = [r_tl, r_br, c_tl, c_br]
-                    self.overlapping_order[ref_tile][cpl] = {'row_order':row_order,'column_order':col_order}
-            
-            elif self.reference_corner_fov_position == 'top-right':
+                    self.overlapping_order[ref_tile][cpl] = {
+                        "row_order": row_order,
+                        "column_order": col_order,
+                    }
+
+            elif self.reference_corner_fov_position == "top-right":
                 for cpl in only_new_cpls:
                     tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
                     tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
@@ -323,33 +352,35 @@ class organize_square_tiles():
                     tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
 
                     if tile1_r_coords > tile2_r_coords:
-                            r_tl = tile1_r_coords
-                            r_br = tile2_r_coords + self.img_height
+                        r_tl = tile1_r_coords
+                        r_br = tile2_r_coords + self.img_height
 
-                            row_order = ('bottom','top')
+                        row_order = ("bottom", "top")
 
                     else:
                         r_tl = tile2_r_coords
                         r_br = tile1_r_coords + self.img_height
 
-                        row_order = ('top','bottom')
+                        row_order = ("top", "bottom")
 
                     if tile1_c_coords > tile2_c_coords:
                         c_tl = tile1_c_coords - self.img_width
-                        c_br = tile2_c_coords 
-                        col_order = ('right','left')
+                        c_br = tile2_c_coords
+                        col_order = ("right", "left")
 
                     else:
                         c_tl = tile2_c_coords - self.img_width
                         c_br = tile1_c_coords
 
-                        col_order = ('left','right')
+                        col_order = ("left", "right")
 
                     self.overlapping_regions[ref_tile][cpl] = [r_tl, r_br, c_tl, c_br]
-                    self.overlapping_order[ref_tile][cpl] = {'row_order':row_order,'column_order':col_order}
+                    self.overlapping_order[ref_tile][cpl] = {
+                        "row_order": row_order,
+                        "column_order": col_order,
+                    }
 
-
-            elif self.reference_corner_fov_position == 'bottom-left':
+            elif self.reference_corner_fov_position == "bottom-left":
                 for cpl in only_new_cpls:
                     tile1_r_coords = self.tile_corners_coords_pxl[cpl[0]][0]
                     tile2_r_coords = self.tile_corners_coords_pxl[cpl[1]][0]
@@ -357,48 +388,49 @@ class organize_square_tiles():
                     tile2_c_coords = self.tile_corners_coords_pxl[cpl[1]][1]
 
                     if tile1_r_coords > tile2_r_coords:
-                            r_tl = tile1_r_coords - self.img_height
-                            r_br = tile2_r_coords
+                        r_tl = tile1_r_coords - self.img_height
+                        r_br = tile2_r_coords
 
-                            row_order = ('bottom','top')
+                        row_order = ("bottom", "top")
 
                     else:
                         r_tl = tile2_r_coords - self.img_height
                         r_br = tile1_r_coords
 
-                        row_order = ('top','bottom')
+                        row_order = ("top", "bottom")
 
                     if tile1_c_coords > tile2_c_coords:
                         c_tl = tile1_c_coords
-                        c_br = tile2_c_coords + self.img_width 
-                        col_order = ('right','left')
+                        c_br = tile2_c_coords + self.img_width
+                        col_order = ("right", "left")
 
                     else:
-                        c_tl = tile2_c_coords 
-                        c_br = tile1_c_coords + self.img_width 
+                        c_tl = tile2_c_coords
+                        c_br = tile1_c_coords + self.img_width
 
-                        col_order = ('left','right')
+                        col_order = ("left", "right")
 
                     self.overlapping_regions[ref_tile][cpl] = [r_tl, r_br, c_tl, c_br]
-                    self.overlapping_order[ref_tile][cpl] = {'row_order':row_order,'column_order':col_order}
-
+                    self.overlapping_order[ref_tile][cpl] = {
+                        "row_order": row_order,
+                        "column_order": col_order,
+                    }
 
     def run_tiles_organization(self):
-        """Method used to run all the methods
-        """
+        """Method used to run all the methods"""
         self.extract_microscope_coords()
         # self.save_graph_original_coords()
         self.normalize_coords()
         self.save_graph_image_space_coords()
         self.identify_adjacent_tiles()
         self.determine_overlapping_regions()
-        fname = self.experiment_fpath / 'results' / 'microscope_tile_corners_coords_pxl.npy'
-        np.save(fname,self.tile_corners_coords_pxl)
+        fname = (
+            self.experiment_fpath / "results" / "microscope_tile_corners_coords_pxl.npy"
+        )
+        np.save(fname, self.tile_corners_coords_pxl)
 
 
-
-
-class organize_square_tiles_old_room():
+class organize_square_tiles_old_room:
 
     """
     Class used to identify the orgabnization of the tiles before the
@@ -406,54 +438,60 @@ class organize_square_tiles_old_room():
     was assembled.
     """
 
-    def __init__(self, experiment_fpath:str,dataset, metadata:Dict,round_num:int):
+    def __init__(self, experiment_fpath: str, dataset, metadata: Dict, round_num: int):
         """
         round_num = int
             reference channel
         """
-        
+
         self.logger = selected_logger()
         self.experiment_fpath = Path(experiment_fpath)
         self.dataset = dataset
         self.metadata = metadata
         self.round_num = round_num
-        
-        self.experiment_name = self.metadata['experiment_name']
-        self.stitching_channel = self.metadata['stitching_channel']
-        self.overlapping_percentage = int(self.metadata['overlapping_percentage']) / 100
-         
-        self.pixel_size = self.metadata['pixel_microns']
-        self.img_width = self.metadata['img_width']
-        self.img_height = self.metadata['img_height']
-        
-        logging.getLogger('matplotlib.font_manager').disabled = True
-        
-        if  self.img_width ==  self.img_height:
+
+        self.experiment_name = self.metadata["experiment_name"]
+        self.stitching_channel = self.metadata["stitching_channel"]
+        self.overlapping_percentage = int(self.metadata["overlapping_percentage"]) / 100
+
+        self.pixel_size = self.metadata["pixel_microns"]
+        self.img_width = self.metadata["img_width"]
+        self.img_height = self.metadata["img_height"]
+
+        logging.getLogger("matplotlib.font_manager").disabled = True
+
+        if self.img_width == self.img_height:
             self.img_size = self.img_width
         else:
-            self.logger.error(f'the images to stitch are not square')
-            sys.exit(f'the images to stitch are not square')
-            
-    
-    def extract_microscope_coords(self): 
-        
+            self.logger.error(f"the images to stitch are not square")
+            sys.exit(f"the images to stitch are not square")
 
-        selected = self.dataset.loc[self.dataset.round_num == self.round_num, 
-                                    ['round_num','fov_num','fov_acquisition_coords_x','fov_acquisition_coords_y']]
-        selected.drop_duplicates(subset=['fov_num'],inplace=True)
-        selected.sort_values(by='fov_num', ascending=True, inplace=True)
-        self.x_coords = selected.loc[:,'fov_acquisition_coords_x'].to_numpy()
-        self.y_coords = selected.loc[:,'fov_acquisition_coords_y'].to_numpy()
+    def extract_microscope_coords(self):
 
+        selected = self.dataset.loc[
+            self.dataset.round_num == self.round_num,
+            [
+                "round_num",
+                "fov_num",
+                "fov_acquisition_coords_x",
+                "fov_acquisition_coords_y",
+            ],
+        ]
+        selected.drop_duplicates(subset=["fov_num"], inplace=True)
+        selected.sort_values(by="fov_num", ascending=True, inplace=True)
+        self.x_coords = selected.loc[:, "fov_acquisition_coords_x"].to_numpy()
+        self.y_coords = selected.loc[:, "fov_acquisition_coords_y"].to_numpy()
 
     def normalize_coords(self):
 
-        if self.metadata['machine'] == 'ROBOFISH2':
+        if self.metadata["machine"] == "ROBOFISH2":
             # RobofishII has stage with reference point
             # in the center (0,0)
             # consider that we get the top-right corner of the image as well
 
-            self.reference_corner_fov_position = 'old-room-robofish2'  # Not sure (i don't remember)
+            self.reference_corner_fov_position = (
+                "old-room-robofish2"  # Not sure (i don't remember)
+            )
             # consider that we get the top-right corner of the image as well
             y_min = np.amin(self.y_coords)
             x_min = np.amin(self.x_coords)
@@ -461,30 +499,29 @@ class organize_square_tiles_old_room():
             y_max = np.amax(self.y_coords)
 
             # Put the coords to zero
-    
-            if x_max >=0 :
+
+            if x_max >= 0:
                 self.x_coords = self.x_coords - x_min
             else:
                 self.x_coords = self.x_coords + np.abs(x_min)
-            
-            if y_max>0:
+
+            if y_max > 0:
                 self.y_coords = self.y_coords - y_min
             else:
                 self.y_coords = self.y_coords + np.abs(y_min)
 
             # flip y_axis
             self.y_coords = self.y_coords - self.y_coords.max()
-            self.y_coords = - self.y_coords
-
+            self.y_coords = -self.y_coords
 
             # change the coords from x,y to r,c
-            adjusted_coords = np.zeros([self.x_coords.shape[0],2])
-            adjusted_coords[:,0] = self.y_coords
-            adjusted_coords[:,1] = self.x_coords
+            adjusted_coords = np.zeros([self.x_coords.shape[0], 2])
+            adjusted_coords[:, 0] = self.y_coords
+            adjusted_coords[:, 1] = self.x_coords
 
-        elif self.metadata['machine'] == 'ROBOFISH1':
+        elif self.metadata["machine"] == "ROBOFISH1":
             # The current system has stage ref coords top-left
-            self.reference_corner_fov_position = 'top-left'
+            self.reference_corner_fov_position = "top-left"
             # Normalize to (0,0) still BOTTOM-RIGHT
             y_min = np.amin(self.y_coords)
             x_min = np.amin(self.x_coords)
@@ -494,83 +531,113 @@ class organize_square_tiles_old_room():
 
             # flip axis to move (0,0) on TOP-LEF
             self.x_coords = self.x_coords - self.x_coords.max()
-            self.x_coords = - self.x_coords
+            self.x_coords = -self.x_coords
 
             self.y_coords = self.y_coords - self.y_coords.max()
-            self.y_coords = - self.y_coords
+            self.y_coords = -self.y_coords
 
             # change the coords from x,y to r,c
-            adjusted_coords = np.zeros([self.x_coords.shape[0],2])
-            adjusted_coords[:,0] = self.y_coords
-            adjusted_coords[:,1] = self.x_coords
-        
-        elif self.metadata['machine'] == 'NOT_DEFINED':
-            self.logger.error(f'Need to define the specs for stitching NOT_DEFINED machine')
-            sys.exit(f'Need to define the specs for stitching NOT_DEFINED machine')
-            
+            adjusted_coords = np.zeros([self.x_coords.shape[0], 2])
+            adjusted_coords[:, 0] = self.y_coords
+            adjusted_coords[:, 1] = self.x_coords
+
+        elif self.metadata["machine"] == "NOT_DEFINED":
+            self.logger.error(
+                f"Need to define the specs for stitching NOT_DEFINED machine"
+            )
+            sys.exit(f"Need to define the specs for stitching NOT_DEFINED machine")
+
         else:
-            self.logger.error(f'define the right machine used to collected the data')
-            sys.exit(f'define the right machine used to collected the data')
-        
+            self.logger.error(f"define the right machine used to collected the data")
+            sys.exit(f"define the right machine used to collected the data")
+
         self.tile_corners_coords_pxl = adjusted_coords / self.pixel_size
-    
-    
+
     def save_graph_original_coords(self):
         # Turn interactive plotting off
-        saving_fpath = self.experiment_fpath / 'output_figures' / 'microscope_space_tiles_organization.png'
+        saving_fpath = (
+            self.experiment_fpath
+            / "output_figures"
+            / "microscope_space_tiles_organization.png"
+        )
         plt.ioff()
         # Create image type axes
         labels = [str(nr) for nr in np.arange(self.x_coords.shape[0])]
-        fig = plt.figure(figsize=(20,10))
-        plt.plot(self.x_coords,self.y_coords,'or')
+        fig = plt.figure(figsize=(20, 10))
+        plt.plot(self.x_coords, self.y_coords, "or")
 
-        for label, x, y in zip(labels, self.x_coords,self.y_coords):
+        for label, x, y in zip(labels, self.x_coords, self.y_coords):
             plt.annotate(
                 label,
-                xy=(x,y), xytext=(-2, 2),
-                textcoords='offset points', ha='center', va='bottom',fontsize=12)
+                xy=(x, y),
+                xytext=(-2, 2),
+                textcoords="offset points",
+                ha="center",
+                va="bottom",
+                fontsize=12,
+            )
         plt.tight_layout()
         plt.savefig(saving_fpath)
-    
-    
+
     def save_graph_image_space_coords(self):
         # Turn interactive plotting off
-        saving_fpath = self.experiment_fpath / 'output_figures' / 'image_space_tiles_organization.png'
+        saving_fpath = (
+            self.experiment_fpath
+            / "output_figures"
+            / "image_space_tiles_organization.png"
+        )
         plt.ioff()
         # Create image type axes
         labels = [str(nr) for nr in np.arange(self.tile_corners_coords_pxl.shape[0])]
-        fig = plt.figure(figsize=(20,10))
+        fig = plt.figure(figsize=(20, 10))
         plt.gca().invert_yaxis()
-        plt.plot(self.tile_corners_coords_pxl[:,1],self.tile_corners_coords_pxl[:,0],'or')
+        plt.plot(
+            self.tile_corners_coords_pxl[:, 1], self.tile_corners_coords_pxl[:, 0], "or"
+        )
 
-        for label, x, y in zip(labels, self.tile_corners_coords_pxl[:,1],self.tile_corners_coords_pxl[:,0]):
+        for label, x, y in zip(
+            labels,
+            self.tile_corners_coords_pxl[:, 1],
+            self.tile_corners_coords_pxl[:, 0],
+        ):
             plt.annotate(
                 label,
-                xy=(x,y), xytext=(-2, 2),
-                textcoords='offset points', ha='center', va='bottom',fontsize=12)
+                xy=(x, y),
+                xytext=(-2, 2),
+                textcoords="offset points",
+                ha="center",
+                va="bottom",
+                fontsize=12,
+            )
         plt.tight_layout()
         plt.savefig(saving_fpath)
-        
-    
+
     def identify_adjacent_tiles(self):
         shift_percent_tolerance = 0.05
-        searching_radius = self.img_size - (self.img_size*self.overlapping_percentage) + (self.img_size*shift_percent_tolerance)
-        nn = NearestNeighbors(n_neighbors=5,radius=searching_radius, metric='euclidean')
+        searching_radius = (
+            self.img_size
+            - (self.img_size * self.overlapping_percentage)
+            + (self.img_size * shift_percent_tolerance)
+        )
+        nn = NearestNeighbors(
+            n_neighbors=5, radius=searching_radius, metric="euclidean"
+        )
         nn.fit(self.tile_corners_coords_pxl)
-        self.dists, self.indices = nn.kneighbors(self.tile_corners_coords_pxl, return_distance=True)
-
+        self.dists, self.indices = nn.kneighbors(
+            self.tile_corners_coords_pxl, return_distance=True
+        )
 
     def determine_overlapping_regions(self):
         # remember that overlapping region can be an empty dictionary
         self.overlapping_regions = {}
-        self.overlapping_order ={}
+        self.overlapping_order = {}
         for idx in np.arange(self.indices.shape[0]):
             self.overlapping_regions[idx] = {}
             self.overlapping_order[idx] = {}
         for idx in np.arange(self.indices.shape[0]):
             # Determine the indices that identify the correct adjacent
-            processing_indices = self.indices[idx,:]
-            processing_dists = self.dists[idx,:]
+            processing_indices = self.indices[idx, :]
+            processing_dists = self.dists[idx, :]
             ref_tile = processing_indices[0]
             self.overlapping_regions[ref_tile] = {}
             self.overlapping_order[ref_tile] = {}
@@ -580,12 +647,16 @@ class organize_square_tiles_old_room():
             idx_adj = np.where(trimmed_dists < self.img_size)
             adj_tiles_id = trimmed_indices[idx_adj]
             adj_cpls = [(ref_tile, adj_tile) for adj_tile in adj_tiles_id]
-            
+
             # remove pairs that are already selected
-            only_new_cpls = [cpl for cpl in adj_cpls if (cpl[1],cpl[0]) not in self.overlapping_regions[cpl[1]].keys()]
+            only_new_cpls = [
+                cpl
+                for cpl in adj_cpls
+                if (cpl[1], cpl[0]) not in self.overlapping_regions[cpl[1]].keys()
+            ]
             # only_new_cpls = [cpl for cpl in adj_cpls]
 
-            if self.metadata['machine'] == 'ROBOFISH2':
+            if self.metadata["machine"] == "ROBOFISH2":
                 # If tile coords are top left
                 for cpl in only_new_cpls:
 
@@ -601,7 +672,7 @@ class organize_square_tiles_old_room():
                         r_bl = tile2_c_coords + self.img_size
                         r_tr = tile1_c_coords
 
-                        row_order = ('bottom','top')
+                        row_order = ("bottom", "top")
 
                     else:
                         r_tl = tile2_r_coords
@@ -610,7 +681,7 @@ class organize_square_tiles_old_room():
                         r_bl = tile1_r_coords + self.img_size
                         r_tr = tile2_r_coords
 
-                        row_order = ('top','bottom')
+                        row_order = ("top", "bottom")
 
                     if tile1_c_coords > tile2_c_coords:
                         c_tl = tile1_c_coords
@@ -619,7 +690,7 @@ class organize_square_tiles_old_room():
                         c_tr = tile2_c_coords + self.img_size
                         c_bl = tile1_c_coords
 
-                        col_order = ('right','left')
+                        col_order = ("right", "left")
 
                     else:
                         c_tl = tile2_c_coords
@@ -628,11 +699,9 @@ class organize_square_tiles_old_room():
                         c_bl = tile2_c_coords
                         c_tr = tile1_c_coords + self.img_size
 
-                        col_order = ('left','right')
+                        col_order = ("left", "right")
 
-                
-
-            elif self.metadata['machine'] == 'ROBOFISH1':
+            elif self.metadata["machine"] == "ROBOFISH1":
                 # If tile coords are bottom right
                 for cpl in only_new_cpls:
 
@@ -648,39 +717,42 @@ class organize_square_tiles_old_room():
                         r_bl = tile2_c_coords
                         r_tr = tile1_c_coords - self.img_size
 
-                        row_order = ('bottom','top')
+                        row_order = ("bottom", "top")
 
                     else:
                         r_tl = tile2_r_coords - self.img_size
-                        r_br = tile1_r_coords 
+                        r_br = tile1_r_coords
 
-                        r_bl = tile1_r_coords 
+                        r_bl = tile1_r_coords
                         r_tr = tile2_r_coords - self.img_size
 
-                        row_order = ('top','bottom')
+                        row_order = ("top", "bottom")
 
                     if tile1_c_coords > tile2_c_coords:
                         c_tl = tile1_c_coords - self.img_size
-                        c_br = tile2_c_coords 
+                        c_br = tile2_c_coords
 
                         c_tr = tile2_c_coords
                         c_bl = tile1_c_coords - self.img_size
 
-                        col_order = ('right','left')
+                        col_order = ("right", "left")
 
                     else:
                         c_tl = tile2_c_coords - self.img_size
-                        c_br = tile1_c_coords 
+                        c_br = tile1_c_coords
 
                         c_bl = tile2_c_coords - self.img_size
-                        c_tr = tile1_c_coords 
+                        c_tr = tile1_c_coords
 
-                        col_order = ('left','right')
+                        col_order = ("left", "right")
             else:
                 pass
 
             self.overlapping_regions[ref_tile][cpl] = [r_tl, r_br, c_tl, c_br]
-            self.overlapping_order[ref_tile][cpl] = {'row_order':row_order,'column_order':col_order}
+            self.overlapping_order[ref_tile][cpl] = {
+                "row_order": row_order,
+                "column_order": col_order,
+            }
 
     def run_tiles_organization(self):
         self.extract_microscope_coords()
@@ -689,14 +761,20 @@ class organize_square_tiles_old_room():
         self.save_graph_image_space_coords()
         self.identify_adjacent_tiles()
         self.determine_overlapping_regions()
-        fname = self.experiment_fpath / 'results' / 'microscope_tile_corners_coords_pxl.npy'
-        np.save(fname,self.tile_corners_coords_pxl)
+        fname = (
+            self.experiment_fpath / "results" / "microscope_tile_corners_coords_pxl.npy"
+        )
+        np.save(fname, self.tile_corners_coords_pxl)
 
 
-
-def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_pxl: np.ndarray, 
-    reference_corner_fov_position: str, metadata: Dict, tag: str):
-    """Function to create a stitched image using the fov coords 
+def stitch_using_coords_general(
+    decoded_df: pd.DataFrame,
+    tile_corners_coords_pxl: np.ndarray,
+    reference_corner_fov_position: str,
+    metadata: Dict,
+    tag: str,
+):
+    """Function to create a stitched image using the fov coords
     of the stage.
 
     Args:
@@ -721,181 +799,234 @@ def stitch_using_coords_general(decoded_df: pd.DataFrame, tile_corners_coords_px
         was_file = 1
         decoded_df_fpath = copy.deepcopy(decoded_df)
         decoded_df = pd.read_parquet(decoded_df)
-        
-    if decoded_df['r_px_registered'].empty:
-        decoded_df['r_px_'+tag] = np.nan
-        decoded_df['c_px_'+tag] = np.nan
+
+    if decoded_df["r_px_registered"].empty:
+        decoded_df["r_px_" + tag] = np.nan
+        decoded_df["c_px_" + tag] = np.nan
     else:
 
-        #fov = decoded_df.iloc[0]['fov_num']
+        # fov = decoded_df.iloc[0]['fov_num']
         fov = int(decoded_df.fov_num.unique()[0])
-        r_microscope_coords = tile_corners_coords_pxl[fov,0]
-        c_microscope_coords = tile_corners_coords_pxl[fov,1]
-        
-        if reference_corner_fov_position == 'top-left':
-            decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
-            decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
+        r_microscope_coords = tile_corners_coords_pxl[fov, 0]
+        c_microscope_coords = tile_corners_coords_pxl[fov, 1]
 
-        elif reference_corner_fov_position == 'top-right':
-            decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
-            decoded_df['c_px_'+tag] =  c_microscope_coords - (metadata['img_width'] - decoded_df['c_px_registered'])
+        if reference_corner_fov_position == "top-left":
+            decoded_df["r_px_" + tag] = (
+                r_microscope_coords + decoded_df["r_px_registered"]
+            )
+            decoded_df["c_px_" + tag] = (
+                c_microscope_coords + decoded_df["c_px_registered"]
+            )
 
-        elif reference_corner_fov_position == 'bottom-left':
-            decoded_df['r_px_'+tag] =  r_microscope_coords + (metadata['img_height'] - decoded_df['r_px_registered'])
-            decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
+        elif reference_corner_fov_position == "top-right":
+            decoded_df["r_px_" + tag] = (
+                r_microscope_coords + decoded_df["r_px_registered"]
+            )
+            decoded_df["c_px_" + tag] = c_microscope_coords - (
+                metadata["img_width"] - decoded_df["c_px_registered"]
+            )
 
-        elif reference_corner_fov_position == 'bottom-right':
-            decoded_df['r_px_'+tag] =  r_microscope_coords + (metadata['img_height'] - decoded_df['r_px_registered'])
-            decoded_df['c_px_'+tag] =  c_microscope_coords - (metadata['img_width'] - decoded_df['c_px_registered'])
+        elif reference_corner_fov_position == "bottom-left":
+            decoded_df["r_px_" + tag] = r_microscope_coords + (
+                metadata["img_height"] - decoded_df["r_px_registered"]
+            )
+            decoded_df["c_px_" + tag] = (
+                c_microscope_coords + decoded_df["c_px_registered"]
+            )
 
-        elif reference_corner_fov_position == 'old-room-robofish2':
-            decoded_df['r_px_'+tag] =  r_microscope_coords -  decoded_df['r_px_registered']
-            decoded_df['c_px_'+tag] =  c_microscope_coords -  decoded_df['c_px_registered']
+        elif reference_corner_fov_position == "bottom-right":
+            decoded_df["r_px_" + tag] = r_microscope_coords + (
+                metadata["img_height"] - decoded_df["r_px_registered"]
+            )
+            decoded_df["c_px_" + tag] = c_microscope_coords - (
+                metadata["img_width"] - decoded_df["c_px_registered"]
+            )
+
+        elif reference_corner_fov_position == "old-room-robofish2":
+            decoded_df["r_px_" + tag] = (
+                r_microscope_coords - decoded_df["r_px_registered"]
+            )
+            decoded_df["c_px_" + tag] = (
+                c_microscope_coords - decoded_df["c_px_registered"]
+            )
 
         else:
             logger.error(f"the referernce corner fov position name is wrong")
             sys.exit(f"the referernce corner fov position name is wrong")
         # decoded_df['r_px_'+tag] =  r_microscope_coords - decoded_df['r_px_registered']
         # decoded_df['c_px_'+tag] =  c_microscope_coords - decoded_df['c_px_registered']
-    
+
     if was_file:
-        decoded_df.to_parquet(decoded_df_fpath,index=False)
+        decoded_df.to_parquet(decoded_df_fpath, index=False)
     else:
         return decoded_df
 
 
-
-
-def stitch_using_coords_general_segmented_objects(fov,obj_dict,tile_corners_coords_pxl,reference_corner_fov_position, metadata):
-    """
-    Function used to stitch the segmented object used for defining the cells.
-    """
-
-    r_microscope_coords = tile_corners_coords_pxl[fov,0]
-    c_microscope_coords = tile_corners_coords_pxl[fov,1]
-    
-    if obj_dict:
-        
-        if reference_corner_fov_position == 'top-left':
-            for el,coords_dict in obj_dict.items():
-                coords_dict['stitched_coords'] = np.vstack([r_microscope_coords + coords_dict['original_coords'][:,0],
-                                                            c_microscope_coords + coords_dict['original_coords'][:,1]]).T
-
-        elif reference_corner_fov_position == 'top-right':
-            for el,coords_dict in obj_dict.items():
-                coords_dict['stitched_coords'] = np.vstack([r_microscope_coords + coords_dict['original_coords'][:,0],
-                                                            c_microscope_coords - (metadata['img_width'] -coords_dict['original_coords'][:,1])]).T
-
-        elif reference_corner_fov_position == 'bottom_left':
-            for el,coords_dict in obj_dict.items():
-                coords_dict['stitched_coords'] = np.vstack([r_microscope_coords + (metadata['img_height'] -coords_dict['original_coords'][:,0]),
-                                                            c_microscope_coords + coords_dict['original_coords'][:,1]]).T
-
-    return obj_dict
-
-
-def register_coords_obj(fov,segmentation_output_path,
-                    stitching_parameters,
-                    reference_corner_fov_position,
-                    metadata):
-    """Function used to register the coords of the segmented object to th 
+def register_coords_obj(
+    fov,
+    segmentation_output_path,
+    stitching_parameters,
+    reference_corner_fov_position,
+    metadata,
+):
+    """Function used to register the coords of the segmented object to th
 
     Args:
         fov ([type]): [description]
         segmentation_output_path ([type]): [description]
     """
-    segmented_output = pickle.load(open(segmentation_output_path / ('preprocessed_data_fov_' + str(fov) + '_mask.pkl'), 'rb'))
+    segmented_output = pickle.load(
+        open(
+            segmentation_output_path
+            / ("preprocessed_data_fov_" + str(fov) + "_mask.pkl"),
+            "rb",
+        )
+    )
     segmented_regions = measure.regionprops(segmented_output)
     segmented_regions_dict = {}
     for prop in segmented_regions:
-        segmented_regions_dict[str(fov)+'-'+str(prop.label)] = {}
-        segmented_regions_dict[str(fov)+'-'+str(prop.label)]['original_coords']=prop.coords
-        segmented_regions_dict[str(fov)+'-'+str(prop.label)]['stitched_coords']= np.nan
-        segmented_regions_dict = stitch_using_coords_general_segmented_objects(fov,segmented_regions_dict,
-                                                                         stitching_parameters,reference_corner_fov_position, metadata)
-        pickle.dump(segmented_regions_dict,open(segmentation_output_path / ('registered_objs_dict_fov_' + str(fov) + '.pkl'), 'wb'))
+        segmented_regions_dict[str(fov) + "-" + str(prop.label)] = {}
+        segmented_regions_dict[str(fov) + "-" + str(prop.label)][
+            "original_coords"
+        ] = prop.coords
+        segmented_regions_dict[str(fov) + "-" + str(prop.label)][
+            "stitched_coords"
+        ] = np.nan
+        segmented_regions_dict = stitch_using_coords_general_segmented_objects(
+            fov,
+            segmented_regions_dict,
+            stitching_parameters,
+            reference_corner_fov_position,
+            metadata,
+        )
+        pickle.dump(
+            segmented_regions_dict,
+            open(
+                segmentation_output_path
+                / ("registered_objs_dict_fov_" + str(fov) + ".pkl"),
+                "wb",
+            ),
+        )
 
 
+def get_all_dots_in_overlapping_regions(
+    counts_df, chunk_coords, stitching_selected="microscope_stitched"
+):
 
+    r_tag = "r_px_" + stitching_selected
+    c_tag = "c_px_" + stitching_selected
 
-def get_all_dots_in_overlapping_regions(counts_df, chunk_coords, stitching_selected='microscope_stitched'):    
-    
-    r_tag = 'r_px_' + stitching_selected
-    c_tag = 'c_px_' + stitching_selected
-    
     r_tl = chunk_coords[0]
     r_br = chunk_coords[1]
     c_tl = chunk_coords[2]
     c_br = chunk_coords[3]
-    
-    overlapping_ref_df = counts_df.loc[(counts_df[r_tag] > r_tl) & (counts_df[r_tag] < r_br) 
-                                               & (counts_df[c_tag] > c_tl) & (counts_df[c_tag] < c_br),:]
-        
-    return overlapping_ref_df
 
+    overlapping_ref_df = counts_df.loc[
+        (counts_df[r_tag] > r_tl)
+        & (counts_df[r_tag] < r_br)
+        & (counts_df[c_tag] > c_tl)
+        & (counts_df[c_tag] < c_br),
+        :,
+    ]
+
+    return overlapping_ref_df
 
 
 # TODO adjust the registration with dots (triangulation)
 
-def register_cpl(cpl, chunk_coords, experiment_fpath,
-                                    stitching_channel,
-                                    reference_round):
+
+def register_cpl(
+    cpl, chunk_coords, experiment_fpath, stitching_channel, reference_round
+):
 
     logger = selected_logger()
     registration = {}
     experiment_fpath = Path(experiment_fpath)
-    
+
     try:
-        counts1_fpath = list((experiment_fpath / 'results').glob('*decoded_fov_' + str(cpl[0]) + '.parquet'))[0]
+        counts1_fpath = list(
+            (experiment_fpath / "results").glob(
+                "*decoded_fov_" + str(cpl[0]) + ".parquet"
+            )
+        )[0]
     except:
-        logger.error(f'count file missing for fov {cpl[0]}')
-    
+        logger.error(f"count file missing for fov {cpl[0]}")
+
     else:
         try:
-            counts2_fpath = list((experiment_fpath / 'results').glob('*decoded_fov_' + str(cpl[1]) + '.parquet'))[0]
+            counts2_fpath = list(
+                (experiment_fpath / "results").glob(
+                    "*decoded_fov_" + str(cpl[1]) + ".parquet"
+                )
+            )[0]
         except:
-            logger.error(f'count file missing for fov {cpl[1]}')
+            logger.error(f"count file missing for fov {cpl[1]}")
         else:
-    
+
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
 
-            count1_grp = counts1_df.loc[(counts1_df.channel == stitching_channel) &
-                                        (counts1_df.round_num == reference_round),:]
-            count2_grp = counts2_df.loc[(counts2_df.channel == stitching_channel) &
-                                        (counts2_df.round_num == reference_round),:]
-            count1_grp = counts1_df.loc[counts1_df.channel == stitching_channel,:]
-            count2_grp = counts2_df.loc[counts2_df.channel == stitching_channel,:]
-            
-            overlap_count1 = get_all_dots_in_overlapping_regions(count1_grp, chunk_coords,stitching_selected='microscope_stitched')
-            overlap_count2 = get_all_dots_in_overlapping_regions(count2_grp, chunk_coords,stitching_selected='microscope_stitched')
-         
+            count1_grp = counts1_df.loc[
+                (counts1_df.channel == stitching_channel)
+                & (counts1_df.round_num == reference_round),
+                :,
+            ]
+            count2_grp = counts2_df.loc[
+                (counts2_df.channel == stitching_channel)
+                & (counts2_df.round_num == reference_round),
+                :,
+            ]
+            count1_grp = counts1_df.loc[counts1_df.channel == stitching_channel, :]
+            count2_grp = counts2_df.loc[counts2_df.channel == stitching_channel, :]
+
+            overlap_count1 = get_all_dots_in_overlapping_regions(
+                count1_grp, chunk_coords, stitching_selected="microscope_stitched"
+            )
+            overlap_count2 = get_all_dots_in_overlapping_regions(
+                count2_grp, chunk_coords, stitching_selected="microscope_stitched"
+            )
+
             if overlap_count1.empty or overlap_count2.empty:
-                shift = np.array([1000,1000])
+                shift = np.array([1000, 1000])
                 registration[cpl] = [shift, np.nan]
-                
+
             else:
                 # TODO
                 # Maybe add a selction step where if the number of beads is below X the beads based registration will be run or fft based
                 # registration if the number of beads is high enough
-                
+
                 r_tl = chunk_coords[0]
                 c_tl = chunk_coords[2]
-                img_shape = np.array([np.abs(chunk_coords[1]-chunk_coords[0]),np.abs(chunk_coords[3]-chunk_coords[2])]).astype('int') + 1
-                norm_ref_coords = overlap_count1.loc[:,['r_px_microscope_stitched','c_px_microscope_stitched']].to_numpy() -[r_tl, c_tl]
-                norm_comp_coords =  overlap_count2.loc[:,['r_px_microscope_stitched','c_px_microscope_stitched']].to_numpy() -[r_tl, c_tl]
+                img_shape = (
+                    np.array(
+                        [
+                            np.abs(chunk_coords[1] - chunk_coords[0]),
+                            np.abs(chunk_coords[3] - chunk_coords[2]),
+                        ]
+                    ).astype("int")
+                    + 1
+                )
+                norm_ref_coords = overlap_count1.loc[
+                    :, ["r_px_microscope_stitched", "c_px_microscope_stitched"]
+                ].to_numpy() - [r_tl, c_tl]
+                norm_comp_coords = overlap_count2.loc[
+                    :, ["r_px_microscope_stitched", "c_px_microscope_stitched"]
+                ].to_numpy() - [r_tl, c_tl]
                 img_ref = create_fake_image(img_shape, norm_ref_coords)
                 img_tran = create_fake_image(img_shape, norm_comp_coords)
                 shift, error, diffphase = register_translation(img_ref, img_tran)
                 registration[cpl] = [shift, error]
-    
+
             return registration
 
 
-
-
-def register_cpl_fresh_nuclei(cpl: Tuple, chunk_coords: np.ndarray, order: dict, 
-                              metadata:dict, experiment_fpath:str):
+def register_cpl_fresh_nuclei(
+    cpl: Tuple,
+    chunk_coords: np.ndarray,
+    order: dict,
+    metadata: dict,
+    experiment_fpath: str,
+):
     """Function to register orverlapping regions of nuclear staining for stitching
 
     Args:
@@ -912,96 +1043,149 @@ def register_cpl_fresh_nuclei(cpl: Tuple, chunk_coords: np.ndarray, order: dict,
     logger = selected_logger()
     registration = {}
     experiment_fpath = Path(experiment_fpath)
-    img_width = metadata['img_width']
-    img_height = metadata['img_height']
-    experiment_name = metadata['experiment_name']
+    img_width = metadata["img_width"]
+    img_height = metadata["img_height"]
+    experiment_name = metadata["experiment_name"]
     error = 0
-    
-    filtered_nuclei_fpath = experiment_fpath / 'fresh_tissue' / 'fresh_tissue_nuclei_preprocessed_img_data.zarr'
-    
+
+    filtered_nuclei_fpath = (
+        experiment_fpath
+        / "fresh_tissue"
+        / "fresh_tissue_nuclei_preprocessed_img_data.zarr"
+    )
+
     try:
         st = zarr.DirectoryStore(filtered_nuclei_fpath)
         root = zarr.group(store=st, overwrite=False)
     except:
-        logger.error(f'cannot load the zarr files with filtered nuclei')    
-        
+        logger.error(f"cannot load the zarr files with filtered nuclei")
+
     else:
         try:
-            img1 = root[experiment_name + '_fresh_tissue_nuclei_fov_' + str(cpl[0])]['preprocessed_data_fov_'+str(cpl[0])][...]
+            img1 = root[experiment_name + "_fresh_tissue_nuclei_fov_" + str(cpl[0])][
+                "preprocessed_data_fov_" + str(cpl[0])
+            ][...]
         except:
-            logger.error(f'image file cannot be loaded for nuclei of fov {cpl[0]}')   
-            
+            logger.error(f"image file cannot be loaded for nuclei of fov {cpl[0]}")
+
         else:
             try:
-                img2 = root[experiment_name + '_fresh_tissue_nuclei_fov_' + str(cpl[1])]['preprocessed_data_fov_'+str(cpl[1])][...]
+                img2 = root[
+                    experiment_name + "_fresh_tissue_nuclei_fov_" + str(cpl[1])
+                ]["preprocessed_data_fov_" + str(cpl[1])][...]
             except:
-                logger.error(f'image file cannot be loaded for nuclei of fov {cpl[1]}')  
-                
+                logger.error(f"image file cannot be loaded for nuclei of fov {cpl[1]}")
+
             else:
 
-                img_shape = np.array([np.abs(chunk_coords[1]-chunk_coords[0]),np.abs(chunk_coords[3]-chunk_coords[2])]).astype('int')
-                if order == {'row_order': ('top', 'bottom'), 'column_order': ('right', 'left')}:
-                    img1_slice = img1[(img_height-img_shape[0]):img_height,0:img_shape[1]]
-                    img2_slice = img2[0:img_shape[0],(img_width-img_shape[1]):img_width]
-                elif order == {'row_order': ('top', 'bottom'), 'column_order': ('left', 'right')}:
-                    img1_slice = img1[img_height-img_shape[0]:img_height,img_width-img_shape[1]:img_width]
-                    img2_slice = img2[0:img_shape[0],0:img_shape[1]]
-                elif order == {'row_order': ('bottom', 'top'), 'column_order': ('left', 'right')}:
-                    img1_slice = img1[0:img_shape[0],img_width-img_shape[1]:img_width]
-                    img2_slice = img2[img_height-img_shape[0]:img_height,0:img_shape[1]]
-                elif order == {'row_order': ('bottom', 'top'), 'column_order': ('right', 'left')}:
-                    img1_slice = img1[0:img_shape[0],0:img_shape[1]]
-                    img2_slice = img2[img_height-img_shape[0]:img_height,img_width-img_shape[1]:img_width]
+                img_shape = np.array(
+                    [
+                        np.abs(chunk_coords[1] - chunk_coords[0]),
+                        np.abs(chunk_coords[3] - chunk_coords[2]),
+                    ]
+                ).astype("int")
+                if order == {
+                    "row_order": ("top", "bottom"),
+                    "column_order": ("right", "left"),
+                }:
+                    img1_slice = img1[
+                        (img_height - img_shape[0]) : img_height, 0 : img_shape[1]
+                    ]
+                    img2_slice = img2[
+                        0 : img_shape[0], (img_width - img_shape[1]) : img_width
+                    ]
+                elif order == {
+                    "row_order": ("top", "bottom"),
+                    "column_order": ("left", "right"),
+                }:
+                    img1_slice = img1[
+                        img_height - img_shape[0] : img_height,
+                        img_width - img_shape[1] : img_width,
+                    ]
+                    img2_slice = img2[0 : img_shape[0], 0 : img_shape[1]]
+                elif order == {
+                    "row_order": ("bottom", "top"),
+                    "column_order": ("left", "right"),
+                }:
+                    img1_slice = img1[
+                        0 : img_shape[0], img_width - img_shape[1] : img_width
+                    ]
+                    img2_slice = img2[
+                        img_height - img_shape[0] : img_height, 0 : img_shape[1]
+                    ]
+                elif order == {
+                    "row_order": ("bottom", "top"),
+                    "column_order": ("right", "left"),
+                }:
+                    img1_slice = img1[0 : img_shape[0], 0 : img_shape[1]]
+                    img2_slice = img2[
+                        img_height - img_shape[0] : img_height,
+                        img_width - img_shape[1] : img_width,
+                    ]
                 else:
-                    logger.error(f'unknown fovs order')
+                    logger.error(f"unknown fovs order")
                     error = 1
-                
+
                 if error:
-                    shift = np.array([1000,1000])
+                    shift = np.array([1000, 1000])
                     registration[cpl] = [shift, np.nan]
                 else:
-                    shift, error, diffphase = register_translation(img1_slice, img2_slice)
+                    shift, error, diffphase = register_translation(
+                        img1_slice, img2_slice
+                    )
                     registration[cpl] = [shift, error]
-    
+
                 return registration
 
 
+def stitching_graph(
+    experiment_fpath,
+    stitching_channel,
+    tiles_org,
+    metadata,
+    reference_round,
+    client,
+    nr_dim=2,
+):
 
-
-
-
-def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata, 
-                    reference_round, client, nr_dim = 2):
-    
     logger = selected_logger()
-    unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
-    
+    unfolded_overlapping_regions_dict = {
+        key: value
+        for (k, v) in tiles_org.overlapping_regions.items()
+        for (key, value) in v.items()
+    }
+
     futures = []
     for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
 
-        future = client.submit(register_cpl,cpl, chunk_coords, experiment_fpath,stitching_channel,
-                            reference_round)
+        future = client.submit(
+            register_cpl,
+            cpl,
+            chunk_coords,
+            experiment_fpath,
+            stitching_channel,
+            reference_round,
+        )
 
         futures.append(future)
     all_registrations = client.gather(futures)
 
-
-    all_registrations = [reg for reg in all_registrations if reg ]
+    all_registrations = [reg for reg in all_registrations if reg]
     all_registrations_dict = {}
 
     for output_dict in all_registrations:
         all_registrations_dict.update(output_dict)
 
-    # Run registration only if there are not too many overlappig regions without 
+    # Run registration only if there are not too many overlappig regions without
     # dots
-    
+
     # counts_cpls_missing_overlapping_dots = 0
     # cpls_missing_overlapping_dots = []
     # for cpl, registration_output in all_registrations_dict.items():
     #     if np.isnan(registration_output[1]):
     #         cpls_missing_overlapping_dots.append(cpl)
     #         counts_cpls_missing_overlapping_dots += 1
-    
+
     # global_stitching_done = 0
     # if len(cpls_missing_overlapping_dots) > 10:
     #     logger.error(f"Too many cpl of fovs without overlapping reference dots")
@@ -1020,7 +1204,9 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata,
     for idx, cpl_dict in tiles_org.overlapping_regions.items():
         overlapping_coords_reorganized.update(cpl_dict)
 
-    all_registrations_removed_large_shift = {k:v for (k,v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)}
+    all_registrations_removed_large_shift = {
+        k: v for (k, v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)
+    }
 
     cpls = all_registrations_removed_large_shift.keys()
     # cpls = list(unfolded_overlapping_regions_dict.keys())
@@ -1030,108 +1216,131 @@ def stitching_graph(experiment_fpath, stitching_channel,tiles_org, metadata,
     weights_err1 = np.zeros((total_cpls * nr_dim))
     weights_err2 = np.zeros((total_cpls * nr_dim))
     P = np.zeros(total_cpls * nr_dim)
-    ZQ = np.zeros((total_cpls * nr_dim,nr_tiles * nr_dim))
+    ZQ = np.zeros((total_cpls * nr_dim, nr_tiles * nr_dim))
 
     weights_err = np.zeros((total_cpls * nr_dim))
     for i, (a, b) in enumerate(cpls):
-        shift = all_registrations_removed_large_shift[(a,b)][0]
+        shift = all_registrations_removed_large_shift[(a, b)][0]
         dr = shift[0]
         dc = shift[1]
         P[i * nr_dim] = dr
-        P[i * nr_dim +1 ] = dc
-        weights_err[i * nr_dim:i * nr_dim + nr_dim] = all_registrations_removed_large_shift[(a,b)][1]
+        P[i * nr_dim + 1] = dc
+        weights_err[
+            i * nr_dim : i * nr_dim + nr_dim
+        ] = all_registrations_removed_large_shift[(a, b)][1]
 
     for i, (a, b) in enumerate(cpls):
         # Y row:
         Z = np.zeros((nr_tiles * nr_dim))
-        Z[nr_dim * a:nr_dim * a + 1] = -1
-        Z[nr_dim * b:nr_dim * b + 1] = 1
+        Z[nr_dim * a : nr_dim * a + 1] = -1
+        Z[nr_dim * b : nr_dim * b + 1] = 1
         ZQ[i * nr_dim, :] = Z
         # X row
         Z = np.zeros((nr_tiles * nr_dim))
-        Z[nr_dim * a + 1:nr_dim * a + 2] = -1
-        Z[nr_dim * b + 1:nr_dim * b + 2] = 1
+        Z[nr_dim * a + 1 : nr_dim * a + 2] = -1
+        Z[nr_dim * b + 1 : nr_dim * b + 2] = 1
         ZQ[i * nr_dim + 1, :] = Z
 
     lrg = linmod.LinearRegression(fit_intercept=False)
-    lrg.fit(ZQ,P)
+    lrg.fit(ZQ, P)
     global_translrg = lrg.coef_.reshape(nr_tiles, nr_dim)
-    gb =  -1 * (-lrg.coef_.reshape((nr_tiles, nr_dim)) \
-                                + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :])
+    gb = -1 * (
+        -lrg.coef_.reshape((nr_tiles, nr_dim))
+        + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :]
+    )
     global_shift = gb.astype(int)
     adjusted_coords = tiles_org.tile_corners_coords_pxl + global_shift
 
     # Determine shift of missing tiles
 
     out_level = 1000
-    low = np.where(global_shift< -out_level)[0]
-    high = np.where(global_shift> out_level)[0]
-    low_high = np.hstack((low,high))
+    low = np.where(global_shift < -out_level)[0]
+    high = np.where(global_shift > out_level)[0]
+    low_high = np.hstack((low, high))
 
     missing_tiles_id = np.unique(low_high)
-    missing_tiles_coords = tiles_org.tile_corners_coords_pxl[missing_tiles_id,:]
+    missing_tiles_coords = tiles_org.tile_corners_coords_pxl[missing_tiles_id, :]
 
-    if missing_tiles_coords.shape[0] >0:
+    if missing_tiles_coords.shape[0] > 0:
         coords_cl = np.delete(tiles_org.tile_corners_coords_pxl, missing_tiles_id, 0)
-        ad_coords_cl = np.delete(adjusted_coords, missing_tiles_id, 0 )
+        ad_coords_cl = np.delete(adjusted_coords, missing_tiles_id, 0)
         tst = linmod.LinearRegression(fit_intercept=False)
-        tst.fit(coords_cl,ad_coords_cl)
+        tst.fit(coords_cl, ad_coords_cl)
         corrected_missing = tst.predict(missing_tiles_coords)
 
         for idx, tile_id in enumerate(missing_tiles_id):
             adjusted_coords[tile_id] = corrected_missing[idx]
 
-
-    dec_fpath = (experiment_fpath / 'results').glob('*_decoded_fov*')
+    dec_fpath = (experiment_fpath / "results").glob("*_decoded_fov*")
     for fpath in dec_fpath:
-        global_stitched_decoded_df = stitch_using_coords_general(fpath,
-                                    adjusted_coords,
-                                    tiles_org.reference_corner_fov_position,
-                                    metadata,
-                                    'global_stitched')
-        if isinstance(global_stitched_decoded_df,pd.DataFrame):
+        global_stitched_decoded_df = stitch_using_coords_general(
+            fpath,
+            adjusted_coords,
+            tiles_org.reference_corner_fov_position,
+            metadata,
+            "global_stitched",
+        )
+        if isinstance(global_stitched_decoded_df, pd.DataFrame):
             global_stitched_decoded_df.to_parquet(fpath)
 
     global_shift = tiles_org.tile_corners_coords_pxl - adjusted_coords
-    pickle.dump(global_shift,open(experiment_fpath / 'results'/ 'stitching_global_shift.pkl','wb'))
-    pickle.dump(adjusted_coords,open(experiment_fpath / 'results'/ 'global_stitched_coords.pkl','wb'))
+    pickle.dump(
+        global_shift,
+        open(experiment_fpath / "results" / "stitching_global_shift.pkl", "wb"),
+    )
+    pickle.dump(
+        adjusted_coords,
+        open(experiment_fpath / "results" / "global_stitched_coords.pkl", "wb"),
+    )
 
     return adjusted_coords
     # return adjusted_coords, global_stitching_done
 
 
-def stitching_graph_fresh_nuclei(experiment_fpath,tiles_org, metadata, 
-                            client, nr_dim = 2):
-    
-    logger = selected_logger()
-    unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
-    unfolded_overlapping_order_dict = {key:value for (k,v) in tiles_org.overlapping_order.items() for (key,value) in v.items()}
+def stitching_graph_fresh_nuclei(
+    experiment_fpath, tiles_org, metadata, client, nr_dim=2
+):
 
+    logger = selected_logger()
+    unfolded_overlapping_regions_dict = {
+        key: value
+        for (k, v) in tiles_org.overlapping_regions.items()
+        for (key, value) in v.items()
+    }
+    unfolded_overlapping_order_dict = {
+        key: value
+        for (k, v) in tiles_org.overlapping_order.items()
+        for (key, value) in v.items()
+    }
 
     futures = []
     for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
 
-        future = client.submit(register_cpl_fresh_nuclei,cpl, chunk_coords, 
-                            unfolded_overlapping_order_dict[cpl],
-                            metadata,
-                            experiment_fpath)
+        future = client.submit(
+            register_cpl_fresh_nuclei,
+            cpl,
+            chunk_coords,
+            unfolded_overlapping_order_dict[cpl],
+            metadata,
+            experiment_fpath,
+        )
 
         futures.append(future)
     all_registrations = client.gather(futures)
 
-
-    all_registrations = [reg for reg in all_registrations if reg ]
+    all_registrations = [reg for reg in all_registrations if reg]
     all_registrations_dict = {}
 
     for output_dict in all_registrations:
         all_registrations_dict.update(output_dict)
 
-
     overlapping_coords_reorganized = {}
     for idx, cpl_dict in tiles_org.overlapping_regions.items():
         overlapping_coords_reorganized.update(cpl_dict)
 
-    all_registrations_removed_large_shift = {k:v for (k,v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)}
+    all_registrations_removed_large_shift = {
+        k: v for (k, v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)
+    }
 
     cpls = all_registrations_removed_large_shift.keys()
     # cpls = list(unfolded_overlapping_regions_dict.keys())
@@ -1141,110 +1350,148 @@ def stitching_graph_fresh_nuclei(experiment_fpath,tiles_org, metadata,
     weights_err1 = np.zeros((total_cpls * nr_dim))
     weights_err2 = np.zeros((total_cpls * nr_dim))
     P = np.zeros(total_cpls * nr_dim)
-    ZQ = np.zeros((total_cpls * nr_dim,nr_tiles * nr_dim))
+    ZQ = np.zeros((total_cpls * nr_dim, nr_tiles * nr_dim))
 
     weights_err = np.zeros((total_cpls * nr_dim))
     for i, (a, b) in enumerate(cpls):
-        shift = all_registrations_removed_large_shift[(a,b)][0]
+        shift = all_registrations_removed_large_shift[(a, b)][0]
         dr = shift[0]
         dc = shift[1]
         P[i * nr_dim] = dr
-        P[i * nr_dim +1 ] = dc
-        weights_err[i * nr_dim:i * nr_dim + nr_dim] = all_registrations_removed_large_shift[(a,b)][1]
+        P[i * nr_dim + 1] = dc
+        weights_err[
+            i * nr_dim : i * nr_dim + nr_dim
+        ] = all_registrations_removed_large_shift[(a, b)][1]
 
     for i, (a, b) in enumerate(cpls):
         # Y row:
         Z = np.zeros((nr_tiles * nr_dim))
-        Z[nr_dim * a:nr_dim * a + 1] = -1
-        Z[nr_dim * b:nr_dim * b + 1] = 1
+        Z[nr_dim * a : nr_dim * a + 1] = -1
+        Z[nr_dim * b : nr_dim * b + 1] = 1
         ZQ[i * nr_dim, :] = Z
         # X row
         Z = np.zeros((nr_tiles * nr_dim))
-        Z[nr_dim * a + 1:nr_dim * a + 2] = -1
-        Z[nr_dim * b + 1:nr_dim * b + 2] = 1
+        Z[nr_dim * a + 1 : nr_dim * a + 2] = -1
+        Z[nr_dim * b + 1 : nr_dim * b + 2] = 1
         ZQ[i * nr_dim + 1, :] = Z
 
     lrg = linmod.LinearRegression(fit_intercept=False)
-    lrg.fit(ZQ,P)
+    lrg.fit(ZQ, P)
     global_translrg = lrg.coef_.reshape(nr_tiles, nr_dim)
-    gb =  -1 * (-lrg.coef_.reshape((nr_tiles, nr_dim)) \
-                                + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :])
+    gb = -1 * (
+        -lrg.coef_.reshape((nr_tiles, nr_dim))
+        + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :]
+    )
     global_shift = gb.astype(int)
     adjusted_coords = tiles_org.tile_corners_coords_pxl + global_shift
 
     # Determine shift of missing tiles
 
     out_level = 1000
-    low = np.where(global_shift< -out_level)[0]
-    high = np.where(global_shift> out_level)[0]
-    low_high = np.hstack((low,high))
+    low = np.where(global_shift < -out_level)[0]
+    high = np.where(global_shift > out_level)[0]
+    low_high = np.hstack((low, high))
 
     missing_tiles_id = np.unique(low_high)
-    missing_tiles_coords = tiles_org.tile_corners_coords_pxl[missing_tiles_id,:]
+    missing_tiles_coords = tiles_org.tile_corners_coords_pxl[missing_tiles_id, :]
 
-    if missing_tiles_coords.shape[0] >0:
+    if missing_tiles_coords.shape[0] > 0:
         coords_cl = np.delete(tiles_org.tile_corners_coords_pxl, missing_tiles_id, 0)
-        ad_coords_cl = np.delete(adjusted_coords, missing_tiles_id, 0 )
+        ad_coords_cl = np.delete(adjusted_coords, missing_tiles_id, 0)
         tst = linmod.LinearRegression(fit_intercept=False)
-        tst.fit(coords_cl,ad_coords_cl)
+        tst.fit(coords_cl, ad_coords_cl)
         corrected_missing = tst.predict(missing_tiles_coords)
 
         for idx, tile_id in enumerate(missing_tiles_id):
             adjusted_coords[tile_id] = corrected_missing[idx]
 
-
-    dec_fpath = (experiment_fpath / 'fresh_tissue'/ 'results').glob('*_decoded_fov*')
+    dec_fpath = (experiment_fpath / "fresh_tissue" / "results").glob("*_decoded_fov*")
     for fpath in dec_fpath:
-        global_stitched_decoded_df = stitch_using_coords_general(fpath,
-                                    adjusted_coords,
-                                    tiles_org.reference_corner_fov_position,
-                                    metadata,
-                                    'global_stitched_nuclei')
-        if isinstance(global_stitched_decoded_df,pd.DataFrame):
+        global_stitched_decoded_df = stitch_using_coords_general(
+            fpath,
+            adjusted_coords,
+            tiles_org.reference_corner_fov_position,
+            metadata,
+            "global_stitched_nuclei",
+        )
+        if isinstance(global_stitched_decoded_df, pd.DataFrame):
             global_stitched_decoded_df.to_parquet(fpath)
 
     global_shift = tiles_org.tile_corners_coords_pxl - adjusted_coords
-    pickle.dump(global_shift,open(experiment_fpath / 'fresh_tissue' /  'results'/ 'stitching_global_shift.pkl','wb'))
-    pickle.dump(adjusted_coords,open(experiment_fpath / 'fresh_tissue' / 'results'/ 'global_stitched_coords.pkl','wb'))
+    pickle.dump(
+        global_shift,
+        open(
+            experiment_fpath
+            / "fresh_tissue"
+            / "results"
+            / "stitching_global_shift.pkl",
+            "wb",
+        ),
+    )
+    pickle.dump(
+        adjusted_coords,
+        open(
+            experiment_fpath
+            / "fresh_tissue"
+            / "results"
+            / "global_stitched_coords.pkl",
+            "wb",
+        ),
+    )
 
     return adjusted_coords
     # return adjusted_coords, global_stitching_done
 
 
+def stitching_graph_serial_nuclei(
+    experiment_fpath,
+    tiles_org,
+    metadata,
+    registration_reference_hybridization,
+    client,
+    nr_dim=2,
+):
 
-def stitching_graph_serial_nuclei(experiment_fpath,tiles_org, metadata, 
-                                registration_reference_hybridization,
-                                client, nr_dim = 2):
-    
     logger = selected_logger()
-    unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
-    unfolded_overlapping_order_dict = {key:value for (k,v) in tiles_org.overlapping_order.items() for (key,value) in v.items()}
-
+    unfolded_overlapping_regions_dict = {
+        key: value
+        for (k, v) in tiles_org.overlapping_regions.items()
+        for (key, value) in v.items()
+    }
+    unfolded_overlapping_order_dict = {
+        key: value
+        for (k, v) in tiles_org.overlapping_order.items()
+        for (key, value) in v.items()
+    }
 
     futures = []
     for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
 
-        future = client.submit(register_cpl_fresh_nuclei,cpl, chunk_coords, 
-                            unfolded_overlapping_order_dict[cpl],
-                            metadata,
-                            experiment_fpath)
+        future = client.submit(
+            register_cpl_fresh_nuclei,
+            cpl,
+            chunk_coords,
+            unfolded_overlapping_order_dict[cpl],
+            metadata,
+            experiment_fpath,
+        )
 
         futures.append(future)
     all_registrations = client.gather(futures)
 
-
-    all_registrations = [reg for reg in all_registrations if reg ]
+    all_registrations = [reg for reg in all_registrations if reg]
     all_registrations_dict = {}
 
     for output_dict in all_registrations:
         all_registrations_dict.update(output_dict)
 
-
     overlapping_coords_reorganized = {}
     for idx, cpl_dict in tiles_org.overlapping_regions.items():
         overlapping_coords_reorganized.update(cpl_dict)
 
-    all_registrations_removed_large_shift = {k:v for (k,v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)}
+    all_registrations_removed_large_shift = {
+        k: v for (k, v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)
+    }
 
     cpls = all_registrations_removed_large_shift.keys()
     # cpls = list(unfolded_overlapping_regions_dict.keys())
@@ -1254,93 +1501,95 @@ def stitching_graph_serial_nuclei(experiment_fpath,tiles_org, metadata,
     weights_err1 = np.zeros((total_cpls * nr_dim))
     weights_err2 = np.zeros((total_cpls * nr_dim))
     P = np.zeros(total_cpls * nr_dim)
-    ZQ = np.zeros((total_cpls * nr_dim,nr_tiles * nr_dim))
+    ZQ = np.zeros((total_cpls * nr_dim, nr_tiles * nr_dim))
 
     weights_err = np.zeros((total_cpls * nr_dim))
     for i, (a, b) in enumerate(cpls):
-        shift = all_registrations_removed_large_shift[(a,b)][0]
+        shift = all_registrations_removed_large_shift[(a, b)][0]
         dr = shift[0]
         dc = shift[1]
         P[i * nr_dim] = dr
-        P[i * nr_dim +1 ] = dc
-        weights_err[i * nr_dim:i * nr_dim + nr_dim] = all_registrations_removed_large_shift[(a,b)][1]
+        P[i * nr_dim + 1] = dc
+        weights_err[
+            i * nr_dim : i * nr_dim + nr_dim
+        ] = all_registrations_removed_large_shift[(a, b)][1]
 
     for i, (a, b) in enumerate(cpls):
         # Y row:
         Z = np.zeros((nr_tiles * nr_dim))
-        Z[nr_dim * a:nr_dim * a + 1] = -1
-        Z[nr_dim * b:nr_dim * b + 1] = 1
+        Z[nr_dim * a : nr_dim * a + 1] = -1
+        Z[nr_dim * b : nr_dim * b + 1] = 1
         ZQ[i * nr_dim, :] = Z
         # X row
         Z = np.zeros((nr_tiles * nr_dim))
-        Z[nr_dim * a + 1:nr_dim * a + 2] = -1
-        Z[nr_dim * b + 1:nr_dim * b + 2] = 1
+        Z[nr_dim * a + 1 : nr_dim * a + 2] = -1
+        Z[nr_dim * b + 1 : nr_dim * b + 2] = 1
         ZQ[i * nr_dim + 1, :] = Z
 
     lrg = linmod.LinearRegression(fit_intercept=False)
-    lrg.fit(ZQ,P)
+    lrg.fit(ZQ, P)
     global_translrg = lrg.coef_.reshape(nr_tiles, nr_dim)
-    gb =  -1 * (-lrg.coef_.reshape((nr_tiles, nr_dim)) \
-                                + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :])
+    gb = -1 * (
+        -lrg.coef_.reshape((nr_tiles, nr_dim))
+        + lrg.coef_.reshape((nr_tiles, nr_dim))[0:1, :]
+    )
     global_shift = gb.astype(int)
     adjusted_coords = tiles_org.tile_corners_coords_pxl + global_shift
 
     # Determine shift of missing tiles
 
     out_level = 1000
-    low = np.where(global_shift< -out_level)[0]
-    high = np.where(global_shift> out_level)[0]
-    low_high = np.hstack((low,high))
+    low = np.where(global_shift < -out_level)[0]
+    high = np.where(global_shift > out_level)[0]
+    low_high = np.hstack((low, high))
 
     missing_tiles_id = np.unique(low_high)
-    missing_tiles_coords = tiles_org.tile_corners_coords_pxl[missing_tiles_id,:]
+    missing_tiles_coords = tiles_org.tile_corners_coords_pxl[missing_tiles_id, :]
 
-    if missing_tiles_coords.shape[0] >0:
+    if missing_tiles_coords.shape[0] > 0:
         coords_cl = np.delete(tiles_org.tile_corners_coords_pxl, missing_tiles_id, 0)
-        ad_coords_cl = np.delete(adjusted_coords, missing_tiles_id, 0 )
+        ad_coords_cl = np.delete(adjusted_coords, missing_tiles_id, 0)
         tst = linmod.LinearRegression(fit_intercept=False)
-        tst.fit(coords_cl,ad_coords_cl)
+        tst.fit(coords_cl, ad_coords_cl)
         corrected_missing = tst.predict(missing_tiles_coords)
 
         for idx, tile_id in enumerate(missing_tiles_id):
             adjusted_coords[tile_id] = corrected_missing[idx]
 
-
-    dec_fpath = (experiment_fpath / 'results').glob('*_decoded_fov*')
+    dec_fpath = (experiment_fpath / "results").glob("*_decoded_fov*")
     for fpath in dec_fpath:
-        global_stitched_decoded_df = stitch_using_coords_general(fpath,
-                                    adjusted_coords,
-                                    tiles_org.reference_corner_fov_position,
-                                    metadata,
-                                    'global_stitched_nuclei')
-        if isinstance(global_stitched_decoded_df,pd.DataFrame):
+        global_stitched_decoded_df = stitch_using_coords_general(
+            fpath,
+            adjusted_coords,
+            tiles_org.reference_corner_fov_position,
+            metadata,
+            "global_stitched_nuclei",
+        )
+        if isinstance(global_stitched_decoded_df, pd.DataFrame):
             global_stitched_decoded_df.to_parquet(fpath)
 
     global_shift = tiles_org.tile_corners_coords_pxl - adjusted_coords
-    pickle.dump(global_shift,open(experiment_fpath / 'results'/ 'stitching_global_shift.pkl','wb'))
-    pickle.dump(adjusted_coords,open(experiment_fpath / 'results'/ 'global_stitched_coords.pkl','wb'))
+    pickle.dump(
+        global_shift,
+        open(experiment_fpath / "results" / "stitching_global_shift.pkl", "wb"),
+    )
+    pickle.dump(
+        adjusted_coords,
+        open(experiment_fpath / "results" / "global_stitched_coords.pkl", "wb"),
+    )
 
     return adjusted_coords
     # return adjusted_coords, global_stitching_done
 
 
-
-
-
-
-
-
-
-
-def stitched_beads_on_nuclei_fresh_tissue(experiment_fpath:str,
-                                      client,
-                                      nuclei_tag:str='_ChannelCy3_Nuclei_',
-                                      beads_tag:str='_ChannelEuropium_Cy3_',
-                                      round_num:int = 1,
-                                      overlapping_percentage:int=5,
-                                      machine:str='ROBOFISH2'
-                                     ):
-    """Function tun run the stitching of the dots in the fresh images using 
+def stitched_beads_on_nuclei_fresh_tissue(
+    experiment_fpath: str,
+    client,
+    nuclei_tag: str = "_ChannelCy3_Nuclei_",
+    beads_tag: str = "_ChannelEuropium_Cy3_",
+    round_num: int = 1,
+):
+    """Function tun run the stitching of the dots in the fresh images using
     the nuclei images as reference
 
     Args:
@@ -1350,88 +1599,99 @@ def stitched_beads_on_nuclei_fresh_tissue(experiment_fpath:str,
         beads_tag (str, optional): Tag to identify the beads dataset. Defaults to '_ChannelEuropium_Cy3_'.
         round_num (int, optional): Reference round,for the fresh tissue there is only one. Defaults to 1.
         overlapping_percentage (int, optional): Overlapping between the different tiles. Defaults to 5.
-        machine (str, optional): machine running the experiment. Defaults to 'ROBOFISH2'.
     """
     experiment_fpath = Path(experiment_fpath)
-    fresh_tissue_path = experiment_fpath / 'fresh_tissue'
-    beads_dataset_fpath = list(fresh_tissue_path.glob('*'+ beads_tag +'*.parquet'))[0]
-    nuclei_dataset_fpath = list(fresh_tissue_path.glob('*'+ nuclei_tag +'*.parquet'))[0]
-    
+    fresh_tissue_path = experiment_fpath / "fresh_tissue"
+    beads_dataset_fpath = list(fresh_tissue_path.glob("*" + beads_tag + "*.parquet"))[0]
+    nuclei_dataset_fpath = list(fresh_tissue_path.glob("*" + nuclei_tag + "*.parquet"))[
+        0
+    ]
+
     # Collect and adjust beads dataset with missing values
     beads_data = Dataset()
     beads_data.load_dataset(beads_dataset_fpath)
-    beads_data.dataset['processing_type'] = 'undefined'
-    beads_data.dataset['overlapping_percentage'] = overlapping_percentage / 100
-    beads_data.dataset['machine'] = machine
 
     metadata_beads = beads_data.collect_metadata(beads_data.dataset)
-    beads_org_tiles = organize_square_tiles(experiment_fpath,beads_data.dataset,metadata_beads,round_num)
+    beads_org_tiles = organize_square_tiles(
+        experiment_fpath, beads_data.dataset, metadata_beads, round_num
+    )
     beads_org_tiles.run_tiles_organization()
-    flist = list((fresh_tissue_path / 'results').glob('*decoded_fov*.parquet'))
+    flist = list((fresh_tissue_path / "results").glob("*decoded_fov*.parquet"))
 
     # duplicate registered
     for fpath in flist:
         data = pd.read_parquet(fpath)
-        data['r_px_registered'] = data['r_px_original']
-        data['c_px_registered'] = data['c_px_original']
-        data['hamming_distance'] = 0
-        data['decoded_genes'] = 'beads'
+        data["r_px_registered"] = data["r_px_original"]
+        data["c_px_registered"] = data["c_px_original"]
+        data["hamming_distance"] = 0
+        data["decoded_genes"] = "beads"
         data.to_parquet(fpath)
-
 
     all_futures = []
     for fpath in flist:
-        future = client.submit(stitch_using_coords_general, fpath,
-                                              beads_org_tiles.tile_corners_coords_pxl,
-                                              beads_org_tiles.reference_corner_fov_position,
-                                              metadata_beads,tag='microscope_stitched')
+        future = client.submit(
+            stitch_using_coords_general,
+            fpath,
+            beads_org_tiles.tile_corners_coords_pxl,
+            beads_org_tiles.reference_corner_fov_position,
+            metadata_beads,
+            tag="microscope_stitched",
+        )
 
         all_futures.append(future)
     _ = client.gather(all_futures)
 
-    io.simple_output_plotting(fresh_tissue_path,
-                              stitching_selected= 'microscope_stitched',
-                             selected_Hdistance=0,
-                             client = client,
-                             input_file_tag = 'decoded_fov',
-                             file_tag = 'stitched_microscope')
-
+    io.simple_output_plotting(
+        fresh_tissue_path,
+        stitching_selected="microscope_stitched",
+        selected_Hdistance=0,
+        client=client,
+        input_file_tag="decoded_fov",
+        file_tag="stitched_microscope",
+    )
 
     # Collect and adjust nuclei dataset with missing values
     nuclei_data = Dataset()
     nuclei_data.load_dataset(nuclei_dataset_fpath)
-    nuclei_data.dataset['processing_type'] = 'undefined'
-    nuclei_data.dataset['overlapping_percentage'] = overlapping_percentage / 100
-    nuclei_data.dataset['machine'] = machine
 
     metadata_nuclei = nuclei_data.collect_metadata(nuclei_data.dataset)
-    nuclei_org_tiles = organize_square_tiles(experiment_fpath,nuclei_data.dataset,metadata_nuclei,round_num)
+    nuclei_org_tiles = organize_square_tiles(
+        experiment_fpath, nuclei_data.dataset, metadata_nuclei, round_num
+    )
     nuclei_org_tiles.run_tiles_organization()
+    nuclei_org_tiles.determine_overlapping_regions()
 
-    _ =stitching_graph_fresh_nuclei(experiment_fpath,nuclei_org_tiles, metadata_nuclei, 
-                                client, nr_dim = 2)
+    nuclei_data.dataset[
+        "reference_corner_fov_position"
+    ] = nuclei_org_tiles.reference_corner_fov_position
+    nuclei_data.save_dataset(nuclei_data.dataset, nuclei_dataset_fpath)
 
+    adjusted_coords = stitching_graph_fresh_nuclei(
+        experiment_fpath, nuclei_org_tiles, metadata_nuclei, client, nr_dim=2
+    )
 
-    io.simple_output_plotting(fresh_tissue_path,
-                              stitching_selected= 'global_stitched_nuclei',
-                             selected_Hdistance=0,
-                             client = client,
-                             input_file_tag = 'decoded_fov',
-                             file_tag = 'global_stitched_nuclei')
+    io.simple_output_plotting(
+        fresh_tissue_path,
+        stitching_selected="global_stitched_nuclei",
+        selected_Hdistance=0,
+        client=client,
+        input_file_tag="decoded_fov",
+        file_tag="global_stitched_nuclei",
+    )
 
-
-
-
-
-
+    return nuclei_org_tiles, adjusted_coords
 
 
 # REMOVED OVERLAPPING DOTS ACCORDING TO FOV (MUCH FASTER THAN FOR GENE)
 # EXPECIALLY FOR LARGE AREAS WITH A LOT OF COUNTS
 
 
-def identify_duplicated_dots_NNDescend(ref_tiles_df: pd.DataFrame,comp_tiles_df: pd.DataFrame,
-                    stitching_selected: str,same_dot_radius: int)-> list:
+def identify_duplicated_dots_NNDescend(
+    ref_tiles_df: pd.DataFrame,
+    comp_tiles_df: pd.DataFrame,
+    stitching_selected: str,
+    same_dot_radius: int,
+) -> list:
     """Function used to identify duplicated dots for a gene in the overlapping regions. This
     version of the function uses the fast nearest neighbor coded in NNDescend
 
@@ -1446,22 +1706,31 @@ def identify_duplicated_dots_NNDescend(ref_tiles_df: pd.DataFrame,comp_tiles_df:
     Returns:
         list: dot ids to remove
     """
-    
-    r_tag = 'r_px_' + stitching_selected
-    c_tag = 'c_px_' + stitching_selected
 
-    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
-    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
-    dots_ids = comp_tiles_df.loc[:, ['dot_id']].to_numpy()
-    index = NNDescent(overlapping_ref_coords,metric='euclidean',n_neighbors=1)
-    indices, dists = index.query(overlapping_comp_coords,k=1)
+    r_tag = "r_px_" + stitching_selected
+    c_tag = "c_px_" + stitching_selected
+
+    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag, c_tag]].to_numpy()
+    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag, c_tag]].to_numpy()
+    dots_ids = comp_tiles_df.loc[:, ["dot_id"]].to_numpy()
+    index = NNDescent(overlapping_ref_coords, metric="euclidean", n_neighbors=1)
+    indices, dists = index.query(overlapping_comp_coords, k=1)
     idx_dists = np.where(dists < same_dot_radius)[0]
     dots_id_to_remove = dots_ids[idx_dists]
-    dots_id_to_remove = list(dots_id_to_remove.reshape(dots_id_to_remove.shape[0],))
+    dots_id_to_remove = list(
+        dots_id_to_remove.reshape(
+            dots_id_to_remove.shape[0],
+        )
+    )
     return dots_id_to_remove
 
-def identify_duplicated_dots_sklearn(ref_tiles_df: pd.DataFrame,comp_tiles_df: pd.DataFrame,
-                    stitching_selected: str,same_dot_radius: int)-> list:
+
+def identify_duplicated_dots_sklearn(
+    ref_tiles_df: pd.DataFrame,
+    comp_tiles_df: pd.DataFrame,
+    stitching_selected: str,
+    same_dot_radius: int,
+) -> list:
     """Function used to identify duplicated dots for a gene in the overlapping regions. This
     version of the function uses the fast nearest neighbor coded in NNDescend
 
@@ -1475,25 +1744,37 @@ def identify_duplicated_dots_sklearn(ref_tiles_df: pd.DataFrame,comp_tiles_df: p
     Returns:
         list: dot ids to remove
     """
-    nn = NearestNeighbors(n_neighbors=1,radius=same_dot_radius, metric='euclidean',algorithm='kd_tree')
-    
-    r_tag = 'r_px_' + stitching_selected
-    c_tag = 'c_px_' + stitching_selected
-    
-    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
-    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
-    dots_ids = comp_tiles_df.loc[:, ['dot_id']].to_numpy()
+    nn = NearestNeighbors(
+        n_neighbors=1, radius=same_dot_radius, metric="euclidean", algorithm="kd_tree"
+    )
+
+    r_tag = "r_px_" + stitching_selected
+    c_tag = "c_px_" + stitching_selected
+
+    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag, c_tag]].to_numpy()
+    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag, c_tag]].to_numpy()
+    dots_ids = comp_tiles_df.loc[:, ["dot_id"]].to_numpy()
     nn.fit(overlapping_ref_coords)
     dists, indices = nn.kneighbors(overlapping_comp_coords, return_distance=True)
     idx_dists = np.where(dists <= same_dot_radius)[0]
     dots_id_to_remove = dots_ids[idx_dists]
-    dots_id_to_remove = list(dots_id_to_remove.reshape(dots_id_to_remove.shape[0],))
-    
+    dots_id_to_remove = list(
+        dots_id_to_remove.reshape(
+            dots_id_to_remove.shape[0],
+        )
+    )
+
     return dots_id_to_remove
 
-def remove_overlapping_dots_fov(cpl: Tuple[int,int], chunk_coords: np.ndarray, 
-                    experiment_fpath: str, stitching_selected:str,
-                    hamming_distance: float, same_dot_radius: int)-> Dict[Tuple[int,int],List[str]]:
+
+def remove_overlapping_dots_fov(
+    cpl: Tuple[int, int],
+    chunk_coords: np.ndarray,
+    experiment_fpath: str,
+    stitching_selected: str,
+    hamming_distance: float,
+    same_dot_radius: int,
+) -> Dict[Tuple[int, int], List[str]]:
     """Function that identify the overlapping dots between two different tiles. The duplicated dots
     for all genes are identified
 
@@ -1514,56 +1795,72 @@ def remove_overlapping_dots_fov(cpl: Tuple[int,int], chunk_coords: np.ndarray,
     logger = selected_logger()
     all_dots_id_to_remove = []
     experiment_fpath = Path(experiment_fpath)
-    
+
     try:
-        counts1_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
+        counts1_fpath = list(
+            (experiment_fpath / "results").glob(
+                "*decoded*_fov_" + str(cpl[0]) + ".parquet"
+            )
+        )[0]
     except:
-        logger.error(f'count file missing for fov {cpl[0]}')
-    
+        logger.error(f"count file missing for fov {cpl[0]}")
+
     else:
         try:
-            counts2_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
+            counts2_fpath = list(
+                (experiment_fpath / "results").glob(
+                    "*decoded*_fov_" + str(cpl[1]) + ".parquet"
+                )
+            )[0]
         except:
-            logger.error(f'count file missing for fov {cpl[1]}')
+            logger.error(f"count file missing for fov {cpl[1]}")
         else:
-    
+
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
 
             # count1_grp = counts1_df.loc[counts1_df.hamming_distance < hamming_distance,:]
             # count2_grp = counts2_df.loc[counts2_df.hamming_distance < hamming_distance,:]
-            
-            count1_df = counts1_df.loc[counts1_df.hamming_distance < hamming_distance,:]
-            count2_df = counts2_df.loc[counts2_df.hamming_distance < hamming_distance,:]
-            
 
-            overlap_count1 = get_all_dots_in_overlapping_regions(counts1_df, chunk_coords, 
-                            stitching_selected)
-            overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
-                            stitching_selected)
-            
+            count1_df = counts1_df.loc[
+                counts1_df.hamming_distance < hamming_distance, :
+            ]
+            count2_df = counts2_df.loc[
+                counts2_df.hamming_distance < hamming_distance, :
+            ]
 
+            overlap_count1 = get_all_dots_in_overlapping_regions(
+                counts1_df, chunk_coords, stitching_selected
+            )
+            overlap_count2 = get_all_dots_in_overlapping_regions(
+                counts2_df, chunk_coords, stitching_selected
+            )
 
-            count1_grp = overlap_count1.groupby('decoded_genes')
-            count2_grp = overlap_count2.groupby('decoded_genes')
-            
+            count1_grp = overlap_count1.groupby("decoded_genes")
+            count2_grp = overlap_count2.groupby("decoded_genes")
+
             for gene, over_c1_df in count1_grp:
                 try:
                     over_c2_df = count2_grp.get_group(gene)
                 except:
                     pass
                 else:
-                    dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
-                                                                stitching_selected,same_dot_radius)
+                    dots_id_to_remove = identify_duplicated_dots_sklearn(
+                        over_c1_df, over_c2_df, stitching_selected, same_dot_radius
+                    )
                     if len(dots_id_to_remove):
                         all_dots_id_to_remove.append(dots_id_to_remove)
             all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
-            return {cpl:all_dots_id_to_remove}
+            return {cpl: all_dots_id_to_remove}
 
 
-def remove_overlapping_dots_serial_fov(cpl: Tuple[int,int], chunk_coords: np.ndarray, 
-                    experiment_fpath: str, stitching_selected:str,
-                    same_dot_radius: int)-> Dict[Tuple[int,int],List[str]]:
+def remove_overlapping_dots_serial_fov(
+    cpl: Tuple[int, int],
+    chunk_coords: np.ndarray,
+    experiment_fpath: str,
+    stitching_selected: str,
+    same_dot_radius: int,
+) -> Dict[Tuple[int, int], List[str]]:
     """Function that identify the overlapping dots between two different tiles. The duplicated dots
     for all genes are identified
 
@@ -1583,48 +1880,58 @@ def remove_overlapping_dots_serial_fov(cpl: Tuple[int,int], chunk_coords: np.nda
     logger = selected_logger()
     all_dots_id_to_remove = []
     experiment_fpath = Path(experiment_fpath)
-    
+
     try:
-        counts1_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[0]) + '.parquet'))[0]
+        counts1_fpath = list(
+            (experiment_fpath / "results").glob(
+                "*decoded*_fov_" + str(cpl[0]) + ".parquet"
+            )
+        )[0]
     except:
-        logger.error(f'count file missing for fov {cpl[0]}')
-    
+        logger.error(f"count file missing for fov {cpl[0]}")
+
     else:
         try:
-            counts2_fpath = list((experiment_fpath / 'results').glob('*decoded*_fov_' + str(cpl[1]) + '.parquet'))[0]
+            counts2_fpath = list(
+                (experiment_fpath / "results").glob(
+                    "*decoded*_fov_" + str(cpl[1]) + ".parquet"
+                )
+            )[0]
         except:
-            logger.error(f'count file missing for fov {cpl[1]}')
+            logger.error(f"count file missing for fov {cpl[1]}")
         else:
-    
+
             counts1_df = pd.read_parquet(counts1_fpath)
             counts2_df = pd.read_parquet(counts2_fpath)
-            
-            overlap_count1 = get_all_dots_in_overlapping_regions(counts1_df, chunk_coords, 
-                            stitching_selected)
-            overlap_count2 = get_all_dots_in_overlapping_regions(counts2_df, chunk_coords, 
-                            stitching_selected)
-            
-            count1_grp = overlap_count1.groupby('target_name')
-            count2_grp = overlap_count2.groupby('target_name')
-            
+
+            overlap_count1 = get_all_dots_in_overlapping_regions(
+                counts1_df, chunk_coords, stitching_selected
+            )
+            overlap_count2 = get_all_dots_in_overlapping_regions(
+                counts2_df, chunk_coords, stitching_selected
+            )
+
+            count1_grp = overlap_count1.groupby("target_name")
+            count2_grp = overlap_count2.groupby("target_name")
+
             for gene, over_c1_df in count1_grp:
                 try:
                     over_c2_df = count2_grp.get_group(gene)
                 except:
                     pass
                 else:
-                    dots_id_to_remove = identify_duplicated_dots_sklearn(over_c1_df,over_c2_df,
-                                                                stitching_selected,same_dot_radius)
+                    dots_id_to_remove = identify_duplicated_dots_sklearn(
+                        over_c1_df, over_c2_df, stitching_selected, same_dot_radius
+                    )
                     if len(dots_id_to_remove):
                         all_dots_id_to_remove.append(dots_id_to_remove)
             all_dots_id_to_remove = [el for tg in all_dots_id_to_remove for el in tg]
-            return {cpl:all_dots_id_to_remove}
+            return {cpl: all_dots_id_to_remove}
 
 
-
-
-def clean_from_duplicated_dots(fov: int, dots_id_to_remove: list, experiment_fpath: str,
-                                tag_cleaned_file:str):
+def clean_from_duplicated_dots(
+    fov: int, dots_id_to_remove: list, experiment_fpath: str, tag_cleaned_file: str
+):
     """Function to remove the dulicated dots.
 
     Args:
@@ -1636,45 +1943,69 @@ def clean_from_duplicated_dots(fov: int, dots_id_to_remove: list, experiment_fpa
     logger = selected_logger()
     experiment_fpath = Path(experiment_fpath)
     try:
-        fname = list((experiment_fpath / 'results').glob('*_decoded_fov_' + str(fov) + '.parquet'))[0]
+        fname = list(
+            (experiment_fpath / "results").glob(
+                "*_decoded_fov_" + str(fov) + ".parquet"
+            )
+        )[0]
     except:
-        logger.error(f'missing decoded file for fov {fov}')
+        logger.error(f"missing decoded file for fov {fov}")
     else:
-        save_name = fname.stem.split('_decoded_fov_')[0] + '_'+ tag_cleaned_file +'_cleaned_df_fov_' + str(fov) + '.parquet'
-        save_name = experiment_fpath / 'results' / save_name
+        save_name = (
+            fname.stem.split("_decoded_fov_")[0]
+            + "_"
+            + tag_cleaned_file
+            + "_cleaned_df_fov_"
+            + str(fov)
+            + ".parquet"
+        )
+        save_name = experiment_fpath / "results" / save_name
         if len(dots_id_to_remove):
             try:
                 counts_df = pd.read_parquet(fname)
-                logger.error(f'loaded {fname}')
-                
+                logger.error(f"loaded {fname}")
+
             except:
-                logger.error(f'missing {fname}')
+                logger.error(f"missing {fname}")
             else:
                 cleaned_df = counts_df.loc[~counts_df.dot_id.isin(dots_id_to_remove), :]
-                cleaned_df.to_parquet(save_name,index=False)
-                logger.error(f'saved {fname}')
+                cleaned_df.to_parquet(save_name, index=False)
+                logger.error(f"saved {fname}")
 
-                save_name = fname.stem.split('_decoded_fov_')[0] + '_' + tag_cleaned_file + '_removed_df_fov_' + str(fov) + '.parquet'
-                save_name = experiment_fpath / 'results' / save_name
+                save_name = (
+                    fname.stem.split("_decoded_fov_")[0]
+                    + "_"
+                    + tag_cleaned_file
+                    + "_removed_df_fov_"
+                    + str(fov)
+                    + ".parquet"
+                )
+                save_name = experiment_fpath / "results" / save_name
                 removed_df = counts_df.loc[counts_df.dot_id.isin(dots_id_to_remove), :]
-                removed_df.to_parquet(save_name,index=False)
+                removed_df.to_parquet(save_name, index=False)
         else:
             try:
-                _ = shutil.copy2(fname.as_posix(),save_name.as_posix())
-                logger.error(f'copied {fname}')
+                _ = shutil.copy2(fname.as_posix(), save_name.as_posix())
+                logger.error(f"copied {fname}")
             except:
-                logger.error(f'cannot copy {fname} to {save_name}')
-
+                logger.error(f"cannot copy {fname} to {save_name}")
 
 
 """
     The overlapping dots are not removed right after being identified
     to avoid race conditions
     """
-def remove_duplicated_dots_graph(experiment_fpath: str,dataset: pd.DataFrame,
-                                tiles_org, hamming_distance: float,
-                                same_dot_radius: int, 
-                                stitching_selected: str, client):
+
+
+def remove_duplicated_dots_graph(
+    experiment_fpath: str,
+    dataset: pd.DataFrame,
+    tiles_org,
+    hamming_distance: float,
+    same_dot_radius: int,
+    stitching_selected: str,
+    client,
+):
     """Dask task graph builder/runner function to parallel remove duplicated dots
     The overlapping dots are not removed right after being identified
     because the same fov can be part of two different overlapping couples.
@@ -1682,7 +2013,7 @@ def remove_duplicated_dots_graph(experiment_fpath: str,dataset: pd.DataFrame,
     Args:
         experiment_fpath (str): Path to the experiment to process
         dataset (pd.DataFrame): Properties of the images of the experiment
-        tiles_org ([type]): Organization of the tiles 
+        tiles_org ([type]): Organization of the tiles
         hamming_distance (float): Selected distance from the code
         same_dot_radius (int): searching radius used to define if two dots are
             the same
@@ -1692,29 +2023,35 @@ def remove_duplicated_dots_graph(experiment_fpath: str,dataset: pd.DataFrame,
             the processing of the task graph.
         tag_cleaned_file (str): tag name of the file with cleaned counts
     """
-    
+
     logger = selected_logger()
-    fovs = dataset.loc[:,'fov_num'].unique()
-    unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+    fovs = dataset.loc[:, "fov_num"].unique()
+    unfolded_overlapping_regions_dict = {
+        key: value
+        for (k, v) in tiles_org.overlapping_regions.items()
+        for (key, value) in v.items()
+    }
 
     # Prepare the dataframe
-    r_tag = 'r_px_' + stitching_selected
-    c_tag = 'c_px_' + stitching_selected
+    r_tag = "r_px_" + stitching_selected
+    c_tag = "c_px_" + stitching_selected
 
     all_futures = []
 
-    for cpl,chunk_coords in unfolded_overlapping_regions_dict.items():
-        future = client.submit(remove_overlapping_dots_fov,
-                                cpl = cpl,
-                                chunk_coords=chunk_coords,
-                                experiment_fpath=experiment_fpath,
-                                stitching_selected=stitching_selected,
-                                hamming_distance=hamming_distance,
-                                same_dot_radius = same_dot_radius)
+    for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
+        future = client.submit(
+            remove_overlapping_dots_fov,
+            cpl=cpl,
+            chunk_coords=chunk_coords,
+            experiment_fpath=experiment_fpath,
+            stitching_selected=stitching_selected,
+            hamming_distance=hamming_distance,
+            same_dot_radius=same_dot_radius,
+        )
 
         all_futures.append(future)
 
-    to_remove = client.gather(all_futures)  
+    to_remove = client.gather(all_futures)
     to_remove_comb = {k: v for d in to_remove for k, v in d.items()}
 
     removed_dot_dict = {}
@@ -1722,16 +2059,18 @@ def remove_duplicated_dots_graph(experiment_fpath: str,dataset: pd.DataFrame,
         if key[1] not in removed_dot_dict.keys():
             removed_dot_dict[key[1]] = []
         removed_dot_dict[key[1]].append(items)
-    
+
     for key, items in removed_dot_dict.items():
         removed_dot_dict[key] = [el for tg in items for el in tg]
 
-    for fov,dots_id_to_remove in removed_dot_dict.items():
-        future = client.submit(clean_from_duplicated_dots,
-                                fov = fov,
-                                dots_id_to_remove=dots_id_to_remove,
-                                experiment_fpath=experiment_fpath,
-                                tag_cleaned_file=stitching_selected)
+    for fov, dots_id_to_remove in removed_dot_dict.items():
+        future = client.submit(
+            clean_from_duplicated_dots,
+            fov=fov,
+            dots_id_to_remove=dots_id_to_remove,
+            experiment_fpath=experiment_fpath,
+            tag_cleaned_file=stitching_selected,
+        )
 
         all_futures.append(future)
 
@@ -1742,10 +2081,16 @@ def remove_duplicated_dots_graph(experiment_fpath: str,dataset: pd.DataFrame,
     The overlapping dots are not removed right after being identified
     to avoid race conditions
     """
-def remove_duplicated_dots_serial_graph(experiment_fpath: str,dataset: pd.DataFrame,
-                                tiles_org,
-                                same_dot_radius: int, 
-                                stitching_selected: str, client):
+
+
+def remove_duplicated_dots_serial_graph(
+    experiment_fpath: str,
+    dataset: pd.DataFrame,
+    tiles_org,
+    same_dot_radius: int,
+    stitching_selected: str,
+    client,
+):
     """Dask task graph builder/runner function to parallel remove duplicated dots
     The overlapping dots are not removed right after being identified
     because the same fov can be part of two different overlapping couples.
@@ -1753,7 +2098,7 @@ def remove_duplicated_dots_serial_graph(experiment_fpath: str,dataset: pd.DataFr
     Args:
         experiment_fpath (str): Path to the experiment to process
         dataset (pd.DataFrame): Properties of the images of the experiment
-        tiles_org ([type]): Organization of the tiles 
+        tiles_org ([type]): Organization of the tiles
         same_dot_radius (int): searching radius used to define if two dots are
             the same
         stitching_selected (str): String that identify the coords of the pixels
@@ -1762,28 +2107,34 @@ def remove_duplicated_dots_serial_graph(experiment_fpath: str,dataset: pd.DataFr
             the processing of the task graph.
         tag_cleaned_file (str): tag name of the file with cleaned counts
     """
-    
+
     logger = selected_logger()
-    fovs = dataset.loc[:,'fov_num'].unique()
-    unfolded_overlapping_regions_dict = {key:value for (k,v) in tiles_org.overlapping_regions.items() for (key,value) in v.items()}
+    fovs = dataset.loc[:, "fov_num"].unique()
+    unfolded_overlapping_regions_dict = {
+        key: value
+        for (k, v) in tiles_org.overlapping_regions.items()
+        for (key, value) in v.items()
+    }
 
     # Prepare the dataframe
-    r_tag = 'r_px_' + stitching_selected
-    c_tag = 'c_px_' + stitching_selected
+    r_tag = "r_px_" + stitching_selected
+    c_tag = "c_px_" + stitching_selected
 
     all_futures = []
 
-    for cpl,chunk_coords in unfolded_overlapping_regions_dict.items():
-        future = client.submit(remove_overlapping_dots_serial_fov,
-                                cpl = cpl,
-                                chunk_coords=chunk_coords,
-                                experiment_fpath=experiment_fpath,
-                                stitching_selected=stitching_selected,
-                                same_dot_radius = same_dot_radius)
+    for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
+        future = client.submit(
+            remove_overlapping_dots_serial_fov,
+            cpl=cpl,
+            chunk_coords=chunk_coords,
+            experiment_fpath=experiment_fpath,
+            stitching_selected=stitching_selected,
+            same_dot_radius=same_dot_radius,
+        )
 
         all_futures.append(future)
 
-    to_remove = client.gather(all_futures)  
+    to_remove = client.gather(all_futures)
     to_remove_comb = {k: v for d in to_remove for k, v in d.items()}
 
     removed_dot_dict = {}
@@ -1791,54 +2142,67 @@ def remove_duplicated_dots_serial_graph(experiment_fpath: str,dataset: pd.DataFr
         if key[1] not in removed_dot_dict.keys():
             removed_dot_dict[key[1]] = []
         removed_dot_dict[key[1]].append(items)
-    
+
     for key, items in removed_dot_dict.items():
         removed_dot_dict[key] = [el for tg in items for el in tg]
 
-    for fov,dots_id_to_remove in removed_dot_dict.items():
-        future = client.submit(clean_from_duplicated_dots,
-                                fov = fov,
-                                dots_id_to_remove=dots_id_to_remove,
-                                experiment_fpath=experiment_fpath,
-                                tag_cleaned_file=stitching_selected)
+    for fov, dots_id_to_remove in removed_dot_dict.items():
+        future = client.submit(
+            clean_from_duplicated_dots,
+            fov=fov,
+            dots_id_to_remove=dots_id_to_remove,
+            experiment_fpath=experiment_fpath,
+            tag_cleaned_file=stitching_selected,
+        )
 
         all_futures.append(future)
 
     _ = client.gather(all_futures)
 
 
-
 # TODO Remove functions
 
 
-def stitch_using_coords_general_df(decoded_df,tile_corners_coords_pxl,reference_corner_fov_position, metadata,tag):
+def stitch_using_coords_general_df(
+    decoded_df, tile_corners_coords_pxl, reference_corner_fov_position, metadata, tag
+):
     """
     Tiles are placed directly on the position indicated by the microscope
     coords
     """
 
-
-
-    if decoded_df['r_px_registered'].empty:
-        decoded_df['r_px_'+tag] = np.nan
-        decoded_df['c_px_'+tag] = np.nan
+    if decoded_df["r_px_registered"].empty:
+        decoded_df["r_px_" + tag] = np.nan
+        decoded_df["c_px_" + tag] = np.nan
     else:
 
-        fov = decoded_df.iloc[0]['fov_num']
-        r_microscope_coords = tile_corners_coords_pxl[fov,0]
-        c_microscope_coords = tile_corners_coords_pxl[fov,1]
-        
-        if reference_corner_fov_position == 'top-left':
-            decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
-            decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
+        fov = decoded_df.iloc[0]["fov_num"]
+        r_microscope_coords = tile_corners_coords_pxl[fov, 0]
+        c_microscope_coords = tile_corners_coords_pxl[fov, 1]
 
-        elif reference_corner_fov_position == 'top-right':
-            decoded_df['r_px_'+tag] =  r_microscope_coords + decoded_df['r_px_registered']
-            decoded_df['c_px_'+tag] =  c_microscope_coords - (metadata['img_width'] - decoded_df['c_px_registered'])
+        if reference_corner_fov_position == "top-left":
+            decoded_df["r_px_" + tag] = (
+                r_microscope_coords + decoded_df["r_px_registered"]
+            )
+            decoded_df["c_px_" + tag] = (
+                c_microscope_coords + decoded_df["c_px_registered"]
+            )
 
-        elif reference_corner_fov_position == 'bottom_left':
-            decoded_df['r_px_'+tag] =  r_microscope_coords + (metadata['img_height'] - decoded_df['r_px_registered'])
-            decoded_df['c_px_'+tag] =  c_microscope_coords + decoded_df['c_px_registered']
+        elif reference_corner_fov_position == "top-right":
+            decoded_df["r_px_" + tag] = (
+                r_microscope_coords + decoded_df["r_px_registered"]
+            )
+            decoded_df["c_px_" + tag] = c_microscope_coords - (
+                metadata["img_width"] - decoded_df["c_px_registered"]
+            )
+
+        elif reference_corner_fov_position == "bottom_left":
+            decoded_df["r_px_" + tag] = r_microscope_coords + (
+                metadata["img_height"] - decoded_df["r_px_registered"]
+            )
+            decoded_df["c_px_" + tag] = (
+                c_microscope_coords + decoded_df["c_px_registered"]
+            )
     # if decoded_df['r_px_registered'].empty:
     #     decoded_df['r_px_microscope_stitched'] = np.nan
     #     decoded_df['c_px_microscope_stitched'] = np.nan
@@ -1849,12 +2213,10 @@ def stitch_using_coords_general_df(decoded_df,tile_corners_coords_pxl,reference_
     #     decoded_df['r_px_microscope_stitched'] =  r_microscope_coords - decoded_df['r_px_registered']
     #     decoded_df['c_px_microscope_stitched'] =  c_microscope_coords - decoded_df['c_px_registered']
 
-        # new room
-        # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
-        # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
+    # new room
+    # decoded_df['r_px_microscope_stitched'] =  r_microscope_coords + decoded_df['r_px_registered']
+    # decoded_df['c_px_microscope_stitched'] =  c_microscope_coords + decoded_df['c_px_registered']
     return decoded_df
-
-
 
 
 # REMOVE OVERLAPPING DOTS ACCORDING TO GENE
@@ -1864,7 +2226,7 @@ def stitch_using_coords_general_df(decoded_df,tile_corners_coords_pxl,reference_
 # counts_dd_list = [dd.read_parquet(counts_file) for counts_file in all_files]
 # counts_dd = dd.concat(counts_dd_list, axis=0)
 # counts_dd = counts_dd.loc[counts_dd.dot_id == counts_dd.barcode_reference_dot_id,['barcode_reference_dot_id',
-#                                                                                     r_tag, c_tag, select_genes, 
+#                                                                                     r_tag, c_tag, select_genes,
 #                                                                                     'fov_num']]
 # counts_df = counts_dd.dropna(subset=[select_genes]).compute()
 # grpd = counts_df.groupby(select_genes)
@@ -1879,23 +2241,24 @@ def stitch_using_coords_general_df(decoded_df,tile_corners_coords_pxl,reference_
 #                             stitching_selected=stitching_selected,
 #                             gene = gene,
 #                             same_dot_radius = same_dot_radius)
-    
+
 #     all_futures.append(future)
 
-def get_dots_in_overlapping_regions(counts_df, unfolded_overlapping_regions_dict, 
-                       stitching_selected, gene):    
-    r_tag = 'r_px_' + stitching_selected
-    c_tag = 'c_px_' + stitching_selected
-    
+
+def get_dots_in_overlapping_regions(
+    counts_df, unfolded_overlapping_regions_dict, stitching_selected, gene
+):
+    r_tag = "r_px_" + stitching_selected
+    c_tag = "c_px_" + stitching_selected
+
     ref_tiles_df = pd.DataFrame(columns=counts_df.columns)
     comp_tiles_df = pd.DataFrame(columns=counts_df.columns)
-    
-    
-    grpd_df = counts_df.groupby('fov_num')
+
+    grpd_df = counts_df.groupby("fov_num")
     list_fov = list(grpd_df.groups.keys())
-    
+
     for cpl, chunk_coords in unfolded_overlapping_regions_dict.items():
-        
+
         if (cpl[0] in list_fov) and (cpl[1] in list_fov):
             r_tl = chunk_coords[0]
             r_br = chunk_coords[1]
@@ -1905,55 +2268,81 @@ def get_dots_in_overlapping_regions(counts_df, unfolded_overlapping_regions_dict
             barcoded_ref_df = grpd_df.get_group(cpl[0])
             barcoded_comp_df = grpd_df.get_group(cpl[1])
 
-            overlapping_ref_df = barcoded_ref_df.loc[(barcoded_ref_df[r_tag] > r_tl) & (barcoded_ref_df[r_tag] < r_br) 
-                                               & (barcoded_ref_df[c_tag] > c_tl) & (barcoded_ref_df[c_tag] < c_br),:]
+            overlapping_ref_df = barcoded_ref_df.loc[
+                (barcoded_ref_df[r_tag] > r_tl)
+                & (barcoded_ref_df[r_tag] < r_br)
+                & (barcoded_ref_df[c_tag] > c_tl)
+                & (barcoded_ref_df[c_tag] < c_br),
+                :,
+            ]
 
-
-            overlapping_comp_df = barcoded_comp_df.loc[(barcoded_comp_df[r_tag] > r_tl) & (barcoded_comp_df[r_tag] < r_br) 
-                                               & (barcoded_comp_df[c_tag] > c_tl) & (barcoded_comp_df[c_tag] < c_br),:]
-
+            overlapping_comp_df = barcoded_comp_df.loc[
+                (barcoded_comp_df[r_tag] > r_tl)
+                & (barcoded_comp_df[r_tag] < r_br)
+                & (barcoded_comp_df[c_tag] > c_tl)
+                & (barcoded_comp_df[c_tag] < c_br),
+                :,
+            ]
 
             ref_tiles_df = ref_tiles_df.append(overlapping_ref_df)
             comp_tiles_df = comp_tiles_df.append(overlapping_comp_df)
-        
+
     return ref_tiles_df, comp_tiles_df
 
 
-def identify_duplicated_dots(ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius):
-    
-    r_tag = 'r_px_' + stitching_selected
-    c_tag = 'c_px_' + stitching_selected
+def identify_duplicated_dots(
+    ref_tiles_df, comp_tiles_df, stitching_selected, same_dot_radius
+):
 
-    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
-    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag,c_tag]].to_numpy()
-    dots_ids = comp_tiles_df.loc[:, ['dot_id']].to_numpy()
-    index = NNDescent(overlapping_ref_coords,metric='euclidean',n_neighbors=1)
-    indices, dists = index.query(overlapping_comp_coords,k=1)
+    r_tag = "r_px_" + stitching_selected
+    c_tag = "c_px_" + stitching_selected
+
+    overlapping_ref_coords = ref_tiles_df.loc[:, [r_tag, c_tag]].to_numpy()
+    overlapping_comp_coords = comp_tiles_df.loc[:, [r_tag, c_tag]].to_numpy()
+    dots_ids = comp_tiles_df.loc[:, ["dot_id"]].to_numpy()
+    index = NNDescent(overlapping_ref_coords, metric="euclidean", n_neighbors=1)
+    indices, dists = index.query(overlapping_comp_coords, k=1)
     idx_dists = np.where(dists < same_dot_radius)[0]
     dots_id_to_remove = dots_ids[idx_dists]
-    dots_id_to_remove = list(dots_id_to_remove.reshape(dots_id_to_remove.shape[0],))
+    dots_id_to_remove = list(
+        dots_id_to_remove.reshape(
+            dots_id_to_remove.shape[0],
+        )
+    )
     return dots_id_to_remove
 
 
-def remove_overlapping_dots_from_gene(experiment_fpath,counts_df,unfolded_overlapping_regions_dict,
-                                    stitching_selected,gene,same_dot_radius):
+def remove_overlapping_dots_from_gene(
+    experiment_fpath,
+    counts_df,
+    unfolded_overlapping_regions_dict,
+    stitching_selected,
+    gene,
+    same_dot_radius,
+):
 
     experiment_fpath = Path(experiment_fpath)
-    ref_tiles_df, comp_tiles_df = get_dots_in_overlapping_regions(counts_df,unfolded_overlapping_regions_dict, 
-                       stitching_selected, gene)
-    dots_id_to_remove = identify_duplicated_dots(ref_tiles_df,comp_tiles_df,stitching_selected,same_dot_radius)
-    cleaned_df = counts_df.loc[~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :]
-    fpath = experiment_fpath / 'results' / (experiment_fpath.stem + '_' + gene +'_counts.parquet')
-    cleaned_df.to_parquet(fpath,index=False)
+    ref_tiles_df, comp_tiles_df = get_dots_in_overlapping_regions(
+        counts_df, unfolded_overlapping_regions_dict, stitching_selected, gene
+    )
+    dots_id_to_remove = identify_duplicated_dots(
+        ref_tiles_df, comp_tiles_df, stitching_selected, same_dot_radius
+    )
+    cleaned_df = counts_df.loc[
+        ~counts_df.barcode_reference_dot_id.isin(dots_id_to_remove), :
+    ]
+    fpath = (
+        experiment_fpath
+        / "results"
+        / (experiment_fpath.stem + "_" + gene + "_counts.parquet")
+    )
+    cleaned_df.to_parquet(fpath, index=False)
 
 
-
-
-
-class r_c_chunking():
+class r_c_chunking:
     """
     Utility class used to chunk and arbitrary region and obtain the coords if the chunks.
-    The chunking can be different between row and 
+    The chunking can be different between row and
     columns
 
     Parameters:
@@ -1976,10 +2365,9 @@ class r_c_chunking():
         self.r_chunk_size = r_chunk_size
         self.c_chunk_size = c_chunk_size
         self.tl_coords = tl_coords
-    
 
     @staticmethod
-    def block_chunks_calculator(dimension,chunk_size):
+    def block_chunks_calculator(dimension, chunk_size):
         """
         Helper function to calculate the size of the chunks created according
         the length of the vector and the chunk size.
@@ -1989,32 +2377,32 @@ class r_c_chunking():
 
         dimension: int
             Length of the vector to Chunk
-        chunkSize: int 
+        chunkSize: int
             Dimension of the Chunks
 
         Returns:
         -----------
 
-        chunks_sizes: np.array 
-            Array of the sizes of the created chunks. It deals with conditions 
-            when the expected chunks size do not fit an even number of times in the 
+        chunks_sizes: np.array
+            Array of the sizes of the created chunks. It deals with conditions
+            when the expected chunks size do not fit an even number of times in the
             dimension
         """
-        number_even_chunks=int(dimension//chunk_size)
-        total_size_even_chunks=number_even_chunks*chunk_size
-        odd_tile_size=dimension-total_size_even_chunks
-        chunk_sizes=[]
-        chunks_sizes=list(np.repeat(chunk_size,number_even_chunks-1))
+        number_even_chunks = int(dimension // chunk_size)
+        total_size_even_chunks = number_even_chunks * chunk_size
+        odd_tile_size = dimension - total_size_even_chunks
+        chunk_sizes = []
+        chunks_sizes = list(np.repeat(chunk_size, number_even_chunks - 1))
         if odd_tile_size < chunk_size:
-            chunks_sizes.append(chunk_size+odd_tile_size)
+            chunks_sizes.append(chunk_size + odd_tile_size)
         else:
             chunks_sizes.append(odd_tile_size)
         return tuple(chunks_sizes)
-    
+
     def block_chunking(self):
         """
         Function used to generate the coords of the images according to the
-        chunking 
+        chunking
 
         Notes:
         ------
@@ -2023,144 +2411,141 @@ class r_c_chunking():
         [row_tl,row_br,col_tl,col_br]
 
         """
-        num_r,num_c = self.region_dimensions
+        num_r, num_c = self.region_dimensions
         self.starting_position = self.tl_coords
         self.end_position = self.tl_coords + self.region_dimensions
 
         # Calculate the size of the chunks
-        r_chunks_size = self.block_chunks_calculator(num_r,self.r_chunk_size)
-        
-        c_chunks_size = self.block_chunks_calculator(num_c,self.c_chunk_size)
-        
+        r_chunks_size = self.block_chunks_calculator(num_r, self.r_chunk_size)
+
+        c_chunks_size = self.block_chunks_calculator(num_c, self.c_chunk_size)
+
         # Calculate the total numbers of chunks
         nr_chunks = len(r_chunks_size)
-        
-        nc_chunks = len(c_chunks_size)
-       
 
+        nc_chunks = len(c_chunks_size)
 
         # Coords top left corner (tl)
         if nr_chunks == 1:
             r_coords_tl = self.starting_position[0]
-        else: 
+        else:
             r_coords_tl = [self.starting_position[0]]
-            for i in np.arange(1,nr_chunks):
-                r_coords_tl.append(r_coords_tl[i-1] + self.r_chunk_size )
+            for i in np.arange(1, nr_chunks):
+                r_coords_tl.append(r_coords_tl[i - 1] + self.r_chunk_size)
             r_coords_tl = np.array(r_coords_tl)
             # r_coords_tl = np.arange(self.starting_position[0],(self.starting_position[0]+self.r_chunk_size*(nr_chunks)),self.r_chunk_size)
-            
+
         if nc_chunks == 1:
             c_coords_tl = self.starting_position[1]
         else:
             c_coords_tl = [self.starting_position[1]]
-            for i in np.arange(1,nc_chunks):
-                c_coords_tl.append(c_coords_tl[i-1] + self.c_chunk_size )
+            for i in np.arange(1, nc_chunks):
+                c_coords_tl.append(c_coords_tl[i - 1] + self.c_chunk_size)
             c_coords_tl = np.array(c_coords_tl)
 
             # c_coords_tl = np.arange(self.starting_position[1],(self.starting_position[1]+self.c_chunk_size*(nc_chunks)),self.c_chunk_size)
 
-        
         # Coords of all the tl in the image
-        r_coords_tl_all,c_coords_tl_all = np.meshgrid(r_coords_tl,c_coords_tl,indexing='ij')
-        self.coords_all_to_test = [r_coords_tl_all,c_coords_tl_all]
+        r_coords_tl_all, c_coords_tl_all = np.meshgrid(
+            r_coords_tl, c_coords_tl, indexing="ij"
+        )
+        self.coords_all_to_test = [r_coords_tl_all, c_coords_tl_all]
         # Calculate all the br coords
         r_coords_br_all = r_coords_tl_all.copy()
         c_coords_br_all = c_coords_tl_all.copy()
 
-        for c in np.arange(0,r_coords_tl_all.shape[1]):
-            r_coords_br_all[:,c] = r_coords_br_all[:,c]+r_chunks_size
+        for c in np.arange(0, r_coords_tl_all.shape[1]):
+            r_coords_br_all[:, c] = r_coords_br_all[:, c] + r_chunks_size
 
-        for r in np.arange(0,r_coords_tl_all.shape[0]):
-             c_coords_br_all[r,:] = c_coords_br_all[r,:]+c_chunks_size
+        for r in np.arange(0, r_coords_tl_all.shape[0]):
+            c_coords_br_all[r, :] = c_coords_br_all[r, :] + c_chunks_size
 
-        
         # The coords list are generated as:
         # row_tl,row_br,col_tl,col_br
 
-
         # Create a list for the padded coords
         self.coords_chunks_list = list()
-        for r in np.arange(0,r_coords_tl_all.shape[0]):
-            for c in np.arange(0,r_coords_tl_all.shape[1]):
-                self.coords_chunks_list.append(np.array([r_coords_tl_all[r][c],\
-                                                           r_coords_br_all[r][c],\
-                                                           c_coords_tl_all[r][c],\
-                                                           c_coords_br_all[r][c]])) 
-    
+        for r in np.arange(0, r_coords_tl_all.shape[0]):
+            for c in np.arange(0, r_coords_tl_all.shape[1]):
+                self.coords_chunks_list.append(
+                    np.array(
+                        [
+                            r_coords_tl_all[r][c],
+                            r_coords_br_all[r][c],
+                            c_coords_tl_all[r][c],
+                            c_coords_br_all[r][c],
+                        ]
+                    )
+                )
 
 
-class triangles_based_dots_stitching():
+class triangles_based_dots_stitching:
     """
     Class used to register the different rounds by searaching and
     matching all possible triangles formed by the dots in the reference
     and translated image. This function run only a registration to the reference
     round
-    
-    The calculation of the triangle is based on list processing and may 
+
+    The calculation of the triangle is based on list processing and may
     be improved in ported to numpy.
     https://stackoverflow.com/questions/43126580/match-set-of-x-y-points-to-another-set-that-is-scaled-rotated-translated-and
 
     """
 
-    
     def __init__(self, ref_overlapping_counts, comp_overlapping_counts, chunk_coords):
         self.ref_overlapping_counts = ref_overlapping_counts
         self.comp_overlapping_counts = comp_overlapping_counts
         self.chunk_coords = chunk_coords
-        
+
         self.r_tl = self.chunk_coords[0]
         self.r_br = self.chunk_coords[1]
         self.c_tl = self.chunk_coords[2]
         self.c_br = self.chunk_coords[3]
-        
-        
+
         num_r = np.abs(np.abs(self.r_tl) - np.abs(self.r_br))
         num_c = np.abs(np.abs(self.c_tl) - np.abs(self.c_br))
-        self.overlapping_region_dimensions = np.array([num_r,num_c])
-        
+        self.overlapping_region_dimensions = np.array([num_r, num_c])
+
         if num_r > num_c:
-            self.chunk_search_ax = 'r'
+            self.chunk_search_ax = "r"
             self.r_chunk_size = num_c
             self.c_chunk_size = num_c
             self.max_chunk_size = num_r
         else:
-            self.chunk_search_ax = 'c'
+            self.chunk_search_ax = "c"
             self.r_chunk_size = num_r
             self.c_chunk_size = num_r
             self.max_chunk_size = num_c
-        
+
         self.min_dots_chunk = 6
         self.min_error_triangles = 1
         self.max_dots = 12
         self.logger = logging.getLogger(__name__)
         self.tl_coords = np.array([self.r_tl, self.c_tl])
-          
 
     @staticmethod
-    def obj_fun(pars,x,src):
+    def obj_fun(pars, x, src):
         tx, ty = pars
-        H = np.array([[1, 0, tx],\
-            [0, 1, ty]])
-        src1 = np.c_[src,np.ones(src.shape[0])]
-        return np.sum( (x - src1.dot(H.T)[:,:2])**2 )
+        H = np.array([[1, 0, tx], [0, 1, ty]])
+        src1 = np.c_[src, np.ones(src.shape[0])]
+        return np.sum((x - src1.dot(H.T)[:, :2]) ** 2)
 
     @staticmethod
     def apply_transform(pars, src):
         tx, ty = pars
-        H = np.array([[1, 0, tx],\
-            [0, 1, ty]])
-        src1 = np.c_[src,np.ones(src.shape[0])]
-        return src1.dot(H.T)[:,:2]
+        H = np.array([[1, 0, tx], [0, 1, ty]])
+        src1 = np.c_[src, np.ones(src.shape[0])]
+        return src1.dot(H.T)[:, :2]
 
     @staticmethod
-    def distance(x1,y1,x2,y2):
-        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2 )
+    def distance(x1, y1, x2, y2):
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
     @staticmethod
-    def list_subtract(list1,list2):
-        return np.absolute(np.array(list1)-np.array(list2))
+    def list_subtract(list1, list2):
+        return np.absolute(np.array(list1) - np.array(list2))
 
-    def tri_sides(self,set_x, set_x_tri):
+    def tri_sides(self, set_x, set_x_tri):
 
         triangles = []
         for i in range(len(set_x_tri)):
@@ -2171,26 +2556,25 @@ class triangles_based_dots_stitching():
 
             point1x, point1y = set_x[point1][0], set_x[point1][1]
             point2x, point2y = set_x[point2][0], set_x[point2][1]
-            point3x, point3y = set_x[point3][0], set_x[point3][1] 
+            point3x, point3y = set_x[point3][0], set_x[point3][1]
 
-            len1 = self.distance(point1x,point1y,point2x,point2y)
-            len2 = self.distance(point1x,point1y,point3x,point3y)
-            len3 = self.distance(point2x,point2y,point3x,point3y)
+            len1 = self.distance(point1x, point1y, point2x, point2y)
+            len2 = self.distance(point1x, point1y, point3x, point3y)
+            len3 = self.distance(point2x, point2y, point3x, point3y)
 
             # you need to normalize in case the ref and the tran
             # are warped
-            #min_side = min(len1,len2,len3)
-            #len1/=min_side
-            #len2/=min_side
-            #len3/=min_side
-            t=[len1,len2,len3]
+            # min_side = min(len1,len2,len3)
+            # len1/=min_side
+            # len2/=min_side
+            # len3/=min_side
+            t = [len1, len2, len3]
             t.sort()
             triangles.append(t)
 
         return triangles
 
-
-    def identify_matching_coords(self,set_A, set_B, threshold):
+    def identify_matching_coords(self, set_A, set_B, threshold):
         match_A_pts = []
         match_B_pts = []
         set_A_tri = list(itertools.combinations(range(len(set_A)), 3))
@@ -2202,7 +2586,7 @@ class triangles_based_dots_stitching():
             for j in range(len(B_triangles)):
                 k = sum(self.list_subtract(A_triangles[i], B_triangles[j]))
                 if k < threshold:
-                    sums.append([i,j,k])
+                    sums.append([i, j, k])
         # sort by smallest sum
         sums = sorted(sums, key=operator.itemgetter(2))
         if len(sums):
@@ -2211,38 +2595,50 @@ class triangles_based_dots_stitching():
             for i in range(3):
                 match_A_pts.append(set_A[match_A[i]])
                 match_B_pts.append(set_B[match_B[i]])
-        return (match_A_pts,match_B_pts)
-
-
+        return (match_A_pts, match_B_pts)
 
     def calculate_chunks(self):
-        self.chunks = r_c_chunking(self.overlapping_region_dimensions,self.r_chunk_size,
-                        self.c_chunk_size,self.tl_coords)   
+        self.chunks = r_c_chunking(
+            self.overlapping_region_dimensions,
+            self.r_chunk_size,
+            self.c_chunk_size,
+            self.tl_coords,
+        )
         self.chunks.block_chunking()
         self.coords_chunks_list = self.chunks.coords_chunks_list
-        
-    def calculate_dots_chunks(self,coords,chunk_coords):  
+
+    def calculate_dots_chunks(self, coords, chunk_coords):
         r_tl = chunk_coords[0]
         r_br = chunk_coords[1]
         c_tl = chunk_coords[2]
         c_br = chunk_coords[3]
 
         # Select only the coords in the trimmed region
-        coords_in_chunk = coords[((r_tl < coords[:,0]) & (coords[:,0]<r_br)\
-                    & (c_tl <coords[:,1]) &(coords[:,1]<c_br)),: ]
+        coords_in_chunk = coords[
+            (
+                (r_tl < coords[:, 0])
+                & (coords[:, 0] < r_br)
+                & (c_tl < coords[:, 1])
+                & (coords[:, 1] < c_br)
+            ),
+            :,
+        ]
         return coords_in_chunk
 
-
-    def optimize_chunking(self,ref_coords, tran_coords):       
+    def optimize_chunking(self, ref_coords, tran_coords):
         self.enough_dots = False
-        if self.chunk_search_ax == 'c':
+        if self.chunk_search_ax == "c":
             chunk_size = self.c_chunk_size
         else:
             chunk_size = self.r_chunk_size
-        
+
         while chunk_size < self.max_chunk_size:
-            chunks = r_c_chunking(self.overlapping_region_dimensions,self.r_chunk_size,
-                        self.c_chunk_size,self.tl_coords)
+            chunks = r_c_chunking(
+                self.overlapping_region_dimensions,
+                self.r_chunk_size,
+                self.c_chunk_size,
+                self.tl_coords,
+            )
             chunks.block_chunking()
             coords_chunks_list = chunks.coords_chunks_list
             ref_max_number_dots = []
@@ -2250,132 +2646,201 @@ class triangles_based_dots_stitching():
             ref_total = []
             tran_total = []
             for chunk_coords in coords_chunks_list:
-                ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
-                tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
-                if ref_coords_in_chunk.shape[0] > self.min_dots_chunk and tran_coords_in_chunk.shape[0] > self.min_dots_chunk:
-                        self.enough_dots = True
-                        break
+                ref_coords_in_chunk = self.calculate_dots_chunks(
+                    ref_coords, chunk_coords
+                )
+                tran_coords_in_chunk = self.calculate_dots_chunks(
+                    tran_coords, chunk_coords
+                )
+                if (
+                    ref_coords_in_chunk.shape[0] > self.min_dots_chunk
+                    and tran_coords_in_chunk.shape[0] > self.min_dots_chunk
+                ):
+                    self.enough_dots = True
+                    break
             if self.enough_dots:
                 break
             else:
                 self.enough_dots = False
                 chunk_size += 200
-                if self.chunk_search_ax == 'c':
+                if self.chunk_search_ax == "c":
                     self.c_chunk_size += 200
                 else:
                     self.r_chunk_size += 200
-                                  
+
         if self.enough_dots:
             # Collect the ref and tran coords from the chunks with enough dots
             self.ref_tran_screening_list = []
             for chunk_coords in coords_chunks_list:
-                ref_coords_in_chunk = self.calculate_dots_chunks(ref_coords,chunk_coords)
-                tran_coords_in_chunk = self.calculate_dots_chunks(tran_coords,chunk_coords)
-                if ref_coords_in_chunk.shape[0] > self.min_dots_chunk and tran_coords_in_chunk.shape[0] > self.min_dots_chunk:
-                    self.ref_tran_screening_list.append((ref_coords_in_chunk,tran_coords_in_chunk,chunk_coords))
+                ref_coords_in_chunk = self.calculate_dots_chunks(
+                    ref_coords, chunk_coords
+                )
+                tran_coords_in_chunk = self.calculate_dots_chunks(
+                    tran_coords, chunk_coords
+                )
+                if (
+                    ref_coords_in_chunk.shape[0] > self.min_dots_chunk
+                    and tran_coords_in_chunk.shape[0] > self.min_dots_chunk
+                ):
+                    self.ref_tran_screening_list.append(
+                        (ref_coords_in_chunk, tran_coords_in_chunk, chunk_coords)
+                    )
 
-    def register(self,ref_coords,tran_coords):
+    def register(self, ref_coords, tran_coords):
         self.optimize_chunking(ref_coords, tran_coords)
         self.completed_registration = False
         if self.enough_dots:
             match_ref_pts_all = []
             match_tran_pts_all = []
             # Collect all matching dots in all chunked regions with number of dots above threshold
-            for ref_coords_in_chunk,tran_coords_in_chunk, chunk_coords in self.ref_tran_screening_list:
-                    match_ref_pts, match_tran_pts = self.identify_matching_coords(ref_coords_in_chunk,tran_coords_in_chunk,self.min_error_triangles)
-                    if len(match_ref_pts) and len(match_tran_pts):
-                        match_ref_pts_all.append(match_ref_pts)
-                        match_tran_pts_all.append(match_tran_pts)
-                    if len(match_ref_pts_all) > self.max_dots:
-                        break
+            for (
+                ref_coords_in_chunk,
+                tran_coords_in_chunk,
+                chunk_coords,
+            ) in self.ref_tran_screening_list:
+                match_ref_pts, match_tran_pts = self.identify_matching_coords(
+                    ref_coords_in_chunk, tran_coords_in_chunk, self.min_error_triangles
+                )
+                if len(match_ref_pts) and len(match_tran_pts):
+                    match_ref_pts_all.append(match_ref_pts)
+                    match_tran_pts_all.append(match_tran_pts)
+                if len(match_ref_pts_all) > self.max_dots:
+                    break
             match_ref_pts_all = [pts for grp in match_ref_pts_all for pts in grp]
             match_tran_pts_all = [pts for grp in match_tran_pts_all for pts in grp]
 
             if len(match_ref_pts_all):
                 match_ref_pts_all = np.vstack(match_ref_pts_all)
                 match_tran_pts_all = np.vstack(match_tran_pts_all)
-                minimization_output = minimize(self.obj_fun,[0,0],args=(match_ref_pts_all,match_tran_pts_all), method='Nelder-Mead')
+                minimization_output = minimize(
+                    self.obj_fun,
+                    [0, 0],
+                    args=(match_ref_pts_all, match_tran_pts_all),
+                    method="Nelder-Mead",
+                )
                 if minimization_output.success:
-                    self.tran_registered_coords = self.apply_transform(minimization_output.x, tran_coords)
+                    self.tran_registered_coords = self.apply_transform(
+                        minimization_output.x, tran_coords
+                    )
                     self.transformation_matrix = minimization_output.x
                     self.completed_registration = True
                 else:
-                    self.logger.info(f'chunk {chunk_coords} failed minimization of distances')
+                    self.logger.info(
+                        f"chunk {chunk_coords} failed minimization of distances"
+                    )
             else:
-                self.logger.info(f'chunk {chunk_coords} did not find matching triangles')
+                self.logger.info(
+                    f"chunk {chunk_coords} did not find matching triangles"
+                )
 
         else:
-            self.logger.info(f'cannot register rounds not enough dots')
+            self.logger.info(f"cannot register rounds not enough dots")
             self.tran_registered_coords = tran_coords
-            self.transformation_matrix = np.empty([1,2])
+            self.transformation_matrix = np.empty([1, 2])
             self.transformation_matrix[:] = np.nan
 
         if not self.completed_registration:
-            self.logger.info(f'was not possible to register ')
+            self.logger.info(f"was not possible to register ")
             self.tran_registered_coords = tran_coords
-            self.transformation_matrix = np.empty([1,2])
+            self.transformation_matrix = np.empty([1, 2])
             self.transformation_matrix[:] = np.nan
 
 
-
-def register_adj_tiles(experiment_fpath, roi_num, stitching_channel, idx_reference_tile,overlapping_regions,tile_corners_coords_pxl):
+def register_adj_tiles(
+    experiment_fpath,
+    roi_num,
+    stitching_channel,
+    idx_reference_tile,
+    overlapping_regions,
+    tile_corners_coords_pxl,
+):
     stitching_shift = {}
     # tmp = []
     experiment_fpath = Path(experiment_fpath)
-    counts_fpath = experiment_fpath / 'counts'/ ('roi_' + str(roi_num)) / stitching_channel
-    search_key = '*_fov_' + str(idx_reference_tile) + '.parquet'
+    counts_fpath = (
+        experiment_fpath / "counts" / ("roi_" + str(roi_num)) / stitching_channel
+    )
+    search_key = "*_fov_" + str(idx_reference_tile) + ".parquet"
     # Adde crosscheck for error
     ref_counts_fpath = list(counts_fpath.glob(search_key))[0]
     ref_counts_df = pd.read_parquet(ref_counts_fpath)
 
     ref_tile_coords = tile_corners_coords_pxl[idx_reference_tile]
-    ref_counts_selected = ref_counts_df.loc[ref_counts_df.round_num == 1, ['r_px_registered', 'c_px_registered']]
-    ref_counts_selected.loc[:, ['r_px_registered', 'c_px_registered']] += ref_tile_coords
+    ref_counts_selected = ref_counts_df.loc[
+        ref_counts_df.round_num == 1, ["r_px_registered", "c_px_registered"]
+    ]
+    ref_counts_selected.loc[
+        :, ["r_px_registered", "c_px_registered"]
+    ] += ref_tile_coords
 
     for cpl, chunk_coords in overlapping_regions[idx_reference_tile].items():
         # Add crosscheck for error
-        search_key = '*_fov_' + str(cpl[1]) + '.parquet'
+        search_key = "*_fov_" + str(cpl[1]) + ".parquet"
         comp_counts_fpath = list(counts_fpath.glob(search_key))[0]
         comp_counts_df = pd.read_parquet(comp_counts_fpath)
-        comp_counts_selected = comp_counts_df.loc[comp_counts_df.round_num == 1, ['r_px_registered', 'c_px_registered']]
+        comp_counts_selected = comp_counts_df.loc[
+            comp_counts_df.round_num == 1, ["r_px_registered", "c_px_registered"]
+        ]
         comp_tile_coords = tile_corners_coords_pxl[cpl[1]]
-        comp_counts_selected.loc[:, ['r_px_registered', 'c_px_registered']] += comp_tile_coords
+        comp_counts_selected.loc[
+            :, ["r_px_registered", "c_px_registered"]
+        ] += comp_tile_coords
 
         r_tl = chunk_coords[0]
         r_br = chunk_coords[1]
         c_tl = chunk_coords[2]
         c_br = chunk_coords[3]
 
-        overlapping_ref_coords_df = ref_counts_selected.loc[(ref_counts_selected.r_px_registered > r_tl) & (ref_counts_selected.r_px_registered < r_br) 
-                                                   & (ref_counts_selected.c_px_registered > c_tl) & (ref_counts_selected.c_px_registered < c_br),['r_px_registered','c_px_registered']]
+        overlapping_ref_coords_df = ref_counts_selected.loc[
+            (ref_counts_selected.r_px_registered > r_tl)
+            & (ref_counts_selected.r_px_registered < r_br)
+            & (ref_counts_selected.c_px_registered > c_tl)
+            & (ref_counts_selected.c_px_registered < c_br),
+            ["r_px_registered", "c_px_registered"],
+        ]
 
-        overlapping_comp_coords_df = comp_counts_selected.loc[(comp_counts_selected.r_px_registered > r_tl) & (comp_counts_selected.r_px_registered < r_br) 
-                                                   & (comp_counts_selected.c_px_registered > c_tl) & (comp_counts_selected.c_px_registered < c_br),['r_px_registered','c_px_registered']]
+        overlapping_comp_coords_df = comp_counts_selected.loc[
+            (comp_counts_selected.r_px_registered > r_tl)
+            & (comp_counts_selected.r_px_registered < r_br)
+            & (comp_counts_selected.c_px_registered > c_tl)
+            & (comp_counts_selected.c_px_registered < c_br),
+            ["r_px_registered", "c_px_registered"],
+        ]
 
         overlapping_ref_coords = overlapping_ref_coords_df.to_numpy()
         overlapping_comp_coords = overlapping_comp_coords_df.to_numpy()
 
-        tr_st = triangles_based_dots_stitching(overlapping_ref_coords, overlapping_comp_coords, chunk_coords)
-        tr_st.optimize_chunking(overlapping_ref_coords,overlapping_comp_coords)
-        tr_st.register(overlapping_ref_coords,overlapping_comp_coords)
+        tr_st = triangles_based_dots_stitching(
+            overlapping_ref_coords, overlapping_comp_coords, chunk_coords
+        )
+        tr_st.optimize_chunking(overlapping_ref_coords, overlapping_comp_coords)
+        tr_st.register(overlapping_ref_coords, overlapping_comp_coords)
         stitching_shift[cpl] = tr_st.transformation_matrix
         # tmp.append([overlapping_ref_coords, overlapping_comp_coords, tr_st.tran_registered_coords])
-        
+
     return stitching_shift
 
 
+if __name__ == "__main__":
 
-if __name__ ==  '__main__':
-
-    exp = '/Users/simone/Documents/local_data_storage/test_micdata/LBEXP20200325_oPool11'
-    stitching_channel = 'Europium'
+    exp = (
+        "/Users/simone/Documents/local_data_storage/test_micdata/LBEXP20200325_oPool11"
+    )
+    stitching_channel = "Europium"
     roi_num = 0
-    to = organize_square_tiles(exp,stitching_channel,roi_num)
+    to = organize_square_tiles(exp, stitching_channel, roi_num)
     # to.save_graph()
     to.normalize_coords()
     to.identify_adjacent_tiles()
     to.determine_overlapping_regions()
     idx_reference_tile = 0
-    experiment_fpath = '/Users/simone/Documents/local_data_storage/dots_analysis/LBEXP20200325_oPool11/'
-    stitching_shift, tmp = register_adj_tiles(experiment_fpath, roi_num, stitching_channel, idx_reference_tile,to.overlapping_regions,to.tile_corners_coords_pxl)
+    experiment_fpath = "/Users/simone/Documents/local_data_storage/dots_analysis/LBEXP20200325_oPool11/"
+    stitching_shift, tmp = register_adj_tiles(
+        experiment_fpath,
+        roi_num,
+        stitching_channel,
+        idx_reference_tile,
+        to.overlapping_regions,
+        to.tile_corners_coords_pxl,
+    )
     to.save_graph()
