@@ -1216,7 +1216,7 @@ class Pipeline:
         #     round_num=1,
         # )
 
-        # import pickle
+        import pickle
 
         # pickle.dump(
         #     [
