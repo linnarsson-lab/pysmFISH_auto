@@ -1766,18 +1766,18 @@ def process_fresh_sample_graph(
                 save_steps_output=save_steps_output,
                 dask_key_name=dask_delayed_name,
             )
-            dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
-            mask_out = delayed(segmentation_NN_fov, name=dask_delayed_name)(
-                fov_out[0][-1],
-                fov_subdataset,
-                segmented_file_path,
-                fresh_tissue_segmentation_engine,
-                diameter_size,
-                scattered_model,
-            )
+            # dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
+            # mask_out = delayed(segmentation_NN_fov, name=dask_delayed_name)(
+            #     fov_out[0][-1],
+            #     fov_subdataset,
+            #     segmented_file_path,
+            #     fresh_tissue_segmentation_engine,
+            #     diameter_size,
+            #     scattered_model,
+            # )
 
-            all_processing_nuclei.append(mask_out)
-
+            # all_processing_nuclei.append(mask_out)
+            all_processing_nuclei.append(fov_out)
         # end = delayed(combine_steps)(saved_file,all_processing_nuclei)
 
         _ = dask.compute(all_processing_nuclei)
