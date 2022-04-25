@@ -1212,7 +1212,6 @@ class Pipeline:
             self.client,
             self.ds_nuclei,
             self.ds_beads,
-            beads_tag=tag_ref_beads,
             round_num=1,
         )
 
