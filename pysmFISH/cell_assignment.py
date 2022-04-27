@@ -96,7 +96,8 @@ class Cell_Assignment:
         
         Args:
             mask (np.ndarray): Array with segmentation mask where the pixels of
-                each individual cell is labeled with an unique integer.
+                each individual cell are labeled with an unique positive 
+                integer.
             points (np.ndarray): Arry with shape (X,2) with positions of the 
                 detected molecules. These should match the mask coordinates, or 
                 should match after applying the offset.
@@ -120,7 +121,7 @@ class Cell_Assignment:
                 and counts per gene as values.
             np.ndarray: Array with unique genes.
             np.ndarray: Array with cell labels for each point. Points that fall
-                outside cells are labeled None.
+                outside cells are labeled -1.
         
         """
         
@@ -157,7 +158,7 @@ class Cell_Assignment:
                 in_cell_id.append(cell)
                 all_labels.append(cell)
             else:
-                all_labels.append(None)
+                all_labels.append(-1)
 
         gene_id = np.asarray(gene_id)
         in_cell_id = np.asarray(in_cell_id)
@@ -200,7 +201,8 @@ class Cell_Assignment:
         
         Args:
             mask (np.ndarray): Array with segmentation mask where the pixels of
-                each individual cell is labeled with an unique integer.
+                each individual cell are labeled with an unique positive 
+                integer.
             points (np.ndarray): Arry with shape (X,2) with positions of the 
                 detected molecules. These should match the mask coordinates, or 
                 should match after applying the offset.
@@ -225,10 +227,9 @@ class Cell_Assignment:
                 and counts per gene as values.
             np.ndarray: Array with unique genes.
             np.ndarray: Array with cell labels for each point. Points that fall
-                outside cells are labeled None.
+                outside cells are labeled -1.
         
         """
-        
         #Get unique genes and cells if not given
         if type(unique_genes) == type(None):
             print('Calculating unique genes')
@@ -239,7 +240,7 @@ class Cell_Assignment:
         
         #Iterate over chunks and asign dots to cells
         results = []
-        point_cell_id = np.empty(points.shape[0], dtype='object')
+        point_cell_id = - np.ones(points.shape[0], dtype='int')
         for view_min, view_max in sliding_window_view(chunks, 2):
             filt = (points[:,0] > view_min ) & (points[:,0] < view_max)
             df, unique_genes, cell_id = self.assignment(mask[view_min : view_max+1, :], points[filt,:], genes[filt], 
@@ -262,7 +263,7 @@ class Cell_Assignment:
         
         return total.sort_index(axis=1), unique_genes, point_cell_id
 
-    def make_loom(self, df, ra={}, ca={}, out_file_name = 'data.loom'):
+    def make_loom(self, df, ra={}, ca={}, fa={}, out_file_name = 'data.loom'):
         """Make loom file of dataframe.
         
         Args:
@@ -288,6 +289,7 @@ class Cell_Assignment:
                     "tSNE_2" tSNE component 2
                     "nucleus_size_um2" Size of nucleus in um2
                     "nucleus_size_px" Size of nucleus in pixels
+            fa (dict): Global file atrributes.
             out_file_name (str): Name of the loom file to create. Should
                 have the .loom extension. Defualts to "data.loom"
         
@@ -298,4 +300,4 @@ class Cell_Assignment:
         ca['CellID'] = df.columns.to_numpy()
         ca['TotalMolecules'] = df.sum().to_numpy()
         
-        loompy.create(out_file_name, df.values, ra, ca)
+        loompy.create(out_file_name, df.values, row_attrs=ra, col_attrs=ca, file_attrs=fa)
