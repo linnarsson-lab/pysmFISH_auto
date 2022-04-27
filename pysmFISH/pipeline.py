@@ -22,6 +22,7 @@ import dask
 import sys
 import gc
 import yaml
+import time
 import pandas as pd
 import numpy as np
 
@@ -159,6 +160,9 @@ class Pipeline:
         self.experiment_fpath = Path(experiment_fpath)
         self.run_type = run_type
         self.parsing_type = parsing_type
+
+        date_tag = time.strftime("%y%m%d_%H_%M_%S")
+        self.pipeline_run_name = date_tag + "_" + self.experiment_fpath.stem
 
         # Collect some of the parameters. If missing a predefined value is assigned
         self.raw_data_folder_storage_path = kwarg.pop(
