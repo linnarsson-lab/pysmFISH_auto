@@ -249,6 +249,8 @@ class Pipeline:
             "min_overlapping_pixels_segmentation", 20
         )
 
+        self.max_expansion_radius = kwarg.pop("max_expansion_radius", 18)
+
     # -----------------------------------
     # PROCESSING STEPS
     # ------------------------------------
@@ -1242,7 +1244,7 @@ class Pipeline:
         (
             self.ds_beads,
             self.ds_nuclei,
-            self.metadata,
+            self.nuclei_metadata,
             self.nuclei_org_tiles,
             self.nuclei_adjusted_coords,
         ) = pickle.load(
@@ -1258,15 +1260,28 @@ class Pipeline:
         segmentation_output_path = (
             Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
         )
-        segmentation.create_label_image(
+        segmented_object_dict_recalculated = segmentation.create_label_image(
             self.experiment_fpath,
             segmentation_output_path,
             self.ds_nuclei,
             self.nuclei_org_tiles,
             self.nuclei_adjusted_coords,
-            self.metadata,
+            self.nuclei_metadata,
             self.client,
             self.min_overlapping_pixels_segmentation,
+        )
+
+        segmentation.register_assign(
+            self.experiment_fpath,
+            segmented_object_dict_recalculated,
+            self.data.dataset,
+            self.ds_nuclei.dataset,
+            self.metadata,
+            self.nuclei_metadata,
+            self.pipeline_run_name,
+            segmentation_output_path,
+            self.max_expansion_radius,
+            self.hamming_distance,
         )
 
     # --------------------------------

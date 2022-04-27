@@ -1,10 +1,14 @@
 import pickle
 import itertools
 import numpy as np
+import pandas as pd
 import zarr
 
 from pathlib import Path
 from skimage import measure
+
+from pysmFISH.cell_assignment import Cell_Assignment
+from pysmFISH.bead_alignment import BeadAlignment
 
 
 def load_segmented_data(fov_subdataset, experiment_path):
@@ -483,3 +487,239 @@ def create_label_image(
     store = zarr.DirectoryStore(zarr_fpath, "w")
     grp = zarr.group(store=store, overwrite=True)
     grp.create_dataset(name="segmented_labels_image", data=img)
+
+    return segmented_object_dict_recalculated
+
+
+def create_high_mag_beads_RNA_source(experiment_path, hamming_distance=3):
+    all_beads = []
+    all_RNA = []
+    filter_distance = hamming_distance / 16
+    counts_paths = (Path(experiment_path) / "results").glob("*_decoded_fov_*")
+    for count_fpath in counts_paths:
+        data = pd.read_parquet(count_fpath)
+        data_beads = data.loc[
+            (data.channel == "Europium")
+            & (data.mapped_beads_type == "large")
+            & (data.round_num == 1),
+            ["r_px_global_stitched", "c_px_global_stitched"],
+        ]
+
+        data_RNA = data.loc[
+            (data.channel != "Europium") & (data.hamming_distance < filter_distance),
+            ["decoded_genes", "r_px_global_stitched", "c_px_global_stitched"],
+        ]
+        all_beads.append(data_beads)
+        all_RNA.append(data_RNA)
+    all_beads = pd.concat(all_beads, axis=0)
+    all_beads.dropna(axis=0, inplace=True)
+    all_RNA = pd.concat(all_RNA, axis=0)
+    # all_RNA.dropna(axis=0)
+    source_beads = all_beads.loc[
+        :, ["r_px_global_stitched", "c_px_global_stitched"]
+    ].to_numpy()
+    return source_beads, all_RNA
+
+
+def create_low_mag_beads_target(experiment_fpath):
+    all_counts_collected = []
+    counts_paths = (Path(experiment_fpath) / "fresh_tissue" / "results").glob(
+        "*counts_beads_fresh_tissue_decoded_fov*"
+    )
+    for count_fpath in counts_paths:
+        data = pd.read_parquet(count_fpath)
+        data = data.loc[
+            :, ["r_px_global_stitched_nuclei", "c_px_global_stitched_nuclei"]
+        ]
+        all_counts_collected.append(data)
+    all_counts_collected = pd.concat(all_counts_collected, axis=0)
+    all_counts_collected.dropna(axis=0, inplace=True)
+    target = all_counts_collected.loc[
+        :, ["r_px_global_stitched_nuclei", "c_px_global_stitched_nuclei"]
+    ].to_numpy()
+    return target
+
+
+def load_labels_image(experiment_path):
+    zarr_fpath = (
+        experiment_path
+        / "fresh_tissue"
+        / "segmentation"
+        / "image_segmented_labels.zarr"
+    )
+    store = zarr.DirectoryStore(zarr_fpath, "r")
+    grp = zarr.group(store=store, overwrite=False)
+    img = grp["segmented_labels_image"][...]
+    return img
+
+
+def write_output_to_loom(
+    model,
+    assigned_data_df,
+    segmented_object_dict_recalculated,
+    experiment_path,
+    dataset_experiment,
+    dataset_nuclei,
+    experiment_metadata,
+    nuclei_metadata,
+    pipeline_run_name,
+    expansion_radius,
+):
+    # Values must be string!
+    file_attributes = {
+        "Exp_name": experiment_metadata["experiment_name"],
+        "pysmFISH_processing_date": pipeline_run_name,  # Just an example
+        "machine": experiment_metadata["machine"],
+        "px_size": str(experiment_metadata["pixel_microns"]),  # Pixel size of the 60X
+        "Transformed_px_size": str(
+            nuclei_metadata["pixel_microns"]
+        ),  # Pixel size of the 40X
+        "Alignment_scaling_factor": str(model.factor),
+        "Alignment_offset": str(model.offset),
+        "Alignment_angle": str(model.angle),
+        "Alignment_rotation_origin": str(model.rotation_origin),
+        "Expansion_radius": str(expansion_radius),
+        "barcode_length": str(experiment_metadata["barcode_length"]),
+        "processing_type": experiment_metadata["processing_type"],
+        "experiment_type": experiment_metadata["experiment_type"],
+        "pipeline": experiment_metadata["pipeline"],
+        "stitching_type": experiment_metadata["stitching_type"],
+        "total_rounds": str(experiment_metadata["total_rounds"]),
+        "stitching_channel": experiment_metadata["stitching_channel"],
+    }
+
+    for channel, codebook_name in zip(
+        experiment_metadata["list_all_channels"],
+        experiment_metadata["list_all_codebooks"],
+    ):
+        file_attributes["codebook_" + channel] = str(
+            codebook_name
+        )  # made str because it can be None
+
+    cells_ID = list(assigned_data_df.columns)
+    Nuclei_area_px = [
+        segmented_object_dict_recalculated[cid]["area"] for cid in cells_ID
+    ]
+    Nuclei_area_um = Nuclei_area_px / nuclei_metadata["pixel_microns"] ** 2
+    Nuclei_centroid_X = [
+        segmented_object_dict_recalculated[cid]["stitched_centroid"][0, 0]
+        for cid in cells_ID
+    ]
+    Nuclei_centroid_Y = [
+        segmented_object_dict_recalculated[cid]["stitched_centroid"][0, 1]
+        for cid in cells_ID
+    ]
+
+    column_attributes = {
+        "cell_ID": cells_ID,
+        "X": Nuclei_centroid_X,
+        "Y": Nuclei_centroid_Y,
+        "Nucleus_area_px": Nuclei_area_px,
+        "Nucelus_area_um2": Nuclei_area_um,
+    }
+
+    out_file_name_loom = (
+        Path(experiment_path) / (pipeline_run_name + ".loom")
+    ).as_posix()
+
+    # instantiate model
+    CA = Cell_Assignment()
+
+    CA.make_loom(
+        assigned_data_df,
+        ca=column_attributes,
+        fa=file_attributes,
+        out_file_name=out_file_name_loom,
+    )
+
+
+def register_assign(
+    experiment_path,
+    segmented_object_dict_recalculated,
+    dataset_experiment,
+    dataset_nuclei,
+    experiment_metadata,
+    nuclei_metadata,
+    pipeline_run_name,
+    segmentation_output_path,
+    mask_expansion_radius=18,
+    hamming_distance=3,
+):
+    source_beads, source_RNA_df = create_high_mag_beads_RNA_source(
+        experiment_path, hamming_distance
+    )
+    target_beads = create_low_mag_beads_target(experiment_path)
+
+    # Save the data
+
+    # Initiate alignment model
+    model = BeadAlignment(
+        initial_scale_factor=(2 / 3),
+        search_fraction=(0.05),
+        initial_rotation=0,
+        rotation_search_width=1,
+        search_radius=2000,
+        centering_mode="middle",
+        focusing_bins=300,
+        num_narrow_sweeps=2,
+        samples=25,
+    )
+
+    # Fit alignment model
+    model.fit(target_beads, source_beads, plot=False)
+
+    # Get locations and genes
+    points = source_RNA_df.loc[
+        :, ["r_px_global_stitched", "c_px_global_stitched"]
+    ].to_numpy()
+    genes = source_RNA_df.loc[:, "decoded_genes"].to_numpy()
+
+    # Transform points
+    transformed_points = model.transform(points)
+
+    # Add transfromed points to dataframe
+    source_RNA_df.loc[:, ["r_transformed", "c_transformed"]] = transformed_points
+
+    # Save the transformed data
+
+    # Replace this with chunk loading in the expanding function
+    zarr_fpath = segmentation_output_path / "image_segmented_labels.zarr"
+    store = zarr.DirectoryStore(zarr_fpath, "r")
+    grp = zarr.group(store=store, overwrite=False)
+    segmented_img = grp["segmented_labels_image"][...]
+
+    # instantiate model
+    CA = Cell_Assignment()
+
+    # Expand the mask
+    out_file_name = (
+        segmentation_output_path
+        / (
+            "image_expanded_segmented_labels_radius_"
+            + str(mask_expansion_radius)
+            + "px"
+        )
+    ).as_posix()
+
+    expanded_mask = CA.expand_labels_mask(
+        segmented_img, distance=mask_expansion_radius, out_file_name=out_file_name
+    )
+
+    cell_mask = zarr.open(out_file_name + ".zarr", mode="r")
+
+    assigned_data_df, unique_genes, point_cell_id = CA.asignment_chunked(
+        cell_mask, transformed_points, genes, unique_genes=None
+    )
+
+    write_output_to_loom(
+        model,
+        assigned_data_df,
+        segmented_object_dict_recalculated,
+        experiment_path,
+        dataset_experiment,
+        dataset_nuclei,
+        experiment_metadata,
+        nuclei_metadata,
+        pipeline_run_name,
+        mask_expansion_radius,
+    )
