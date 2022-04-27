@@ -461,11 +461,15 @@ def create_label_image(
 
     img = np.zeros([nrows, ncols])
 
+    segmented_object_dict_recalculated = {}
     for idx, data_dict in enumerate(all_obj_original.items()):
+        cell_id = idx + 1
         coords = data_dict[1]["stitched_coords"]
         coords = coords - [row_min, col_min]
         coords = coords.astype(int)
-        img[coords[:, 0], coords[:, 1]] = idx
+        data_dict[1]["original_cell_id"] = data_dict[0]
+        segmented_object_dict_recalculated[cell_id] = data_dict[1]
+        img[coords[:, 0], coords[:, 1]] = cell_id
 
     zarr_fpath = segmentation_output_path / "image_segmented_labels.zarr"
     store = zarr.DirectoryStore(zarr_fpath, "w")
