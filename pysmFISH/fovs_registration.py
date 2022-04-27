@@ -16,7 +16,6 @@ from skimage.measure import ransac
 from scipy.spatial import distance
 from scipy.ndimage import fourier_shift
 
-from skimage.feature import register_translation
 
 # from skimage.registration import phase_cross_correlation UPDATE SKIMAGEN
 from skimage import filters
@@ -265,7 +264,7 @@ def beads_based_registration(
             ].to_numpy()
             img_tran = create_fake_image((img_width, img_height), tran_coords)
 
-            shift, error, diffphase = register_translation(img_ref, img_tran)
+            shift, error, diffphase = phase_cross_correlation(img_ref, img_tran)
             registered_tran_coords = tran_coords + shift
             min_num_matching_dots = identify_matching_register_dots_NN(
                 ref_coords, registered_tran_coords, registration_tollerance_pxl
@@ -458,7 +457,7 @@ def beads_based_registration_stitching_channel(
                     ].to_numpy()
                     img_tran = create_fake_image((img_width, img_height), tran_coords)
 
-                    shift, error, diffphase = register_translation(img_ref, img_tran)
+                    shift, error, diffphase = phase_cross_correlation(img_ref, img_tran)
                     registered_tran_coords = tran_coords + shift
                     min_num_matching_dots = identify_matching_register_dots_NN(
                         ref_coords, registered_tran_coords, registration_tollerance_pxl
@@ -1020,7 +1019,7 @@ def fft_registration_beads(
     else:
         img_ref = create_fake_image(img_shape, reference_coords)
         img_tran = create_fake_image(img_shape, translated_coords)
-        shift, error, diffphase = register_translation(img_ref, img_tran)
+        shift, error, diffphase = phase_cross_correlation(img_ref, img_tran)
         tran_registered_coords = translated_coords + shift
         tran_registered_coords = tran_registered_coords.astype(int)
 
@@ -1237,7 +1236,7 @@ def calculate_shift_hybridization_fov(
                                 reference_hybridization
                             )
                             img_tran = create_fake_image(img_shape, tran_coords)
-                            shift, error, diffphase = register_translation(
+                            shift, error, diffphase = phase_cross_correlation(
                                 img_ref, img_tran
                             )
                             all_rounds_shifts[round_num] = shift
@@ -1444,7 +1443,7 @@ def calculate_shift_hybridization_fov_test(
                         round_num = tran_counts["round_num"][0]
                         ref_img_metadata["reference_hyb"] = str(reference_hybridization)
                         img_tran = create_fake_image(img_shape, tran_coords)
-                        shift, error, diffphase = register_translation(
+                        shift, error, diffphase = phase_cross_correlation(
                             img_ref, img_tran
                         )
                         all_rounds_shifts[round_num] = shift

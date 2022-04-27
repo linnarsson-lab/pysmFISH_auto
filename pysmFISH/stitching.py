@@ -27,7 +27,7 @@ from itertools import groupby
 from pathlib import Path
 from sklearn.neighbors import NearestNeighbors
 import sklearn.linear_model as linmod
-from skimage.feature import register_translation
+from skimage.registration import phase_cross_correlation
 from skimage import measure
 from scipy.optimize import minimize
 
@@ -1014,7 +1014,7 @@ def register_cpl(
                 ].to_numpy() - [r_tl, c_tl]
                 img_ref = create_fake_image(img_shape, norm_ref_coords)
                 img_tran = create_fake_image(img_shape, norm_comp_coords)
-                shift, error, diffphase = register_translation(img_ref, img_tran)
+                shift, error, diffphase = phase_cross_correlation(img_ref, img_tran)
                 registration[cpl] = [shift, error]
 
             return registration
@@ -1130,7 +1130,7 @@ def register_cpl_fresh_nuclei(
                     shift = np.array([1000, 1000])
                     registration[cpl] = [shift, np.nan]
                 else:
-                    shift, error, diffphase = register_translation(
+                    shift, error, diffphase = phase_cross_correlation(
                         img1_slice, img2_slice
                     )
                     registration[cpl] = [shift, error]
