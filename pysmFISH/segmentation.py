@@ -471,6 +471,14 @@ def create_label_image(
         segmented_object_dict_recalculated[cell_id] = data_dict[1]
         img[coords[:, 0], coords[:, 1]] = cell_id
 
+    pickle.dump(
+        segmented_object_dict_recalculated,
+        open(
+            segmentation_output_path / ("segmented_objects_dict_recalculated_ids.pkl"),
+            "wb",
+        ),
+    )
+
     zarr_fpath = segmentation_output_path / "image_segmented_labels.zarr"
     store = zarr.DirectoryStore(zarr_fpath, "w")
     grp = zarr.group(store=store, overwrite=True)
