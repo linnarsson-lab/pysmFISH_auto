@@ -1182,37 +1182,37 @@ class Pipeline:
         assert self.running_functions, self.logger.error(
             f"cannot process fresh tissue because missing running_functions attr"
         )
-        # (
-        #     self.ds_beads,
-        #     self.ds_nuclei,
-        #     self.metadata,
-        # ) = fov_processing.process_fresh_sample_graph(
-        #     self.experiment_fpath,
-        #     self.running_functions,
-        #     self.analysis_parameters,
-        #     self.client,
-        #     self.chunk_size,
-        #     tag_ref_beads=tag_ref_beads,
-        #     tag_nuclei=tag_nuclei,
-        #     eel_metadata=self.metadata,
-        #     fresh_tissue_segmentation_engine=self.fresh_tissue_segmentation_engine,
-        #     diameter_size=self.diameter_size,
-        #     parsing=parsing,
-        #     save_steps_output=self.save_intermediate_steps,
-        # )
+        (
+            self.ds_beads,
+            self.ds_nuclei,
+            self.metadata,
+        ) = fov_processing.process_fresh_sample_graph(
+            self.experiment_fpath,
+            self.running_functions,
+            self.analysis_parameters,
+            self.client,
+            self.chunk_size,
+            tag_ref_beads=tag_ref_beads,
+            tag_nuclei=tag_nuclei,
+            eel_metadata=self.metadata,
+            fresh_tissue_segmentation_engine=self.fresh_tissue_segmentation_engine,
+            diameter_size=self.diameter_size,
+            parsing=parsing,
+            save_steps_output=self.save_intermediate_steps,
+        )
 
-        # (
-        #     self.nuclei_org_tiles,
-        #     self.nuclei_adjusted_coords,
-        # ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
-        #     self.experiment_fpath,
-        #     self.client,
-        #     self.ds_nuclei,
-        #     self.ds_beads,
-        #     round_num=1,
-        # )
+        (
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+        ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
+            self.experiment_fpath,
+            self.client,
+            self.ds_nuclei,
+            self.ds_beads,
+            round_num=1,
+        )
 
-        import pickle
+        # import pickle
 
         # pickle.dump(
         #     [
