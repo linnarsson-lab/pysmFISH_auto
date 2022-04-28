@@ -7,7 +7,6 @@ specific module.
 from typing import *
 import shutil
 import sys
-import git
 import os
 import click
 import ctypes
@@ -35,20 +34,6 @@ def create_dir(dir_path: str):
     except:
         os.mkdir(dir_path)
         os.chmod(dir_path, 0o777)
-
-
-def get_git_hash() -> str:
-    """Function used to get the hash of the current commit used for the
-    processing of the data
-
-    Returns:
-        version (str): hash of the commit used for processing the data
-    """
-    logger = selected_logger()
-    repo = git.Repo(search_parent_directories=True)
-    version = repo.head.object.hexsha
-    logger.debug(f"current code version: {version}")
-    return version
 
 
 def create_processing_env(processing_folder_path: str):
