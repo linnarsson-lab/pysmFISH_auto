@@ -255,16 +255,6 @@ class Pipeline:
     # PROCESSING STEPS
     # ------------------------------------
 
-    def save_git_commit(self):
-        hash_str = utils.get_git_hash()
-        processing_info = {}
-        processing_info["git_commit_hash"] = hash_str
-        processing_info_fpath = self.experiment_fpath / "results" / "git_info.yaml"
-        with open(processing_info_fpath, "w") as new_config:
-            yaml.safe_dump(
-                processing_info, new_config, default_flow_style=False, sort_keys=False
-            )
-
     def create_folders_step(self):
         """
         Create the folder structure used for the data processing. If the folder
@@ -1371,7 +1361,6 @@ class Pipeline:
         )
         self.logger.info(f"Start parsing")
 
-        self.save_git_commit()
         self.logger.info(f"Saved current git commit version")
 
         if self.run_type == "original":
@@ -1421,7 +1410,6 @@ class Pipeline:
         )
         self.logger.info(f"Start parsing")
 
-        self.save_git_commit()
         self.logger.info(f"Saved current git commit version")
 
         self.QC_check_experiment_yaml_file_step()
