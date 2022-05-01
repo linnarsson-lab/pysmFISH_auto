@@ -153,7 +153,7 @@ def without_flat_field_correction(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        background = filters.gaussian(img,LaplacianKernel,preserve_range=False)
         img -= background
         img[img<=0] = 0
         img = nd.gaussian_laplace(img,LaplacianKernel)
@@ -339,6 +339,7 @@ def filter_remove_large_objs_no_flat(
         img[img<0] = 0
 
         background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues

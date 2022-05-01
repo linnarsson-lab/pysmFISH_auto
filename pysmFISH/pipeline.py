@@ -1282,7 +1282,7 @@ class Pipeline:
         )
         self.logger.info(f"Start parsing")
 
-        self.save_git_commit()
+        #self.save_git_commit()
         self.logger.info(f"Saved current git commit version")
 
         if self.run_type == "original":
@@ -1332,7 +1332,7 @@ class Pipeline:
         )
         self.logger.info(f"Start parsing")
 
-        self.save_git_commit()
+        #self.save_git_commit()
         self.logger.info(f"Saved current git commit version")
 
         self.QC_check_experiment_yaml_file_step()
