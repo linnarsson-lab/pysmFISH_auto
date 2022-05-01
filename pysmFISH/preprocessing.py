@@ -30,7 +30,10 @@ from pathlib import Path
 from pysmFISH.io import load_raw_images
 from pysmFISH.utils import convert_from_uint16_to_float64
 from pysmFISH.logger_utils import selected_logger
-
+try:
+    from csbdeep.utils import normalize
+except:
+    pass
 
 def load_dark_image(experiment_fpath:str)->np.ndarray:
     """Function used to load the dark image  previously created and 
@@ -272,9 +275,7 @@ def filter_remove_large_objs(
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
-        
         img = img.max(axis=0)
-
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)
@@ -344,8 +345,9 @@ def filter_remove_large_objs_no_flat(
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
-        
         img = img.max(axis=0)
+        img = normalize(img)
+        img= img - img.min()
 
 
         mask = np.zeros_like(img)
