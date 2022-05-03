@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KDTree, KernelDensity  
-from typing import Tuple, Union
+from typing import Tuple, Union, NoneType
 import pandas as pd
 from copy import deepcopy
 
@@ -371,7 +371,7 @@ def select_overlap(rc:np.ndarray, corner_coordinates:Union[list, np.ndarray]) ->
     Args:
         rc (np.ndarray): Array with shape (n,2) with row, column coordinates.
         corner_coordinates (Union[list, np.ndarray]): List or array with 
-            extrema in the order: [row_min, row_max, col_min, col_max]
+            extrema in the order: [row_min, row_max, col_min, col_max].
 
     Returns:
         np.ndarray: Boolean array with True for points that fall within 
@@ -384,12 +384,58 @@ def select_overlap(rc:np.ndarray, corner_coordinates:Union[list, np.ndarray]) ->
     filt = combine_boolean([filt0, filt1, filt2, filt3])
     return filt
 
-def clean_microscope_stitched(fovs:Union[list, np.ndarray], fov_df:dict, 
+def clip_overlap(corner_coordinates:Union[list, np.ndarray], fov0:np.ndarray, fov1:np.ndarray) -> Tuple[str, float, str]:
+    """Calculate position to clip two adjacent FOVs.
+
+    Args:
+        corner_coordinates (Union[list, np.ndarray]): List or array with 
+            extrema in the order: [row_min, row_max, col_min, col_max].
+        fov0 (np.ndarray): (x,y) coordinates of FOV 0.
+        fov1 (np.ndarray): (x,y) coordinates of FOV 1.
+
+    Returns:
+        Tuple[str, float, str]: 
+        index - String  name of column to perform the clipping on.
+        cutoff - Float witht the cutoff value.
+        orrientation - String describing how FOV 0 is positioned in respect to 
+            FOV 1.
+    """
+    r_min, r_max, c_min, c_max = corner_coordinates
+    dr = r_max - r_min
+    dc = c_max - c_min
+    
+    #FOVs overlap left-right
+    if dc > dr:
+        column = 'r_px_microscope_stitched' #Select on Y (row) coordinate
+        cutoff = r_min + (0.5 * dr)
+        if fov0[0] > fov1[0]:
+            orrientation = 'fov0_right_of_fov1'
+        else:
+            orrientation = 'fov0_left_of_fov1'
+    
+    #FOVs overlap top-bottom    
+    else:
+        column = 'c_px_microscope_stitched' #Select on X (column) coordinate
+        cutoff = c_min + (0.5 * dc)
+        if fov0[1] > fov1[1]:
+            orrientation = 'fov0_above_fov1'
+        else:
+            orrientation = 'fov0_under_fov1'
+        
+    return column, cutoff, orrientation
+    
+
+def clean_microscope_stitched(fovs:Union[list, np.ndarray], 
+                              fov_df:dict, 
                               overlapping_regions:dict, 
+                              fov_coords:Union[np.ndarray, None]=None,
+                              mode: str='merge',
                               bead_channel:str ='Europium', 
                               max_hamming_dist:float = 3/16, 
-                              matching_dot_radius: float=5, out_folder:str='',
-                              exp_name:str='', verbose: bool=False) -> str:
+                              matching_dot_radius: float=5, 
+                              out_folder:str='',
+                              exp_name:str='', 
+                              verbose: bool=False) -> str:
     """Remove overlapping dots in microscope stitched data. 
     
     Caveat: If the same gene name is present in different channels the overlap
@@ -409,6 +455,13 @@ def clean_microscope_stitched(fovs:Union[list, np.ndarray], fov_df:dict,
             like (1, 30). And the 4 extrema that define the overlapping region
             between the two FOVs. These extrema should be in the format:
             [row_min, row_max, col_min, col_max]
+        fov_coords (Union[np.ndarray, None], optional): When mode is `merge` 
+            coordinates of fovs need to be given. Coordinates should be a 
+            (n,2) array in the same order as `fovs`. Defaults to None.
+        mode (str, optional): Mode to handle overlap. Options: `merge` or 
+            `clip`. If `merge`, will discard points that are found in both FOVs
+            and keep unique points. If `clip`, will clip a FOV up to the middle
+            of the overlap. Defaults to 'merge'.
         bead_channel (str, optional): Name of bead channel to exclude.
             If nothing needs to be excluded set to a nonsense name. 
             Defaults to 'Europium'.
@@ -442,11 +495,12 @@ def clean_microscope_stitched(fovs:Union[list, np.ndarray], fov_df:dict,
 
     #Merge overlapping points.
     for i in fovs:
-        fov_neignbours = overlapping_regions[i]
+        #Get neighbours of FOV
+        fov_neigbours = overlapping_regions[i]
         
         #Check if FOV has neighbours
-        if fov_neignbours:
-            key, values = zip(*fov_neignbours.items())
+        if fov_neigbours:
+            key, values = zip(*fov_neigbours.items())
             #Iterate through neighbours
             for k, v in zip(key, values):
                 pair, corner_coordinates = k, v
@@ -479,36 +533,59 @@ def clean_microscope_stitched(fovs:Union[list, np.ndarray], fov_df:dict,
                 d1_filt[d1_filt] = filt1_overlap
                 #Get gene ID of each point
                 d1_id = d1.loc[d1_filt, 'decoded_genes'].to_numpy()
+                
+                if mode == 'merge':
+                    #Check if there are overlapping points
+                    if d0_rc_overlap.shape[0] > 10 and d1_rc_overlap.shape[0] > 10:
 
-                #Check if there are overlapping points
-                if d0_rc_overlap.shape[0] > 10 and d1_rc_overlap.shape[0] > 10:
+                        #Find offset between FOVs
+                        offset = find_offset(d0_rc_overlap, d1_rc_overlap, resolution=0.05)
+                        #Find matching dots between FOVs
+                        final_positions, d0_merged, d1_merged, d0_match_filt, d1_match_filt = find_matches(d0_rc_overlap, d1_rc_overlap, d0_id, d1_id, offset, max_radius=matching_dot_radius)
 
-                    #Find offset between FOVs
-                    offset = find_offset(d0_rc_overlap, d1_rc_overlap, resolution=0.05)
-                    #Find matching dots between FOVs
-                    final_positions, d0_merged, d1_merged, d0_match_filt, d1_match_filt = find_matches(d0_rc_overlap, d1_rc_overlap, d0_id, d1_id, offset, max_radius=matching_dot_radius)
+                        #Merged points will be put only in dataset 0, and deleted from dataset 1
+                        #Correct new positions of merged points in dataset 0
+                        df0_cleaned = d0[d0_filt_rna]
+                        df0_cleaned.loc[filt0_overlap, ['r_px_microscope_stitched', 'c_px_microscope_stitched']] = d0_merged
+                        fov_df[fov0] = df0_cleaned
 
-                    #Merged points will be put only in dataset 0, and deleted from dataset 1
-                    #Correct new positions of merged points in dataset 0
+                        #Delet positions in dataset 1 that are merged and should only be in dataset 0
+                        df1_cleaned = d1[d1_filt_rna]
+                        index_to_drop = df1_cleaned[filt1_overlap].index[d1_match_filt]
+                        df1_cleaned = df1_cleaned.drop(index_to_drop)
+                        fov_df[fov1] = df1_cleaned
+
+                    #Overlap could not be determined, just delete non-(valid-)RNA points
+                    else:
+                        #Dataset 0
+                        df0_cleaned = d0[d0_filt_rna]
+                        fov_df[fov0] = df0_cleaned
+
+                        #Dataset 1
+                        df1_cleaned = d1[d1_filt_rna]
+                        fov_df[fov1] = df1_cleaned
+                
+                elif mode == 'clip':
+                    column, cutoff, orrientation= clip_overlap(corner_coordinates, fov_coords[fov0], fov_coords[fov1])
+                    #Clean RNA
                     df0_cleaned = d0[d0_filt_rna]
-                    df0_cleaned.loc[filt0_overlap, ['r_px_microscope_stitched', 'c_px_microscope_stitched']] = d0_merged
-                    fov_df[fov0] = df0_cleaned
-
-                    #Delet positions in dataset 1 that are merged and should only be in dataset 0
                     df1_cleaned = d1[d1_filt_rna]
-                    index_to_drop = df1_cleaned[filt1_overlap].index[d1_match_filt]
-                    df1_cleaned = df1_cleaned.drop(index_to_drop)
-                    fov_df[fov1] = df1_cleaned
-
-                #Overlap could not be determined, just delete non RNA points
-                else:
-                    #Dataset 0
-                    df0_cleaned = d0[d0_filt_rna]
-                    fov_df[fov0] = df0_cleaned
-
-                    #Dataset 1
-                    df1_cleaned = d1[d1_filt_rna]
-                    fov_df[fov1] = df1_cleaned
+                    #Get clips
+                    if orrientation == 'fov0_under_fov1':
+                        df0_clip_filt = df0_cleaned.loc[:, column] < cutoff
+                        df1_clip_filt = df1_cleaned.loc[:, column] > cutoff
+                    elif orrientation == 'fov0_above_fov1':
+                        df0_clip_filt = df0_cleaned.loc[:, column] > cutoff
+                        df1_clip_filt = df1_cleaned.loc[:, column] < cutoff
+                    elif orrientation == 'fov0_right_of_fov1':
+                        df0_clip_filt = df0_cleaned.loc[:, column] > cutoff
+                        df1_clip_filt = df1_cleaned.loc[:, column] < cutoff
+                    elif orrientation == 'fov0_left_of_fov1':
+                        df0_clip_filt = df0_cleaned.loc[:, column] < cutoff
+                        df1_clip_filt = df1_cleaned.loc[:, column] > cutoff
+                    #Clip datasets
+                    fov_df[fov0] = df0_cleaned.loc[df0_clip_filt]
+                    fov_df[fov1] = df1_cleaned.loc[df1_clip_filt]
         
         #FOV has no neighbours. Just delete beads and non-valid-RNA points
         else:
