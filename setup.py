@@ -23,7 +23,7 @@ setup(
         'nd2reader', #pims based: https://github.com/rbnvrw/nd2reader
 		'pynndescent',
 		'GitPython',
-		'snappy',
+		#'snappy',
 		'python-snappy',
 		'pyarrow',
 		'openpyxl',

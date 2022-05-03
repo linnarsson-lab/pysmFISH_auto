@@ -346,9 +346,7 @@ def filter_remove_large_objs_no_flat(
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
         img = img.max(axis=0)
-        img = normalize(img)
-        img= img - img.min()
-
+        img = normalize(img,clip=True)
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)
