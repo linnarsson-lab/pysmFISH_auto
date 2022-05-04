@@ -339,14 +339,14 @@ def filter_remove_large_objs_no_flat(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        background = filters.gaussian(img,(1,5,5),preserve_range=False)
         img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
         img = img.max(axis=0)
-        img = normalize(img,clip=True)
+        #img = normalize(img,clip=True, dtype=np.float64)
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)
