@@ -100,7 +100,7 @@ def standard_not_norm_preprocessing(
 
         img -= dark_img
         img[img<0] = 0
-
+        # (1,100,100)
         background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
         img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
@@ -269,7 +269,7 @@ def filter_remove_large_objs(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        background = filters.gaussian(img,(1,5,5),preserve_range=False)
         img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
         img = -img # the peaks are negative so invert the signal
