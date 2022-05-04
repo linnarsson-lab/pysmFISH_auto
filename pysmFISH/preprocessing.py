@@ -292,8 +292,6 @@ def filter_remove_large_objs(
         mask = np.logical_not(mask)
 
         masked_img = img*mask
-
-        
         return ((masked_img,img),metadata)
 
 
