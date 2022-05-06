@@ -250,7 +250,7 @@ def filter_remove_large_objs(
     logger = selected_logger()
     
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernelHuman']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
     LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
     LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
@@ -269,7 +269,7 @@ def filter_remove_large_objs(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,(1,5,5),preserve_range=False)
+        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
         img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
         img = -img # the peaks are negative so invert the signal
@@ -318,7 +318,7 @@ def filter_remove_large_objs_no_flat(
     logger = selected_logger()
     
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
-    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
+    FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernelHuman']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
     LargeObjRemovalPercentile = processing_parameters['LargeObjRemovalPercentile']
     LargeObjRemovalMinObjSize = processing_parameters['LargeObjRemovalMinObjSize']
@@ -337,7 +337,7 @@ def filter_remove_large_objs_no_flat(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,(1,5,5),preserve_range=False)
+        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
         img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
         img = -img # the peaks are negative so invert the signal
