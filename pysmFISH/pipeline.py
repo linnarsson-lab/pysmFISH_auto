@@ -54,6 +54,7 @@ from pysmFISH import qc_utils
 from pysmFISH import data_organization
 from pysmFISH import processing_cluster_setup
 from pysmFISH import segmentation
+from pysmFISH import FOV_alignment
 
 
 # utils.nice_deltastring for calculate the time
@@ -127,6 +128,7 @@ class Pipeline:
         fresh_tissue_segmentation_engine (str): Stardist is the default because faster and doesn't require diameter
         diameter_size (int): Size of the diameter of the cells to segment using cellpose
         min_overlapping_pixels_segmentation (int): Size of the overlapping label objects
+        fov_alignement_mode (str): clip or merged (default clipped).
 
     Attributes:
         storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -250,6 +252,7 @@ class Pipeline:
         )
 
         self.max_expansion_radius = kwarg.pop("max_expansion_radius", 18)
+        self.fov_alignement_mode = kwarg.pop("fov_alignement_mode", "clipped")
 
     # -----------------------------------
     # PROCESSING STEPS
@@ -1070,6 +1073,92 @@ class Pipeline:
         )
         # ----------------------------------------------------------------
 
+    # def stitch_and_remove_dots_eel_graph_step(self):
+
+    #     """
+    #     Function to stitch the different fovs and remove the duplicated
+    #     barcodes present in the overlapping regions of the tiles
+
+    #     Args:
+    #     ----
+    #     hamming_distance (int): Value to select the barcodes that are passing the
+    #         screening (< hamming_distance). Default = 3
+    #     same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
+    #         Default = 10
+    #     stitching_selected (str): barcodes coords set where the duplicated dots will be
+    #         removed
+
+    #     The following attributes created by another step must be accessible:
+    #     - dataset
+    #     - tiles_org
+    #     - client
+
+    #     """
+    #     assert self.client, self.logger.error(
+    #         f"cannot remove duplicated dots because missing client attr"
+    #     )
+    #     assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
+    #         f"cannot remove duplicated dots because missing dataset attr"
+    #     )
+    #     assert isinstance(
+    #         self.tiles_org, pysmFISH.stitching.organize_square_tiles
+    #     ), self.logger.error(
+    #         f"cannot remove duplicated dots because tiles_org is missing attr"
+    #     )
+
+    #     self.adjusted_coords = stitching.stitching_graph_serial_nuclei(
+    #         self.experiment_fpath,
+    #         self.metadata["stitching_channel"],
+    #         self.tiles_org,
+    #         self.metadata,
+    #         self.analysis_parameters["RegistrationReferenceHybridization"],
+    #         self.client,
+    #     )
+
+    #     # Recalculate the overlapping regions after stitching
+    #     self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
+    #     self.tiles_org.determine_overlapping_regions()
+
+    #     # Removed the dots on the global stitched
+    #     self.stitching_selected = "global_stitched"
+    #     stitching.remove_duplicated_dots_graph(
+    #         self.experiment_fpath,
+    #         self.data.dataset,
+    #         self.tiles_org,
+    #         self.hamming_distance,
+    #         self.same_dot_radius_duplicate_dots,
+    #         self.stitching_selected,
+    #         self.client,
+    #     )
+
+    #     # ----------------------------------------------------------------
+    #     # GENERATE OUTPUT FOR PLOTTING
+    #     selected_Hdistance = 3 / self.metadata["barcode_length"]
+    #     stitching_selected = "global_stitched"
+    #     io.simple_output_plotting(
+    #         self.experiment_fpath,
+    #         stitching_selected,
+    #         selected_Hdistance,
+    #         self.client,
+    #         input_file_tag="global_stitched_cleaned",
+    #         file_tag="cleaned_global_stitched",
+    #     )
+    #     # ----------------------------------------------------------------
+
+    #     # ----------------------------------------------------------------
+    #     # GENERATE OUTPUT FOR PLOTTING
+    #     selected_Hdistance = 3 / self.metadata["barcode_length"]
+    #     stitching_selected = "global_stitched"
+    #     io.simple_output_plotting(
+    #         self.experiment_fpath,
+    #         stitching_selected,
+    #         selected_Hdistance,
+    #         self.client,
+    #         input_file_tag="global_stitched_removed",
+    #         file_tag="removed_global_stitched",
+    #     )
+    #     # ----------------------------------------------------------------
+
     def stitch_and_remove_dots_eel_graph_step(self):
 
         """
@@ -1091,9 +1180,7 @@ class Pipeline:
         - client
 
         """
-        assert self.client, self.logger.error(
-            f"cannot remove duplicated dots because missing client attr"
-        )
+
         assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
             f"cannot remove duplicated dots because missing dataset attr"
         )
@@ -1103,58 +1190,54 @@ class Pipeline:
             f"cannot remove duplicated dots because tiles_org is missing attr"
         )
 
-        self.adjusted_coords = stitching.stitching_graph_serial_nuclei(
-            self.experiment_fpath,
-            self.metadata["stitching_channel"],
-            self.tiles_org,
-            self.metadata,
-            self.analysis_parameters["RegistrationReferenceHybridization"],
-            self.client,
-        )
+        # Input parameters
+        # Folder with parquet files from the Results folder, like: LBEXP20210718_EEL_Mouse_448_2_decoded_fov_670.parquet
+        folder = (self.experiment_fpath / "Results").as_posix()
 
-        # Recalculate the overlapping regions after stitching
-        self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
-        self.tiles_org.determine_overlapping_regions()
+        # Relevant columns
+        columns_to_load = [
+            "dot_id",
+            "r_px_microscope_stitched",
+            "c_px_microscope_stitched",
+            "channel",
+            "hamming_distance",
+            "decoded_genes",
+        ]
 
-        # Removed the dots on the global stitched
-        self.stitching_selected = "global_stitched"
-        stitching.remove_duplicated_dots_graph(
-            self.experiment_fpath,
-            self.data.dataset,
-            self.tiles_org,
-            self.hamming_distance,
-            self.same_dot_radius_duplicate_dots,
-            self.stitching_selected,
-            self.client,
-        )
+        # FOV numbers
+        fovs = list(self.tiles_org.overlapping_regions.keys())
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata["barcode_length"]
-        stitching_selected = "global_stitched"
-        io.simple_output_plotting(
-            self.experiment_fpath,
-            stitching_selected,
-            selected_Hdistance,
-            self.client,
-            input_file_tag="global_stitched_cleaned",
-            file_tag="cleaned_global_stitched",
-        )
-        # ----------------------------------------------------------------
+        # List of file names
+        filenames = [
+            folder + (f"/{self.metadata['experiment_name']}_decoded_fov_{i}.parquet")
+            for i in fovs
+        ]
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata["barcode_length"]
-        stitching_selected = "global_stitched"
-        io.simple_output_plotting(
-            self.experiment_fpath,
-            stitching_selected,
-            selected_Hdistance,
-            self.client,
-            input_file_tag="global_stitched_removed",
-            file_tag="removed_global_stitched",
-        )
-        # ----------------------------------------------------------------
+        # Dictionary with fov ID as keys a filename as value
+        fov_filenames = dict(zip(fovs, filenames))
+
+        # Load all dataframes in dictionary
+        fov_df = {
+            k: FOV_alignment.load_parquet(fov_filenames[k], columns_to_load)
+            for k in fovs
+        }
+
+        selected_Hdistance = self.hamming_distance / self.metadata["barcode_length"]
+
+        # Run cleaning
+        out_file = FOV_alignment.clean_microscope_stitched(
+            fovs,
+            fov_df,
+            self.tiles_org.overlapping_regions,
+            self.tiles_org.tile_corners_coords_pxl,
+            mode=self.fov_alignement_mode,
+            bead_channel=self.metadata["stitching_channel"],
+            max_hamming_dist=selected_Hdistance,
+            matching_dot_radius=self.same_dot_radius_duplicate_dots,
+            out_folder=folder,
+            exp_name=self.metadata["experiment_name"],
+            verbose=False,
+        )  # Set to False in pipeline
 
     def processing_fresh_tissue_step(
         self,
