@@ -56,7 +56,6 @@ from pysmFISH import processing_cluster_setup
 from pysmFISH import segmentation
 from pysmFISH import FOV_alignment
 
-
 # utils.nice_deltastring for calculate the time
 class Pipeline:
     """
@@ -111,7 +110,9 @@ class Pipeline:
         dashboard_port (int): define the dask dashboard port: Used for the unmanaged cluser (default 8787)
         scheduler_address (str): Address of the dask scheduler. Used for the unmanaged cluser.
                             'localhost' if running of the main node (default 'localhost)
-        workers_addresses_list (list[str]): Addresses of the workers (default)
+
+        workers_addresses_list (list[str]): Addresses of the workers (default [monod10,monod11,monod12,monod33])
+
         nprocs (int): number of processes for each workers (unmanaged cluster) (default 40 for single node monod)
         nthreads (int): number threads/process (default 1)
         save_bits_int: (bool): Save the intensity of the bits and the flipping direction
@@ -125,10 +126,12 @@ class Pipeline:
         active_client (dask_client): Already active client to reconnect to when you want to reuse a cluster
                                         (default None)
         active_scheduler_address (str): Running cluster to connect when you want reuse a cluster
+
         fresh_tissue_segmentation_engine (str): Stardist is the default because faster and doesn't require diameter
         diameter_size (int): Size of the diameter of the cells to segment using cellpose
         min_overlapping_pixels_segmentation (int): Size of the overlapping label objects
         fov_alignement_mode (str): clip or merged (default clipped).
+
 
     Attributes:
         storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -188,10 +191,12 @@ class Pipeline:
             "same_dot_radius_duplicate_dots", 5
         )
         self.stitching_selected = kwarg.pop("stitching_selected", "microscope_stitched")
+
         self.fresh_tissue_segmentation_engine = kwarg.pop(
             "fresh_tissue_segmentation_engine", "stardist"
         )
         self.diameter_size = kwarg.pop("diameter_size", 25)
+
 
         self.hamming_distance = kwarg.pop("hamming_distance", 3)
         self.save_bits_int = kwarg.pop("save_bits_int", True)
@@ -247,6 +252,7 @@ class Pipeline:
             self.experiment_fpath.stem + "_" + self.parsed_image_tag + ".zarr"
         )
 
+
         self.min_overlapping_pixels_segmentation = kwarg.pop(
             "min_overlapping_pixels_segmentation", 20
         )
@@ -254,9 +260,11 @@ class Pipeline:
         self.max_expansion_radius = kwarg.pop("max_expansion_radius", 18)
         self.fov_alignement_mode = kwarg.pop("fov_alignement_mode", "clipped")
 
+
     # -----------------------------------
     # PROCESSING STEPS
     # ------------------------------------
+
 
     def create_folders_step(self):
         """
@@ -1161,9 +1169,11 @@ class Pipeline:
 
     def stitch_and_remove_dots_eel_graph_step(self):
 
+
         """
         Function to stitch the different fovs and remove the duplicated
         barcodes present in the overlapping regions of the tiles
+
 
         Args:
         ----
@@ -1239,6 +1249,7 @@ class Pipeline:
             verbose=False,
         )  # Set to False in pipeline
 
+
     def processing_fresh_tissue_step(
         self,
         parsing=True,
@@ -1265,11 +1276,13 @@ class Pipeline:
         assert self.running_functions, self.logger.error(
             f"cannot process fresh tissue because missing running_functions attr"
         )
+
         (
             self.ds_beads,
             self.ds_nuclei,
             self.metadata,
         ) = fov_processing.process_fresh_sample_graph(
+
             self.experiment_fpath,
             self.running_functions,
             self.analysis_parameters,
@@ -1278,11 +1291,14 @@ class Pipeline:
             tag_ref_beads=tag_ref_beads,
             tag_nuclei=tag_nuclei,
             eel_metadata=self.metadata,
+
             fresh_tissue_segmentation_engine=self.fresh_tissue_segmentation_engine,
             diameter_size=self.diameter_size,
+
             parsing=parsing,
             save_steps_output=self.save_intermediate_steps,
         )
+
 
         (
             self.nuclei_org_tiles,
@@ -1355,6 +1371,7 @@ class Pipeline:
             segmentation_output_path,
             self.max_expansion_radius,
             self.hamming_distance,
+
         )
 
     # --------------------------------
@@ -1443,6 +1460,7 @@ class Pipeline:
             (self.experiment_fpath / "logs"), "pipeline_run"
         )
         self.logger.info(f"Start parsing")
+
 
         self.logger.info(f"Saved current git commit version")
 

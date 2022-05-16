@@ -35,6 +35,7 @@ setup(
         "jupyter-server-proxy",
     ],
     entry_points="""
+
 		[console_scripts]
 	""",
     # metadata
