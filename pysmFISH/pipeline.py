@@ -14,7 +14,7 @@ a step and required from another are present
 If additional functionality are
 required subclass Pipeline and add/replace the different functionality
 """
-from copyreg import pickle
+import pickle
 from typing import *
 
 import os
@@ -197,7 +197,6 @@ class Pipeline:
         )
         self.diameter_size = kwarg.pop("diameter_size", 25)
 
-
         self.hamming_distance = kwarg.pop("hamming_distance", 3)
         self.save_bits_int = kwarg.pop("save_bits_int", True)
         self.adaptive = kwarg.pop("adaptive", True)
@@ -252,7 +251,6 @@ class Pipeline:
             self.experiment_fpath.stem + "_" + self.parsed_image_tag + ".zarr"
         )
 
-
         self.min_overlapping_pixels_segmentation = kwarg.pop(
             "min_overlapping_pixels_segmentation", 20
         )
@@ -260,11 +258,9 @@ class Pipeline:
         self.max_expansion_radius = kwarg.pop("max_expansion_radius", 18)
         self.fov_alignement_mode = kwarg.pop("fov_alignement_mode", "clipped")
 
-
     # -----------------------------------
     # PROCESSING STEPS
     # ------------------------------------
-
 
     def create_folders_step(self):
         """
@@ -1169,7 +1165,6 @@ class Pipeline:
 
     def stitch_and_remove_dots_eel_graph_step(self):
 
-
         """
         Function to stitch the different fovs and remove the duplicated
         barcodes present in the overlapping regions of the tiles
@@ -1249,7 +1244,6 @@ class Pipeline:
             verbose=False,
         )  # Set to False in pipeline
 
-
     def processing_fresh_tissue_step(
         self,
         parsing=True,
@@ -1282,7 +1276,6 @@ class Pipeline:
             self.ds_nuclei,
             self.metadata,
         ) = fov_processing.process_fresh_sample_graph(
-
             self.experiment_fpath,
             self.running_functions,
             self.analysis_parameters,
@@ -1291,14 +1284,11 @@ class Pipeline:
             tag_ref_beads=tag_ref_beads,
             tag_nuclei=tag_nuclei,
             eel_metadata=self.metadata,
-
             fresh_tissue_segmentation_engine=self.fresh_tissue_segmentation_engine,
             diameter_size=self.diameter_size,
-
             parsing=parsing,
             save_steps_output=self.save_intermediate_steps,
         )
-
 
         (
             self.nuclei_org_tiles,
@@ -1371,7 +1361,6 @@ class Pipeline:
             segmentation_output_path,
             self.max_expansion_radius,
             self.hamming_distance,
-
         )
 
     # --------------------------------
@@ -1460,7 +1449,6 @@ class Pipeline:
             (self.experiment_fpath / "logs"), "pipeline_run"
         )
         self.logger.info(f"Start parsing")
-
 
         self.logger.info(f"Saved current git commit version")
 
