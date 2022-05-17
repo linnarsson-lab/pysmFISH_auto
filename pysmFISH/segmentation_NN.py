@@ -128,10 +128,13 @@ class Segmenation_NN:
         img = self.stardist_normalize(image)
         if isinstance(img, np.ndarray):
             mask, _ = self.model.predict_instances(img)
+            return mask
+        else:
+            return None
         # mask, _ = self.model.predict_instances(self.stardist_normalize(image))
 
         # Retrun
-        return mask
+        # return mask
 
     def segment(self, image):
         """Run segmentation with chosen method
