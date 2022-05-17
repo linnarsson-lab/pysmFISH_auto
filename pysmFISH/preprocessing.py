@@ -30,7 +30,10 @@ from pathlib import Path
 from pysmFISH.io import load_raw_images
 from pysmFISH.utils import convert_from_uint16_to_float64
 from pysmFISH.logger_utils import selected_logger
-
+try:
+    from csbdeep.utils import normalize
+except:
+    pass
 
 def load_dark_image(experiment_fpath:str)->np.ndarray:
     """Function used to load the dark image  previously created and 
@@ -97,7 +100,7 @@ def standard_not_norm_preprocessing(
 
         img -= dark_img
         img[img<0] = 0
-
+        # (1,100,100)
         background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
         img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
@@ -153,7 +156,7 @@ def without_flat_field_correction(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        background = filters.gaussian(img,LaplacianKernel,preserve_range=False)
         img -= background
         img[img<=0] = 0
         img = nd.gaussian_laplace(img,LaplacianKernel)
@@ -266,15 +269,13 @@ def filter_remove_large_objs(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        background = filters.gaussian(img,(1, 5, 5),preserve_range=False)
         img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
-        
         img = img.max(axis=0)
-
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)
@@ -291,8 +292,6 @@ def filter_remove_large_objs(
         mask = np.logical_not(mask)
 
         masked_img = img*mask
-
-        
         return ((masked_img,img),metadata)
 
 
@@ -338,14 +337,14 @@ def filter_remove_large_objs_no_flat(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,FlatFieldKernel,preserve_range=False)
+        background = filters.gaussian(img,(1, 10, 10),preserve_range=False)
+        img /= background
         img = nd.gaussian_laplace(img,LaplacianKernel)
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
-        
         img = img.max(axis=0)
-
+        #img = normalize(img,clip=True, dtype=np.float64)
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)

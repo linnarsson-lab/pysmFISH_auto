@@ -14,6 +14,7 @@ a step and required from another are present
 If additional functionality are
 required subclass Pipeline and add/replace the different functionality
 """
+from copyreg import pickle
 from typing import *
 
 import os
@@ -21,6 +22,7 @@ import dask
 import sys
 import gc
 import yaml
+import time
 import pandas as pd
 import numpy as np
 
@@ -51,7 +53,8 @@ from pysmFISH import stitching
 from pysmFISH import qc_utils
 from pysmFISH import data_organization
 from pysmFISH import processing_cluster_setup
-
+from pysmFISH import segmentation
+from pysmFISH import FOV_alignment
 
 # utils.nice_deltastring for calculate the time
 class Pipeline:
@@ -107,7 +110,9 @@ class Pipeline:
         dashboard_port (int): define the dask dashboard port: Used for the unmanaged cluser (default 8787)
         scheduler_address (str): Address of the dask scheduler. Used for the unmanaged cluser.
                             'localhost' if running of the main node (default 'localhost)
+
         workers_addresses_list (list[str]): Addresses of the workers (default [monod10,monod11,monod12,monod33])
+
         nprocs (int): number of processes for each workers (unmanaged cluster) (default 40 for single node monod)
         nthreads (int): number threads/process (default 1)
         save_bits_int: (bool): Save the intensity of the bits and the flipping direction
@@ -121,6 +126,12 @@ class Pipeline:
         active_client (dask_client): Already active client to reconnect to when you want to reuse a cluster
                                         (default None)
         active_scheduler_address (str): Running cluster to connect when you want reuse a cluster
+
+        fresh_tissue_segmentation_engine (str): Stardist is the default because faster and doesn't require diameter
+        diameter_size (int): Size of the diameter of the cells to segment using cellpose
+        min_overlapping_pixels_segmentation (int): Size of the overlapping label objects
+        fov_alignement_mode (str): clip or merged (default clipped).
+
 
     Attributes:
         storage_experiment_fpath: Path to folder in the storage HD where to store (or are stored) the raw data for
@@ -155,6 +166,9 @@ class Pipeline:
         self.run_type = run_type
         self.parsing_type = parsing_type
 
+        date_tag = time.strftime("%y%m%d_%H_%M_%S")
+        self.pipeline_run_name = date_tag + "_" + self.experiment_fpath.stem
+
         # Collect some of the parameters. If missing a predefined value is assigned
         self.raw_data_folder_storage_path = kwarg.pop(
             "raw_data_folder_storage_path", "/fish/rawdata"
@@ -177,6 +191,13 @@ class Pipeline:
             "same_dot_radius_duplicate_dots", 5
         )
         self.stitching_selected = kwarg.pop("stitching_selected", "microscope_stitched")
+
+        self.fresh_tissue_segmentation_engine = kwarg.pop(
+            "fresh_tissue_segmentation_engine", "stardist"
+        )
+        self.diameter_size = kwarg.pop("diameter_size", 25)
+
+
         self.hamming_distance = kwarg.pop("hamming_distance", 3)
         self.save_bits_int = kwarg.pop("save_bits_int", True)
         self.adaptive = kwarg.pop("adaptive", True)
@@ -231,19 +252,19 @@ class Pipeline:
             self.experiment_fpath.stem + "_" + self.parsed_image_tag + ".zarr"
         )
 
+
+        self.min_overlapping_pixels_segmentation = kwarg.pop(
+            "min_overlapping_pixels_segmentation", 20
+        )
+
+        self.max_expansion_radius = kwarg.pop("max_expansion_radius", 18)
+        self.fov_alignement_mode = kwarg.pop("fov_alignement_mode", "clipped")
+
+
     # -----------------------------------
     # PROCESSING STEPS
     # ------------------------------------
 
-    def save_git_commit(self):
-        hash_str = utils.get_git_hash()
-        processing_info = {}
-        processing_info["git_commit_hash"] = hash_str
-        processing_info_fpath = self.experiment_fpath / "results" / "git_info.yaml"
-        with open(processing_info_fpath, "w") as new_config:
-            yaml.safe_dump(
-                processing_info, new_config, default_flow_style=False, sort_keys=False
-            )
 
     def create_folders_step(self):
         """
@@ -1060,11 +1081,99 @@ class Pipeline:
         )
         # ----------------------------------------------------------------
 
-    def stitch_and_remove_dots_eel_graph_step_serial_nuclei(self):
+    # def stitch_and_remove_dots_eel_graph_step(self):
+
+    #     """
+    #     Function to stitch the different fovs and remove the duplicated
+    #     barcodes present in the overlapping regions of the tiles
+
+    #     Args:
+    #     ----
+    #     hamming_distance (int): Value to select the barcodes that are passing the
+    #         screening (< hamming_distance). Default = 3
+    #     same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
+    #         Default = 10
+    #     stitching_selected (str): barcodes coords set where the duplicated dots will be
+    #         removed
+
+    #     The following attributes created by another step must be accessible:
+    #     - dataset
+    #     - tiles_org
+    #     - client
+
+    #     """
+    #     assert self.client, self.logger.error(
+    #         f"cannot remove duplicated dots because missing client attr"
+    #     )
+    #     assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
+    #         f"cannot remove duplicated dots because missing dataset attr"
+    #     )
+    #     assert isinstance(
+    #         self.tiles_org, pysmFISH.stitching.organize_square_tiles
+    #     ), self.logger.error(
+    #         f"cannot remove duplicated dots because tiles_org is missing attr"
+    #     )
+
+    #     self.adjusted_coords = stitching.stitching_graph_serial_nuclei(
+    #         self.experiment_fpath,
+    #         self.metadata["stitching_channel"],
+    #         self.tiles_org,
+    #         self.metadata,
+    #         self.analysis_parameters["RegistrationReferenceHybridization"],
+    #         self.client,
+    #     )
+
+    #     # Recalculate the overlapping regions after stitching
+    #     self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
+    #     self.tiles_org.determine_overlapping_regions()
+
+    #     # Removed the dots on the global stitched
+    #     self.stitching_selected = "global_stitched"
+    #     stitching.remove_duplicated_dots_graph(
+    #         self.experiment_fpath,
+    #         self.data.dataset,
+    #         self.tiles_org,
+    #         self.hamming_distance,
+    #         self.same_dot_radius_duplicate_dots,
+    #         self.stitching_selected,
+    #         self.client,
+    #     )
+
+    #     # ----------------------------------------------------------------
+    #     # GENERATE OUTPUT FOR PLOTTING
+    #     selected_Hdistance = 3 / self.metadata["barcode_length"]
+    #     stitching_selected = "global_stitched"
+    #     io.simple_output_plotting(
+    #         self.experiment_fpath,
+    #         stitching_selected,
+    #         selected_Hdistance,
+    #         self.client,
+    #         input_file_tag="global_stitched_cleaned",
+    #         file_tag="cleaned_global_stitched",
+    #     )
+    #     # ----------------------------------------------------------------
+
+    #     # ----------------------------------------------------------------
+    #     # GENERATE OUTPUT FOR PLOTTING
+    #     selected_Hdistance = 3 / self.metadata["barcode_length"]
+    #     stitching_selected = "global_stitched"
+    #     io.simple_output_plotting(
+    #         self.experiment_fpath,
+    #         stitching_selected,
+    #         selected_Hdistance,
+    #         self.client,
+    #         input_file_tag="global_stitched_removed",
+    #         file_tag="removed_global_stitched",
+    #     )
+    #     # ----------------------------------------------------------------
+
+    def stitch_and_remove_dots_eel_graph_step(self):
+
 
         """
         Function to stitch the different fovs and remove the duplicated
         barcodes present in the overlapping regions of the tiles
+
 
         Args:
         ----
@@ -1081,9 +1190,7 @@ class Pipeline:
         - client
 
         """
-        assert self.client, self.logger.error(
-            f"cannot remove duplicated dots because missing client attr"
-        )
+
         assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
             f"cannot remove duplicated dots because missing dataset attr"
         )
@@ -1093,58 +1200,55 @@ class Pipeline:
             f"cannot remove duplicated dots because tiles_org is missing attr"
         )
 
-        self.adjusted_coords = stitching.stitching_graph_serial_nuclei(
-            self.experiment_fpath,
-            self.metadata["stitching_channel"],
-            self.tiles_org,
-            self.metadata,
-            self.analysis_parameters["RegistrationReferenceHybridization"],
-            self.client,
-        )
+        # Input parameters
+        # Folder with parquet files from the Results folder, like: LBEXP20210718_EEL_Mouse_448_2_decoded_fov_670.parquet
+        folder = (self.experiment_fpath / "Results").as_posix()
 
-        # Recalculate the overlapping regions after stitching
-        self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
-        self.tiles_org.determine_overlapping_regions()
+        # Relevant columns
+        columns_to_load = [
+            "dot_id",
+            "r_px_microscope_stitched",
+            "c_px_microscope_stitched",
+            "channel",
+            "hamming_distance",
+            "decoded_genes",
+        ]
 
-        # Removed the dots on the global stitched
-        self.stitching_selected = "global_stitched"
-        stitching.remove_duplicated_dots_graph(
-            self.experiment_fpath,
-            self.data.dataset,
-            self.tiles_org,
-            self.hamming_distance,
-            self.same_dot_radius_duplicate_dots,
-            self.stitching_selected,
-            self.client,
-        )
+        # FOV numbers
+        fovs = list(self.tiles_org.overlapping_regions.keys())
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata["barcode_length"]
-        stitching_selected = "global_stitched"
-        io.simple_output_plotting(
-            self.experiment_fpath,
-            stitching_selected,
-            selected_Hdistance,
-            self.client,
-            input_file_tag="global_stitched_cleaned",
-            file_tag="cleaned_global_stitched",
-        )
-        # ----------------------------------------------------------------
+        # List of file names
+        filenames = [
+            folder + (f"/{self.metadata['experiment_name']}_decoded_fov_{i}.parquet")
+            for i in fovs
+        ]
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata["barcode_length"]
-        stitching_selected = "global_stitched"
-        io.simple_output_plotting(
-            self.experiment_fpath,
-            stitching_selected,
-            selected_Hdistance,
-            self.client,
-            input_file_tag="global_stitched_removed",
-            file_tag="removed_global_stitched",
-        )
-        # ----------------------------------------------------------------
+        # Dictionary with fov ID as keys a filename as value
+        fov_filenames = dict(zip(fovs, filenames))
+
+        # Load all dataframes in dictionary
+        fov_df = {
+            k: FOV_alignment.load_parquet(fov_filenames[k], columns_to_load)
+            for k in fovs
+        }
+
+        selected_Hdistance = self.hamming_distance / self.metadata["barcode_length"]
+
+        # Run cleaning
+        out_file = FOV_alignment.clean_microscope_stitched(
+            fovs,
+            fov_df,
+            self.tiles_org.overlapping_regions,
+            self.tiles_org.tile_corners_coords_pxl,
+            mode=self.fov_alignement_mode,
+            bead_channel=self.metadata["stitching_channel"],
+            max_hamming_dist=selected_Hdistance,
+            matching_dot_radius=self.same_dot_radius_duplicate_dots,
+            out_folder=folder,
+            exp_name=self.metadata["experiment_name"],
+            verbose=False,
+        )  # Set to False in pipeline
+
 
     def processing_fresh_tissue_step(
         self,
@@ -1172,7 +1276,13 @@ class Pipeline:
         assert self.running_functions, self.logger.error(
             f"cannot process fresh tissue because missing running_functions attr"
         )
-        fov_processing.process_fresh_sample_graph(
+
+        (
+            self.ds_beads,
+            self.ds_nuclei,
+            self.metadata,
+        ) = fov_processing.process_fresh_sample_graph(
+
             self.experiment_fpath,
             self.running_functions,
             self.analysis_parameters,
@@ -1181,18 +1291,87 @@ class Pipeline:
             tag_ref_beads=tag_ref_beads,
             tag_nuclei=tag_nuclei,
             eel_metadata=self.metadata,
+
+            fresh_tissue_segmentation_engine=self.fresh_tissue_segmentation_engine,
+            diameter_size=self.diameter_size,
+
             parsing=parsing,
             save_steps_output=self.save_intermediate_steps,
         )
 
-        stitching.stitched_beads_on_nuclei_fresh_tissue(
+
+        (
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+        ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
             self.experiment_fpath,
             self.client,
-            nuclei_tag=tag_nuclei,
-            beads_tag=tag_ref_beads,
+            self.ds_nuclei,
+            self.ds_beads,
             round_num=1,
-            overlapping_percentage=5,
-            machine=self.metadata["machine"],
+        )
+
+        import pickle as pkl
+
+        # pickle.dump(
+        #     [
+        #         self.ds_beads,
+        #         self.ds_nuclei,
+        #         self.metadata,
+        #         self.nuclei_org_tiles,
+        #         self.nuclei_adjusted_coords,
+        #     ],
+        #     open(
+        #         Path(self.experiment_fpath)
+        #         / "fresh_tissue"
+        #         / "segmentation"
+        #         / "tmp_data.pkl",
+        #         "wb",
+        #     ),
+        # )
+
+        (
+            self.ds_beads,
+            self.ds_nuclei,
+            self.nuclei_metadata,
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+        ) = pkl.load(
+            open(
+                Path(self.experiment_fpath)
+                / "fresh_tissue"
+                / "segmentation"
+                / "tmp_data.pkl",
+                "rb",
+            ),
+        )
+
+        segmentation_output_path = (
+            Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
+        )
+        segmented_object_dict_recalculated = segmentation.create_label_image(
+            self.experiment_fpath,
+            segmentation_output_path,
+            self.ds_nuclei,
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+            self.nuclei_metadata,
+            self.client,
+            self.min_overlapping_pixels_segmentation,
+        )
+
+        segmentation.register_assign(
+            self.experiment_fpath,
+            segmented_object_dict_recalculated,
+            self.data.dataset,
+            self.ds_nuclei.dataset,
+            self.metadata,
+            self.nuclei_metadata,
+            self.pipeline_run_name,
+            segmentation_output_path,
+            self.max_expansion_radius,
+            self.hamming_distance,
+
         )
 
     # --------------------------------
@@ -1282,7 +1461,7 @@ class Pipeline:
         )
         self.logger.info(f"Start parsing")
 
-        self.save_git_commit()
+
         self.logger.info(f"Saved current git commit version")
 
         if self.run_type == "original":
@@ -1332,7 +1511,6 @@ class Pipeline:
         )
         self.logger.info(f"Start parsing")
 
-        self.save_git_commit()
         self.logger.info(f"Saved current git commit version")
 
         self.QC_check_experiment_yaml_file_step()

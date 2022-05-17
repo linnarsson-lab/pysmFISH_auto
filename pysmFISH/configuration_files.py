@@ -213,6 +213,10 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fish"][
         "PreprocessingFishFlatFieldKernel"
     ] = (1, 100, 100)
+
+    analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fish"][
+        "PreprocessingFishFlatFieldKernelHuman"
+    ] = (1, 20, 20)
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fish"][
         "PreprocessingFishFilteringSmallKernel"
     ] = (1, 8, 8)
