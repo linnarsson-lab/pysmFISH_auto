@@ -41,11 +41,14 @@ class Segmenation_NN:
         net_avg: bool = True,
         device: object = None,
     ) -> None:
+
         """Initiate the Cellpose model.
 
         Initiates the model and returns it.
         Refer to Cellpose documentation for more details on input.
+
         https://doi.org/10.1038/s41592-020-01018-x
+
 
         Args:
             gpu (bool, optional): True if Cuda is installed and is to be used.
@@ -54,6 +57,7 @@ class Segmenation_NN:
                 Defaults to 'nuclei'.
             net_avg (bool, optional): Averages build-in networks. See Cellpose
                 documentation. Defaults to True.
+
             device (object, optional): Use saved model. See Cellpose
                 documentation. Defaults to None.
         """
@@ -75,17 +79,21 @@ class Segmenation_NN:
             image_id (str): String identifier of the image. Image will be saved
                 as <image_id>_segmentation_mask.npy.
             output_folder (str): Path to output folder.
+
             diameter (float, optional): Cell diameter prior in pixels. If None
                 is given, Cellpose will calculate the diameter. Defaults to 25,
                 which is a value that worked for mouse adult brain nuclei imaged
                 with the 40X objective. Defaults to 25.
+
             model (cellpose model): Instantiated CellPose model. If using this
+
                 function in parallel make a deepcopy of the model.
             gpu (bool, optional): True if Cuda is installed and is to be used
                 and if model is not provided directly. Defaults to False.
             model_type (str, optional): "nuclei" or "cytoplasm" segmentation.
                 Only if model is not provided directly.
                 Defaults to 'nuclei'.
+
 
         """
         if type(model) == type(None):
@@ -104,10 +112,12 @@ class Segmenation_NN:
 
         Saves segmentation masks as numpy arrays in the output folder.
 
+
         Args:
             image (np.ndarray): Numpy array with the image of the nuclei.
             model (str): Stardist model to use.
             diameter: Placeholder.
+
 
         """
         # Instantiate model
@@ -147,6 +157,7 @@ class Segmenation_NN:
         save_name="segmenation_inspection.png",
         dpi=300,
     ):
+
         """Plot segmentation mask over input image.
 
         Args:
@@ -156,18 +167,22 @@ class Segmenation_NN:
                 Defaults to 15.
             vmin (float, optional): Vmin of the image. Image is normalized
                 between 0-1. Defaults to None.
+
             vmax (float, optional): Vmax of the image. Image is normalized
+
                 between 0-1. Defaults to None.
             alpha (float, optional): Alpha value of the mask. Defaults to 0.5.
         """
 
         # Shuffle the labels to help visualization
+
         unique = np.unique(mask)
         unique = np.delete(unique, np.array([0]))
         shuffeled = unique.copy()
         np.random.shuffle(shuffeled)
         mix = dict(zip(unique, shuffeled))
         mix[0] = 0
+
         shuffeled_mask = np.array([mix[i] for i in mask.ravel()])
         shuffeled_mask = shuffeled_mask.reshape(mask.shape)
         shuffeled_mask = np.ma.masked_where(shuffeled_mask == 0, shuffeled_mask)

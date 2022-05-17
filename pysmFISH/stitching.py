@@ -1655,6 +1655,8 @@ def stitched_beads_on_nuclei_fresh_tissue(
         experiment_fpath, nuclei_org_tiles, metadata_nuclei, client, nr_dim=2
     )
 
+    
+
     io.simple_output_plotting(
         fresh_tissue_path,
         stitching_selected="global_stitched_nuclei",
