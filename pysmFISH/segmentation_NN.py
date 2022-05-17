@@ -130,7 +130,7 @@ class Segmenation_NN:
             mask, _ = self.model.predict_instances(img)
             return mask
         else:
-            return None
+            return img
         # mask, _ = self.model.predict_instances(self.stardist_normalize(image))
 
         # Retrun
