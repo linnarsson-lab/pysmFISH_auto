@@ -1212,7 +1212,7 @@ class Pipeline:
             round_num=1,
         )
 
-        # import pickle
+        import pickle as pkl
 
         # pickle.dump(
         #     [
@@ -1237,7 +1237,7 @@ class Pipeline:
             self.nuclei_metadata,
             self.nuclei_org_tiles,
             self.nuclei_adjusted_coords,
-        ) = pickle.load(
+        ) = pkl.load(
             open(
                 Path(self.experiment_fpath)
                 / "fresh_tissue"
