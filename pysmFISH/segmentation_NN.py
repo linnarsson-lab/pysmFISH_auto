@@ -124,7 +124,11 @@ class Segmenation_NN:
         # model = self.StarDist2D.from_pretrained('2D_versatile_fluo')
 
         # Segment
-        mask, _ = self.model.predict_instances(self.stardist_normalize(image))
+        # test
+        img = self.stardist_normalize(image)
+        if isinstance(img, np.ndarray):
+            mask, _ = self.model.predict_instances(img)
+        # mask, _ = self.model.predict_instances(self.stardist_normalize(image))
 
         # Retrun
         return mask
