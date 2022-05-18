@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors import KDTree, KernelDensity
 from typing import Tuple, Union
 import pandas as pd
+import os
 from copy import deepcopy
 
 
@@ -693,17 +694,18 @@ def clean_microscope_stitched(
 
     # Save results
     for i in fovs:
-        fname = out_folder + exp_name + f"_microscope_merged_fov_{i}.parquet"
+        fname = os.path.join(
+            out_folder, (exp_name + f"_microscope_merged_fov_{i}.parquet")
+        )
         fov_df[i].to_parquet(fname)
 
     # Merge results
     merged_df = pd.concat([fov_df[i] for i in fovs])
 
     # Save merged results
-    fname2 = (
-        out_folder
-        + exp_name
-        + "_data_summary_simple_plotting_microscope_cleaned.parquet"
+    fname2 = os.path.join(
+        out_folder,
+        (exp_name + "_data_summary_simple_plotting_microscope_cleaned.parquet"),
     )
     merged_df.loc[
         :,
