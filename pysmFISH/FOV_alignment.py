@@ -558,6 +558,9 @@ def clean_microscope_stitched(
           `hamming_distance` and `decoded_genes`.
 
     """
+    valid_modes = ['clip', 'merge']
+    if mode not in valid_modes:
+        raise Exception(f'Dot removal mode not recognized. Input mode: {mode} is not part of implemented modes: {valid_modes}')
 
     # Merge overlapping points.
     for i in fovs:
