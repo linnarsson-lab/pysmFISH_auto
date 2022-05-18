@@ -14,7 +14,7 @@ a step and required from another are present
 If additional functionality are
 required subclass Pipeline and add/replace the different functionality
 """
-import pickle
+
 from typing import *
 
 import os
@@ -1301,7 +1301,7 @@ class Pipeline:
             round_num=1,
         )
 
-        import pickle as pkl
+        # import pickle as pkl
 
         # pickle.dump(
         #     [
@@ -1320,21 +1320,21 @@ class Pipeline:
         #     ),
         # )
 
-        (
-            self.ds_beads,
-            self.ds_nuclei,
-            self.nuclei_metadata,
-            self.nuclei_org_tiles,
-            self.nuclei_adjusted_coords,
-        ) = pkl.load(
-            open(
-                Path(self.experiment_fpath)
-                / "fresh_tissue"
-                / "segmentation"
-                / "tmp_data.pkl",
-                "rb",
-            ),
-        )
+        # (
+        #     self.ds_beads,
+        #     self.ds_nuclei,
+        #     self.nuclei_metadata,
+        #     self.nuclei_org_tiles,
+        #     self.nuclei_adjusted_coords,
+        # ) = pkl.load(
+        #     open(
+        #         Path(self.experiment_fpath)
+        #         / "fresh_tissue"
+        #         / "segmentation"
+        #         / "tmp_data.pkl",
+        #         "rb",
+        #     ),
+        # )
 
         segmentation_output_path = (
             Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
