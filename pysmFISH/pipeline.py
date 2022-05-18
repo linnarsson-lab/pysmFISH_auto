@@ -765,91 +765,91 @@ class Pipeline:
         )
         # ----------------------------------------------------------------
 
-    def stitch_and_remove_dots_eel_graph_step(self):
+    # def stitch_and_remove_dots_eel_graph_step(self):
 
-        """
-        Function to stitch the different fovs and remove the duplicated
-        barcodes present in the overlapping regions of the tiles
+    #     """
+    #     Function to stitch the different fovs and remove the duplicated
+    #     barcodes present in the overlapping regions of the tiles
 
-        Args:
-        ----
-        hamming_distance (int): Value to select the barcodes that are passing the
-            screening (< hamming_distance). Default = 3
-        same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
-            Default = 10
-        stitching_selected (str): barcodes coords set where the duplicated dots will be
-            removed
+    #     Args:
+    #     ----
+    #     hamming_distance (int): Value to select the barcodes that are passing the
+    #         screening (< hamming_distance). Default = 3
+    #     same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
+    #         Default = 10
+    #     stitching_selected (str): barcodes coords set where the duplicated dots will be
+    #         removed
 
-        The following attributes created by another step must be accessible:
-        - dataset
-        - tiles_org
-        - client
+    #     The following attributes created by another step must be accessible:
+    #     - dataset
+    #     - tiles_org
+    #     - client
 
-        """
-        assert self.client, self.logger.error(
-            f"cannot remove duplicated dots because missing client attr"
-        )
-        assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
-            f"cannot remove duplicated dots because missing dataset attr"
-        )
-        assert isinstance(
-            self.tiles_org, pysmFISH.stitching.organize_square_tiles
-        ), self.logger.error(
-            f"cannot remove duplicated dots because tiles_org is missing attr"
-        )
+    #     """
+    #     assert self.client, self.logger.error(
+    #         f"cannot remove duplicated dots because missing client attr"
+    #     )
+    #     assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
+    #         f"cannot remove duplicated dots because missing dataset attr"
+    #     )
+    #     assert isinstance(
+    #         self.tiles_org, pysmFISH.stitching.organize_square_tiles
+    #     ), self.logger.error(
+    #         f"cannot remove duplicated dots because tiles_org is missing attr"
+    #     )
 
-        self.adjusted_coords = stitching.stitching_graph(
-            self.experiment_fpath,
-            self.metadata["stitching_channel"],
-            self.tiles_org,
-            self.metadata,
-            self.analysis_parameters["RegistrationReferenceHybridization"],
-            self.client,
-        )
+    #     self.adjusted_coords = stitching.stitching_graph(
+    #         self.experiment_fpath,
+    #         self.metadata["stitching_channel"],
+    #         self.tiles_org,
+    #         self.metadata,
+    #         self.analysis_parameters["RegistrationReferenceHybridization"],
+    #         self.client,
+    #     )
 
-        # Recalculate the overlapping regions after stitching
-        self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
-        self.tiles_org.determine_overlapping_regions()
+    #     # Recalculate the overlapping regions after stitching
+    #     self.tiles_org.tile_corners_coords_pxl = self.adjusted_coords
+    #     self.tiles_org.determine_overlapping_regions()
 
-        # Removed the dots on the global stitched
-        self.stitching_selected = "global_stitched"
-        stitching.remove_duplicated_dots_graph(
-            self.experiment_fpath,
-            self.data.dataset,
-            self.tiles_org,
-            self.hamming_distance,
-            self.same_dot_radius_duplicate_dots,
-            self.stitching_selected,
-            self.client,
-        )
+    #     # Removed the dots on the global stitched
+    #     self.stitching_selected = "global_stitched"
+    #     stitching.remove_duplicated_dots_graph(
+    #         self.experiment_fpath,
+    #         self.data.dataset,
+    #         self.tiles_org,
+    #         self.hamming_distance,
+    #         self.same_dot_radius_duplicate_dots,
+    #         self.stitching_selected,
+    #         self.client,
+    #     )
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata["barcode_length"]
-        stitching_selected = "global_stitched"
-        io.simple_output_plotting(
-            self.experiment_fpath,
-            stitching_selected,
-            selected_Hdistance,
-            self.client,
-            input_file_tag="global_stitched_cleaned",
-            file_tag="cleaned_global_stitched",
-        )
-        # ----------------------------------------------------------------
+    #     # ----------------------------------------------------------------
+    #     # GENERATE OUTPUT FOR PLOTTING
+    #     selected_Hdistance = 3 / self.metadata["barcode_length"]
+    #     stitching_selected = "global_stitched"
+    #     io.simple_output_plotting(
+    #         self.experiment_fpath,
+    #         stitching_selected,
+    #         selected_Hdistance,
+    #         self.client,
+    #         input_file_tag="global_stitched_cleaned",
+    #         file_tag="cleaned_global_stitched",
+    #     )
+    #     # ----------------------------------------------------------------
 
-        # ----------------------------------------------------------------
-        # GENERATE OUTPUT FOR PLOTTING
-        selected_Hdistance = 3 / self.metadata["barcode_length"]
-        stitching_selected = "global_stitched"
-        io.simple_output_plotting(
-            self.experiment_fpath,
-            stitching_selected,
-            selected_Hdistance,
-            self.client,
-            input_file_tag="global_stitched_removed",
-            file_tag="removed_global_stitched",
-        )
-        # ----------------------------------------------------------------
+    #     # ----------------------------------------------------------------
+    #     # GENERATE OUTPUT FOR PLOTTING
+    #     selected_Hdistance = 3 / self.metadata["barcode_length"]
+    #     stitching_selected = "global_stitched"
+    #     io.simple_output_plotting(
+    #         self.experiment_fpath,
+    #         stitching_selected,
+    #         selected_Hdistance,
+    #         self.client,
+    #         input_file_tag="global_stitched_removed",
+    #         file_tag="removed_global_stitched",
+    #     )
+    #     # ----------------------------------------------------------------
 
     def microscope_stitched_remove_dots_serial_graph_step(self):
         """
