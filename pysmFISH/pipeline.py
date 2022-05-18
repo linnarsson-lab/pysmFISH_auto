@@ -1197,7 +1197,7 @@ class Pipeline:
 
         # Input parameters
         # Folder with parquet files from the Results folder, like: LBEXP20210718_EEL_Mouse_448_2_decoded_fov_670.parquet
-        folder = (self.experiment_fpath / "results").as_posix()
+        folder = os.path.join(self.experiment_fpath.as_posix(), "results")
 
         # Relevant columns
         columns_to_load = [
@@ -1214,7 +1214,9 @@ class Pipeline:
 
         # List of file names
         filenames = [
-            folder + (f"/{self.metadata['experiment_name']}_decoded_fov_{i}.parquet")
+            os.path.join(
+                folder, f"{self.metadata['experiment_name']}_decoded_fov_{i}.parquet"
+            )
             for i in fovs
         ]
 
