@@ -97,7 +97,7 @@ class Segmenation_NN:
 
         """
         if type(model) == type(None):
-            model = self.cellpose_init_model(
+            self.model = self.cellpose_init_model(
                 gpu=gpu, model_type=model_type, net_avg=True, device=None
             )
 
@@ -121,7 +121,7 @@ class Segmenation_NN:
 
         """
         # Instantiate model
-        # model = self.StarDist2D.from_pretrained('2D_versatile_fluo')
+        model = self.StarDist2D.from_pretrained('2D_versatile_fluo')
 
         # Segment
         # test
@@ -131,7 +131,7 @@ class Segmenation_NN:
         #     return mask
         # else:
         #     return img
-        mask, _ = self.model.predict_instances(self.stardist_normalize(image))
+        mask, _ = model.predict_instances(self.stardist_normalize(image))
 
         # Retrun
         return mask
