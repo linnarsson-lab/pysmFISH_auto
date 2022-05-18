@@ -1197,7 +1197,7 @@ class Pipeline:
 
         # Input parameters
         # Folder with parquet files from the Results folder, like: LBEXP20210718_EEL_Mouse_448_2_decoded_fov_670.parquet
-        folder = (self.experiment_fpath / "Results").as_posix()
+        folder = (self.experiment_fpath / "results").as_posix()
 
         # Relevant columns
         columns_to_load = [
