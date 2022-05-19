@@ -22,7 +22,7 @@ setup(
         "Cython",
         "nd2reader",  # pims based: https://github.com/rbnvrw/nd2reader
         "pynndescent",
-        #"snappy",
+        # "snappy",
         "python-snappy",
         "pyarrow",
         "openpyxl",
@@ -32,7 +32,9 @@ setup(
         "bokeh",
         "ipykernel",
         "asyncssh",
-        "jupyter-server-proxy",
+        "jupyter-server-proxy" "ripleyk",
+        "stardist",
+        "cellpose",
     ],
     entry_points="""
 
