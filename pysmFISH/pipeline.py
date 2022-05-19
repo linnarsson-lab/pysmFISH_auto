@@ -16,7 +16,7 @@ required subclass Pipeline and add/replace the different functionality
 """
 
 from typing import *
-
+import pickle
 import os
 import dask
 import sys
@@ -1303,24 +1303,22 @@ class Pipeline:
             round_num=1,
         )
 
-        # import pickle as pkl
-
-        # pickle.dump(
-        #     [
-        #         self.ds_beads,
-        #         self.ds_nuclei,
-        #         self.metadata,
-        #         self.nuclei_org_tiles,
-        #         self.nuclei_adjusted_coords,
-        #     ],
-        #     open(
-        #         Path(self.experiment_fpath)
-        #         / "fresh_tissue"
-        #         / "segmentation"
-        #         / "tmp_data.pkl",
-        #         "wb",
-        #     ),
-        # )
+        pickle.dump(
+            [
+                self.ds_beads,
+                self.ds_nuclei,
+                self.metadata,
+                self.nuclei_org_tiles,
+                self.nuclei_adjusted_coords,
+            ],
+            open(
+                Path(self.experiment_fpath)
+                / "fresh_tissue"
+                / "segmentation"
+                / "tmp_data.pkl",
+                "wb",
+            ),
+        )
 
         # (
         #     self.ds_beads,

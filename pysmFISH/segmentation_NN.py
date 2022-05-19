@@ -34,37 +34,36 @@ class Segmenation_NN:
 
         self.diameter = diameter
 
-    def cellpose_init_model(
-        self,
-        gpu: bool = False,
-        model_type: str = "nuclei",
-        net_avg: bool = True,
-        device: object = None,
-    ) -> None:
+    # def cellpose_init_model(
+    #     self,
+    #     gpu: bool = False,
+    #     model_type: str = "nuclei",
+    #     net_avg: bool = True,
+    #     device: object = None,
+    # ) -> None:
 
-        """Initiate the Cellpose model.
+    #     """Initiate the Cellpose model.
 
-        Initiates the model and returns it.
-        Refer to Cellpose documentation for more details on input.
+    #     Initiates the model and returns it.
+    #     Refer to Cellpose documentation for more details on input.
 
-        https://doi.org/10.1038/s41592-020-01018-x
+    #     https://doi.org/10.1038/s41592-020-01018-x
 
+    #     Args:
+    #         gpu (bool, optional): True if Cuda is installed and is to be used.
+    #             Defaults to False.
+    #         model_type (str, optional): "nuclei" or "cytoplasm" segmentation.
+    #             Defaults to 'nuclei'.
+    #         net_avg (bool, optional): Averages build-in networks. See Cellpose
+    #             documentation. Defaults to True.
 
-        Args:
-            gpu (bool, optional): True if Cuda is installed and is to be used.
-                Defaults to False.
-            model_type (str, optional): "nuclei" or "cytoplasm" segmentation.
-                Defaults to 'nuclei'.
-            net_avg (bool, optional): Averages build-in networks. See Cellpose
-                documentation. Defaults to True.
-
-            device (object, optional): Use saved model. See Cellpose
-                documentation. Defaults to None.
-        """
-        model = self.cellpose_models.Cellpose(
-            gpu=gpu, model_type=model_type, net_avg=net_avg, device=device
-        )
-        return model
+    #         device (object, optional): Use saved model. See Cellpose
+    #             documentation. Defaults to None.
+    #     """
+    #     model = self.cellpose_models.Cellpose(
+    #         gpu=gpu, model_type=model_type, net_avg=net_avg, device=device
+    #     )
+    #     return model
 
     def segment_cellpose(
         self, image, diameter=25, model=None, gpu=False, model_type="nuclei"
@@ -96,13 +95,15 @@ class Segmenation_NN:
 
 
         """
-        if type(model) == type(None):
+        if type(self.model) == type(None):
             self.model = self.cellpose_init_model(
                 gpu=gpu, model_type=model_type, net_avg=True, device=None
             )
 
         # Segment
-        mask, flow, style, diam = model.eval(image, diameter=diameter, channels=[0, 0])
+        mask, flow, style, diam = self.model.eval(
+            image, diameter=diameter, channels=[0, 0]
+        )
 
         # Return
         return mask
@@ -121,7 +122,8 @@ class Segmenation_NN:
 
         """
         # Instantiate model
-        model = self.StarDist2D.from_pretrained('2D_versatile_fluo')
+        if type(self.model) == type(None):
+            self.model = self.StarDist2D.from_pretrained("2D_versatile_fluo")
 
         # Segment
         # test
@@ -131,7 +133,7 @@ class Segmenation_NN:
         #     return mask
         # else:
         #     return img
-        mask, _ = model.predict_instances(self.stardist_normalize(image))
+        mask, _ = self.model.predict_instances(self.stardist_normalize(image))
 
         # Retrun
         return mask
