@@ -1448,9 +1448,10 @@ def segmentation_NN_fov(
     segmented_file_path: str,
     fresh_tissue_segmentation_engine: str,
     diameter_size: int,
-    model=None,
+    model_path,
 ):
 
+    model = pickle.load(open(model_path, "rb"))
     experiment_name = fov_subdataset.experiment_name
     segmented_file_path = Path(segmented_file_path)
 
@@ -1523,9 +1524,13 @@ def process_fresh_sample_graph(
         from stardist.models import StarDist2D
 
         model = StarDist2D.from_pretrained("2D_versatile_fluo")
-        scattered_model = client.scatter(model)
+        model_path = (
+            Path(experiment_fpath) / "fresh_tissue" / "stardist_2D_versatile_fluo.pkl"
+        )
+        pickle.dump(model, open(model_path, "wb"))
     else:
-        scattered_model = model
+        # TODO fix the same thing for cellpose
+        pass
 
     if parsing:
         presence_nuclei = 0
@@ -1773,7 +1778,7 @@ def process_fresh_sample_graph(
                 segmented_file_path,
                 fresh_tissue_segmentation_engine,
                 diameter_size,
-                model=scattered_model,
+                model_path=model_path,
             )
 
             all_processing_nuclei.append(mask_out)
