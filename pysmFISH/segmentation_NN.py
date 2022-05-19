@@ -17,8 +17,9 @@ class Segmenation_NN:
         """
         self.mode = mode
         self.model = model
+        self.diameter = diameter
 
-        if mode == "stardist":
+        if self.mode == "stardist":
             from stardist.models import StarDist2D
 
             self.StarDist2D = StarDist2D
@@ -26,7 +27,7 @@ class Segmenation_NN:
 
             self.stardist_normalize = normalize
 
-        if mode == "cellpose":
+        if self.mode == "cellpose":
             from cellpose import models
 
             self.cellpose_models = models
@@ -65,9 +66,7 @@ class Segmenation_NN:
     #     )
     #     return model
 
-    def segment_cellpose(
-        self, image, diameter=25, model=None, gpu=False, model_type="nuclei"
-    ):
+    def segment_cellpose(self, image, gpu=False, model_type="nuclei"):
         """Segment image with CellPose.
 
         Saves segmentation masks as numpy arrays in the output folder. Other
@@ -95,20 +94,19 @@ class Segmenation_NN:
 
 
         """
-        if type(self.model) == type(None):
-            self.model = self.cellpose_init_model(
-                gpu=gpu, model_type=model_type, net_avg=True, device=None
+        if self.model == None:
+            self.model = self.cellpose_models.Cellpose(
+                gpu=gpu, model_type=model_type, net_avg=None, device=True
             )
-
         # Segment
         mask, flow, style, diam = self.model.eval(
-            image, diameter=diameter, channels=[0, 0]
+            image, diameter=self.diameter, channels=[0, 0]
         )
 
         # Return
         return mask
 
-    def segment_stardist(self, image, diameter=None):
+    def segment_stardist(self, image):
         """Segment image with Stardist.
 
         Saves segmentation masks as numpy arrays in the output folder.
@@ -122,18 +120,17 @@ class Segmenation_NN:
 
         """
         # Instantiate model
-        if type(self.model) == type(None):
+        if self.model == None:
             self.model = self.StarDist2D.from_pretrained("2D_versatile_fluo")
 
-        # Segment
-        # test
-        # img = self.stardist_normalize(image)
-        # if isinstance(img, np.ndarray):
-        #     mask, _ = self.model.predict_instances(img)
-        #     return mask
-        # else:
-        #     return img
-        mask, _ = self.model.predict_instances(self.stardist_normalize(image))
+        # Segment test
+        img = self.stardist_normalize(image)
+        if isinstance(img, np.ndarray):
+            mask, _ = self.model.predict_instances(img)
+            return mask
+        else:
+            return img
+        # mask, _ = self.model.predict_instances(self.stardist_normalize(image))
 
         # Retrun
         return mask

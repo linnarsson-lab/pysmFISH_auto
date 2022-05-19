@@ -1773,7 +1773,7 @@ def process_fresh_sample_graph(
                 segmented_file_path,
                 fresh_tissue_segmentation_engine,
                 diameter_size,
-                scattered_model,
+                model=scattered_model,
             )
 
             all_processing_nuclei.append(mask_out)
