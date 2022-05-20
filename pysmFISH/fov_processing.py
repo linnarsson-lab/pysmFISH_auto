@@ -1877,7 +1877,7 @@ def segmentation_graph(
         base_path.stem + "_nuclei_preprocessed_img_data.zarr"
     )
     segmented_file_path = base_path / (base_path.stem + "_segmented_nuclei_data.zarr")
-    metadata = ds_nuclei.collect_metadata(ds_nuclei)
+    metadata = ds_nuclei.collect_metadata(ds_nuclei.dataset)
     nuclei_grpd_fovs = ds_nuclei.dataset.groupby("fov_num")
     all_fovs = list(nuclei_grpd_fovs.groups.keys())
     chunks = [
