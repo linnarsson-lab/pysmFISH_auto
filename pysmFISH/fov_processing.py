@@ -1567,17 +1567,13 @@ def process_fresh_sample_graph(
 
     logger = selected_logger()
     all_parsing = []
-    if fresh_tissue_segmentation_engine == "stardist":
-        from stardist.models import StarDist2D
+    # if fresh_tissue_segmentation_engine == "stardist":
+    #     from stardist.models import StarDist2D
 
-        model = StarDist2D.from_pretrained("2D_versatile_fluo")
-        # model_path = (
-        #     Path(experiment_fpath) / "fresh_tissue" / "stardist_2D_versatile_fluo.zip"
-        # )
-        # model.export_TF(fname=model_path)
-    else:
-        # TODO fix the same thing for cellpose
-        pass
+    #     model = StarDist2D.from_pretrained("2D_versatile_fluo")
+    # else:
+    #     # TODO fix the same thing for cellpose
+    #     pass
 
     if parsing:
         presence_nuclei = 0
