@@ -1292,6 +1292,40 @@ class Pipeline:
             save_steps_output=self.save_intermediate_steps,
         )
 
+        pickle.dump(
+            [
+                self.ds_beads,
+                self.ds_nuclei,
+                self.metadata,
+            ],
+            open(
+                Path(self.experiment_fpath)
+                / "fresh_tissue"
+                / "segmentation"
+                / "ds_tmp_data.pkl",
+                "wb",
+            ),
+        )
+
+        # (self.ds_beads, self.ds_nuclei, self.nuclei_metadata) = pickle.load(
+        #     open(
+        #         Path(self.experiment_fpath)
+        #         / "fresh_tissue"
+        #         / "segmentation"
+        #         / "ds_tmp_data.pkl",
+        #         "rb",
+        #     ),
+        # )
+
+        # # Segmentation
+        # fov_processing.segmentation_graph(
+        #     self.ds_nuclei,
+        #     self.chunk_size,
+        #     self.experiment_fpath,
+        #     self.fresh_tissue_segmentation_engine,
+        #     self.diameter_size,
+        # )
+
         # (
         #     self.nuclei_org_tiles,
         #     self.nuclei_adjusted_coords,
