@@ -1790,7 +1790,7 @@ def process_fresh_sample_graph(
         client.run(gc.collect)
 
     processing_tag = "nuclei"
-    metadata = ds_nuclei.collect_metadata(ds_beads.dataset)
+    metadata = ds_nuclei.collect_metadata(ds_nuclei)
 
     all_fovs = list(nuclei_grpd_fovs.groups.keys())
     chunks = [
@@ -1831,7 +1831,64 @@ def process_fresh_sample_graph(
             # all_processing_nuclei.append(mask_out)
             all_processing_nuclei.append(fov_out)
         _ = dask.compute(all_processing_nuclei)
-        client.run(gc.collect)
+
+    # for chunk in chunks:
+    #     # scattered_model = client.scatter(model)
+    #     all_processing_nuclei = []
+    #     for fov_num in chunk:
+    #         fov_subdataset = nuclei_grpd_fovs.get_group(fov_num).iloc[
+    #             0
+    #         ]  # Olny one round of imaging
+    #         round_num = fov_subdataset.round_num
+    #         channel = fov_subdataset.channel
+    #         fov = fov_subdataset.fov_num
+    #         experiment_name = fov_subdataset.experiment_name
+    #         dask_delayed_name = "filt_nuclei_fov" + str(fov) + "_" + tokenize()
+
+    #         dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
+    #         mask_out = delayed(segmentation_NN_fov_path, name=dask_delayed_name)(
+    #             fov_subdataset,
+    #             segmented_file_path,
+    #             fresh_tissue_segmentation_engine,
+    #             diameter_size,
+    #             model=model,
+    #             nuclei_filtered_fpath=nuclei_filtered_fpath,
+    #         )
+
+    #         all_processing_nuclei.append(mask_out)
+
+    #     # end = delayed(combine_steps)(saved_file,all_processing_nuclei)
+
+    #     _ = dask.compute(all_processing_nuclei)
+
+    return ds_beads, ds_nuclei, metadata
+
+
+def segmentation_graph(
+    ds_nuclei,
+    chunks_size,
+    experiment_fpath,
+    fresh_tissue_segmentation_engine,
+    diameter_size,
+):
+
+    base_path = experiment_fpath / "fresh_tissue"
+    nuclei_filtered_fpath = base_path / (
+        base_path.stem + "_nuclei_preprocessed_img_data.zarr"
+    )
+    segmented_file_path = base_path / (base_path.stem + "_segmented_nuclei_data.zarr")
+    metadata = ds_nuclei.collect_metadata(ds_nuclei)
+    nuclei_grpd_fovs = ds_nuclei.dataset.groupby("fov_num")
+    all_fovs = list(nuclei_grpd_fovs.groups.keys())
+    chunks = [
+        all_fovs[x : x + chunks_size] for x in range(0, len(all_fovs), chunks_size)
+    ]
+
+    if fresh_tissue_segmentation_engine == "stardist":
+        from stardist.models import StarDist2D
+
+        model = StarDist2D.from_pretrained("2D_versatile_fluo")
+
     for chunk in chunks:
         # scattered_model = client.scatter(model)
         all_processing_nuclei = []
@@ -1860,9 +1917,6 @@ def process_fresh_sample_graph(
         # end = delayed(combine_steps)(saved_file,all_processing_nuclei)
 
         _ = dask.compute(all_processing_nuclei)
-        client.run(gc.collect)
-
-    return ds_beads, ds_nuclei, metadata
 
 
 # TODO Remove functions

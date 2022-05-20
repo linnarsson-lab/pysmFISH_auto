@@ -1292,33 +1292,33 @@ class Pipeline:
             save_steps_output=self.save_intermediate_steps,
         )
 
-        (
-            self.nuclei_org_tiles,
-            self.nuclei_adjusted_coords,
-        ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
-            self.experiment_fpath,
-            self.client,
-            self.ds_nuclei,
-            self.ds_beads,
-            round_num=1,
-        )
+        # (
+        #     self.nuclei_org_tiles,
+        #     self.nuclei_adjusted_coords,
+        # ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
+        #     self.experiment_fpath,
+        #     self.client,
+        #     self.ds_nuclei,
+        #     self.ds_beads,
+        #     round_num=1,
+        # )
 
-        pickle.dump(
-            [
-                self.ds_beads,
-                self.ds_nuclei,
-                self.metadata,
-                self.nuclei_org_tiles,
-                self.nuclei_adjusted_coords,
-            ],
-            open(
-                Path(self.experiment_fpath)
-                / "fresh_tissue"
-                / "segmentation"
-                / "tmp_data.pkl",
-                "wb",
-            ),
-        )
+        # pickle.dump(
+        #     [
+        #         self.ds_beads,
+        #         self.ds_nuclei,
+        #         self.metadata,
+        #         self.nuclei_org_tiles,
+        #         self.nuclei_adjusted_coords,
+        #     ],
+        #     open(
+        #         Path(self.experiment_fpath)
+        #         / "fresh_tissue"
+        #         / "segmentation"
+        #         / "tmp_data.pkl",
+        #         "wb",
+        #     ),
+        # )
 
         # (
         #     self.ds_beads,
@@ -1336,31 +1336,31 @@ class Pipeline:
         #     ),
         # )
 
-        segmentation_output_path = (
-            Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
-        )
-        segmented_object_dict_recalculated = segmentation.create_label_image(
-            self.experiment_fpath,
-            segmentation_output_path,
-            self.ds_nuclei,
-            self.nuclei_org_tiles,
-            self.nuclei_adjusted_coords,
-            self.nuclei_metadata,
-            self.client,
-            self.min_overlapping_pixels_segmentation,
-        )
+        # segmentation_output_path = (
+        #     Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
+        # )
+        # segmented_object_dict_recalculated = segmentation.create_label_image(
+        #     self.experiment_fpath,
+        #     segmentation_output_path,
+        #     self.ds_nuclei,
+        #     self.nuclei_org_tiles,
+        #     self.nuclei_adjusted_coords,
+        #     self.nuclei_metadata,
+        #     self.client,
+        #     self.min_overlapping_pixels_segmentation,
+        # )
 
-        segmentation.register_assign(
-            self.experiment_fpath,
-            segmented_object_dict_recalculated,
-            self.data.dataset,
-            self.ds_nuclei.dataset,
-            self.metadata,
-            self.nuclei_metadata,
-            self.pipeline_run_name,
-            segmentation_output_path,
-            self.max_expansion_radius,
-            self.hamming_distance,
+        # segmentation.register_assign(
+        #     self.experiment_fpath,
+        #     segmented_object_dict_recalculated,
+        #     self.data.dataset,
+        #     self.ds_nuclei.dataset,
+        #     self.metadata,
+        #     self.nuclei_metadata,
+        #     self.pipeline_run_name,
+        #     segmentation_output_path,
+        #     self.max_expansion_radius,
+        #     self.hamming_distance,
         )
 
     # --------------------------------
