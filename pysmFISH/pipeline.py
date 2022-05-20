@@ -1276,7 +1276,7 @@ class Pipeline:
         (
             self.ds_beads,
             self.ds_nuclei,
-            self.metadata,
+            self.nuclei_metadata,
         ) = fov_processing.process_fresh_sample_graph(
             self.experiment_fpath,
             self.running_functions,
