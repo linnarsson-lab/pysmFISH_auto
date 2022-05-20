@@ -1317,58 +1317,58 @@ class Pipeline:
         #     ),
         # )
 
-        # Segmentation
-        fov_processing.segmentation_graph(
-            self.ds_nuclei,
-            self.chunk_size,
-            self.experiment_fpath,
-            self.fresh_tissue_segmentation_engine,
-            self.diameter_size,
-        )
-
-        (
-            self.nuclei_org_tiles,
-            self.nuclei_adjusted_coords,
-        ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
-            self.experiment_fpath,
-            self.client,
-            self.ds_nuclei,
-            self.ds_beads,
-            round_num=1,
-        )
-
-        pickle.dump(
-            [
-                self.ds_beads,
-                self.ds_nuclei,
-                self.nuclei_metadata,
-                self.nuclei_org_tiles,
-                self.nuclei_adjusted_coords,
-            ],
-            open(
-                Path(self.experiment_fpath)
-                / "fresh_tissue"
-                / "segmentation"
-                / "tmp_data.pkl",
-                "wb",
-            ),
-        )
+        # # Segmentation
+        # fov_processing.segmentation_graph(
+        #     self.ds_nuclei,
+        #     self.chunk_size,
+        #     self.experiment_fpath,
+        #     self.fresh_tissue_segmentation_engine,
+        #     self.diameter_size,
+        # )
 
         # (
-        #     self.ds_beads,
-        #     self.ds_nuclei,
-        #     self.nuclei_metadata,
         #     self.nuclei_org_tiles,
         #     self.nuclei_adjusted_coords,
-        # ) = pkl.load(
+        # ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
+        #     self.experiment_fpath,
+        #     self.client,
+        #     self.ds_nuclei,
+        #     self.ds_beads,
+        #     round_num=1,
+        # )
+
+        # pickle.dump(
+        #     [
+        #         self.ds_beads,
+        #         self.ds_nuclei,
+        #         self.nuclei_metadata,
+        #         self.nuclei_org_tiles,
+        #         self.nuclei_adjusted_coords,
+        #     ],
         #     open(
         #         Path(self.experiment_fpath)
         #         / "fresh_tissue"
         #         / "segmentation"
         #         / "tmp_data.pkl",
-        #         "rb",
+        #         "wb",
         #     ),
         # )
+
+        (
+            self.ds_beads,
+            self.ds_nuclei,
+            self.nuclei_metadata,
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+        ) = pickle.load(
+            open(
+                Path(self.experiment_fpath)
+                / "fresh_tissue"
+                / "segmentation"
+                / "tmp_data.pkl",
+                "rb",
+            ),
+        )
 
         segmentation_output_path = (
             Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
