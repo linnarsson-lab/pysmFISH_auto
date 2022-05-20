@@ -1830,6 +1830,8 @@ def process_fresh_sample_graph(
 
             # all_processing_nuclei.append(mask_out)
             all_processing_nuclei.append(fov_out)
+        _ = dask.compute(all_processing_nuclei)
+        client.run(gc.collect)
     for chunk in chunks:
         # scattered_model = client.scatter(model)
         all_processing_nuclei = []
