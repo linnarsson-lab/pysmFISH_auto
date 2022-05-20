@@ -1749,6 +1749,7 @@ def process_fresh_sample_graph(
         all_fovs[x : x + chunks_size] for x in range(0, len(all_fovs), chunks_size)
     ]
     for chunk in chunks:
+        scattered_mdel = client.scatter(model)
         all_processing_nuclei = []
         for fov_num in chunk:
             fov_subdataset = nuclei_grpd_fovs.get_group(fov_num).iloc[
@@ -1777,7 +1778,7 @@ def process_fresh_sample_graph(
                 segmented_file_path,
                 fresh_tissue_segmentation_engine,
                 diameter_size,
-                model=model,
+                model=scattered_mdel,
             )
 
             all_processing_nuclei.append(mask_out)
