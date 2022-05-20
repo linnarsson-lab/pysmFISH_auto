@@ -1655,8 +1655,6 @@ def stitched_beads_on_nuclei_fresh_tissue(
         experiment_fpath, nuclei_org_tiles, metadata_nuclei, client, nr_dim=2
     )
 
-    
-
     io.simple_output_plotting(
         fresh_tissue_path,
         stitching_selected="global_stitched_nuclei",
@@ -2808,26 +2806,26 @@ def register_adj_tiles(
     return stitching_shift
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    exp = (
-        "/Users/simone/Documents/local_data_storage/test_micdata/LBEXP20200325_oPool11"
-    )
-    stitching_channel = "Europium"
-    roi_num = 0
-    to = organize_square_tiles(exp, stitching_channel, roi_num)
-    # to.save_graph()
-    to.normalize_coords()
-    to.identify_adjacent_tiles()
-    to.determine_overlapping_regions()
-    idx_reference_tile = 0
-    experiment_fpath = "/Users/simone/Documents/local_data_storage/dots_analysis/LBEXP20200325_oPool11/"
-    stitching_shift, tmp = register_adj_tiles(
-        experiment_fpath,
-        roi_num,
-        stitching_channel,
-        idx_reference_tile,
-        to.overlapping_regions,
-        to.tile_corners_coords_pxl,
-    )
-    to.save_graph()
+#     exp = (
+#         "/Users/simone/Documents/local_data_storage/test_micdata/LBEXP20200325_oPool11"
+#     )
+#     stitching_channel = "Europium"
+#     roi_num = 0
+#     to = organize_square_tiles(exp, stitching_channel, roi_num)
+#     # to.save_graph()
+#     to.normalize_coords()
+#     to.identify_adjacent_tiles()
+#     to.determine_overlapping_regions()
+#     idx_reference_tile = 0
+#     experiment_fpath = "/Users/simone/Documents/local_data_storage/dots_analysis/LBEXP20200325_oPool11/"
+#     stitching_shift, tmp = register_adj_tiles(
+#         experiment_fpath,
+#         roi_num,
+#         stitching_channel,
+#         idx_reference_tile,
+#         to.overlapping_regions,
+#         to.tile_corners_coords_pxl,
+#     )
+#     to.save_graph()

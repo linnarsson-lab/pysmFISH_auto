@@ -1790,7 +1790,7 @@ def process_fresh_sample_graph(
         client.run(gc.collect)
 
     processing_tag = "nuclei"
-    metadata = ds_nuclei.collect_metadata(ds_nuclei)
+    metadata = ds_nuclei.collect_metadata(ds_nuclei.dataset)
 
     all_fovs = list(nuclei_grpd_fovs.groups.keys())
     chunks = [
