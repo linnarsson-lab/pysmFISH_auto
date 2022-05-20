@@ -1889,34 +1889,48 @@ def segmentation_graph(
 
         model = StarDist2D.from_pretrained("2D_versatile_fluo")
 
-    for chunk in chunks:
-        # scattered_model = client.scatter(model)
-        all_processing_nuclei = []
-        for fov_num in chunk:
-            fov_subdataset = nuclei_grpd_fovs.get_group(fov_num).iloc[
-                0
-            ]  # Olny one round of imaging
-            round_num = fov_subdataset.round_num
-            channel = fov_subdataset.channel
-            fov = fov_subdataset.fov_num
-            experiment_name = fov_subdataset.experiment_name
-            dask_delayed_name = "filt_nuclei_fov" + str(fov) + "_" + tokenize()
+    # for chunk in chunks:
+    #     # scattered_model = client.scatter(model)
+    #     all_processing_nuclei = []
+    #     for fov_num in chunk:
+    #         fov_subdataset = nuclei_grpd_fovs.get_group(fov_num).iloc[
+    #             0
+    #         ]  # Olny one round of imaging
+    #         round_num = fov_subdataset.round_num
+    #         channel = fov_subdataset.channel
+    #         fov = fov_subdataset.fov_num
+    #         experiment_name = fov_subdataset.experiment_name
+    #         dask_delayed_name = "filt_nuclei_fov" + str(fov) + "_" + tokenize()
 
-            dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
-            mask_out = delayed(segmentation_NN_fov_path, name=dask_delayed_name)(
-                fov_subdataset,
-                segmented_file_path,
-                fresh_tissue_segmentation_engine,
-                diameter_size,
-                model=model,
-                nuclei_filtered_fpath=nuclei_filtered_fpath,
-            )
+    #         dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
+    #         mask_out = delayed(segmentation_NN_fov_path, name=dask_delayed_name)(
+    #             fov_subdataset,
+    #             segmented_file_path,
+    #             fresh_tissue_segmentation_engine,
+    #             diameter_size,
+    #             model=model,
+    #             nuclei_filtered_fpath=nuclei_filtered_fpath,
+    #         )
 
-            all_processing_nuclei.append(mask_out)
+    #         all_processing_nuclei.append(mask_out)
 
-        # end = delayed(combine_steps)(saved_file,all_processing_nuclei)
+    #     _ = dask.compute(all_processing_nuclei)
 
-        _ = dask.compute(all_processing_nuclei)
+    for fov_num in all_fovs:
+        fov_subdataset = nuclei_grpd_fovs.get_group(fov_num).iloc[
+            0
+        ]  # Olny one round of imaging
+        round_num = fov_subdataset.round_num
+        channel = fov_subdataset.channel
+        fov = fov_subdataset.fov_num
+        segmentation_NN_fov_path(
+            fov_subdataset,
+            segmented_file_path,
+            fresh_tissue_segmentation_engine,
+            diameter_size,
+            model=model,
+            nuclei_filtered_fpath=nuclei_filtered_fpath,
+        )
 
 
 # TODO Remove functions
