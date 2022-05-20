@@ -1341,7 +1341,7 @@ class Pipeline:
             [
                 self.ds_beads,
                 self.ds_nuclei,
-                self.metadata,
+                self.nuclei_metadata,
                 self.nuclei_org_tiles,
                 self.nuclei_adjusted_coords,
             ],
