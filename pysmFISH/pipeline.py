@@ -1361,7 +1361,7 @@ class Pipeline:
         #     segmentation_output_path,
         #     self.max_expansion_radius,
         #     self.hamming_distance,
-        )
+        # )
 
     # --------------------------------
     # QC STEPS (some other included in the graph function)
