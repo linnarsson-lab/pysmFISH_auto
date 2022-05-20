@@ -1480,6 +1480,54 @@ def segmentation_NN_fov(
         )
 
 
+def segmentation_NN_fov_path(
+    fov_subdataset: pd.Series,
+    segmented_file_path: str,
+    fresh_tissue_segmentation_engine: str,
+    diameter_size: int,
+    model,
+    nuclei_filtered_fpath,
+):
+
+    experiment_name = fov_subdataset.experiment_name
+    segmented_file_path = Path(segmented_file_path)
+
+    zarr_grp_name = (
+        experiment_name + "_fresh_tissue_nuclei_fov_" + str(fov_subdataset.fov_num)
+    )
+    fov_name = "preprocessed_data_fov_" + str(fov_subdataset.fov_num)
+
+    st = zarr.DirectoryStore(nuclei_filtered_fpath)
+    root = zarr.group(store=st, overwrite=False)
+
+    img = root[zarr_grp_name][fov_name][...]
+
+    nuclei_segmentation = segmentation_NN.Segmenation_NN(
+        fresh_tissue_segmentation_engine, diameter_size, model
+    )
+    mask = nuclei_segmentation.segment(img)
+
+    if isinstance(mask, np.ndarray):
+        # Save the file as zarr
+        store = zarr.DirectoryStore(segmented_file_path)
+        root = zarr.group(store=store, overwrite=False)
+        tag_name = (
+            experiment_name
+            + "_segmetented_fresh_tissue_fov_"
+            + str(fov_subdataset.fov_num)
+        )
+        dgrp = root.create_group(tag_name, overwrite=True)
+        fov_name = "segmentation_mask_fov_" + str(fov_subdataset.fov_num)
+
+        dset = dgrp.create_dataset(
+            fov_name,
+            data=mask,
+            shape=mask.shape,
+            chunks=None,
+            overwrite=True,
+        )
+
+
 def process_fresh_sample_graph(
     experiment_fpath: str,
     running_functions: dict,
@@ -1749,7 +1797,6 @@ def process_fresh_sample_graph(
         all_fovs[x : x + chunks_size] for x in range(0, len(all_fovs), chunks_size)
     ]
     for chunk in chunks:
-        scattered_mdel = client.scatter(model)
         all_processing_nuclei = []
         for fov_num in chunk:
             fov_subdataset = nuclei_grpd_fovs.get_group(fov_num).iloc[
@@ -1771,18 +1818,43 @@ def process_fresh_sample_graph(
                 save_steps_output=save_steps_output,
                 dask_key_name=dask_delayed_name,
             )
+            # dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
+            # mask_out = delayed(segmentation_NN_fov, name=dask_delayed_name)(
+            #     fov_out[0][-1],
+            #     fov_subdataset,
+            #     segmented_file_path,
+            #     fresh_tissue_segmentation_engine,
+            #     diameter_size,
+            #     model=scattered_mdel,
+            # )
+
+            # all_processing_nuclei.append(mask_out)
+            all_processing_nuclei.append(fov_out)
+    for chunk in chunks:
+        # scattered_model = client.scatter(model)
+        all_processing_nuclei = []
+        for fov_num in chunk:
+            fov_subdataset = nuclei_grpd_fovs.get_group(fov_num).iloc[
+                0
+            ]  # Olny one round of imaging
+            round_num = fov_subdataset.round_num
+            channel = fov_subdataset.channel
+            fov = fov_subdataset.fov_num
+            experiment_name = fov_subdataset.experiment_name
+            dask_delayed_name = "filt_nuclei_fov" + str(fov) + "_" + tokenize()
+
             dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
-            mask_out = delayed(segmentation_NN_fov, name=dask_delayed_name)(
-                fov_out[0][-1],
+            mask_out = delayed(segmentation_NN_fov_path, name=dask_delayed_name)(
                 fov_subdataset,
                 segmented_file_path,
                 fresh_tissue_segmentation_engine,
                 diameter_size,
-                model=scattered_mdel,
+                model=model,
+                nuclei_filtered_fpath=nuclei_filtered_fpath,
             )
 
             all_processing_nuclei.append(mask_out)
-            # all_processing_nuclei.append(fov_out)
+
         # end = delayed(combine_steps)(saved_file,all_processing_nuclei)
 
         _ = dask.compute(all_processing_nuclei)
