@@ -704,6 +704,7 @@ def clean_microscope_stitched(
 
     # Merge results
     merged_df = pd.concat([fov_df[i] for i in fovs])
+    merged_df = merged_df.dropna()
 
     # Save merged results
     fname2 = os.path.join(
