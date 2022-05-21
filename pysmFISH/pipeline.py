@@ -1163,7 +1163,9 @@ class Pipeline:
     #     )
     #     # ----------------------------------------------------------------
 
-    def stitch_and_remove_dots_eel_graph_step(self):
+    def stitch_and_remove_dots_eel_graph_step(self, 
+            remove_distinct_genes=False,
+            clip_size=0,):
 
         """
         Function to stitch the different fovs and remove the duplicated
@@ -1244,6 +1246,8 @@ class Pipeline:
             matching_dot_radius=self.same_dot_radius_duplicate_dots,
             out_folder=folder,
             exp_name=self.metadata["experiment_name"],
+            remove_distinct_genes=remove_distinct_genes,
+            clip_size=clip_size,
             verbose=False,
         )  # Set to False in pipeline
 
