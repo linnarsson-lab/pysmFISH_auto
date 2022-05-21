@@ -1207,7 +1207,8 @@ class Pipeline:
             "channel",
             "hamming_distance",
             "decoded_genes",
-            "round_num"
+            "round_num",
+            "mapped_beads_type"
         ]
 
         # FOV numbers

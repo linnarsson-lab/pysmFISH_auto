@@ -722,7 +722,7 @@ def clean_microscope_stitched(
 
     # Merge RNA results
     merged_df = pd.concat([fov_df[i] for i in fovs])
-    merged_df = merged_df.dropna()
+    #merged_df = merged_df.dropna()
 
     # Save RNA results
     fname_rna_merge = os.path.join(out_folder, (exp_name + "_RNA_microscope_stitched.parquet"),)
