@@ -616,7 +616,7 @@ def clean_microscope_stitched(
         bead_data = bead_data.loc[large_bead_filt]
         large_beads_list.append(bead_data)
     large_beads_df = pd.concat(large_beads_list)
-    large_beads_df = large_beads_df.dropna()
+    large_beads_df = large_beads_df.dropna(subset=['r_px_microscope_stitched','c_px_microscope_stitched','mapped_beads_type'])
 
     # Merge overlapping points.
     for i in fovs:
