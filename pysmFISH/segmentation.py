@@ -575,10 +575,10 @@ def write_output_to_loom(
         "Transformed_px_size": str(
             nuclei_metadata["pixel_microns"]
         ),  # Pixel size of the 40X
-        "Alignment_scaling_factor": str(model.factor),
-        "Alignment_offset": str(model.offset),
-        "Alignment_angle": str(model.angle),
-        "Alignment_rotation_origin": str(model.rotation_origin),
+        #"Alignment_scaling_factor": str(model.factor),
+        #"Alignment_offset": str(model.offset),
+        #"Alignment_angle": str(model.angle),
+        #"Alignment_rotation_origin": str(model.rotation_origin),
         "Expansion_radius": str(expansion_radius),
         "barcode_length": str(experiment_metadata["barcode_length"]),
         "processing_type": experiment_metadata["processing_type"],
@@ -682,7 +682,8 @@ def register_assign(
                               )
 
     transformed, transform_rna = model.run_pipeline(target_beads, source_beads, plot=False, score_centering=False)
-
+    folder_beads = os.path.join(experiment_path, "fresh_tissue","aligned_large_beads")
+    np.save(folder_beads,transformed)
 
     # Fit alignment model
     #model.fit(target_beads, source_beads, plot=False)
@@ -701,7 +702,7 @@ def register_assign(
     source_RNA_df = source_RNA_df.loc[points_filt]
 
     # Transform points
-    transformed_points = model.transform(points)
+    transformed_points = transform_rna(points)
 
     # Add transfromed points to dataframe
     source_RNA_df.loc[:, ["r_transformed", "c_transformed"]] = transformed_points
