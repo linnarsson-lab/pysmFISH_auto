@@ -650,7 +650,12 @@ def register_assign(
     #source_beads, source_RNA_df = create_high_mag_beads_RNA_source(
     #    experiment_path, hamming_distance
     #)
-    source_beads = pd.read_parquet(experiment_metadata["fname_large_beads"]).loc[:,["r_px_microscope_stitched", "c_px_microscope_stitched"]].to_numpy() # @Alejandro get file name
+    folder = os.path.join(experiment_path, "results")
+    exp_name = experiment_metadata['experiment_name']
+
+    fname_large_beads = os.path.join(folder, (exp_name + "_large_beads_microscope_stitched.parquet"))
+    fname_rna_merge = os.path.join(folder, (exp_name + "_RNA_microscope_stitched.parquet"),)
+    source_beads = pd.read_parquet(fname_large_beads).loc[:,["r_px_microscope_stitched", "c_px_microscope_stitched"]].to_numpy() # @Alejandro get file name
     target_beads = create_low_mag_beads_target(experiment_path)
     #Remove invalid points
     source_beads = source_beads[~np.isnan(source_beads).any(axis=1)]
@@ -673,7 +678,7 @@ def register_assign(
     model.fit(target_beads, source_beads, plot=False)
 
     # Get locations and genes
-    source_RNA_df = pd.read_parquet(experiment_metadata["fname_rna_merge"])
+    source_RNA_df = pd.read_parquet(fname_rna_merge)
     points = source_RNA_df.loc[
         :, ["r_px_microscope_stitched", "c_px_microscope_stitched"]
     ].to_numpy()
