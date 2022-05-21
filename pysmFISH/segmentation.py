@@ -650,6 +650,9 @@ def register_assign(
     #)
     source_beads = pd.read_parquet(experiment_metadata["fname_large_beads"]).loc[:,["r_px_microscope_stitched", "c_px_microscope_stitched"]].to_numpy() # @Alejandro get file name
     target_beads = create_low_mag_beads_target(experiment_path)
+    #Remove invalid points
+    source_beads = source_beads[~np.isnan(source_beads).any(axis=1)]
+    target_beads = target_beads[~np.isnan(target_beads).any(axis=1)]
 
     # Initiate alignment model
     model = BeadAlignment(
@@ -668,7 +671,7 @@ def register_assign(
     model.fit(target_beads, source_beads, plot=False)
 
     # Get locations and genes
-    source_RNA_df = pd.read_parquet(experiment_metadata["fname_rna_merge"])  # @Alejandro get file name
+    source_RNA_df = pd.read_parquet(experiment_metadata["fname_rna_merge"])
     points = source_RNA_df.loc[
         :, ["r_px_microscope_stitched", "c_px_microscope_stitched"]
     ].to_numpy()
