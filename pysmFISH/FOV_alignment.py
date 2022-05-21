@@ -760,8 +760,8 @@ def clean_microscope_stitched(
         fov_df[i].to_parquet(fname)
 
     # Merge RNA results
-    #merged_df = pd.concat([fov_df[i] for i in fovs])
-    merged_df = pd.concat([clip_borders(fov_df[i], clip_size) for i in fovs])
+    merged_df = pd.concat([fov_df[i] for i in fovs])
+    #merged_df = pd.concat([clip_borders(fov_df[i], clip_size) for i in fovs])
     merged_df = merged_df.dropna()
 
     # Save RNA results

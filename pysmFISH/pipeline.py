@@ -256,7 +256,7 @@ class Pipeline:
         )
 
         self.max_expansion_radius = kwarg.pop("max_expansion_radius", 18)
-        self.fov_alignement_mode = kwarg.pop("fov_alignement_mode", "clipped")
+        self.fov_alignement_mode = kwarg.pop("fov_alignement_mode", "clip")
 
     # -----------------------------------
     # PROCESSING STEPS
@@ -1206,10 +1206,14 @@ class Pipeline:
             "dot_id",
             "r_px_microscope_stitched",
             "c_px_microscope_stitched",
+            "r_px_original",
+            "c_px_original",
             "channel",
             "hamming_distance",
             "decoded_genes",
-            "round_num"
+            "round_num",
+            "mapped_beads_type"
+
         ]
 
         # FOV numbers
