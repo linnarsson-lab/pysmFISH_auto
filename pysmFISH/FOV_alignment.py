@@ -313,32 +313,24 @@ def find_offset(
     return offset
 
 
-def find_matches(
-    A: np.ndarray,
-    B: np.ndarray,
-    id_A: np.ndarray,
-    id_B: np.ndarray,
-    offset: np.ndarray,
-    max_radius: int = 10,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def find_matches(A: np.ndarray, B: np.ndarray, id_A: np.ndarray, id_B: np.ndarray, offset: np.ndarray, 
+                 max_radius: int=10, remove_distinct_genes:bool=False) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Find matching points between two point sets.
-
-    If there are matching points the mean position is returned.
-
+    If there are matching points the mean position is returned. 
+    
     Args:
         A (np.ndarray): Point set A.
         B_transformed (np.ndarray): Transfromed piont set B so that it aligns
-            with A.
+            with A. 
             Use the `find_offset()` function to find the values to transform
-            B so that it aligns with A.
-        id_A
+            B so that it aligns with A. 
+        id_A    
         id_B
-        max_radius (int, optional): Max radius within which pionts are
+        max_radius (int, optional): Max radius within which pionts are 
             considered the same. Defaults to 10.
-
     Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-            final_positions: Array with all unique points of A, all unique
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]: 
+            final_positions: Array with all unique points of A, all unique 
                 points of B, and the mean position of the matching points of
                 A and B.
             A_merged: Array with all new positions of A.
@@ -346,49 +338,64 @@ def find_matches(
             A_filt: Boolean array with all points of A that are also in B.
             B_filt: Boolean array with all points of B that are also in A.
     """
-
+    
     B_transformed = B + offset
-    # Find nearest neighbours
+    #Find nearest neighbours
     tree = KDTree(A)
     dist, neigh = tree.query(B_transformed, return_distance=True)
     neigh_f, dist_f = neigh.ravel(), dist.ravel()
+    
+    #Find pairs of matching points that should be merged
+    pairs = np.stack((np.arange(B_transformed.shape[0]), neigh[:,0]), axis=1)
 
-    # Find pairs of matching points that should be merged
-    pairs = np.stack((np.arange(B_transformed.shape[0]), neigh[:, 0]), axis=1)
-
-    # Exclude points that have multiple matches, keep only those with the shortest distance
+    #Exclude points that have multiple matches, keep only those with the shortest distance
     to_del = []
     u, c = np.unique(neigh, return_counts=True)
     dup = u[c > 1]
     for d in dup:
-        where = np.where(neigh_f == d)[0]
+        where = np.where(neigh_f==d)[0]
         filt = dist_f[where] > dist_f[where].min()
         to_del.append(where[filt])
 
-    # Exclude points outside radius
+    #Exclude points outside radius
     to_del.append(np.where(dist_f > max_radius)[0])
 
-    # Exclude duplicates and invalid matches
+    #Exclude duplicates and invalid matches
     pairs = np.delete(pairs, np.unique(np.concatenate(to_del)), axis=0)
 
-    # Exclude pairs that do not have the same identity
-    filt = id_A[pairs[:, 1]] == id_B[pairs[:, 0]]
-    pairs = pairs[filt]
-
-    # Filter input datasets
-    filt_A = ~np.isin(np.arange(A.shape[0]), pairs[:, 1])
+    #Exclude pairs that do not have the same identity
+    #print('pairs',pairs)
+    if remove_distinct_genes:
+        filt = id_A[pairs[:,1]] == id_A[pairs[:,1]]
+        pairs = pairs[filt]
+    else:
+        filt = id_A[pairs[:,1]] == id_B[pairs[:,0]]
+        pairs = pairs[filt]
+    
+    to_del = []
+    u, c = np.unique(pairs[:,1], return_counts=True)
+    dup = u[c > 1]
+    #print('duplicates',dup)
+    for d in dup:
+        where = np.where(pairs[:,1]==d)[0]
+        to_del.append(where[1:])
+        
+    #Exclude duplicates and invalid matches
+    if len(to_del) > 0:
+        pairs = np.delete(pairs, np.unique(np.concatenate(to_del)), axis=0)
+    #Filter input datasets
+    filt_A = ~np.isin(np.arange(A.shape[0]), pairs[:,1])
     unique_A = A[filt_A]
-    filt_B = ~np.isin(np.arange(B.shape[0]), pairs[:, 0])
+    filt_B = ~np.isin(np.arange(B.shape[0]), pairs[:,0])
     unique_B = B[filt_B]
-    merged_positions = np.mean(np.array([B[pairs[:, 0]], A[pairs[:, 1]]]), axis=0)
+    merged_positions = np.mean(np.array([B[pairs[:,0]], A[pairs[:,1]]]), axis=0)
 
-    # Final output of points unique to A, points unique to B and the merged positions of points that are found in both
+    #Final output of points unique to A, points unique to B and the merged positions of points that are found in both
     final_positions = np.vstack((unique_A, unique_B, merged_positions))
     A_merged = np.vstack((unique_A, merged_positions))
     B_merged = np.vstack((unique_B, merged_positions))
-
+    
     return final_positions, A_merged, B_merged, ~filt_A, ~filt_B
-
 
 ###############################################################################
 ##  pysmFISH specific functions ##
@@ -445,6 +452,28 @@ def select_overlap(
     filt = combine_boolean([filt0, filt1, filt2, filt3])
     return filt
 
+def clip_borders(dataframe:pd.array, bounds:int=0,
+        intensity_quantile:float = 0.5) -> pd.array:
+    """Clip borders of dataframe to avoid edge effects.
+    Args:
+        dataframe (pd.array): Dataframe with shape (n,m,p).
+        bounds (pd.array): Length to clip the outer frame in pixels.
+            Defaults to 0.
+        intensity_quantile (float): Quantile to clip the outer frame dots.
+    Returns:
+        pd.array: Dataframe with shape (n-2,m-2,p).
+    """
+    if dataframe.shape[0] > 0:
+
+        center_dots = dataframe[(dataframe['r_px_original'] >bounds) & 
+                                        (dataframe['r_px_original'] < 2048 -bounds) & 
+                                        (dataframe['c_px_original'] > bounds) & 
+                                        (dataframe['c_px_original'] < 2048-bounds) ]
+
+        center_dots = center_dots[center_dots.hamming_distance <= 2/16]
+        
+        return center_dots
+
 
 def clip_overlap(
     corner_coordinates: Union[list, np.ndarray], fov0: np.ndarray, fov1: np.ndarray
@@ -500,6 +529,8 @@ def clean_microscope_stitched(
     matching_dot_radius: float = 5,
     out_folder: str = "",
     exp_name: str = "",
+    remove_distinct_genes:bool=False,
+    clip_size:int = 0, 
     verbose: bool = False,
 ) -> Tuple[str, str]:
     """Remove overlapping dots in microscope stitched data.
@@ -540,6 +571,10 @@ def clean_microscope_stitched(
             trailing slash. Defaults to '/'.
         exp_name (str, optional): Name of experiment to name the output files.
             Defaults to ''.
+        remove_distinct_genes (bool, optional): If True overlapping dots from
+            different genes will be removed. Defaults to False.
+        clip_size (int, optional): If more than 0 the FOVs outmost pixels will
+            be clipped to avoid edge effects. Defaults to 0.
         verbose (bool, optional): If True prints progress. Defaults to False.
 
     Returns:
@@ -564,10 +599,13 @@ def clean_microscope_stitched(
           `r_px_microscope_stitched` and `c_px_microscope_stitched`.
 
     """
+
     valid_modes = ['clip', 'merge']
     if mode not in valid_modes:
         raise Exception(f'Dot removal mode not recognized. Input mode: {mode} is not part of implemented modes: {valid_modes}')
-    
+    if mode == 'clip':
+        clip_size=0
+        
     # Fetch all large beads (Does not run bead removal in overlapping regions)
     large_beads_list = []
     for i in fovs:
@@ -654,6 +692,7 @@ def clean_microscope_stitched(
                             d1_id,
                             offset,
                             max_radius=matching_dot_radius,
+                            remove_distinct_genes=remove_distinct_genes
                         )
 
                         # Merged points will be put only in dataset 0, and deleted from dataset 1
@@ -721,7 +760,8 @@ def clean_microscope_stitched(
         fov_df[i].to_parquet(fname)
 
     # Merge RNA results
-    merged_df = pd.concat([fov_df[i] for i in fovs])
+    #merged_df = pd.concat([fov_df[i] for i in fovs])
+    merged_df = pd.concat([clip_borders(fov_df[i], clip_size) for i in fovs])
     merged_df = merged_df.dropna()
 
     # Save RNA results
