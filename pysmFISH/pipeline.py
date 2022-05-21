@@ -1213,7 +1213,6 @@ class Pipeline:
             "decoded_genes",
             "round_num",
             "mapped_beads_type"
-
         ]
 
         # FOV numbers
