@@ -1251,6 +1251,7 @@ class Pipeline:
         parsing=True,
         tag_ref_beads="_ChannelEuropium_Cy3_",
         tag_nuclei="_ChannelCy3_",
+        centering_mode='middle',
     ):
         """
         This function create and run a processing graph that parse and filter the nuclei staining in fresh tissue
@@ -1395,6 +1396,7 @@ class Pipeline:
             segmentation_output_path,
             self.max_expansion_radius,
             self.hamming_distance,
+            centering_mode=centering_mode,
         )
 
     # --------------------------------
