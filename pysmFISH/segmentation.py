@@ -528,14 +528,12 @@ def create_low_mag_beads_target(experiment_fpath):
     )
     for count_fpath in counts_paths:
         data = pd.read_parquet(count_fpath)
-        data = data.loc[
-            :, ["r_px_global_stitched_nuclei", "c_px_global_stitched_nuclei"]
-        ]
+        data = data.loc[:, ["r_px_microscope_stitched", "c_px_microscope_stitched"]]
         all_counts_collected.append(data)
     all_counts_collected = pd.concat(all_counts_collected, axis=0)
     all_counts_collected.dropna(axis=0, inplace=True)
     target = all_counts_collected.loc[
-        :, ["r_px_global_stitched_nuclei", "c_px_global_stitched_nuclei"]
+        :, ["r_px_microscope_stitched", "c_px_microscope_stitched"]
     ].to_numpy()
     return target
 
