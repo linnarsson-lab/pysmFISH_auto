@@ -501,7 +501,7 @@ def clean_microscope_stitched(
     out_folder: str = "",
     exp_name: str = "",
     verbose: bool = False,
-) -> str:
+) -> Tuple[str, str]:
     """Remove overlapping dots in microscope stitched data.
 
     Caveat: If the same gene name is present in different channels the overlap
@@ -512,8 +512,8 @@ def clean_microscope_stitched(
         fov_df (dict): Dictionary with FOV numbers as keys and dataframe with
             decoded point data as values. Dataframes should contain the
             following columns: `channel`, `hamming_distance`,
-            `r_px_microscope_stitched`, `c_px_microscope_stitched` and
-            `decoded_genes`
+            `r_px_microscope_stitched`, `c_px_microscope_stitched`,
+            `decoded_genes` and `round_num`.
             It is advised to also include `dot_id` so that output can be
             matched to input.
         overlapping_regions (dict): Dictionary with FOV numbers as keys and as
@@ -543,7 +543,9 @@ def clean_microscope_stitched(
         verbose (bool, optional): If True prints progress. Defaults to False.
 
     Returns:
-        filename (str): Path and name of merged output file.
+        Tuple[str, str]
+        filename (str): Path and name of merged RNA output file.
+        filename (str): Path and name of merge large beads output file.
 
         Output is saved:
         - For each FOV a reduced dataframe is saved in the output folder with
@@ -552,15 +554,31 @@ def clean_microscope_stitched(
           if they had a match with an adjacent FOV. In the other FOV these
           points will have been deleted.
         - Merged dataframe with all the points after merging. File extension
-          will be: _data_summary_simple_plotting_microscope_cleaned.parquet
-          and located in the out_folder. The file will contain the following
-          columns: `r_px_microscope_stitched`, `c_px_microscope_stitched`,
+          will be: _RNA_microscope_stitched.parquet. and located in the 
+          out_folder. The file will contain the following columns: 
+          `r_px_microscope_stitched`, `c_px_microscope_stitched`,
           `hamming_distance` and `decoded_genes`.
+        - Merged dataframe with all the large bead coordinates after merging.
+          File extention will be: _large_beads_microscope_stitched.parquet. The
+          file will contain the the following columns: 
+          `r_px_microscope_stitched` and `c_px_microscope_stitched`.
 
     """
     valid_modes = ['clip', 'merge']
     if mode not in valid_modes:
         raise Exception(f'Dot removal mode not recognized. Input mode: {mode} is not part of implemented modes: {valid_modes}')
+    
+    # Fetch all large beads (Does not run bead removal in overlapping regions)
+    large_beads_list = []
+    for i in fovs:
+        bead_data = fov_df[i]
+        large_bead_filt = combine_boolean([bead_data.channel == bead_channel, 
+                                           bead_data.mapped_beads_type == "large",
+                                           bead_data.round_num == 1])
+        bead_data = bead_data.loc[large_bead_filt]
+        large_beads_list.append(bead_data)
+    large_beads_df = pd.concat(large_beads_list)
+    large_beads_df = large_beads_df.dropna()
 
     # Merge overlapping points.
     for i in fovs:
@@ -580,7 +598,7 @@ def clean_microscope_stitched(
                         end="\r",
                     )
 
-                # Get FOV 0
+                # Get FOV 0 RNA
                 d0 = fov_df[fov0]
                 # Load all valid RNA signal
                 d0_filt_rna = np.logical_and(
@@ -597,7 +615,7 @@ def clean_microscope_stitched(
                 # Get gene ID of each point
                 d0_id = d0.loc[d0_filt, "decoded_genes"].to_numpy()
 
-                # Get FOV 1
+                # Get FOV 1 RNA
                 d1 = fov_df[fov1]
                 # Load all valid RNA signal
                 d1_filt_rna = np.logical_and(
@@ -695,22 +713,19 @@ def clean_microscope_stitched(
             )
             fov_df[i] = d[d_filt_rna]
 
-    # Save results
+    # Save individual FOV RNA results
     for i in fovs:
         fname = os.path.join(
             out_folder, (exp_name + f"_microscope_merged_fov_{i}.parquet")
         )
         fov_df[i].to_parquet(fname)
 
-    # Merge results
+    # Merge RNA results
     merged_df = pd.concat([fov_df[i] for i in fovs])
     merged_df = merged_df.dropna()
 
-    # Save merged results
-    fname2 = os.path.join(
-        out_folder,
-        (exp_name + "_data_summary_simple_plotting_microscope_cleaned.parquet"),
-    )
+    # Save RNA results
+    fname_rna_merge = os.path.join(out_folder, (exp_name + "_RNA_microscope_stitched.parquet"),)
     merged_df.loc[
         :,
         [
@@ -719,8 +734,14 @@ def clean_microscope_stitched(
             "hamming_distance",
             "decoded_genes",
         ],
-    ].to_parquet(fname2)
+    ].to_parquet(fname_rna_merge)
+    
+    # Save Large bead results
+    fname_large_beads = os.path.join(out_folder, (exp_name + "_large_beads_microscope_stitched.parquet"))
+    large_beads_df.loc[:,["r_px_microscope_stitched", "c_px_microscope_stitched"]].to_parquet(fname_large_beads)
+    
     if verbose:
-        print(f"Merged output saved in: {fname2}")
+        print(f"Merged RNA output saved in: {fname_rna_merge}")
+        print(f"Merged Large bead output saved in: {fname_large_beads}")
 
-    return fname2
+    return fname_rna_merge, fname_large_beads

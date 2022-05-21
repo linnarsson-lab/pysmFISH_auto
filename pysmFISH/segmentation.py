@@ -3,6 +3,7 @@ import itertools
 import numpy as np
 import pandas as pd
 import zarr
+import os
 
 from pathlib import Path
 from skimage import measure
@@ -644,12 +645,11 @@ def register_assign(
     hamming_distance=3,
     centering_mode='middle'
 ):
-    source_beads, source_RNA_df = create_high_mag_beads_RNA_source(
-        experiment_path, hamming_distance
-    )
+    #source_beads, source_RNA_df = create_high_mag_beads_RNA_source(
+    #    experiment_path, hamming_distance
+    #)
+    source_beads = pd.read_parquet(experiment_metadata["fname_large_beads"]).loc[:,["r_px_microscope_stitched", "c_px_microscope_stitched"]].to_numpy() # @Alejandro get file name
     target_beads = create_low_mag_beads_target(experiment_path)
-
-    # Save the data
 
     # Initiate alignment model
     model = BeadAlignment(
@@ -668,18 +668,23 @@ def register_assign(
     model.fit(target_beads, source_beads, plot=False)
 
     # Get locations and genes
+    source_RNA_df = pd.read_parquet(experiment_metadata["fname_rna_merge"])  # @Alejandro get file name
     points = source_RNA_df.loc[
-        :, ["r_px_global_stitched", "c_px_global_stitched"]
+        :, ["r_px_microscope_stitched", "c_px_microscope_stitched"]
     ].to_numpy()
     genes = source_RNA_df.loc[:, "decoded_genes"].to_numpy()
+    
+    #Remove NAN  in points
+    points_filt = ~np.isnan(points).any(axis=1)
+    points = points[points_filt]
+    genes = genes[points_filt]
+    source_RNA_df = source_RNA_df.loc[points_filt]
 
     # Transform points
     transformed_points = model.transform(points)
 
     # Add transfromed points to dataframe
     source_RNA_df.loc[:, ["r_transformed", "c_transformed"]] = transformed_points
-
-    # Save the transformed data
 
     # Replace this with chunk loading in the expanding function
     zarr_fpath = segmentation_output_path / "image_segmented_labels.zarr"
@@ -709,6 +714,12 @@ def register_assign(
     assigned_data_df, unique_genes, point_cell_id = CA.asignment_chunked(
         cell_mask, transformed_points, genes, unique_genes=None
     )
+    
+    #Add point_cell_id to dataframe
+    source_RNA_df.loc[:, "point_cell_id"] = point_cell_id
+    
+    # Save the transformed data
+    source_RNA_df.to_parquet(os.path.join(experiment_path, (experiment_metadata["experiment_name"]) + '_RNA_transformed_assigned.parquet'))
 
     write_output_to_loom(
         model,

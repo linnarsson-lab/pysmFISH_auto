@@ -1207,6 +1207,7 @@ class Pipeline:
             "channel",
             "hamming_distance",
             "decoded_genes",
+            "round_num"
         ]
 
         # FOV numbers
@@ -1232,7 +1233,7 @@ class Pipeline:
         selected_Hdistance = self.hamming_distance / self.metadata["barcode_length"]
 
         # Run cleaning
-        out_file = FOV_alignment.clean_microscope_stitched(
+        fname_rna_merge, fname_large_beads = FOV_alignment.clean_microscope_stitched(
             fovs,
             fov_df,
             self.tiles_org.overlapping_regions,
@@ -1245,6 +1246,9 @@ class Pipeline:
             exp_name=self.metadata["experiment_name"],
             verbose=False,
         )  # Set to False in pipeline
+
+        self.metadata["fname_rna_merge"] = fname_rna_merge
+        self.metadata["fname_large_beads"] = fname_large_beads
 
     def processing_fresh_tissue_step(
         self,
