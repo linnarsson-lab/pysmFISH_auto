@@ -1285,7 +1285,7 @@ class Pipeline:
             f"cannot process fresh tissue because missing running_functions attr"
         )
 
-        '''(
+        (
             self.ds_beads,
             self.ds_nuclei,
             self.nuclei_metadata,
@@ -1302,69 +1302,69 @@ class Pipeline:
             diameter_size=self.diameter_size,
             parsing=parsing,
             save_steps_output=self.save_intermediate_steps,
+        )
+
+        pickle.dump(
+            [
+                self.ds_beads,
+                self.ds_nuclei,
+                self.metadata,
+            ],
+            open(
+                Path(self.experiment_fpath)
+                / "fresh_tissue"
+                / "segmentation"
+                / "ds_tmp_data.pkl",
+                "wb",
+             ),
+        )
+
+        (self.ds_beads, self.ds_nuclei, self.nuclei_metadata) = pickle.load(
+             open(
+                 Path(self.experiment_fpath)
+                 / "fresh_tissue"
+                 / "segmentation"
+                 / "ds_tmp_data.pkl",
+                 "rb",
+             ),
+        )
+
+        # Segmentation
+        '''fov_processing.segmentation_graph(
+            self.ds_nuclei,
+            self.chunk_size,
+            self.experiment_fpath,
+            self.fresh_tissue_segmentation_engine,
+            self.diameter_size,
         )'''
 
-        # pickle.dump(
-        #     [
-        #         self.ds_beads,
-        #         self.ds_nuclei,
-        #         self.metadata,
-        #     ],
-        #     open(
-        #         Path(self.experiment_fpath)
-        #         / "fresh_tissue"
-        #         / "segmentation"
-        #         / "ds_tmp_data.pkl",
-        #         "wb",
-        #     ),
-        # )
+        (
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+        ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
+            self.experiment_fpath,
+            self.client,
+            self.ds_nuclei,
+            self.ds_beads,
+            round_num=1,
+        )
 
-        # (self.ds_beads, self.ds_nuclei, self.nuclei_metadata) = pickle.load(
-        #     open(
-        #         Path(self.experiment_fpath)
-        #         / "fresh_tissue"
-        #         / "segmentation"
-        #         / "ds_tmp_data.pkl",
-        #         "rb",
-        #     ),
-        # )
-
-        # # Segmentation
-        # fov_processing.segmentation_graph(
-        #     self.ds_nuclei,
-        #     self.chunk_size,
-        #     self.experiment_fpath,
-        #     self.fresh_tissue_segmentation_engine,
-        #     self.diameter_size,
-        # )
-
-        # (
-        #     self.nuclei_org_tiles,
-        #     self.nuclei_adjusted_coords,
-        # ) = stitching.stitched_beads_on_nuclei_fresh_tissue(
-        #     self.experiment_fpath,
-        #     self.client,
-        #     self.ds_nuclei,
-        #     self.ds_beads,
-        #     round_num=1,
-        # )
-
-        # pickle.dump(
-        #     [
-        #         self.ds_beads,
-        #         self.ds_nuclei,
-        #         self.nuclei_metadata,
-        #         self.nuclei_org_tiles,
-        #         self.nuclei_adjusted_coords,
-        #     ],
-        #     open(
-        #         Path(self.experiment_fpath)
-        #         / "fresh_tissue"
-        #         / "segmentation"
-        #         / "tmp_data.pkl",
-        #         "wb",
-        #     ),
-        # )
+        pickle.dump(
+            [
+                self.ds_beads,
+                self.ds_nuclei,
+                self.nuclei_metadata,
+                self.nuclei_org_tiles,
+                self.nuclei_adjusted_coords,
+            ],
+            open(
+                Path(self.experiment_fpath)
+                / "fresh_tissue"
+                / "segmentation"
+                / "tmp_data.pkl",
+                "wb",
+            ),
+        )
 
         (
             self.ds_beads,
