@@ -1285,7 +1285,7 @@ class Pipeline:
             f"cannot process fresh tissue because missing running_functions attr"
         )
 
-        '''(
+        (
             self.ds_beads,
             self.ds_nuclei,
             self.nuclei_metadata,
@@ -1317,7 +1317,7 @@ class Pipeline:
                 / "ds_tmp_data.pkl",
                 "wb",
              ),
-        )'''
+        )
 
         (self.ds_beads, self.ds_nuclei, self.nuclei_metadata) = pickle.load(
              open(
@@ -1330,14 +1330,13 @@ class Pipeline:
         )
 
         # Segmentation
-        '''fov_processing.segmentation_graph(
+        fov_processing.segmentation_graph(
             self.ds_nuclei,
             self.chunk_size,
             self.experiment_fpath,
             self.fresh_tissue_segmentation_engine,
             self.diameter_size,
-        )'''
-
+        )
         (
             self.nuclei_org_tiles,
             self.nuclei_adjusted_coords,
