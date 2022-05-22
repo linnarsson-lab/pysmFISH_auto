@@ -1380,7 +1380,7 @@ class Pipeline:
                 "rb",
             ),
         )
-
+        
         segmentation_output_path = (
             Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
         )
