@@ -1285,7 +1285,7 @@ class Pipeline:
             f"cannot process fresh tissue because missing running_functions attr"
         )
 
-        (
+        '''(
             self.ds_beads,
             self.ds_nuclei,
             self.nuclei_metadata,
@@ -1317,7 +1317,7 @@ class Pipeline:
                 / "ds_tmp_data.pkl",
                 "wb",
              ),
-        )
+        )'''
 
         (self.ds_beads, self.ds_nuclei, self.nuclei_metadata) = pickle.load(
              open(
