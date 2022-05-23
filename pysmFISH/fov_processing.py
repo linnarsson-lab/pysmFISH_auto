@@ -15,7 +15,7 @@ from dask import delayed
 from dask import dataframe as dd
 from dask.base import tokenize
 from skimage import img_as_uint
-
+from stardist.models import StarDist2D
 
 import pysmFISH
 from pysmFISH import dots_calling
@@ -1481,26 +1481,23 @@ def segmentation_NN_fov(
 
 
 def segmentation_NN_fov_path(
+    img,
     fov_subdataset: pd.Series,
     segmented_file_path: str,
     fresh_tissue_segmentation_engine: str,
     diameter_size: int,
-    model,
-    nuclei_filtered_fpath,
 ):
+
+    if fresh_tissue_segmentation_engine == "stardist":
+
+        model = StarDist2D.from_pretrained("2D_versatile_fluo")
+
+    else:
+        # TODO fix the same thing for cellpose
+        pass
 
     experiment_name = fov_subdataset.experiment_name
     segmented_file_path = Path(segmented_file_path)
-
-    zarr_grp_name = (
-        experiment_name + "_fresh_tissue_nuclei_fov_" + str(fov_subdataset.fov_num)
-    )
-    fov_name = "preprocessed_data_fov_" + str(fov_subdataset.fov_num)
-
-    st = zarr.DirectoryStore(nuclei_filtered_fpath)
-    root = zarr.group(store=st, overwrite=False)
-
-    img = root[zarr_grp_name][fov_name][...]
 
     nuclei_segmentation = segmentation_NN.Segmenation_NN(
         fresh_tissue_segmentation_engine, diameter_size, model
@@ -1567,13 +1564,14 @@ def process_fresh_sample_graph(
 
     logger = selected_logger()
     all_parsing = []
-    # if fresh_tissue_segmentation_engine == "stardist":
-    #     from stardist.models import StarDist2D
+    # Run this instantiation to download the model from internet
+    if fresh_tissue_segmentation_engine == "stardist":
+        from stardist.models import StarDist2D
 
-    #     model = StarDist2D.from_pretrained("2D_versatile_fluo")
-    # else:
-    #     # TODO fix the same thing for cellpose
-    #     pass
+        model = StarDist2D.from_pretrained("2D_versatile_fluo")
+    else:
+        # TODO fix the same thing for cellpose
+        pass
 
     if parsing:
         presence_nuclei = 0
@@ -1814,15 +1812,14 @@ def process_fresh_sample_graph(
                 save_steps_output=save_steps_output,
                 dask_key_name=dask_delayed_name,
             )
-            # dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
-            # mask_out = delayed(segmentation_NN_fov, name=dask_delayed_name)(
-            #     fov_out[0][-1],
-            #     fov_subdataset,
-            #     segmented_file_path,
-            #     fresh_tissue_segmentation_engine,
-            #     diameter_size,
-            #     model=scattered_mdel,
-            # )
+            dask_delayed_name = "segment_nuclei_fov" + str(fov) + "_" + tokenize()
+            mask_out = delayed(segmentation_NN_fov, name=dask_delayed_name)(
+                fov_out[0][-1],
+                fov_subdataset,
+                segmented_file_path,
+                fresh_tissue_segmentation_engine,
+                diameter_size,
+            )
 
             # all_processing_nuclei.append(mask_out)
             all_processing_nuclei.append(fov_out)
