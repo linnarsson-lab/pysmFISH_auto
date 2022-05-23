@@ -1821,8 +1821,8 @@ def process_fresh_sample_graph(
                 diameter_size,
             )
 
-            # all_processing_nuclei.append(mask_out)
-            all_processing_nuclei.append(fov_out)
+            all_processing_nuclei.append(mask_out)
+            # all_processing_nuclei.append(fov_out)
         _ = dask.compute(all_processing_nuclei)
 
     # for chunk in chunks:
