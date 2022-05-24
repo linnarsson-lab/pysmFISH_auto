@@ -1394,6 +1394,7 @@ class Pipeline:
             self.client,
             self.min_overlapping_pixels_segmentation,
         )
+        gc.collect()
 
         segmentation.register_assign(
             self.experiment_fpath,
