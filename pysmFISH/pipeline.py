@@ -1395,7 +1395,35 @@ class Pipeline:
             self.min_overlapping_pixels_segmentation,
         )
         gc.collect()
+    
+    def processing_assign_dots(self):
 
+        segmentation_output_path = (
+            Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
+        )
+        
+        (
+            self.ds_beads,
+            self.ds_nuclei,
+            self.nuclei_metadata,
+            self.nuclei_org_tiles,
+            self.nuclei_adjusted_coords,
+        ) = pickle.load(
+            open(
+                Path(self.experiment_fpath)
+                / "fresh_tissue"
+                / "segmentation"
+                / "tmp_data.pkl",
+                "rb",
+            ),
+        )
+
+        segmented_object_dict_recalculated = pickle.load(
+        open(
+            segmentation_output_path / ("segmented_objects_dict_recalculated_ids.pkl"),
+            "rb",
+        ),
+        )
         segmentation.register_assign(
             self.experiment_fpath,
             segmented_object_dict_recalculated,
@@ -1407,7 +1435,6 @@ class Pipeline:
             segmentation_output_path,
             self.max_expansion_radius,
             self.hamming_distance,
-            centering_mode=centering_mode,
         )
 
     # --------------------------------
@@ -1663,6 +1690,7 @@ class Pipeline:
 
             step_start = datetime.now()
             self.processing_fresh_tissue_step()
+            self.processing_assign_dots()
             self.logger.info(
                 f"{self.experiment_fpath.stem} timing: \
                     Processing fresh tissue completed in {utils.nice_deltastring(datetime.now() - step_start)}."

@@ -1204,9 +1204,16 @@ def stitching_graph(
     for idx, cpl_dict in tiles_org.overlapping_regions.items():
         overlapping_coords_reorganized.update(cpl_dict)
 
-    all_registrations_removed_large_shift = {
+    '''all_registrations_removed_large_shift = {
         k: v for (k, v) in all_registrations_dict.items() if np.all(np.abs(v[0]) < 20)
-    }
+    }'''
+    # Alejandro version
+    all_registrations_removed_large_shift = {}
+    for (k, v) in all_registrations_dict.items():
+        if np.all(np.abs(v[0]) < 20):
+            all_registrations_removed_large_shift[k] = v
+        else:
+            all_registrations_removed_large_shift[k] = [np.array([0,0]), 1.0] 
 
     cpls = all_registrations_removed_large_shift.keys()
     # cpls = list(unfolded_overlapping_regions_dict.keys())
