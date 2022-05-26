@@ -32,9 +32,13 @@ setup(
         "bokeh",
         "ipykernel",
         "asyncssh",
-        "jupyter-server-proxy" "ripleyk",
+        "jupyter-server-proxy",
+        "ripleyk",
         "stardist",
         "cellpose",
+        "loompy",
+        "numpy_groupies",
+        "tensorflow"
     ],
     entry_points="""
 
