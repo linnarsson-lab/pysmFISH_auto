@@ -1260,6 +1260,7 @@ class Pipeline:
     def processing_fresh_tissue_step(
         self,
         parsing=True,
+        reprocessing=True,
         tag_ref_beads="_ChannelEuropium_Cy3_",
         tag_nuclei="_ChannelCy3_",
         centering_mode='middle',
@@ -1285,39 +1286,40 @@ class Pipeline:
             f"cannot process fresh tissue because missing running_functions attr"
         )
 
-        (
-            self.ds_beads,
-            self.ds_nuclei,
-            self.nuclei_metadata,
-        ) = fov_processing.process_fresh_sample_graph(
-            self.experiment_fpath,
-            self.running_functions,
-            self.analysis_parameters,
-            self.client,
-            self.chunk_size,
-            tag_ref_beads=tag_ref_beads,
-            tag_nuclei=tag_nuclei,
-            eel_metadata=self.metadata,
-            fresh_tissue_segmentation_engine=self.fresh_tissue_segmentation_engine,
-            diameter_size=self.diameter_size,
-            parsing=parsing,
-            save_steps_output=self.save_intermediate_steps,
-        )
-
-        pickle.dump(
-            [
+        if reprocessing:
+            (
                 self.ds_beads,
                 self.ds_nuclei,
-                self.metadata,
-            ],
-            open(
-                Path(self.experiment_fpath)
-                / "fresh_tissue"
-                / "segmentation"
-                / "ds_tmp_data.pkl",
-                "wb",
-             ),
-        )
+                self.nuclei_metadata,
+            ) = fov_processing.process_fresh_sample_graph(
+                self.experiment_fpath,
+                self.running_functions,
+                self.analysis_parameters,
+                self.client,
+                self.chunk_size,
+                tag_ref_beads=tag_ref_beads,
+                tag_nuclei=tag_nuclei,
+                eel_metadata=self.metadata,
+                fresh_tissue_segmentation_engine=self.fresh_tissue_segmentation_engine,
+                diameter_size=self.diameter_size,
+                parsing=parsing,
+                save_steps_output=self.save_intermediate_steps,
+            )
+
+            pickle.dump(
+                [
+                    self.ds_beads,
+                    self.ds_nuclei,
+                    self.metadata,
+                ],
+                open(
+                    Path(self.experiment_fpath)
+                    / "fresh_tissue"
+                    / "segmentation"
+                    / "ds_tmp_data.pkl",
+                    "wb",
+                ),
+            )
 
         (self.ds_beads, self.ds_nuclei, self.nuclei_metadata) = pickle.load(
              open(
@@ -1397,7 +1399,7 @@ class Pipeline:
         gc.collect()
     
     def processing_assign_dots(self):
-
+        gc.collect()
         segmentation_output_path = (
             Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
         )
