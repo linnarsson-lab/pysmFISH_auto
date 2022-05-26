@@ -131,6 +131,9 @@ class Pipeline:
         diameter_size (int): Size of the diameter of the cells to segment using cellpose
         min_overlapping_pixels_segmentation (int): Size of the overlapping label objects
         fov_alignement_mode (str): clip or merged (default clipped).
+        clip_size (str): only if fov_alignment_mode is merge it will clip the clip_size length of borders.
+        remove_distinct_genes (bool): when stitching it will also remove overlapping dots of different genes if set to
+            true. Defaults to true
 
 
     Attributes:
@@ -257,6 +260,9 @@ class Pipeline:
 
         self.max_expansion_radius = kwarg.pop("max_expansion_radius", 18)
         self.fov_alignement_mode = kwarg.pop("fov_alignement_mode", "clip")
+        self.clip_size = kwarg.pop("clip_size", 0)
+        self.remove_distinct_genes = kwarg.pop("remove_distinct_genes", False)
+
 
     # -----------------------------------
     # PROCESSING STEPS
@@ -1164,8 +1170,8 @@ class Pipeline:
     #     # ----------------------------------------------------------------
 
     def stitch_and_remove_dots_eel_graph_step(self, 
-            remove_distinct_genes=False,
-            clip_size=0,):
+            remove_distinct_genes=self.remove_distinct_genes,
+            clip_size=self.clip_size,):
 
         """
         Function to stitch the different fovs and remove the duplicated
@@ -1249,8 +1255,8 @@ class Pipeline:
             matching_dot_radius=self.same_dot_radius_duplicate_dots,
             out_folder=folder,
             exp_name=self.metadata["experiment_name"],
-            remove_distinct_genes=remove_distinct_genes,
-            clip_size=clip_size,
+            remove_distinct_genes=self.remove_distinct_genes,
+            clip_size=self.clip_size,
             verbose=False,
         )  # Set to False in pipeline
 
