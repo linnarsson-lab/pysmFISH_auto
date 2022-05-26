@@ -1169,9 +1169,7 @@ class Pipeline:
     #     )
     #     # ----------------------------------------------------------------
 
-    def stitch_and_remove_dots_eel_graph_step(self, 
-            remove_distinct_genes=self.remove_distinct_genes,
-            clip_size=self.clip_size,):
+    def stitch_and_remove_dots_eel_graph_step(self):
 
         """
         Function to stitch the different fovs and remove the duplicated
