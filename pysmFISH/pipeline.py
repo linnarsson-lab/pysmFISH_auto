@@ -1265,6 +1265,7 @@ class Pipeline:
         self,
         parsing=True,
         reprocessing=True,
+        segmentation=True,
         tag_ref_beads="_ChannelEuropium_Cy3_",
         tag_nuclei="_ChannelCy3_",
     ):
@@ -1333,15 +1334,19 @@ class Pipeline:
                  "rb",
              ),
         )
-
         # Segmentation
-        fov_processing.segmentation_graph(
-            self.ds_nuclei,
-            self.chunk_size,
-            self.experiment_fpath,
-            self.fresh_tissue_segmentation_engine,
-            self.diameter_size,
-        )
+
+        if not os.path.exists(Path(self.experiment_fpath)/ "fresh_tissue"/ "segmentation"):
+            os.makedirs(Path(self.experiment_fpath)/ "fresh_tissue"/ "segmentation")
+        if segmentation:
+            fov_processing.segmentation_graph(
+                self.ds_nuclei,
+                self.chunk_size,
+                self.experiment_fpath,
+                self.fresh_tissue_segmentation_engine,
+                self.diameter_size,
+            )
+            
         (
             self.nuclei_org_tiles,
             self.nuclei_adjusted_coords,
