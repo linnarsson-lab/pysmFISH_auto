@@ -1265,7 +1265,7 @@ class Pipeline:
         self,
         parsing=True,
         reprocessing=True,
-        segmentation=True,
+        segment=True,
         tag_ref_beads="_ChannelEuropium_Cy3_",
         tag_nuclei="_ChannelCy3_",
     ):
@@ -1289,7 +1289,8 @@ class Pipeline:
         assert self.running_functions, self.logger.error(
             f"cannot process fresh tissue because missing running_functions attr"
         )
-
+        if not os.path.exists(Path(self.experiment_fpath)/ "fresh_tissue"/ "segmentation"):
+            os.makedirs(Path(self.experiment_fpath)/ "fresh_tissue"/ "segmentation")
         if reprocessing:
             (
                 self.ds_beads,
@@ -1336,9 +1337,7 @@ class Pipeline:
         )
         # Segmentation
 
-        if not os.path.exists(Path(self.experiment_fpath)/ "fresh_tissue"/ "segmentation"):
-            os.makedirs(Path(self.experiment_fpath)/ "fresh_tissue"/ "segmentation")
-        if segmentation:
+        if segment:
             fov_processing.segmentation_graph(
                 self.ds_nuclei,
                 self.chunk_size,
@@ -1346,7 +1345,7 @@ class Pipeline:
                 self.fresh_tissue_segmentation_engine,
                 self.diameter_size,
             )
-            
+
         (
             self.nuclei_org_tiles,
             self.nuclei_adjusted_coords,
@@ -1407,7 +1406,7 @@ class Pipeline:
         gc.collect()
     
     def processing_assign_dots(self):
-        gc.collect()
+
         segmentation_output_path = (
             Path(self.experiment_fpath) / "fresh_tissue" / "segmentation"
         )
