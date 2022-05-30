@@ -671,9 +671,9 @@ def register_assign(
         focusing_bins=300,
         num_narrow_sweeps=2,
         samples=25,
-        plot_output_folder=os.paht.join(experiment_path, "fresh_tissue", "output_figures")
+        plot_output_folder=os.path.join(experiment_path, "fresh_tissue", "output_figures")
     )
-    print(f'Centering mode: {centering_mode}\n')
+    print(f'Centering mode: {centering_mode} no processes correct names\n')
 
     # Initiate alignment model MarcosVersion
     '''model = AlignmentPipeline(scanning_chunk_size=[0.2, 0.2], # Size of each chunk used to scan source chunks over the reference target chunk
@@ -691,9 +691,9 @@ def register_assign(
     # Fit alignment model
     model.fit(target_beads, source_beads, plot=True)
     #Save all beads
-    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Target_low_magnification_beads"), target)
-    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Source_high_magnification_beads"), source)
-    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Transformed_Source_high_magnification_beads"), model.transform(source))
+    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Target_low_magnification_beads"), target_beads)
+    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Source_high_magnification_beads"), source_beads)
+    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Transformed_Source_high_magnification_beads"), model.transform(source_beads))
 
 
     # Get locations and genes
@@ -710,7 +710,7 @@ def register_assign(
     source_RNA_df = source_RNA_df.loc[points_filt]
 
     # Transform points
-    transformed_points = model.transfrom(points)
+    transformed_points = model.transform(points)
 
     # Add transfromed points to dataframe
     source_RNA_df.loc[:, ["r_transformed", "c_transformed"]] = transformed_points
