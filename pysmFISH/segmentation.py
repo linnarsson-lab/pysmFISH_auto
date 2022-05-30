@@ -9,7 +9,7 @@ from pathlib import Path
 from skimage import measure
 
 from pysmFISH.cell_assignment import Cell_Assignment
-from pysmFISH.bead_alignment import BeadAlignment, AlignmentPipeline
+from pysmFISH.bead_alignment import BeadAlignment
 
 
 def load_segmented_data(fov_subdataset, experiment_path):
@@ -644,7 +644,7 @@ def register_assign(
     segmentation_output_path,
     mask_expansion_radius=18,
     hamming_distance=3,
-    centering_mode='middle'
+    centering_mode='scan'
 ):
     #source_beads, source_RNA_df = create_high_mag_beads_RNA_source(
     #    experiment_path, hamming_distance
@@ -660,19 +660,23 @@ def register_assign(
     source_beads = source_beads[~np.isnan(source_beads).any(axis=1)]
     target_beads = target_beads[~np.isnan(target_beads).any(axis=1)]
 
-    # Initiate alignment model MarcosVersion
-    '''model = BeadAlignment(
+    # Initiate alignment model
+    model = BeadAlignment(
         initial_scale_factor=(2 / 3),
         search_fraction=(0.05),
         initial_rotation=0,
-        rotation_search_width=1,
+        rotation_search_width=2,
         search_radius=2000,
         centering_mode=centering_mode,
         focusing_bins=300,
         num_narrow_sweeps=2,
         samples=25,
-    )'''
-    model = AlignmentPipeline(scanning_chunk_size=[0.2, 0.2], # Size of each chunk used to scan source chunks over the reference target chunk
+        plot_output_folder=os.paht.join(experiment_path, "fresh_tissue", "output_figures")
+    )
+    print(f'Centering mode: {centering_mode}\n')
+
+    # Initiate alignment model MarcosVersion
+    '''model = AlignmentPipeline(scanning_chunk_size=[0.2, 0.2], # Size of each chunk used to scan source chunks over the reference target chunk
                               ref_chunk=[[0.4, 0.6], [0.4, 0.6]], # Reference target chunk [x range], [y range]
                               overlap=[0.5, 0.5], # overlap allowed between each chunk [x overlap, y overlap]
                               scanning_area=[[0.2, 0.8], [0.2, 0.8]], # area to inlude in the scanning
@@ -682,10 +686,15 @@ def register_assign(
 
     transformed, transform_rna = model.run_pipeline(target_beads, source_beads, plot=False, score_centering=False)
     folder_beads = os.path.join(experiment_path, "fresh_tissue","aligned_large_beads")
-    np.save(folder_beads,transformed)
+    np.save(folder_beads, transformed)'''
 
     # Fit alignment model
-    #model.fit(target_beads, source_beads, plot=False)
+    model.fit(target_beads, source_beads, plot=True)
+    #Save all beads
+    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Target_low_magnification_beads"), target)
+    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Source_high_magnification_beads"), source)
+    np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Transformed_Source_high_magnification_beads"), model.transform(source))
+
 
     # Get locations and genes
     source_RNA_df = pd.read_parquet(fname_rna_merge)
@@ -701,7 +710,7 @@ def register_assign(
     source_RNA_df = source_RNA_df.loc[points_filt]
 
     # Transform points
-    transformed_points = transform_rna(points)
+    transformed_points = model.transfrom(points)
 
     # Add transfromed points to dataframe
     source_RNA_df.loc[:, ["r_transformed", "c_transformed"]] = transformed_points

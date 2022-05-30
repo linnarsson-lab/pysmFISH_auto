@@ -1,11 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from sklearn.neighbors import KDTree
 from skimage.draw import disk
 import dask
 from dask.diagnostics import ProgressBar
 from typing import Union, Tuple
 import pickle as pkl
+from numpy.lib.stride_tricks import sliding_window_view
 try:
     import ripleyk
 except ModuleNotFoundError:
@@ -16,9 +18,11 @@ class BeadAlignment:
     def __init__(self, initial_scale_factor:float =1, search_fraction:float =0.1,
                  initial_rotation: float=0, rotation_search_width: float=4,
                  search_radius:float=1000, samples:int = 25,               
-                 focusing_bins:int =100, centering_mode: str = 'middle',
-                 max_broad_sweeps:int =10, num_narrow_sweeps:int =2):
-        """Initialize bead alignment class.
+                 focusing_bins:int =100, centering_mode: str = 'scan',
+                 max_broad_sweeps:int =10, num_narrow_sweeps:int =2,
+                 scan_chunk_size: float=0.2, scan_density: int=6,
+                 scan_min_points = None, plot_output_folder=''):
+        """Initialte bead alignment class.
         
         Class to align two 2D point clouds that have (some) matching points.
         
@@ -59,11 +63,21 @@ class BeadAlignment:
                 increase the sampling density and range. Defaults to 10.
             num_narrow_sweeps (int, optional): Number of higher density sweeps
                 once it has found a candidate scaling factor. Defaults to 2.
+            scan_chunk_size (float, optional): Chunk size as percentage of
+                of dataset size for scanning to find the best initial alignment
+                of the dataset. Defaults to 0.2.
+            scan_density (int, optional): Density of chunks to find initial
+                alignment. The higher the number the more overlap there is
+                between chunks. Defaults to 6.
+            scan_min_points (int, optional): Minimum number of points in chunck
+                to be evaulated for initial alignment search. If None, will
+                use the mean density of the dataset. Defaults to None.
+            
         """
         #Input
         self.initial_scale_factor = initial_scale_factor
         self.search_radius = search_radius
-        self.search_fraction = search_fraction
+        self.serach_fraction = search_fraction
         self.initial_rotation = initial_rotation
         self.rotation_search_width = rotation_search_width
         self.samples = samples
@@ -74,6 +88,10 @@ class BeadAlignment:
             self.samples += 1
         self.max_broad_sweeps = max_broad_sweeps
         self.num_narrow_sweeps = num_narrow_sweeps
+        self.scan_chunk_size = scan_chunk_size
+        self.scan_density = scan_density
+        self.scan_min_points = scan_min_points
+        self.plot_output_folder = plot_output_folder
 
     def align(self, target: np.ndarray, source: np.ndarray, radius: float) -> Tuple[np.ndarray, np.ndarray]:
         """Radius neighbour search to find matching points in both datasets.
@@ -105,9 +123,11 @@ class BeadAlignment:
         """Flatten jaggered arrays.
         
         Sepecifically used with the output of the `align()` function.
+
         Args:
             dist (np.ndarray): Jaggered array.
             radians (np.ndarray): Jaggered array
+
         Returns:
             Union[np.ndarray, np.ndarray]: Flattened arrays of the dist and
                 radians input. 
@@ -137,9 +157,11 @@ class BeadAlignment:
         
     def pol2cart(self, rho: np.ndarray, phi: np.ndarray) -> np.ndarray:
         """Convert polar coordinates to cartesian.
+
         Args:
             rho (np.ndarray): Distances.
             phi (np.ndarray): Angles in radians. 
+
         Returns:
             np.ndarray: 2D array with cartesion coordinates.
         """
@@ -149,8 +171,10 @@ class BeadAlignment:
     
     def make_mask(self, bins: int) -> np.ndarray:
         """Make boolean mask of a circle. 
+
         Args:
             bins (int): Number of bins used.
+
         Returns:
             np.ndarray: 2D array with boolean circular mask, where the center
                 is True.
@@ -165,8 +189,10 @@ class BeadAlignment:
         """Find the center of a dataset based on the extend of the data.
         
         Sensitive to outliers. 
+
         Args:
             p (np.ndarray): XY coordinates of points.
+
         Returns:
             np.ndarray: Center of dataset.
         """
@@ -176,8 +202,116 @@ class BeadAlignment:
         p_extend = p_max - p_min
         p_center = p_min + (0.5 * p_extend)
         return p_center
+    
+    def removenan(self, array):
+        """Removes NaN values from array.
+        
+        Args: 
+            array (np.ndarray): Target array.
+        Returns: 
+            array (np.ndarray): Array stripped from NaN values.
+        """
 
-    def center_datasets(self, target: np.ndarray, source: np.ndarray, mode: Union[str, np.ndarray]='middle') -> Tuple[np.ndarray, np.ndarray]:
+        array = array[~np.isnan(array).any(axis=1)]
+        return array
+
+    def chunk(self, data: np.ndarray, chunk_size: float=0.2, density: int=4, 
+              min_points=None):
+        """Chunk set of points.
+
+        Args:
+            data (np.ndarray): Array of points.
+            chunk_size (float, optional): Chunk size as percentage of
+                of dataset size for scanning to find the best initial alignment
+                of the dataset. Defaults to 0.2.
+            density (int, optional): Density of chunks to find initial
+                alignment. The higher the number the more overlap there is
+                between chunks. Defaults to 6.
+            min_points (int, optional): Minimum number of points in chunck
+                to be evaulated for initial alignment search. If None, will
+                use the mean density of the dataset. Defaults to None.
+
+        Returns:
+            list, np.ndarray, np.ndarray:
+            chunks: list of arrays with boolean filter to select points for
+                each chunk.
+            centers: Array with centers of chunks.
+            evaluation: Higher numbers mean more evenly distributed points.    
+        """
+    
+        #Determine data shape
+        xmin, ymin = data.min(axis=0)
+        xmax, ymax = data.max(axis=0)
+        x_extent = xmax - xmin
+        y_extent = ymax - ymin
+        #Determine chunk size
+        x_chunk = x_extent * chunk_size
+        y_chunk = y_extent * chunk_size
+        #Determine sampling space
+        x_start = xmin - ((density-1) * (x_chunk/density))
+        x_stop = xmax + ((density) * (x_chunk/density))
+        y_start = ymin - ((density-1) * (y_chunk/density))
+        y_stop = ymax + ((density) * (y_chunk/density))
+        #Determine sampling indexes
+        xx = np.arange(x_start, x_stop, x_chunk/density)
+        yy = np.arange(y_start, y_stop, y_chunk/density)
+        #Make min max pairs
+        xx_chunk = sliding_window_view(xx, density)
+        yy_chunk = sliding_window_view(yy, density)
+        xx_min, xx_max = xx_chunk[:,0], xx_chunk[:,-1]
+        yy_min, yy_max = yy_chunk[:,0], yy_chunk[:,-1]
+        
+        #Calculate min_points if not given
+        if min_points == None:
+            min_points = data.shape[0] / (xx.shape[0] * yy.shape[0])
+        #Make chunks
+        chunks = []
+        chunk_centers = []
+        distribution = []
+        for x0, x1 in zip(xx_min, xx_max):
+            for y0, y1 in zip (yy_min, yy_max):
+                x_filt = np.logical_and(data[:,0]>x0, data[:,0]<x1)
+                y_filt = np.logical_and(data[:,1]>y0, data[:,1]<y1)
+                filt = np.logical_and(x_filt, y_filt)
+                if filt.sum() > min_points:
+                    #Chunk selection
+                    chunks.append(filt)
+                    
+                    #Center of chunk
+                    x_center = x0 + (0.5*(x1-x0))
+                    y_center = y0 + (0.5*(y1-y0))
+                    chunk_centers.append(np.array([x_center, y_center]))
+                    
+                    #Evaluate
+                    h = np.histogram2d(data[filt, 0], data[filt, 1], range=[[x0, x1], [y0, y1]], bins=30)[0]
+                    distribution.append(filt.sum() / h.std())
+
+                    
+        return chunks, np.array(chunk_centers), np.array(distribution)
+    
+    def make_chunks(self, target: np.ndarray, source: np.ndarray, 
+                    chunk_size: float=0.2, density: int=4, min_points=None):
+    
+        #Chunk target and select best chunk to match to
+        t_chunks, t_chunk_centers, t_distribution = self.chunk(target, chunk_size=2*chunk_size, 
+                                                               density=density, min_points=min_points)
+        t_best = t_distribution.argmax()
+        t_filt = t_chunks[t_best]
+        t_best_center = t_chunk_centers[t_best]
+
+        #Chunk source
+        s_chunks, s_chunk_centers, s_distribution = self.chunk(source * self.initial_scale_factor, 
+                                                               density=density, min_points=min_points)
+        
+        #Deltas of chunks with target best chunk center
+        chunk_deltas = t_best_center - s_chunk_centers
+        
+        return t_filt, s_chunks, chunk_deltas
+
+    def center_datasets(self, target: np.ndarray, source: np.ndarray, 
+                        mode: Union[str, np.ndarray]='middle', 
+                        chunk_size: float=0.2, density: int=4, 
+                        min_points=None) -> Tuple[np.ndarray, np.ndarray]:
         """Center datasets as initial alignment.
         Args:
             target (np.ndarray): Array with target point set.
@@ -186,6 +320,7 @@ class BeadAlignment:
                 "middle": Calculates centers of both datasets and aligns these.
                 "mean": Calculates weighted centers of both datasets and aligns
                     these
+                "scan": 
                 If a numpy array is given with shape 2, the source dataset will
                 be moved using these values.                 
         Returns:
@@ -199,6 +334,7 @@ class BeadAlignment:
                 #Center datasets (uses mean, which might not be optimal for weird datasets)
                 target_mean = target.mean(axis=0)
                 source_mean = source.mean(axis=0)
+                self.initial_center = target_mean
 
                 delta = target_mean - source_mean
                 source = source + delta
@@ -206,9 +342,31 @@ class BeadAlignment:
             elif mode.lower() == 'middle':
                 t_center = self.find_center(target)
                 s_center = self.find_center(source)
+                self.initial_center = t_center
                 
                 delta = t_center - s_center
                 source = source + delta
+                
+            elif mode.lower() == 'scan':
+                t_filt, s_chunks, chunk_deltas = self.make_chunks(target, 
+                                                                  source, 
+                                                                  chunk_size=chunk_size,
+                                                                  density=density,
+                                                                  min_points=min_points)
+                self.initial_center = target[t_filt].mean(axis=0)
+                
+                results = self.eval_param_worker_parallel(target, 
+                                                          source, 
+                                                          scale_search_space=self.initial_scale_factor,
+                                                          angle_search_space=self.initial_rotation,
+                                                          center_search_space = chunk_deltas,
+                                                          target_filt = t_filt,
+                                                          source_filt = s_chunks)
+                best = np.array(results['r']).argmax()
+                
+                delta = chunk_deltas[best]
+                source = source + delta
+                
 
         elif type(mode) == np.ndarray:
             if mode.shape == (2,):
@@ -224,9 +382,11 @@ class BeadAlignment:
 
     def scale(self, source: np.ndarray, factor: float) -> np.ndarray:
         """Scale the source with a scale factor.
+
         Args:
             source (np.ndarray): Array with source point set.
             factor (float): Scaling factor.
+
         Returns:
             np.ndarray: Scaled dataset.
         """
@@ -252,13 +412,7 @@ class BeadAlignment:
         p = np.atleast_2d(p)
         return np.squeeze((R @ (p.T-o.T) + o.T).T)
     
-    def gini(self, x):
-        sorted_x = np.sort(x)
-        n = len(x)
-        cumx = np.cumsum(sorted_x, dtype=float)
-        return (n + 1 - 2 * np.sum(cumx) / cumx[-1]) / n
-    
-    def broad_evaluator(self, coord: np.ndarray, bins: int, mode: str='default') -> float:
+    def broad_evaluator(self, coord: np.ndarray, bins: int) -> float:
         """Broad evaluator of the scale factor.
         Calculates how focused the matching points are after the scaling and
         neighbour search.
@@ -273,25 +427,10 @@ class BeadAlignment:
                 scale factor.
         """
         
-        #Mask circle
-        mask = self.make_mask(bins)
-        
         #Histogram
         hist = np.histogram2d(coord[:,0], coord[:,1], bins=bins)
-        
-        # 
-        data = hist[0][mask]
-        mean = np.mean(data)
-        std = np.std(data)
-        peak = hist[0].max()
-        
-        if mode == 'scan':
-            result = abs(peak - mean)
-        elif mode == 'score':
-            result = peak 
-        elif mode == 'default':
-            result = peak 
-
+        result = hist[0].max()
+            
         return result
     
     def find_median(self, coord: np.ndarray, tolerance: float=1e-5) -> np.ndarray:
@@ -358,19 +497,6 @@ class BeadAlignment:
         result = ripleyk.calculate_ripley(r, [x_extend, y_extend], coord_filt[:,0], coord_filt[:,1], sample_shape='rectangle', CSR_Normalise=True)
         result = result * coord_filt.shape[0]
         
-        #Measure nearest neighbour distance
-        # Did not work because data is discreet due to the pixels and many points are on top of each other.
-        # So that the NN-dist is often 0
-        #tree = KDTree(coord_filt)
-        #dist, _ = tree.query(coord_filt, return_distance=True, k=2)
-        #result = dist[:,1].mean()
-        
-        #Get distance of lowest percentile
-        # Also did not work because of the discreet nature of the data. 
-        #perc = np.percentile(dist[:,1], 0.5)
-        #dist_selec = dist[:,1][dist[:,1] <= perc]
-        #print(dist_selec.shape, dist.shape, perc, (dist[:,1] < perc).sum())
-        
         #Find offset    
         if find_offset:
             offset = self.find_median(coord_filt)
@@ -384,7 +510,7 @@ class BeadAlignment:
     def eval_param_worker(self, target: np.ndarray, source: np.ndarray, factor: float, angle: float=0,
                           search_radius: float=2000, 
                           bins: int=100, centering_mode: Union[str, np.ndarray]='mean', find_offset: bool=False, 
-                          evaluator: str='broad', plot: bool=False, mode: str='default'):
+                          evaluator: str='broad', plot: bool=False):
         """Evaluate a factor that transfroms the source to the target scale.
         Args:
             target (np.ndarray): Array with target point set.
@@ -441,15 +567,7 @@ class BeadAlignment:
         
         #Evaluate
         if evaluator == 'broad':
-            if mode == 'score':
-                matched = self.broad_evaluator(coord, bins, mode='score')
-                unmatched = len(source) - matched
-                result = matched/unmatched # returns the overlap ratio, raw overlap between the two tested datasets 
-            elif mode == 'scan':
-                result = self.broad_evaluator(coord, bins, mode='scan')
-                result = result
-            else:
-                result = self.broad_evaluator(coord, bins, mode='default')
+            result = self.broad_evaluator(coord, bins)
 
         else:
             result, offset = self.narrow_evaluator(coord, bins, find_offset=find_offset)
@@ -460,12 +578,18 @@ class BeadAlignment:
         else:
             return result
 
-    def eval_param_worker_parallel(self, target: np.ndarray, source: np.ndarray, 
+    def eval_param_worker_parallel(self, target: np.ndarray, 
+                                   source: np.ndarray,
                                    scale_search_space: Union[float, np.ndarray], 
-                                   angle_search_space:Union[float, np.ndarray], 
-                                    search_radius: float=2000, bins: int=100, 
-                                    centering_mode: Union[str, np.ndarray]='middle', find_offset: bool=False,
-                                    evaluator: str='broad') -> dict:
+                                   angle_search_space: Union[float, np.ndarray], 
+                                   center_search_space: Union[str, np.ndarray],
+                                   target_filt =  None,
+                                   source_filt = None,
+                                   search_radius: float=2000, 
+                                   bins: int=100, 
+                                   centering_mode: Union[str, np.ndarray]='middle', 
+                                   find_offset: bool=False,
+                                   evaluator: str='broad') -> dict:
         """Evaluate multiple scale factors in parallel.
         Args:
             target (np.ndarray): Array with target point set.
@@ -497,8 +621,8 @@ class BeadAlignment:
         """
 
         #Inputs and outputs
-        # target_d = dask.delayed(target)           # MODIFIED (MARCOS) 
-        # source_d = dask.delayed(source)
+        target_d = dask.delayed(target)
+        source_d = dask.delayed(source)
         
         if find_offset:
             results = {'r' : [],
@@ -507,32 +631,46 @@ class BeadAlignment:
         else:
             results = {'r' : []}
         
-        #Evaluating scale factor or rotation angle    
+        #Evaluating scale factor, rotation angle or centering
         if type(scale_search_space) == np.ndarray:
-            scale = True
-            angle = False
+            mode = 'scale'
             search_space = scale_search_space
-        if type(angle_search_space) == np.ndarray:
-            scale = False
-            angle = True
+        elif type(angle_search_space) == np.ndarray:
+            mode = 'angle'
             search_space = angle_search_space
-
+        elif type(center_search_space) == np.ndarray:
+            mode = 'center'
+            search_space = center_search_space
+        print(f'Bead Alignment: Performing optimization of: {mode}')
+        
         #Parallel iterate through options
-        for i in search_space:
-            if scale == True:
-                r = dask.delayed(self.eval_param_worker)(target, source, i, angle_search_space, search_radius, bins, centering_mode, find_offset, evaluator)
-            if angle == True:
-                r = dask.delayed(self.eval_param_worker)(target, source, scale_search_space, i, search_radius, bins, centering_mode, find_offset, evaluator)
-            if find_offset:
-                results['r'].append(r[0])
-                results['c'].append(r[1])
-                results['d'].append(r[2])
-            else:
-                results['r'].append(r)
+        if mode in ['scale', 'angle']:
+            for i in search_space:
+                if mode == 'scale':
+                    r = dask.delayed(self.eval_param_worker)(target_d, source_d, i, angle_search_space, search_radius, bins, centering_mode, find_offset, evaluator)
+                elif mode == 'angle':
+                    r = dask.delayed(self.eval_param_worker)(target_d, source_d, scale_search_space, i, search_radius, bins, centering_mode, find_offset, evaluator)
+                if find_offset:
+                    results['r'].append(r[0])
+                    results['c'].append(r[1])
+                    results['d'].append(r[2])
+                else:
+                    results['r'].append(r)
+                
+        elif mode == 'center':
+            for i, s_filt in zip(search_space, source_filt):
+                r = dask.delayed(self.eval_param_worker)(target_d[target_filt], source_d[s_filt], scale_search_space, angle_search_space, search_radius, bins, i, find_offset, evaluator)
+                if find_offset:
+                    results['r'].append(r[0])
+                    results['c'].append(r[1])
+                    results['d'].append(r[2])
+                else:
+                    results['r'].append(r)
+                  
 
-        #Compute          # ALTERED HERE REMOVED PROGRESS BAR (MARCOS)
+        #Compute
         with ProgressBar():
-            result = dask.compute(results)
+            result = dask.compute(results, scheduler='processes')
             
         return result[0]
 
@@ -604,16 +742,68 @@ class BeadAlignment:
         
         #Did not find a peak, widen search and make denser
         else:
-            print('No peaks found. Widening the search to find the scaling factor. If this happends in the last cycles \
-,double the width of the search and triple the number of samples.')
+            print('No peaks found. Widening the search to find the scaling factor. If this happends in the last cycles ')
+            #Double the widht of the search and tripple the number of samples.
             return False, min_ss - half_range, max_ss + half_range, n_samples * 3, 0, 0, 0
         
-    def find_transform(self, target: np.ndarray, source: np.ndarray, 
-                          initial_scale_factor: float=1, scale_search_fraction: float=0.1, 
-                          initial_rotation: float=0, rotation_search_width: float=4,
-                          samples: int=25, max_broad_sweep: int=10, 
-                        num_narrow_sweeps: int=2, search_radius: float=2000, bins: int=100,
-                        centering_mode: Union[str, np.ndarray]='mean', plot: bool=False) -> Tuple[float, np.ndarray, np.ndarray]:
+    def _plot_results(self, target, source):
+        """Plot results"""
+        fig, axes =  plt.subplots(figsize=(20,15), ncols=2)
+        ax0, ax1 = axes
+
+        ax0.scatter(target[:,0], target[:,1], s=10, label='Target (low mag beads)')
+        s = self.transform(source)
+        ax0.scatter(s[:,0], s[:,1], s=2, label='Source (high mag beads)')
+        ax0.set_aspect('equal')
+        lgnd = ax0.legend(fontsize=20, loc='lower left', numpoints=1)
+        lgnd.legendHandles[0]._sizes = [50]
+        lgnd.legendHandles[1]._sizes = [50]
+        ax0.set_title('Bead alignment full dataset', fontsize=20)
+
+        x_extent, y_extent = target.max(axis=0) - target.min(axis=0)
+        x_chunk = 0.25 * self.scan_chunk_size * x_extent
+        y_chunk = 0.25 * self.scan_chunk_size * y_extent
+        x_min, x_max = self.initial_center[0] - x_chunk, self.initial_center[0] + x_chunk
+        y_min, y_max = self.initial_center[1] - y_chunk, self.initial_center[1] + y_chunk
+
+        x_filt = np.logical_and(target[:,0] > x_min, target[:,0] < x_max)
+        y_filt = np.logical_and(target[:,1] > y_min, target[:,1] < y_max)
+        t_filt = np.logical_and(x_filt, y_filt)
+        tt_filt = target[t_filt]
+
+        x_filt = np.logical_and(s[:,0] > x_min, s[:,0] < x_max)
+        y_filt = np.logical_and(s[:,1] > y_min, s[:,1] < y_max)
+        s_filt = np.logical_and(x_filt, y_filt)
+        ss_filt = s[s_filt]
+
+        ax1.scatter(tt_filt[:,0], tt_filt[:,1], s=50)
+        ax1.scatter(ss_filt[:,0], ss_filt[:,1], s=10)
+        ax1.set_aspect('equal')
+        ax1.set_xticks([])
+        ax1.set_yticks([])
+        ax1.set_title('Zoom', fontsize=20)
+
+        rect = patches.Rectangle(self.initial_center - np.array([x_chunk, y_chunk]), x_chunk*2, y_chunk*2, linewidth=3, edgecolor='k', facecolor='none')
+        ax0.add_patch(rect)
+
+        plt.tight_layout()
+        out_folder = self.plot_output_folder
+        if not out_folder.endswith('/'):
+            out_folder = out_folder + '/'
+        plt.savefig(f'{out_folder}Bead_alignment_results.png', bbox_inches='tight', dpi=300)
+        
+    def find_transform(self, target: np.ndarray, source: np.ndarray,
+                       initial_scale_factor: float=1, 
+                        scale_search_fraction: float=0.1, 
+                        initial_rotation: float=0, 
+                        rotation_search_width: float=4,
+                        samples: int=25, max_broad_sweep: int=10, 
+                        num_narrow_sweeps: int=2, 
+                        search_radius: float=2000, bins: int=100,
+                        centering_mode: Union[str, np.ndarray]='sweep', 
+                        scan_chunk_size: float=0.2, scan_density: int=6,
+                        scan_min_points = None,
+                        plot: bool=False) -> Tuple[float, np.ndarray, np.ndarray]:
         """Find scale factor and XY offset.
         
         First performs one or multiple broad sweeps that approximately try to
@@ -668,14 +858,41 @@ class BeadAlignment:
                 these.
                 If a numpy array is given with shape 2, the source dataset will
                 be moved using these values.
+            "scan": Evaluates data to make an initial alignment.
+            scan_chunk_size (float, optional): Chunk size as percentage of
+                of dataset size for scanning to find the best initial alignment
+                of the dataset. Defaults to 0.2.
+            scan_density (int, optional): Density of chunks to find initial
+                alignment. The higher the number the more overlap there is
+                between chunks. Defaults to 6.
+            scan_min_points (int, optional): Minimum number of points in chunck
+                to be evaulated for initial alignment search. If None, will
+                use the mean density of the dataset. Defaults to None.
             plot (bool, optional): If true plots results. Defaults to False.
+
         Raises:
             Exception: When broad sweep does not find anything.
+
         Returns:
             float: Optimal scale factor.
             np.ndarray: XY offset found by evaluator.
             np.ndarray: XY offset found by centering algorithm. 
         """
+
+        #Clean input
+        target = self.removenan(target)
+        source = self.removenan(source)
+        
+        #Initial centering of datasets
+        if centering_mode == 'scan':
+            _, scan_delta = self.center_datasets(target,
+                                                 source,
+                                                 mode='scan',
+                                                 chunk_size=scan_chunk_size,
+                                                 density=scan_density,
+                                                 min_points=scan_min_points)
+            centering_mode = scan_delta
+        
         #Scale factor broad sweep
         half_range = initial_scale_factor * (0.5 * scale_search_fraction)
         min_search = initial_scale_factor - half_range
@@ -686,11 +903,15 @@ class BeadAlignment:
             search_space = np.linspace(min_search, max_search, num=samples)
             result = self.eval_param_worker_parallel(target, 
                                                      source, 
-                                                     search_space, 
-                                                     0,
-                                                     search_radius, 
-                                                     bins, 
-                                                     centering_mode, 
+                                                     scale_search_space = search_space, 
+                                                     angle_search_space = 0,
+                                                     center_search_space = None,
+                                                     target_filt =  None,
+                                                     source_filt = None,
+                                                     search_radius = search_radius, 
+                                                     bins = bins, 
+                                                     centering_mode = centering_mode,
+                                                     find_offset = False,  
                                                      evaluator='broad')
             succes, min_search, max_search, samples, scale_factor, center, delta = self.eval_results(result,
                                                                                                      search_space, 
@@ -712,11 +933,15 @@ class BeadAlignment:
             search_space = np.linspace(a_min_search, a_max_search, num=samples)
             result = self.eval_param_worker_parallel(target, 
                                                      source, 
-                                                     scale_factor, 
-                                                     search_space,
-                                                     search_radius, 
-                                                     bins, 
-                                                     centering_mode, 
+                                                     scale_search_space = scale_factor, 
+                                                     angle_search_space = search_space,
+                                                     center_search_space = None,
+                                                     target_filt = None,
+                                                     source_filt = None,
+                                                     search_radius = search_radius, 
+                                                     bins = bins, 
+                                                     centering_mode = centering_mode,
+                                                     find_offset = False,  
                                                      evaluator='broad')
             a_succes, a_min_search, a_max_search, a_samples, angle, a_center, a_delta = self.eval_results(result, 
                                                                                                           search_space, 
@@ -729,7 +954,6 @@ class BeadAlignment:
             if count >= max_broad_sweep:
                 raise Exception('Bead alignment could not find the rotation. Try again with different parameters.')
 
-
         #Narrow sweeps
         find_offset = False
         for i in range(num_narrow_sweeps):
@@ -740,11 +964,15 @@ class BeadAlignment:
             search_space = np.linspace(a_min_search, a_max_search, num=a_samples)
             result = self.eval_param_worker_parallel(target, 
                                                      source, 
-                                                     scale_factor, 
-                                                     search_space,
-                                                     search_radius, 
-                                                     bins, 
-                                                     centering_mode, 
+                                                     scale_search_space = scale_factor, 
+                                                     angle_search_space = search_space,
+                                                     center_search_space = None,
+                                                     target_filt =  None,
+                                                     source_filt = None,
+                                                     search_radius = search_radius, 
+                                                     bins = bins, 
+                                                     centering_mode = centering_mode,
+                                                     find_offset = False,
                                                      evaluator='narrow')
             a_succes, a_min_search, a_max_search, a_samples, angle, a_center, a_delta = self.eval_results(result, 
                                                                                                           search_space, 
@@ -756,19 +984,22 @@ class BeadAlignment:
             search_space = np.linspace(min_search, max_search, num=samples)
             result = self.eval_param_worker_parallel(target, 
                                                      source, 
-                                                     search_space, 
-                                                     angle,
-                                                     search_radius,
-                                                     bins*(2+i), 
-                                                     centering_mode, 
-                                                     find_offset, 
+                                                     scale_search_space = search_space, 
+                                                     angle_search_space = angle,
+                                                     center_search_space = None,
+                                                     target_filt =  None,
+                                                     source_filt = None,
+                                                     search_radius = search_radius, 
+                                                     bins = bins*(2+i), 
+                                                     centering_mode = centering_mode,
+                                                     find_offset = find_offset,  
                                                      evaluator='narrow')
             succes, min_search, max_search, samples, factor, center, delta = self.eval_results(result, 
                                                                                                search_space, 
                                                                                                plot, 
                                                                                                evaluator='narrow',
-                                                                                               title='Narrow sweep scale factor')            
-        
+                                                                                               title='Narrow sweep scale factor')
+                    
         return factor, center, delta, angle
 
     def fit(self, target: np.ndarray, source: np.ndarray, plot: bool=False):
@@ -836,11 +1067,12 @@ class BeadAlignment:
             plot (bool, optional): If True plots otimization results.
                 Defaults to False.
         """
-        factor, center, delta, angle = self.find_transform(target, source, self.initial_scale_factor, self.search_fraction,
+        factor, center, delta, angle = self.find_transform(target, source, self.initial_scale_factor, self.serach_fraction,
                                                             self.initial_rotation, self.rotation_search_width,
                                                             self.samples, self.max_broad_sweeps, self.num_narrow_sweeps,
                                                             self.search_radius, self.focusing_bins, self.centering_mode,
-                                                            plot=plot)
+                                                            self.scan_chunk_size, self.scan_density, 
+                                                            self.scan_min_points, plot=plot)
         
         self.factor = factor
         self.center = center
@@ -849,10 +1081,16 @@ class BeadAlignment:
         self.angle = angle
         self.rotation_origin = self.find_center(source)
         
+        if plot:
+            self._plot_results(target, source)
+            
+        
     def transform(self, X: np.ndarray) -> np.ndarray:
         """Transform 2D array with found transfrom function.
+
         Args:
             X (np.ndarray): 2D array with points to transfrom.
+
         Raises:
             Exception: If X is not a numpy array.
             Exception: If there are not 2 columns. Points should have X and Y
@@ -880,482 +1118,7 @@ class BeadAlignment:
             X = self.rotate(X, origin=self.rotation_origin, degrees=self.angle)
             #Scale and move
             X = (X * self.factor) + self.offset
-            
-            
-            
+
             return X
         else:
             raise Exception('Transform parameters not known. Please run `fit()` function first.')
-
-        #---------------------------------------MARCOS-------------------------------------#
-
-    def subsample(self, to_subsample, xlist, ylist):
-
-        '''Subsample the given array into specified chunk.
-        Args: 
-            to_subsample: array to subsample.
-        Returns:
-            np.ndarray: subsampled array.
-        '''
-
-        height = max(to_subsample[:,0]) - min(to_subsample[:,0])
-        width = max(to_subsample[:,1]) - min(to_subsample[:,1])
-
-        subsampled = to_subsample[(to_subsample[:,0] > height*xlist[0]) & (to_subsample[:,0] < height*xlist[1]) & \
-        (to_subsample[:,1] > width*ylist[0]) & (to_subsample[:,1] < width*ylist[1])]
-
-        return subsampled
-
-    def isnan(self, arr):
-
-        '''Checks if the array contains NaN values.
-        Args: 
-            arr (np.ndarray): query array.
-        Returns: 
-            bool.
-        '''
-
-        asum = np.sum(arr)
-        isnan = np.isnan(asum)
-        return isnan
-
-    def removenan(self, arr):
-
-        '''Removes NaN values from array.
-        Args: 
-            arr (np.ndarray): Target array.
-        Returns: 
-            arr (np.ndarray): Array stripped from NaN values.
-        '''
-
-        arr = arr[~np.isnan(arr).any(axis=1)]
-        return arr
-
-    def is_subset(self, a, b):
-
-        '''Checks if a is subset of b. 
-        Args: 
-            a (np.narray): array a.
-            b (np.ndarray): array b.
-        Returns:
-            bool.
-        '''
-
-        b = np.unique(b)
-        c = np.intersect1d(a,b)
-        return c.size == b.size
-
-    def plot_2d(self, arrays: list):
-
-        '''Plotting function using matplotlib.
-        Args:
-            arrays (list): List of arrays (np.ndarray) to plot. 
-        Returns:
-            plt.scatter.
-        '''
-
-        for array in arrays:
-            plt.scatter(array[:,0], array[:,1], s=1, label=str(array))
-
-        plt.gca().set_aspect('equal')
-        
-
-    def plot_3d(self,a,b): 
-
-        '''Interactive plotting function using open3d.
-        Args:
-            a, b (np.ndarray): arrays to plot. 
-        Returns:
-            Initializes open3d and plots the fed arrays.
-        '''
-
-        import open3d as o3
-
-        zero = np.zeros((a.shape[0], 1))
-        a = np.append(a, zero, axis=1)
-        zero1 = np.zeros((b.shape[0], 1))
-        b = np.append(b, zero1, axis=1)
-
-        a[:,2]=0
-        b[:,2]=0
-
-        pcd_a = o3.geometry.PointCloud()
-        pcd_a.points = o3.utility.Vector3dVector(a)
-
-        pcd_b = o3.geometry.PointCloud()
-        pcd_b.points = o3.utility.Vector3dVector(b)
-
-        pcd_a.paint_uniform_color([1, 0, 0])
-        pcd_b.paint_uniform_color([0, 1, 0])
-        return(o3.visualization.draw_geometries([pcd_a, pcd_b]))
-
-    def filter(self,source,target, max_dist):
-            
-        '''Two-way filter the target and source using a KDTree neighbour search. 
-        Args: 
-            source (np.ndarray): Source array.
-            target (np.ndarray): Target array.
-            max_dist (float): Neighbour search radius.
-        Returns: 
-            filteredS (np.ndarray): Filtered source array.
-            filteredT (np.ndarray): Filtered target array.
-        '''
-
-        treeS = KDTree(target, leaf_size=100)
-        distS, indexS = treeS.query(source, 1, return_distance=True)
-
-        treeT = KDTree(source, leaf_size=100)
-        distT, indexT = treeT.query(target, 1, return_distance=True)
-
-        # Get filtered matrix
-        filteredS = np.take(source, np.where(distS < max_dist)[0], axis=0)
-        filteredT = np.take(target, np.where(distT < max_dist)[0], axis=0)
-
-        return filteredS, filteredT
-
-    def select_points(self,a,b):
-
-        import open3d as o3
-
-        print('press "shift" + click points to select')
-
-        zero = np.zeros((a.shape[0], 1))
-        a = np.append(a, zero, axis=1)
-        zero1 = np.zeros((b.shape[0], 1))
-        b = np.append(b, zero1, axis=1)
-
-        a[:,2]=0
-        b[:,2]=0
-
-        pcd_a = o3.geometry.PointCloud()
-        pcd_a.points = o3.utility.Vector3dVector(a)
-
-        pcd_b = o3.geometry.PointCloud()
-        pcd_b.points = o3.utility.Vector3dVector(b)
-
-        pcd_a.paint_uniform_color([1, 0, 0])
-        pcd_b.paint_uniform_color([0, 1, 0])
-
-        vis = o3.visualization.draw_geometries_with_editing([pcd_a, pcd_b])
-        vis.create_window()
-        vis.add_geometry(pcd_a)
-        vis.add_geometry(pcd_b)
-        vis.run()
-        vis.destroy_window()
-        print('Selected points (index): ', vis.get_picked_points())
-
-        return vis.get_picked_points()
-
-    def bin(self, array: np.ndarray, chunk_size: list, overlap: list, area: list):
-
-        '''Chunks array into smaller arrays.
-        Args: 
-            array (np.ndarray): array to chunk.
-            chunk_size (list): list that contains the relative size of the chunk on X an Y coordinates: "[X, Y]". 
-                               Example: "[0.2, 0.2]" for chunks 0.2 by 0.2 of the lenght and width, respectively.
-            overlap (list): list with relative overlap allowed for each chunk, for X and Y: "[X overlap, Y overlap]".
-            area (list): Area chunked: [[minX, maxX], [minY, maxY]]".
-            Returns: 
-                chunks (list): list of chunked arrays (np.ndarray).
-        '''
-
-        scanning_array = self.subsample(array, area[0], area[1])
-        chunks = []
-        x_divisions = [[0,chunk_size[0]]]
-        y_divisions = [[0,chunk_size[1]]]
-        xmin, xmax = 0, chunk_size[0]
-        ymin, ymax = 0, chunk_size[1]
-        xsteps = int(1/(chunk_size[0]*(1-overlap[0])))-1
-        ysteps = int(1/(chunk_size[1]*(1-overlap[1])))-1
-
-        for x_division in range(xsteps):
-            if xmax < 1:
-                xmin += chunk_size[0]*(1-overlap[0])
-                xmax += chunk_size[0]*(1-overlap[0])
-                x_divisions.append([xmin, xmax])
-
-        for y_division in range(ysteps):
-            if ymax < 1:
-                ymin += chunk_size[1]*(1-overlap[1])
-                ymax += chunk_size[1]*(1-overlap[1])
-                y_divisions.append([ymin, ymax])
-        
-        for xrange in x_divisions:
-            for yrange in y_divisions:
-                chunk = dask.delayed(self.subsample)(array, xrange, yrange)
-                chunks.append(chunk)            
-
-        with ProgressBar():
-            chunks = dask.compute(chunks)[0]
-
-        new = []
-        for index, chunk in enumerate(chunks):
-            if self.is_subset(scanning_array, chunk) == True:
-                new.append(chunks[index]) 
-        chunks = new
-
-        return chunks
-
-    def scan(self, target: np.ndarray, source: np.ndarray, chunk_size: list, plot: bool=False, ref_chunk: list=[[0,1],[0.4,0.5]], overlap: list=[0, 0], area: list=[[0, 1], [0, 1]]):
-
-        '''Scans all source chunks against a specified target reference chunk and 
-        returns the best match using the broad evaluator.
-        Score provided is the matched/unmatched ratio on the search radius provided.
-        Args: 
-            target (np.ndarray): target array.
-            source (np.ndarray): source array.
-            chunk_size (list): list with the X and Y relative sizes of 
-                               each chunk: "[Xsize, Ysize]."
-            plot (bool): If true, plots each iteration for each chunk 
-                         and its position in the source sample.
-            ref_chunk (list): list of lists with the relative dimensions 
-                              of the reference chunk: "[[minX, maxX], [minY, maxY]]".
-            overlap (list): list with relative overlap allowed for 
-                            each chunk, for X and Y: "[X overlap, Y overlap]".
-            area (list): Area chunked: [[minX, maxX], [minY, maxY]]".
-        Returns:
-            best_match (np.ndarray): Highest-scoring array. 
-            '''
-
-        print("Binning...")
-        source_chunks = self.bin(source, chunk_size, overlap=overlap, area=area)
-        results = []
-        ref = self.subsample(target, ref_chunk[0], ref_chunk[1])
-
-
-        print("Scanning...")
-        for index, chunk in enumerate(source_chunks):
-            if len(chunk)/len(ref) >= 0.3: # threshold of 0.1 means that chunk needs to be at least 10% of the length of the reference 
-                result = dask.delayed(self.eval_param_worker)(ref, chunk, factor=2/3, evaluator="broad", centering_mode='middle', mode='score')
-                results.append(result)
-                if plot == True:
-                    result = dask.compute(result)[0]
-                    print("Scanning chunk: {}".format(index))
-                    self.plot_2d([source, chunk])
-                    plt.show()
-                    print('Score for chunk {}: {}'.format(index, result))
-            else: 
-                results.append(0) # empty tuple for dask compatibility
-                if plot == True:
-                    print("Chunk {} is invalid".format(index))
-
-        with ProgressBar():
-            results = dask.compute(results)[0]
-        index_max = max(range(len(results)), key=results.__getitem__)
-        best_match = source_chunks[index_max]
-        print('Best match: chunk {}'.format(index_max))
-
-        return best_match
-            
-
-class AlignmentPipeline(BeadAlignment):
-
-    def __init__(self, scanning_search_radius: float=2000, filtered_search_radius: float=250, 
-                 filtering_radius_1: float=70, filtering_radius_2: float=20, scanning_chunk_size: list=[1, 0.1], 
-                 manual_subsampling: bool=False, sub_source: list=[[0,1],[0.4,0.5]],
-                 ref_chunk: list=[[0,1],[0.4,0.5]], 
-                 overlap: list=[0, 0], scanning_area: list=[[0,1],[0,1]]):
-
-                 '''Initialize AlignmentPipeline class. 
-                 
-                 Child-class of BeadAlignment that uses its functions to 
-                 heuristically employ the distance-angle algorithm in a 
-                 sequential fashion.
-                 It begins by first centering the datasets by automatically 
-                 scanning through the source in a selected area to find 
-                 homologous regions to
-                 a specified reference in the target dataset. Alternatively, 
-                 the user can manually select potentially homologous regions 
-                 by setting manual_subsampling to False. 
-                 After centering the dataset, the "filter" function will 
-                 eliminate noise that lies outside the specified search radius,
-                 execute the main alignment algorithm again, then filter a 
-                 second time, followed by a final alignment.
-
-                 The alignment can be executed by using the ".run_alignment_pipeline()"
-                 function.
-
-                 Args: 
-                    scanning_search_radius (float): Search radius for the scanning model to 
-                                                    center the datasets. Defaults to 2000.
-                    filtered_search_radius (float): Search radius for the (post) filtered 
-                                                    model to do the "main" and "adjustment" 
-                                                    alignments. Defaults to 250.
-                    filtering_radius_1 (float): Radius of coordinates to keep after centering. 
-                                                Defaults to 70.
-                    filtering_radius_2 (float): Radius of coordinates to keep after main 
-                                                alignment round. Defaults to 20.
-                    scanning_chunk_size (list): Relative size of each chunk: [Xsize, Ysize].
-                    manual_subsampling (bool): True for performing manual subsampling 
-                                               reflecting homologous regions instead of 
-                                               scanning to find them. Defaults to False.
-                    sub_source (list): List of lists with X and Y relative dimensions to 
-                                       subsample the source
-                                       if manual_subsampling = True.
-                    ref_chunk (list): List of lists with X and Y dimensions to be used as the
-                                      reference chunk in the target sample for both the scanning 
-                                      and manual subsampling mode.
-                    overlap (list): List with relative overlap allowed for each chunk, 
-                                    for X and Y: "[X overlap, Y overlap]".
-                    scanning_area (list): Scanned area. List of lists with X and Y dimensions.
-
-                 '''
-
-                 #Input
-                 self.scanning_search_radius = scanning_search_radius
-                 self.filtered_search_radius = filtered_search_radius
-                 self.filtering_radius_1 = filtering_radius_1
-                 self.filtering_radius_2 = filtering_radius_2
-                 self.scanning_chunk_size = scanning_chunk_size
-                 self.manual_subsampling = manual_subsampling
-                 self.sub_source = sub_source
-                 self.ref_chunk = ref_chunk
-                 self.overlap = overlap
-                 self.scanning_area = scanning_area
-
-    def center_datasets_pipeline(self, target: np.ndarray, source: np.ndarray, plot: bool=False, score_centering: bool=False):
-
-        '''
-        Workhorse function to initially center the datasets. If manual_subsampling = False, it 
-        will scan through the scanning area to find the region homologous to the 
-        reference area in the target sample. If manual_subsampling = True, it will
-        assume the sub_source provided corresponds to the homologous region to 
-        the reference chunk.
-
-        Args:
-            target (np.ndarray): Target array.
-            source (np.ndarray): Source array.
-            plot (bool): True for spatially plotting each iteration. 
-            score_centering (bool): Set to True to score the centering (match/unmatched ratio).
-        Returns:
-            centered (np.ndarray): Centered source array.
-            model_centered (class): Returns the centering model to be able to use ".transform()".
-        '''
-
-        model_centering = BeadAlignment(initial_scale_factor=(2/3), search_radius=self.scanning_search_radius, search_fraction=0.1, centering_mode='middle')
-
-        # Scan or perform manual subsampling
-        if self.manual_subsampling == True:
-            print("Subsampling manually...")
-            ref = self.subsample(target, self.ref_chunk[0], self.ref_chunk[1])
-            best_match = model_centering.subsample(source, self.sub_source[0], self.sub_source[1])
-            if plot == True:
-                self.plot_2d([target, source+50000, ref, best_match+50000])
-                plt.show()
-            print("Centering...")
-            model_centering.fit(ref, best_match)
-
-        else:
-            ref = self.subsample(target, self.ref_chunk[0], self.ref_chunk[1])
-            if plot == True:
-                print('!!WARNING!!: Plotting hinders parallelization')
-                print("Reference target:")
-                plt.scatter(target[:,0], target[:,1], label='target', c='g', s=1)
-                plt.scatter(ref[:,0], ref[:,1], label='ref_area_target', c='r', s=1)
-                plt.gca().set_aspect('equal')
-                plt.show()
-            best_match = model_centering.scan(target, source, self.scanning_chunk_size, plot, ref_chunk=self.ref_chunk, overlap=self.overlap, area=self.scanning_area)
-            print("Centering...")
-            model_centering.fit(ref, best_match)
-
-        # Transform based on subsampling to obtain initial centered dataset
-        centered = model_centering.transform(source)
-        print("Source centered!")
-        if score_centering == True:
-            centering_score = self.eval_param_worker(target, centered, factor=1, evaluator="broad", centering_mode=np.array([0,0]), mode='score')
-            print("Centering score: {}".format(centering_score))
-            if centering_score < 0.01:
-                print('The matching ratio is low after centering, the alignment will likely fail. Try increasing the scanning chunk size.')
-        if plot == True:
-            self.plot_2d([target, centered])
-            plt.show()
-
-        return centered, model_centering
-
-    def run_pipeline(self, target: np.ndarray, source: np.ndarray, plot: bool=False, score_centering: bool=False):
-
-        '''
-        Runs the alignment pipeline. First it removes possible NaN values, then it centers
-        the source dataset according to target, followed by a first filtering round. After, 
-        it performs the main alignment, filters it again, and concludes by adjusting the
-        points by using the second filtering round to bring the points closer together.
-
-        Args: 
-            target (np.ndarray): Target array.
-            source (np.ndarray): Source array.
-            plot (bool): True for spatially plotting each iteration. 
-            score_centering (bool): Set to True to score the centering (match/unmatched ratio).
-        Returns: 
-            transformed (np.ndarray): Transformed dataset. 
-            global_transform (function): Transform 2D array with found transfrom function.
-        '''
-
-        # 0. Remove possible NaN values
-        target = self.removenan(target)
-        source = self.removenan(source)
-
-        # 1. Center datasets (pipeline mode)
-        centered, model_centering = self.center_datasets_pipeline(target, source, plot, score_centering)
-
-        # 2. filtering based on centered alignment
-        centered_filtered, target_filtered = self.filter(centered, target, self.filtering_radius_1)
-        print("Filtered based on centered alignment")
-
-        # 3. Whole dataset (filtered)
-        print("Main alignment round...")
-        model = BeadAlignment(initial_scale_factor=1, search_radius=self.filtered_search_radius, search_fraction=0.1, centering_mode=np.array([0,0]))
-        # 3.1. 
-        model.fit(target_filtered, centered_filtered)
-        # 3.2. 
-        transformed = model.transform(centered)
-
-
-        # 4. 2nd filtering
-        transformed_filtered2, target_filtered2 = model.filter(transformed,target,self.filtering_radius_2)
-        print("Filtered based on second alignment")
-        # 4.1.
-        model_filtered = BeadAlignment(initial_scale_factor=1, search_radius=self.filtered_search_radius, search_fraction=0.1, centering_mode=np.array([0,0]))
-        # 4.2.
-        print("Adjustment alignment round...")
-        model_filtered.fit(target_filtered2, transformed_filtered2)
-        # 4.3.
-        transformed = model_filtered.transform(transformed)
-
-        print("Done!")
-
-        def global_transform(array: np.ndarray):
-
-            # return model_filtered.transform(model.transform(model_centering.transform(array)))   
-            return model.transform(model_centering.transform(array))   
-            
-        return transformed, global_transform
-
-    def plot_2d(self, arrays):
-        return super().plot_2d(arrays)
-
-    def plot_3d(self, a, b):
-        return super().plot_3d(a, b)
-
-    def plot_initial(self, target, source):
-
-        '''
-        Plots target reference area, source scanning area, target, source, subsampled
-        source area (if manual_subsampling = True).
-
-        Args:
-            target (np.ndarray): Target array.
-            source (np.ndarray): Source array.
-        Returns:
-            plt.scatter
-        '''
-
-        ref_chunk = self.subsample(target, self.ref_chunk[0], self.ref_chunk[1])
-        if self.manual_subsampling == True:
-            sub_source = self.subsample(source, self.sub_source[0], self.sub_source[1])
-        scanning_area = self.subsample(source, self.scanning_area[0], self.scanning_area[1])
-        if self.manual_subsampling == True:    
-            self.plot_2d([target, source + 50000, ref_chunk, sub_source+50000])
-        else: 
-            self.plot_2d([target, source + 50000, ref_chunk, scanning_area+50000])
-
-#----------------------------------------------END---------------------------------------#
