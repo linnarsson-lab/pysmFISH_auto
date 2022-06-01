@@ -673,7 +673,6 @@ def register_assign(
         samples=25,
         plot_output_folder=os.path.join(experiment_path, "fresh_tissue", "output_figures")
     )
-    print(f'Centering mode: {centering_mode} no processes correct names\n')
 
     # Initiate alignment model MarcosVersion
     '''model = AlignmentPipeline(scanning_chunk_size=[0.2, 0.2], # Size of each chunk used to scan source chunks over the reference target chunk

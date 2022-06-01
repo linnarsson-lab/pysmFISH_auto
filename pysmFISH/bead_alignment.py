@@ -670,7 +670,7 @@ class BeadAlignment:
 
         #Compute
         with ProgressBar():
-            result = dask.compute(results)#, scheduler='processes')
+            result = dask.compute(results)
             
         return result[0]
 

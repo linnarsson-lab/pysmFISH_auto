@@ -1640,7 +1640,6 @@ class Pipeline:
         """
         Full run from raw images from nikon or parsed images
         """
-
         start = datetime.now()
         self.run_setup()
         self.run_cluster_activation()

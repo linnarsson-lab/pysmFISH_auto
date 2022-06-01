@@ -449,7 +449,6 @@ def both_beads_preprocessing(zarr_grp_name: str,
     parsed_raw_data_fpath = Path(parsed_raw_data_fpath)
     FlatFieldKernel=processing_parameters['PreprocessingFishFlatFieldKernel']
     LaplacianKernel=processing_parameters['PreprocessingFishFilteringLaplacianKernel']
-    
 
     try:
         img, metadata = load_raw_images(zarr_grp_name,

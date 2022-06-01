@@ -51,7 +51,7 @@ def create_dark_img(experiment_fpath:str, metadata: pd.DataFrame):
     nd2_blank = [el for el in nd2_list if 'Blank' in el.stem]
     
     if nd2_blank:
-        nd2fh = nd2reader.ND2Reader(nd2_blank[0])
+        nd2fh = nd2reader.ND2Reader(str(nd2_blank[0]))
         nd2fh.bundle_axes = 'zyx'
         nd2fh.iter_axes = 'z'
         # Image with single channel
