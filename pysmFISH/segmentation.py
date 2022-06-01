@@ -485,7 +485,8 @@ def create_label_image(
     )
 
     zarr_fpath = segmentation_output_path / "image_segmented_labels.zarr"
-    store = zarr.DirectoryStore(zarr_fpath, "w")
+    #store = zarr.DirectoryStore(zarr_fpath, "w") # crashed when specifying "w"
+    store = zarr.DirectoryStore(zarr_fpath)
     grp = zarr.group(store=store, overwrite=True)
     grp.create_dataset(name="segmented_labels_image", data=img)
     #np.save(os.path.join(segmentation_output_path,'segmented_labels_image.npy'),img)
