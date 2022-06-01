@@ -61,13 +61,12 @@ class Cell_Assignment:
 
         #Iterate over chunks
         for i, (view_min, view_max) in enumerate(sliding_window_view(chunks, 2)):
-            print(i, view_min, view_max)
+            print(f'Expanding segmentation: {i}, {view_min}, {view_max}')
             if i == 0:
                 view_min_extra = view_min    
                 view_max_extra = view_max + overlap
                 overlap_right = overlap
             elif (view_max + overlap) > mask.shape[0]:
-                print('got here')
                 view_min_extra = view_min - overlap    
                 view_max_extra = mask.shape[0]
                 overlap_right = mask.shape[0] - view_max
@@ -88,13 +87,6 @@ class Cell_Assignment:
                 exp[view_min:, :] = img[overlap:]
 
             else: #Middle chunks
-                print(f'    {overlap}, {overlap_right}')
-                print(f'    {view_min}, {view_max}')
-                print(f'    {view_min_extra}, {view_max_extra}')
-                print(f'    {img.shape}')
-                print(f'    {overlap}, {chunk_size+overlap}')
-                print(f'    {img[overlap:chunk_size+overlap,:].shape}')
-                #exp[view_min:view_max, :] = img[overlap:-overlap_right,:]
                 exp[view_min:view_max, :] = img[overlap:chunk_size+overlap,:]
             
         return out_file_name
