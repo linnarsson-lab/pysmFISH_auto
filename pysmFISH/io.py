@@ -98,6 +98,7 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->Tuple[np.ndarr
     logger = selected_logger()
     st = zarr.DirectoryStore(parsed_raw_data_fpath)
     root = zarr.group(store=st,overwrite=False)
+    
 
     metadata = root[zarr_grp_name].attrs
     img = root[zarr_grp_name][metadata['fov_name']][...]
