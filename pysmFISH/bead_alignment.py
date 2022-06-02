@@ -17,11 +17,13 @@ class BeadAlignment:
     
     def __init__(self, initial_scale_factor:float =1, search_fraction:float =0.1,
                  initial_rotation: float=0, rotation_search_width: float=4,
-                 search_radius:float=1000, samples:int = 25,               
+                 search_radius:float=2000, samples:int = 25,               
                  focusing_bins:int =100, centering_mode: str = 'scan',
                  max_broad_sweeps:int =10, num_narrow_sweeps:int =2,
                  scan_chunk_size: float=0.2, scan_density: int=6,
-                 scan_min_points = None, plot_output_folder=''):
+                 scan_min_points = None, clean_points: bool=True, 
+                 clean_radius: float=200, clean_max_density: int=10, 
+                 plot_output_folder=''):
         """Initialte bead alignment class.
         
         Class to align two 2D point clouds that have (some) matching points.
@@ -72,6 +74,16 @@ class BeadAlignment:
             scan_min_points (int, optional): Minimum number of points in chunck
                 to be evaulated for initial alignment search. If None, will
                 use the mean density of the dataset. Defaults to None.
+            clean_points (bool): If True, removes points in high density 
+                areas based on `clean_radius` and `clean_max_density`.
+                Defaults to True.
+            clean_radius (float): Radius in which to count neighbours for
+                each point. Defaults to 200.
+            clean_max_density (int): If a point has more neighbours than 
+                the `clean_max_density` in the `clean_radius` the point will
+                be removed. Defaults to 10.
+            plot_output_folder (str): Folder where output is saved. 
+                Defaults to ''.
             
         """
         #Input
@@ -91,6 +103,9 @@ class BeadAlignment:
         self.scan_chunk_size = scan_chunk_size
         self.scan_density = scan_density
         self.scan_min_points = scan_min_points
+        self.clean_points_bool = clean_points
+        self.clean_radius = clean_radius
+        self.clean_max_density = clean_max_density
         self.plot_output_folder = plot_output_folder
 
     def align(self, target: np.ndarray, source: np.ndarray, radius: float) -> Tuple[np.ndarray, np.ndarray]:
@@ -214,6 +229,32 @@ class BeadAlignment:
 
         array = array[~np.isnan(array).any(axis=1)]
         return array
+    
+    def clean_points(self, points:np.ndarray, radius: float=None, 
+                     max_density: int=None):
+        """Clean high density points.
+
+        Args:
+            points (np.ndarray): Array with XY coordinates of points
+            radius (float, optional): Radius in which to search for neighbours.
+                Defaults to None.
+            max_density (int, optional): Maximum number of neighbours within
+                radius. If more are found the point is removed.
+                Defaults to None.
+
+        Returns:
+            points: Cleaned points.
+        """
+        if radius == None:
+            radius = self.clean_radius
+        if max_density == None:
+            max_density = self.clean_max_density
+            
+        tree = KDTree(points)
+        results = tree.query_radius(points, radius, count_only=True)
+        filt = results < max_density
+        
+        return points[filt]
 
     def chunk(self, data: np.ndarray, chunk_size: float=0.2, density: int=4, 
               min_points=None):
@@ -244,6 +285,9 @@ class BeadAlignment:
         xmax, ymax = data.max(axis=0)
         x_extent = xmax - xmin
         y_extent = ymax - ymin
+        x_center = xmin + (x_extent / 2)
+        y_center = ymin + (y_extent / 2)
+        center = np.array([x_center, y_center])
         #Determine chunk size
         x_chunk = x_extent * chunk_size
         y_chunk = y_extent * chunk_size
@@ -278,13 +322,16 @@ class BeadAlignment:
                     chunks.append(filt)
                     
                     #Center of chunk
-                    x_center = x0 + (0.5*(x1-x0))
-                    y_center = y0 + (0.5*(y1-y0))
-                    chunk_centers.append(np.array([x_center, y_center]))
+                    x_chunk_center = x0 + (0.5*(x1-x0))
+                    y_chunk_center = y0 + (0.5*(y1-y0))
+                    chunk_center = np.array([x_chunk_center, y_chunk_center])
+                    chunk_centers.append(chunk_center)
                     
                     #Evaluate
                     h = np.histogram2d(data[filt, 0], data[filt, 1], range=[[x0, x1], [y0, y1]], bins=30)[0]
-                    distribution.append(filt.sum() / h.std())
+                    #(number of points / standard deviation)
+                    eval = (filt.sum() / h.std())
+                    distribution.append(eval)
 
                     
         return chunks, np.array(chunk_centers), np.array(distribution)
@@ -742,10 +789,9 @@ class BeadAlignment:
         
         #Did not find a peak, widen search and make denser
         else:
-            print('No peaks found. Widening the search to find the scaling factor. If this happends in the last cycles ')
-            #Double the widht of the search and tripple the number of samples.
+            print('No peaks found. Widening the search to find the scaling factor. Bad if this happends in last cycle.')
             return False, min_ss - half_range, max_ss + half_range, n_samples * 3, 0, 0, 0
-        
+            
     def _plot_results(self, target, source):
         """Plot results"""
         fig, axes =  plt.subplots(figsize=(20,15), ncols=2)
@@ -763,6 +809,8 @@ class BeadAlignment:
         x_extent, y_extent = target.max(axis=0) - target.min(axis=0)
         x_chunk = 0.25 * self.scan_chunk_size * x_extent
         y_chunk = 0.25 * self.scan_chunk_size * y_extent
+        if not hasattr(self, 'initial_center'):
+            self.initial_center = target.mean(axis=0)
         x_min, x_max = self.initial_center[0] - x_chunk, self.initial_center[0] + x_chunk
         y_min, y_max = self.initial_center[1] - y_chunk, self.initial_center[1] + y_chunk
 
@@ -882,6 +930,11 @@ class BeadAlignment:
         #Clean input
         target = self.removenan(target)
         source = self.removenan(source)
+        
+        #Clean high density points
+        if self.clean_points_bool:
+            target = self.clean_points(target, self.clean_radius, self.clean_max_density)
+            source = self.clean_points(source, self.clean_radius, self.clean_max_density)
         
         #Initial centering of datasets
         if centering_mode == 'scan':
@@ -1061,12 +1114,33 @@ class BeadAlignment:
                 increase the sampling density and range. Defaults to 10.
             num_narrow_sweeps (int, optional): Number of higher density sweeps
                 once it has found a candidate scaling factor. Defaults to 2.
+            scan_chunk_size (float, optional): Chunk size as percentage of
+                of dataset size for scanning to find the best initial alignment
+                of the dataset. Defaults to 0.2.
+            scan_density (int, optional): Density of chunks to find initial
+                alignment. The higher the number the more overlap there is
+                between chunks. Defaults to 6.
+            scan_min_points (int, optional): Minimum number of points in chunck
+                to be evaulated for initial alignment search. If None, will
+                use the mean density of the dataset. Defaults to None.
+            clean_points (bool): If True, removes points in high density 
+                areas based on `clean_radius` and `clean_max_density`.
+                Defaults to True.
+            clean_radius (float): Radius in which to count neighbours for
+                each point. Defaults to 200.
+            clean_max_density (int): If a point has more neighbours than 
+                the `clean_max_density` in the `clean_radius` the point will
+                be removed. Defaults to 10.
+            plot_output_folder (str): Folder where output is saved. 
+                Defaults to ''.    
+            
         Args:
             target (np.ndarray): Array with target point set.
             source (np.ndarray): Array with source point set.
             plot (bool, optional): If True plots otimization results.
                 Defaults to False.
-        """
+        """     
+        
         factor, center, delta, angle = self.find_transform(target, source, self.initial_scale_factor, self.serach_fraction,
                                                             self.initial_rotation, self.rotation_search_width,
                                                             self.samples, self.max_broad_sweeps, self.num_narrow_sweeps,
