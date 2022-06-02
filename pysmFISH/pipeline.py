@@ -134,6 +134,8 @@ class Pipeline:
         clip_size (str): only if fov_alignment_mode is merge it will clip the clip_size length of borders.
         remove_distinct_genes (bool): when stitching it will also remove overlapping dots of different genes if set to
             true. Defaults to true
+        bead_alignment_centering_mode (str): Mode to use for centering the bead alignment. Choose from: 'scan', 'middle'
+            or 'mean'.
 
 
     Attributes:
@@ -262,6 +264,7 @@ class Pipeline:
         self.fov_alignment_mode = kwarg.pop("fov_alignment_mode", "clip")
         self.clip_size = kwarg.pop("clip_size", 0)
         self.remove_distinct_genes = kwarg.pop("remove_distinct_genes", False)
+        self.bead_alignment_centering_mode = kwarg.pop("bead_alignment_centering_mode", 'scan')
 
 
     # -----------------------------------
@@ -1444,6 +1447,7 @@ class Pipeline:
             segmentation_output_path,
             self.max_expansion_radius,
             self.hamming_distance,
+            self.bead_alignment_centering_mode
         )
 
     # --------------------------------
