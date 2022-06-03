@@ -86,6 +86,7 @@ class BeadAlignment:
                 Defaults to ''.
             
         """
+        print('Bead alignment cleaning version\n')
         #Input
         self.initial_scale_factor = initial_scale_factor
         self.search_radius = search_radius
