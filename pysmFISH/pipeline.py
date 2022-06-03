@@ -165,7 +165,7 @@ class Pipeline:
         parsing_type: str = "original",
         **kwarg,
     ):
-
+        print('clean bead version')
         self.pipeline_run_name = pipeline_run_name
         self.experiment_fpath = Path(experiment_fpath)
         self.run_type = run_type

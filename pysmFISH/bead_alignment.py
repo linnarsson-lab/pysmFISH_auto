@@ -246,6 +246,7 @@ class BeadAlignment:
         Returns:
             points: Cleaned points.
         """
+        print('performing cleaning')
         if radius == None:
             radius = self.clean_radius
         if max_density == None:
