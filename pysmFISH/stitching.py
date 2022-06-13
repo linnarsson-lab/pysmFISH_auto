@@ -258,8 +258,9 @@ class organize_square_tiles:
                 va="bottom",
                 fontsize=12,
             )
+        plt.gca().set_aspect('equal')    
         plt.tight_layout()
-        plt.savefig(saving_fpath)
+        plt.savefig(saving_fpath, facecolor='white')
 
     def identify_adjacent_tiles(self):
         """Method that use Nearest neighbors to identify the beighbouring tiles"""
@@ -576,8 +577,9 @@ class organize_square_tiles_old_room:
                 va="bottom",
                 fontsize=12,
             )
+        plt.gca().set_aspect('equal')
         plt.tight_layout()
-        plt.savefig(saving_fpath)
+        plt.savefig(saving_fpath, facecolor='white')
 
     def save_graph_image_space_coords(self):
         # Turn interactive plotting off
@@ -609,8 +611,9 @@ class organize_square_tiles_old_room:
                 va="bottom",
                 fontsize=12,
             )
+        plt.gca().set_aspect('equal')
         plt.tight_layout()
-        plt.savefig(saving_fpath)
+        plt.savefig(saving_fpath, facecolor='white')
 
     def identify_adjacent_tiles(self):
         shift_percent_tolerance = 0.05

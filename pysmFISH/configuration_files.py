@@ -111,7 +111,7 @@ def create_general_analysis_config_file(config_db_path: str):
 
     analysis_parameters["eel-barcoded"]["ROBOFISH1"]["large-beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["eel-barcoded"]["ROBOFISH1"]["large-beads"][
         "PreprocessingFishFilteringSmallKernel"
     ] = (1, 8, 8)
@@ -182,7 +182,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["eel-barcoded"]["ROBOFISH1"]["fresh-tissue"]["beads"] = {}
     analysis_parameters["eel-barcoded"]["ROBOFISH1"]["fresh-tissue"]["beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["eel-barcoded"]["ROBOFISH1"]["fresh-tissue"]["beads"][
         "CountingFishMinObjDistance"
     ] = 20
@@ -276,7 +276,7 @@ def create_general_analysis_config_file(config_db_path: str):
 
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["large-beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["large-beads"][
         "PreprocessingFishFilteringSmallKernel"
     ] = (1, 8, 8)
@@ -347,7 +347,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fresh-tissue"]["beads"] = {}
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fresh-tissue"]["beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fresh-tissue"]["beads"][
         "CountingFishMinObjDistance"
     ] = 20
@@ -437,7 +437,7 @@ def create_general_analysis_config_file(config_db_path: str):
 
     analysis_parameters["eel-barcoded"]["ROBOFISH3"]["large-beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["eel-barcoded"]["ROBOFISH3"]["large-beads"][
         "PreprocessingFishFilteringSmallKernel"
     ] = (1, 8, 8)
@@ -508,7 +508,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["eel-barcoded"]["ROBOFISH3"]["fresh-tissue"]["beads"] = {}
     analysis_parameters["eel-barcoded"]["ROBOFISH3"]["fresh-tissue"]["beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["eel-barcoded"]["ROBOFISH3"]["fresh-tissue"]["beads"][
         "CountingFishMinObjDistance"
     ] = 20
@@ -542,7 +542,7 @@ def create_general_analysis_config_file(config_db_path: str):
 
     analysis_parameters["eel-barcoded"]["NOT_DEFINED"]["fish"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["eel-barcoded"]["NOT_DEFINED"]["fish"][
         "PreprocessingFishFilteringSmallKernel"
     ] = (1, 8, 8)
@@ -675,7 +675,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["eel-barcoded"]["NOT_DEFINED"]["fresh-tissue"]["beads"] = {}
     analysis_parameters["eel-barcoded"]["NOT_DEFINED"]["fresh-tissue"]["beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["eel-barcoded"]["NOT_DEFINED"]["fresh-tissue"]["beads"][
         "CountingFishMinObjDistance"
     ] = 20
@@ -774,7 +774,7 @@ def create_general_analysis_config_file(config_db_path: str):
 
     analysis_parameters["smfish-serial"]["ROBOFISH1"]["large-beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["smfish-serial"]["ROBOFISH1"]["large-beads"][
         "PreprocessingFishFilteringSmallKernel"
     ] = (1, 8, 8)
@@ -849,7 +849,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["smfish-serial"]["ROBOFISH1"]["fresh-tissue"]["beads"] = {}
     analysis_parameters["smfish-serial"]["ROBOFISH1"]["fresh-tissue"]["beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["smfish-serial"]["ROBOFISH1"]["fresh-tissue"]["beads"][
         "CountingFishMinObjDistance"
     ] = 20
@@ -946,7 +946,7 @@ def create_general_analysis_config_file(config_db_path: str):
 
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["large-beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["large-beads"][
         "PreprocessingFishFilteringSmallKernel"
     ] = (1, 8, 8)
@@ -1021,7 +1021,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["fresh-tissue"]["beads"] = {}
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["fresh-tissue"]["beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["fresh-tissue"]["beads"][
         "CountingFishMinObjDistance"
     ] = 20
@@ -1118,7 +1118,7 @@ def create_general_analysis_config_file(config_db_path: str):
 
     analysis_parameters["smfish-serial"]["ROBOFISH3"]["large-beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["smfish-serial"]["ROBOFISH3"]["large-beads"][
         "PreprocessingFishFilteringSmallKernel"
     ] = (1, 8, 8)
@@ -1193,7 +1193,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["smfish-serial"]["ROBOFISH3"]["fresh-tissue"]["beads"] = {}
     analysis_parameters["smfish-serial"]["ROBOFISH3"]["fresh-tissue"]["beads"][
         "PreprocessingFishFlatFieldKernel"
-    ] = (100, 100)
+    ] = (1, 100, 100)  #### Changed by Lars
     analysis_parameters["smfish-serial"]["ROBOFISH3"]["fresh-tissue"]["beads"][
         "CountingFishMinObjDistance"
     ] = 20
