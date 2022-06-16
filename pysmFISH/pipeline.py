@@ -130,12 +130,13 @@ class Pipeline:
         fresh_tissue_segmentation_engine (str): Stardist is the default because faster and doesn't require diameter
         diameter_size (int): Size of the diameter of the cells to segment using cellpose
         min_overlapping_pixels_segmentation (int): Size of the overlapping label objects
-        fov_alignment_mode (str): clip or merged (default clipped).
+        fov_alignment_mode (str): 'clip' or 'merge' (default clipped).
         clip_size (str): only if fov_alignment_mode is merge it will clip the clip_size length of borders.
         remove_distinct_genes (bool): when stitching it will also remove overlapping dots of different genes if set to
             true. Defaults to true
         bead_alignment_centering_mode (str): Mode to use for centering the bead alignment. Choose from: 'scan', 'middle'
             or 'mean'.
+        bead_alignment_radius (float): Search radius to look for corresponding beads. Defaults to 2000.
 
 
     Attributes:
@@ -156,7 +157,7 @@ class Pipeline:
                             fish and reference channels
 
     """
-    print('version verbose')
+    print('version cpu')
     def __init__(
         self,
         pipeline_run_name: str,
@@ -264,6 +265,7 @@ class Pipeline:
         self.clip_size = kwarg.pop("clip_size", 0)
         self.remove_distinct_genes = kwarg.pop("remove_distinct_genes", False)
         self.bead_alignment_centering_mode = kwarg.pop("bead_alignment_centering_mode", 'scan')
+        self.bead_alignment_radius = kwarg.pop("bead_alignment_radius", 5000)
 
 
     # -----------------------------------
@@ -1446,7 +1448,8 @@ class Pipeline:
             segmentation_output_path,
             self.max_expansion_radius,
             self.hamming_distance,
-            self.bead_alignment_centering_mode
+            self.bead_alignment_centering_mode,
+            self.bead_alignment_radius
         )
 
     # --------------------------------

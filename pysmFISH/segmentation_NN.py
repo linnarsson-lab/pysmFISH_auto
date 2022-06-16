@@ -20,9 +20,10 @@ class Segmenation_NN:
         self.diameter = diameter
 
         if self.mode == "stardist":
-            from stardist.models import StarDist2D
+            from stardist.models import StarDist2D, Config2D
 
             self.StarDist2D = StarDist2D
+            self.Config2D = Config2D
             from csbdeep.utils import normalize
 
             self.stardist_normalize = normalize
@@ -121,7 +122,9 @@ class Segmenation_NN:
         """
         # Instantiate model
         if self.model == None:
-            self.model = self.StarDist2D.from_pretrained("2D_versatile_fluo")
+            #Explicitly use CPU
+            conf = self.Config2D(use_gpu=False)
+            self.model = self.StarDist2D(config=conf).from_pretrained("2D_versatile_fluo")
 
         # Segment test
         img = self.stardist_normalize(image)

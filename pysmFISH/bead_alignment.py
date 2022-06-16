@@ -415,6 +415,9 @@ class BeadAlignment:
                 
                 delta = chunk_deltas[best]
                 source = source + delta
+            
+            else:
+                raise Exception(f'Invalid Bead Alignment mode: {mode}')
                 
 
         elif type(mode) == np.ndarray:
@@ -425,7 +428,7 @@ class BeadAlignment:
                 raise Exception(f'Transform array shoud have shape (2,), not: {mode.shape}')
         
         else:
-            raise Exception(f'Invalid input: {mode.shape}')
+            raise Exception(f'Invalid Bead Alignment mode: {mode}')
         
         return source, delta
 
@@ -840,7 +843,7 @@ class BeadAlignment:
         out_folder = self.plot_output_folder
         if not out_folder.endswith('/'):
             out_folder = out_folder + '/'
-        plt.savefig(f'{out_folder}Bead_alignment_results.png', bbox_inches='tight', dpi=300)
+        plt.savefig(f'{out_folder}Bead_alignment_results.png', bbox_inches='tight', dpi=300, facecolor='white')
         
     def find_transform(self, target: np.ndarray, source: np.ndarray,
                        initial_scale_factor: float=1, 

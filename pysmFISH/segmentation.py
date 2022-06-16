@@ -645,7 +645,8 @@ def register_assign(
     segmentation_output_path,
     mask_expansion_radius=18,
     hamming_distance=3,
-    centering_mode='scan'
+    centering_mode='scan',
+    search_radius=2000
 ):
     #source_beads, source_RNA_df = create_high_mag_beads_RNA_source(
     #    experiment_path, hamming_distance
@@ -667,7 +668,7 @@ def register_assign(
         search_fraction=(0.05),
         initial_rotation=0,
         rotation_search_width=2,
-        search_radius=2000,
+        search_radius=search_radius,
         centering_mode=centering_mode,
         focusing_bins=300,
         num_narrow_sweeps=2,

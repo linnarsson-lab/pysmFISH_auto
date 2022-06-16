@@ -1625,6 +1625,8 @@ def process_fresh_sample_graph(
         all_fresh_tissue_fpath = list(
             (Path(experiment_fpath) / "fresh_tissue").glob("*.zarr")
         )
+        presence_beads = 0
+        presence_nuclei = 0
         if all_fresh_tissue_fpath:
             for fpath in all_fresh_tissue_fpath:
                 if tag_ref_beads in fpath.stem:
@@ -1633,6 +1635,10 @@ def process_fresh_sample_graph(
                 elif tag_nuclei in fpath.stem:
                     parsed_nuclei_fpath = fpath
                     presence_nuclei = 1
+        else:
+            logger.error(f"missing fresh-tissue beads and/or nuclei parsed files")
+            sys.exit(f"missing fresh-tissue beads and/or nuclei parsed files")
+
 
         if not presence_beads:
             logger.error(f"missing fresh-tissue beads parsed file")

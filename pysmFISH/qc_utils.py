@@ -145,7 +145,7 @@ class QC_registration_error():
         ax.axis('off')
         plt.tight_layout()
 
-        plt.savefig(self.experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0)
+        plt.savefig(self.experiment_fpath / 'output_figures' / 'registration_error.png',dpi=200,pad_inches=0, facecolor='white')
 
 
     def run_qc(self):
