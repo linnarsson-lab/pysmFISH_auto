@@ -7,7 +7,13 @@ import os
 
 from pathlib import Path
 from skimage import measure
+import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.colors import LogNorm
+import loompy
 
+from pysmFISH import configuration_files
 from pysmFISH.cell_assignment import Cell_Assignment
 from pysmFISH.bead_alignment import BeadAlignment
 
@@ -565,7 +571,10 @@ def write_output_to_loom(
     nuclei_metadata,
     pipeline_run_name,
     expansion_radius,
-):
+    experiment_info):
+
+    
+
     # Values must be string!
     file_attributes = {
         "Exp_name": experiment_metadata["experiment_name"],
@@ -575,10 +584,10 @@ def write_output_to_loom(
         "Transformed_px_size": str(
             nuclei_metadata["pixel_microns"]
         ),  # Pixel size of the 40X
-        #"Alignment_scaling_factor": str(model.factor),
-        #"Alignment_offset": str(model.offset),
-        #"Alignment_angle": str(model.angle),
-        #"Alignment_rotation_origin": str(model.rotation_origin),
+        "Alignment_scaling_factor": str(model.factor),
+        "Alignment_offset": str(model.offset),
+        "Alignment_angle": str(model.angle),
+        "Alignment_rotation_origin": str(model.rotation_origin),
         "Expansion_radius": str(expansion_radius),
         "barcode_length": str(experiment_metadata["barcode_length"]),
         "processing_type": experiment_metadata["processing_type"],
@@ -587,6 +596,19 @@ def write_output_to_loom(
         "stitching_type": experiment_metadata["stitching_type"],
         "total_rounds": str(experiment_metadata["total_rounds"]),
         "stitching_channel": experiment_metadata["stitching_channel"],
+        "Species": str(experiment_info['Species']),
+        "Age": str(experiment_info['Age']),
+        "Chemistry": str(experiment_info['Chemistry']),
+        "Description": str(experiment_info['Description']),
+        "Operator": str(experiment_info['Operator']),
+        "Orientation": str(experiment_info['Orientation']),
+        "Position": str(experiment_info['Position']),
+        "RegionImaged": str(experiment_info['RegionImaged']),
+        "Sample": str(experiment_info['Sample']),
+        "SectionID": str(experiment_info['SectionID']),
+        "Strain": str(experiment_info['Strain']),
+        "Tissue": str(experiment_info['Tissue']),
+        "Protocol" : str(experiment_info['Protocols_io']),
     }
 
     for channel, codebook_name in zip(
@@ -633,6 +655,152 @@ def write_output_to_loom(
         out_file_name=out_file_name_loom,
     )
 
+    return out_file_name_loom
+
+def plot_summary(loom_fname, points, experiment_info, experiment_path):
+    """
+    Plot summary of results.
+
+    Input:
+    loom_fname: Path to loom file
+    points: Pandas dataframe with points data.
+    experiment_info: Dictionary with experiment metadata from config file.
+    experiment_path: Path to experiment folder.
+
+    Will save plot in the output_figures folder.
+    
+    """
+    #Connect to loom file
+    ds = loompy.connect(loom_fname)
+    data = ds[:,:]
+
+    #Make figure
+    fig = plt.figure( figsize=(15,25))
+    gs = GridSpec(7, 3, figure=fig)
+
+    #Dataset statistics
+    ax0 = fig.add_subplot(gs[0,0])
+    ax0.text(-0.1, 0.8, ds.attrs.Exp_name, fontsize=16, weight='bold')
+    ax0.text(-0.1, 0.7, f'- {ds.shape[0]} genes', fontsize=16)
+    n_cells = '{:,}'.format(ds.shape[1])
+    ax0.text(-0.1, 0.6, f'- {n_cells} cells', fontsize=16)
+    n_molecules = points.shape[0]
+    n_molecules_text = '{:,}'.format(n_molecules)
+    ax0.text(-0.1, 0.5, f'- {n_molecules_text} molecules', fontsize=16)
+    in_cell = data.sum()
+    in_cell_text = '{:,}'.format(in_cell)
+    in_cell_p = round((in_cell / n_molecules) * 100, 1)
+    ax0.text(-0.1, 0.4, f'- Of which {in_cell_text} ({in_cell_p}%) assigned', fontsize=16)
+    description = experiment_info['Description']
+    description = description.split(' ')
+    descrip_len = [len(i) for i in description]
+    new_description = ''
+    new_line = 0
+    line_count = 0
+    for d, ln in zip(description, np.cumsum(descrip_len)):
+        if new_line < 80:
+            new_description += f'{d} '
+            new_line += ln + 1 - line_count
+        else:
+            new_description += f'\n{d} '
+            new_line = 0
+            line_count = ln
+    ax0.text(-0.1, 0.3, new_description, fontsize=16, va='top')
+    ax0.set_axis_off()
+
+    #Molecules per cell
+    ax1 = fig.add_subplot(gs[0, 1:])
+    mol_sum = data.sum(axis=0)
+    mol_max = mol_sum.max()
+    if mol_max > 3000:
+        mol_max = 3000
+    ax1.hist(mol_sum, bins=mol_max, facecolor='#496785')
+    ax1.set_title(f'Molecules per cell. Median: {np.median(mol_sum)}', fontsize=16, y=0.9)
+    ax1.set_xlabel('Molecules', fontsize=14)
+    ax1.set_ylabel('Frequency', fontsize=14)
+
+    #Genes per cell
+    ax2 = fig.add_subplot(gs[1, 1:])
+    gene_sum = (data>0).sum(axis=0)
+    gene_max = gene_sum.max()
+    if gene_max > 3000:
+        gene_max = 3000
+    ax2.hist(gene_sum, bins=gene_max, facecolor='#496785')
+    ax2.set_title(f'Genes per cell. Median: {np.median(gene_sum)}', fontsize=16, y=0.9)
+    ax2.set_xlabel('Genes', fontsize=14)
+    ax2.set_ylabel('Frequency', fontsize=14)
+
+    #Gene per cell, molecule per cell relationd
+    ax3 = fig.add_subplot(gs[1, 0])
+    ax3.set_rasterization_zorder(1)
+    ax3.scatter(mol_sum, gene_sum, s=1, alpha=0.3, c='#496785', zorder=0)
+    ax3.set_title('Genes & Molecules', fontsize=16)
+    ax3.set_xlabel('Molecules per cell', fontsize=14)
+    ax3.set_ylabel('Genes per cell', fontsize=14)
+
+    #Raw RNA
+    ax4 = fig.add_subplot(gs[2:4, 1:])
+    ax4.set_rasterization_zorder(1)
+    ax4.scatter(points['r_transformed'], points['c_transformed'], s=0.1, alpha=0.01, c='gray', zorder=0)
+    ax4.set_aspect('equal')
+    ax4.set_title('All RNA', fontsize=16)
+
+    #Molecules per cell
+    ax5 = fig.add_subplot(gs[4:6, 1:])
+    ax5.set_rasterization_zorder(1)
+    x, y = ds.ca.X, ds.ca.Y
+    divider = make_axes_locatable(ax5)
+    cax = divider.append_axes('right', size='5%', pad=0.05)
+    im = ax5.scatter(x, y, c=data.sum(axis=0), s=0.2, zorder=0, norm=LogNorm())
+    cbar = plt.colorbar(im, cax=cax)
+    cax.set_ylabel('Log 10 molecule count')
+    ax5.set_title('Molecules per cell', fontsize=16)
+    ax5.set_aspect('equal')
+
+    #Hamming distance distribution
+    ax6 = fig.add_subplot(gs[2:4, 0])
+    un, count = np.unique(points['hamming_distance'], return_counts=True)
+    pie_colors = plt.cm.Set3(un / un.max())
+    ax6.pie(count, labels=un, autopct='%1.1f%%', colors=pie_colors)
+    ax6.set_title('Hamming distance', fontsize=16)
+
+    #Higest expressed genes
+    ax7 = fig.add_subplot(gs[4, 0])
+    y_pos = np.arange(5)
+    gene_count = data.sum(axis=1)
+    asort = np.argsort(gene_count)
+    g = ds.ra.Gene
+    values = gene_count[asort[-5:]][::-1]
+    labels = g[asort[-5:]][::-1]
+    ax7.barh(y_pos, values, align='center', color='#496785')
+    ax7.set_yticks(y_pos)
+    ax7.set_yticklabels(labels)
+    ax7.invert_yaxis()
+    ax7.set_title('Highest expressed genes', fontsize=16)
+
+    #Lowest expressed genes
+    ax8 = fig.add_subplot(gs[5, 0])
+    values = gene_count[asort[:5]][::-1]
+    labels = g[asort[:5]][::-1]
+    ax8.barh(y_pos, values, align='center', color='#496785')
+    ax8.set_yticks(y_pos)
+    ax8.set_yticklabels(labels)
+    ax8.invert_yaxis()
+    ax8.set_title('Lowest expressed genes', fontsize=16)
+
+    for ax in [ax1, ax2, ax3]:
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+    ds.close()
+
+    plt.tight_layout()
+    saving_fpath = (
+        experiment_path
+        / "output_figures"
+        / "Result_summary.pdf"
+    )
+    plt.savefig(saving_fpath, facecolor='white', dpi=300)
 
 def register_assign(
     experiment_path,
@@ -676,26 +844,12 @@ def register_assign(
         plot_output_folder=os.path.join(experiment_path, "fresh_tissue", "output_figures")
     )
 
-    # Initiate alignment model MarcosVersion
-    '''model = AlignmentPipeline(scanning_chunk_size=[0.2, 0.2], # Size of each chunk used to scan source chunks over the reference target chunk
-                              ref_chunk=[[0.4, 0.6], [0.4, 0.6]], # Reference target chunk [x range], [y range]
-                              overlap=[0.5, 0.5], # overlap allowed between each chunk [x overlap, y overlap]
-                              scanning_area=[[0.2, 0.8], [0.2, 0.8]], # area to inlude in the scanning
-                              manual_subsampling=False, # False for scanning method, True for manual subsampling method
-                              sub_source=[[0, 1], [0, 0.1]] # source subsampling range if manual_subsampling = True
-                              )
-
-    transformed, transform_rna = model.run_pipeline(target_beads, source_beads, plot=False, score_centering=False)
-    folder_beads = os.path.join(experiment_path, "fresh_tissue","aligned_large_beads")
-    np.save(folder_beads, transformed)'''
-
     # Fit alignment model
     model.fit(target_beads, source_beads, plot=True)
     #Save all beads
     np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Target_low_magnification_beads"), target_beads)
     np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Source_high_magnification_beads"), source_beads)
     np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Transformed_Source_high_magnification_beads"), model.transform(source_beads))
-
 
     # Get locations and genes
     source_RNA_df = pd.read_parquet(fname_rna_merge)
@@ -752,7 +906,11 @@ def register_assign(
     # Save the transformed data
     source_RNA_df.to_parquet(os.path.join(experiment_path, (experiment_metadata["experiment_name"]) + '_RNA_transformed_assigned.parquet'))
 
-    write_output_to_loom(
+    #Get additional metadata
+    experiment_path = Path(experiment_path)
+    experiment_info = configuration_files.load_experiment_config_file(experiment_path)
+
+    out_file_name_loom = write_output_to_loom(
         model,
         assigned_data_df,
         segmented_object_dict_recalculated,
@@ -763,4 +921,8 @@ def register_assign(
         nuclei_metadata,
         pipeline_run_name,
         mask_expansion_radius,
+        experiment_info
     )
+
+    plot_summary(out_file_name_loom, source_RNA_df, experiment_info, experiment_path)
+    print('Analysis complete')

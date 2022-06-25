@@ -176,7 +176,7 @@ class Pipeline:
 
         # Collect some of the parameters. If missing a predefined value is assigned
         self.raw_data_folder_storage_path = kwarg.pop(
-            "raw_data_folder_storage_path", "/fish/rawdata"
+            "raw_data_folder_storage_path", "/fish/raw_data"
         )
         self.parsed_image_tag = kwarg.pop("parsed_image_tag", "img_data")
         self.preprocessed_image_tag = kwarg.pop(

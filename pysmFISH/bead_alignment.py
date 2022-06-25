@@ -59,7 +59,10 @@ class BeadAlignment:
                 `middle`: Will center the datasets based on their centers.
                 `mean`: Will center the datasets based on their weighted 
                     centers. 
-                Defaults to 'middle'.
+                `scan`: Scans small part of target dataset against the source
+                    dataset to find an initial match. Works best for irregular
+                    point sets.
+                Defaults to 'scan'.
             max_broad_sweeps (int, optional): maximum number of broad sweeps.
                 When one sweep for scaling factors is not successfull it will
                 increase the sampling density and range. Defaults to 10.
