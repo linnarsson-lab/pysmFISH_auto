@@ -802,6 +802,12 @@ def plot_summary(loom_fname, points, experiment_info, experiment_path):
     )
     plt.savefig(saving_fpath, facecolor='white', dpi=300)
 
+
+    #Raw RNA Separate file
+    fig = plt.figure( figsize=(15,25))
+    plt.scatter(points['r_transformed'], points['c_transformed'], s=0.5, alpha=0.25, c='gray', zorder=0)
+    plt.savefig(experiment_path/ "output_figures"/ "High_expressed_genes_RNA.pdf", facecolor='white', dpi=300)
+
 def register_assign(
     experiment_path,
     segmented_object_dict_recalculated,
