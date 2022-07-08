@@ -1209,50 +1209,18 @@ class Pipeline:
         # Folder with parquet files from the Results folder, like: LBEXP20210718_EEL_Mouse_448_2_decoded_fov_670.parquet
         folder = os.path.join(self.experiment_fpath.as_posix(), "results")
 
-        # Relevant columns
-        if self.keep_intensities:
-            columns_to_load = [
-                "dot_id",
-                "r_px_microscope_stitched",
-                "c_px_microscope_stitched",
-                "r_px_original",
-                "c_px_original",
-                "channel",
-                "hamming_distance",
-                "decoded_genes",
-                "round_num",
-                "mapped_beads_type",
-                "bit_1_intensity",	
-                "bit_2_intensity",	
-                "bit_3_intensity",
-                "bit_4_intensity",
-                "bit_5_intensity",
-                "bit_6_intensity",
-                "bit_7_intensity",
-                "bit_8_intensity",
-                "bit_9_intensity",
-                "bit_10_intensity",	
-                "bit_11_intensity",	
-                "bit_12_intensity",	
-                "bit_13_intensity",
-                "bit_14_intensity",
-                "bit_15_intensity",
-                "bit_16_intensity",
-            ]
-
-        else:
-            columns_to_load = [
-                "dot_id",
-                "r_px_microscope_stitched",
-                "c_px_microscope_stitched",
-                "r_px_original",
-                "c_px_original",
-                "channel",
-                "hamming_distance",
-                "decoded_genes",
-                "round_num",
-                "mapped_beads_type"
-            ]
+        columns_to_load = [
+            "dot_id",
+            "r_px_microscope_stitched",
+            "c_px_microscope_stitched",
+            "r_px_original",
+            "c_px_original",
+            "channel",
+            "hamming_distance",
+            "decoded_genes",
+            "round_num",
+            "mapped_beads_type"
+        ]
 
         # FOV numbers
         fovs = list(self.tiles_org.overlapping_regions.keys())
@@ -1295,6 +1263,120 @@ class Pipeline:
 
         self.metadata["fname_rna_merge"] = fname_rna_merge
         self.metadata["fname_large_beads"] = fname_large_beads
+
+    def stitch_and_remove_dots_eel_graph_step_bayesian(self):
+
+        """
+        Function to stitch the different fovs and remove the duplicated
+        barcodes present in the overlapping regions of the tiles
+
+
+        Args:
+        ----
+        hamming_distance (int): Value to select the barcodes that are passing the
+            screening (< hamming_distance). Default = 3
+        same_dot_radius_duplicate_dots (int): Searching distance that define two dots as identical
+            Default = 10
+        stitching_selected (str): barcodes coords set where the duplicated dots will be
+            removed
+
+        The following attributes created by another step must be accessible:
+        - dataset
+        - tiles_org
+        - client
+
+        """
+
+        from pysmFISH import bayeseel
+        assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
+            f"cannot remove duplicated dots because missing dataset attr"
+        )
+        assert isinstance(
+            self.tiles_org, pysmFISH.stitching.organize_square_tiles
+        ), self.logger.error(
+            f"cannot remove duplicated dots because tiles_org is missing attr"
+        )
+
+        # Input parameters
+        # Folder with parquet files from the Results folder, like: LBEXP20210718_EEL_Mouse_448_2_decoded_fov_670.parquet
+        folder = os.path.join(self.experiment_fpath.as_posix(), "results")
+
+        columns_to_load = [
+            "dot_id",
+            "r_px_microscope_stitched",
+            "c_px_microscope_stitched",
+            "r_px_original",
+            "c_px_original",
+            "channel",
+            "hamming_distance",
+            "decoded_genes",
+            "round_num",
+            "mapped_beads_type",
+            "bit_1_intensity",	
+            "bit_2_intensity",	
+            "bit_3_intensity",
+            "bit_4_intensity",
+            "bit_5_intensity",
+            "bit_6_intensity",
+            "bit_7_intensity",
+            "bit_8_intensity",
+            "bit_9_intensity",
+            "bit_10_intensity",	
+            "bit_11_intensity",	
+            "bit_12_intensity",	
+            "bit_13_intensity",
+            "bit_14_intensity",
+            "bit_15_intensity",
+            "bit_16_intensity",
+        ]
+
+
+        # FOV numbers
+        fovs = list(self.tiles_org.overlapping_regions.keys())
+
+        # List of file names
+        filenames = [
+            os.path.join(
+                folder, f"{self.metadata['experiment_name']}_microscope_stitched_cleaned_df_fov_{i}.parquet"
+            )
+            for i in fovs
+        ]
+
+        # Dictionary with fov ID as keys a filename as value
+        fov_filenames = dict(zip(fovs, filenames))
+
+        # Load all dataframes in dictionary
+        fov_df = {
+            k: FOV_alignment.load_parquet(fov_filenames[k], columns_to_load)
+            for k in fovs
+        }
+
+        selected_Hdistance = 6 / self.metadata["barcode_length"]
+
+        # Run cleaning
+        fname_rna_merge, fname_large_beads = FOV_alignment.clean_microscope_stitched(
+            [x for x in range(2,12)],#fovs,
+            fov_df,
+            self.tiles_org.overlapping_regions,
+            self.tiles_org.tile_corners_coords_pxl,
+            mode=self.fov_alignment_mode,
+            bead_channel=self.metadata["stitching_channel"],
+            max_hamming_dist=selected_Hdistance,
+            matching_dot_radius=self.same_dot_radius_duplicate_dots,
+            out_folder=folder,
+            exp_name=self.metadata["experiment_name"],
+            remove_distinct_genes=self.remove_distinct_genes,
+            clip_size=self.clip_size,
+            verbose=False,
+        )  # Set to False in pipeline
+
+        self.metadata["fname_rna_merge"] = fname_rna_merge
+        self.metadata["fname_large_beads"] = fname_large_beads
+
+        df = pd.read_parquet(fname_rna_merge)
+        df = bayeseel.process_bayesian(df)
+        df.to_parquet(fname_rna_merge)
+
 
     def processing_fresh_tissue_step(
         self,
