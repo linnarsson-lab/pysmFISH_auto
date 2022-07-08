@@ -94,45 +94,4 @@ class BayesEEL:
 		return np.argmax(log_posterior, axis=1), np.exp(np.max(log_posterior, axis=1))
 
 
-def process_bayesian(df):
-    channels = df.channel.unique()
-
-    dfs = []
-    for ch in channels:
-        print('Running bayesian calling on: ',ch)
-        codebook_filename = self.metadata['list_all_codebooks'][np.where(self.metadata['list_all_channels']==ch)[0]][0]
-        barcodes = pd.read_parquet(self.experiment_fpath/'codebook'/codebook_filename)
-        df_i= df[df.channel == ch]
-        in_decoded = df_i.loc[:,["bit_1_intensity","bit_2_intensity","bit_3_intensity","bit_4_intensity","bit_5_intensity","bit_6_intensity","bit_7_intensity","bit_8_intensity",
-            "bit_9_intensity","bit_10_intensity","bit_11_intensity","bit_12_intensity",	"bit_13_intensity","bit_14_intensity","bit_15_intensity","bit_16_intensity",]].fillna(0)
-
-        ids = (df_i.hamming_distance <= 2/16)
-        sel = df_i[ids]
-        known_barcodes = []
-        for x in sel.raw_barcodes:
-            known_barcodes.append(np.array([True if y == 1 else False for y in x]))
-        known_barcodes = np.array(known_barcodes)
-        in_decoded = in_decoded[ids].values
-
-        BE = BayesEEL()
-        BE_ = BE.fit(known_x=in_decoded,known_barcodes=known_barcodes)
-
-        known_barcodes = []
-        for x in df_i.raw_barcodes:
-            known_barcodes.append(np.array([True if y == 1 else False for y in x]))
-        known_barcodes = np.array(known_barcodes)
-        
-        input_transform = in_decoded.values
-        bs = []
-        for b in range(barcodes.shape[0]):
-            bs.append(np.array([True if y == '1' else False for y in barcodes.iloc[b,1][1:-1]]))
-        bs = np.array(bs)
-
-        idx, probabilities = BE_.transform(input_transform,bs)
-        decoded_genes = np.array([barcodes.Gene.values[x] for x in idx])
-        df_i['decoded_genes'] = decoded_genes
-        df_i['probability'] = probabilities
-        df_i = df_i[df_i[probabilities] >= 0.85]
-    
-    return pd.concat([dfs])
 

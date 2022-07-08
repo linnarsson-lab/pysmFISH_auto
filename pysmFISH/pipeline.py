@@ -1287,7 +1287,6 @@ class Pipeline:
 
         """
 
-        from pysmFISH import bayeseel
         assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
             f"cannot remove duplicated dots because missing dataset attr"
         )
@@ -1311,6 +1310,7 @@ class Pipeline:
             "hamming_distance",
             "decoded_genes",
             "round_num",
+            "raw_barcodes",
             "mapped_beads_type",
             "bit_1_intensity",	
             "bit_2_intensity",	
@@ -1347,15 +1347,19 @@ class Pipeline:
 
         # Load all dataframes in dictionary
         fov_df = {
-            k: FOV_alignment.load_parquet(fov_filenames[k], columns_to_load)
-            for k in fovs
         }
-
+       
+        for k in fovs:
+            try:
+                fov_df[k] = pd.read_parquet(fov_filenames[k],columns=columns_to_load)
+            except:
+                fovs.remove(k)
+        
         selected_Hdistance = 6 / self.metadata["barcode_length"]
 
         # Run cleaning
         fname_rna_merge, fname_large_beads = FOV_alignment.clean_microscope_stitched(
-            [x for x in range(2,12)],#fovs,
+            [x for x in range(2,4)],#fovs,
             fov_df,
             self.tiles_org.overlapping_regions,
             self.tiles_org.tile_corners_coords_pxl,
@@ -1374,8 +1378,67 @@ class Pipeline:
         self.metadata["fname_large_beads"] = fname_large_beads
 
         df = pd.read_parquet(fname_rna_merge)
-        df = bayeseel.process_bayesian(df)
-        df.to_parquet(fname_rna_merge)
+        df = self.process_bayesian(df)
+        df.loc[
+            :,
+            [
+            "r_px_microscope_stitched",
+            "c_px_microscope_stitched",
+            "hamming_distance",
+            "decoded_genes",
+            "channel",
+            "round_num",
+            "probability",
+        ]].to_parquet(fname_rna_merge)
+
+    def process_bayesian(self, df):
+        from pysmFISH.bayeseel import BayesEEL
+        channels = df.channel.unique()
+
+        dfs = []
+        for ch in channels:
+            print('Running bayesian calling on: ',ch)
+            codebook_filename = self.metadata['list_all_codebooks'][np.where(self.metadata['list_all_channels']==ch)[0]][0]
+            barcodes = pd.read_parquet(self.experiment_fpath/'codebook'/codebook_filename)
+            df_i= df[df.channel == ch]
+            in_decoded = df_i.loc[:,["bit_1_intensity","bit_2_intensity","bit_3_intensity","bit_4_intensity","bit_5_intensity","bit_6_intensity","bit_7_intensity","bit_8_intensity",
+                "bit_9_intensity","bit_10_intensity","bit_11_intensity","bit_12_intensity",	"bit_13_intensity","bit_14_intensity","bit_15_intensity","bit_16_intensity",]].fillna(0)
+
+            ids = (df_i.hamming_distance <= 2/16)
+            sel = df_i[ids]
+            known_barcodes = []
+            for x in sel.raw_barcodes:
+                known_barcodes.append(np.array([True if y == 1 else False for y in x]))
+            known_barcodes = np.array(known_barcodes)
+            in_decoded = in_decoded[ids].values
+
+            BE = BayesEEL()
+            BE_ = BE.fit(known_x=in_decoded,known_barcodes=known_barcodes)
+
+            known_barcodes = []
+            for x in df_i.raw_barcodes:
+                known_barcodes.append(np.array([True if y == 1 else False for y in x]))
+            known_barcodes = np.array(known_barcodes)
+            
+            in_decoded = df_i.loc[:,["bit_1_intensity","bit_2_intensity","bit_3_intensity","bit_4_intensity","bit_5_intensity","bit_6_intensity","bit_7_intensity","bit_8_intensity",
+                "bit_9_intensity","bit_10_intensity","bit_11_intensity","bit_12_intensity",	"bit_13_intensity","bit_14_intensity","bit_15_intensity","bit_16_intensity",]].fillna(0)
+
+            input_transform = in_decoded.values
+            bs = []
+            for b in barcodes.Code:
+                bs.append(np.array([True if y == 1 else False for y in b]))
+            bs = np.array(bs)
+
+            idx, probabilities = BE_.transform(input_transform,bs)
+            decoded_genes = np.array([barcodes.Gene.values[x] for x in idx])
+            df_i['decoded_genes'] = decoded_genes
+            print(df_i.shape, probabilities.shape)
+
+            df_i['probability'] = probabilities
+            df_i = df_i[df_i[probabilities] >= 0.85]
+            dfs.append(df_i)
+    
+        return pd.concat([dfs])
 
 
     def processing_fresh_tissue_step(
