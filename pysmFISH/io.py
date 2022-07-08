@@ -100,8 +100,43 @@ def load_raw_images(zarr_grp_name:str,parsed_raw_data_fpath:str)->Tuple[np.ndarr
     root = zarr.group(store=st,overwrite=False)
     
 
+    #metadata = root[zarr_grp_name].attrs
+    #img = root[zarr_grp_name][metadata['fov_name']][...]
+
+    #Dirty hack to fix Lars his broken experiment. 
+    #metadata = root[zarr_grp_name].attrs
+    #fov_name = metadata['fov_name']
+    #print(f'Old name: {fov_name}')
+    #if zarr_grp_name.startswith('LBEXP20210310_EEL_HE_460um_620um_Hybridization01'):
+    #    name = fov_name.split('_')
+    #    index = int(name[-1])
+    #    if index > 259: #259
+    #        index = index - 6
+    #        name[-1] = str(index)
+    #        fov_name = '_'.join(name)
+    #        print(f'Preprocessing: {zarr_grp_name}, New name: {fov_name}')
+    #        metadata['fov_name'] = fov_name
+    #        metadata['fov_num'] = index
+
     metadata = root[zarr_grp_name].attrs
-    img = root[zarr_grp_name][metadata['fov_name']][...]
+    fov_name = metadata['fov_name']
+    if zarr_grp_name.startswith('LBEXP20210310_EEL_HE_460um_620um_Hybridization01'):
+        metadata_name = fov_name.split('_')
+        metadata_index = int(metadata_name[-1])
+        
+        real_name = zarr_grp_name.split('_')
+        real_index = int(real_name[-1])
+        
+        if metadata_index != real_index:
+            
+            metadata_name[-1] = str(real_index)
+            fov_name = '_'.join(metadata_name)
+            metadata['fov_name'] = fov_name
+            metadata['fov_num'] = real_index
+            print(f'Found inconsistent metadata. Real: {real_index} does not match metadata: {metadata_index}, New name: {fov_name}')
+
+
+    img = root[zarr_grp_name][fov_name][...]
 
     return img, metadata
 

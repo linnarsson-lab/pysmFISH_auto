@@ -266,7 +266,7 @@ class Pipeline:
         self.remove_distinct_genes = kwarg.pop("remove_distinct_genes", False)
         self.bead_alignment_centering_mode = kwarg.pop("bead_alignment_centering_mode", 'scan')
         self.bead_alignment_radius = kwarg.pop("bead_alignment_radius", 5000)
-
+        self.keep_intensities = False
 
     # -----------------------------------
     # PROCESSING STEPS
@@ -1210,18 +1210,49 @@ class Pipeline:
         folder = os.path.join(self.experiment_fpath.as_posix(), "results")
 
         # Relevant columns
-        columns_to_load = [
-            "dot_id",
-            "r_px_microscope_stitched",
-            "c_px_microscope_stitched",
-            "r_px_original",
-            "c_px_original",
-            "channel",
-            "hamming_distance",
-            "decoded_genes",
-            "round_num",
-            "mapped_beads_type"
-        ]
+        if self.keep_intensities:
+            columns_to_load = [
+                "dot_id",
+                "r_px_microscope_stitched",
+                "c_px_microscope_stitched",
+                "r_px_original",
+                "c_px_original",
+                "channel",
+                "hamming_distance",
+                "decoded_genes",
+                "round_num",
+                "mapped_beads_type",
+                "bit_1_intensity",	
+                "bit_2_intensity",	
+                "bit_3_intensity",
+                "bit_4_intensity",
+                "bit_5_intensity",
+                "bit_6_intensity",
+                "bit_7_intensity",
+                "bit_8_intensity",
+                "bit_9_intensity",
+                "bit_10_intensity",	
+                "bit_11_intensity",	
+                "bit_12_intensity",	
+                "bit_13_intensity",
+                "bit_14_intensity",
+                "bit_15_intensity",
+                "bit_16_intensity",
+            ]
+
+        else:
+            columns_to_load = [
+                "dot_id",
+                "r_px_microscope_stitched",
+                "c_px_microscope_stitched",
+                "r_px_original",
+                "c_px_original",
+                "channel",
+                "hamming_distance",
+                "decoded_genes",
+                "round_num",
+                "mapped_beads_type"
+            ]
 
         # FOV numbers
         fovs = list(self.tiles_org.overlapping_regions.keys())
