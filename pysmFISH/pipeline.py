@@ -1353,13 +1353,16 @@ class Pipeline:
             try:
                 fov_df[k] = pd.read_parquet(fov_filenames[k],columns=columns_to_load)
             except:
-                fovs.remove(k)
+                print('Not existing FOV {}, filling empt data.'.format(k))
+                fov_df[k] = pd.DataFrame(columns=columns_to_load)
+        #print(fovs)
         
-        selected_Hdistance = 6 / self.metadata["barcode_length"]
+        selected_Hdistance = self.hamming_distance / self.metadata["barcode_length"]
 
         # Run cleaning
         fname_rna_merge, fname_large_beads = FOV_alignment.clean_microscope_stitched(
-            [x for x in range(2,4)],#fovs,
+            #[x for x in range(2,4)],#
+            fovs,
             fov_df,
             self.tiles_org.overlapping_regions,
             self.tiles_org.tile_corners_coords_pxl,
@@ -1379,6 +1382,7 @@ class Pipeline:
 
         df = pd.read_parquet(fname_rna_merge)
         df = self.process_bayesian(df)
+        df = df.dropna()
         df.loc[
             :,
             [
@@ -1412,9 +1416,11 @@ class Pipeline:
             known_barcodes = np.array(known_barcodes)
             in_decoded = in_decoded[ids].values
 
+            print('Training BayesEEL: ', ch)
+            random_dots = np.random.choice(np.arange(in_decoded.shape[0]), size=250000,replace=False)
             BE = BayesEEL()
             BE_ = BE.fit(known_x=in_decoded,known_barcodes=known_barcodes)
-
+            print('Transforming BayesEEL: ', ch)
             known_barcodes = []
             for x in df_i.raw_barcodes:
                 known_barcodes.append(np.array([True if y == 1 else False for y in x]))
@@ -1435,10 +1441,10 @@ class Pipeline:
             print(df_i.shape, probabilities.shape)
 
             df_i['probability'] = probabilities
-            df_i = df_i[df_i[probabilities] >= 0.85]
+            df_i = df_i[df_i['probability'] >= 0.75]
             dfs.append(df_i)
     
-        return pd.concat([dfs])
+        return pd.concat(dfs)
 
 
     def processing_fresh_tissue_step(
