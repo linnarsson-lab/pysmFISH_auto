@@ -1337,7 +1337,7 @@ class Pipeline:
         # List of file names
         filenames = [
             os.path.join(
-                folder, f"{self.metadata['experiment_name']}_microscope_stitched_cleaned_df_fov_{i}.parquet"
+                folder, f"{self.metadata['experiment_name']}_decoded_fov_{i}.parquet"
             )
             for i in fovs
         ]
@@ -1353,7 +1353,7 @@ class Pipeline:
             try:
                 fov_df[k] = pd.read_parquet(fov_filenames[k],columns=columns_to_load)
             except:
-                print('Not existing FOV {}, filling empt data.'.format(k))
+                print('Not existing FOV {}, filling empty data.'.format(k))
                 fov_df[k] = pd.DataFrame(columns=columns_to_load)
         #print(fovs)
         
@@ -1382,7 +1382,7 @@ class Pipeline:
 
         df = pd.read_parquet(fname_rna_merge)
         df = self.process_bayesian(df)
-        df = df.dropna()
+        df = df[~df.decoded_genes.isna()]
         df.loc[
             :,
             [
@@ -1396,6 +1396,7 @@ class Pipeline:
         ]].to_parquet(fname_rna_merge)
 
     def process_bayesian(self, df):
+        from sklearn.preprocessing import normalize
         from pysmFISH.bayeseel import BayesEEL
         channels = df.channel.unique()
 
@@ -1408,6 +1409,7 @@ class Pipeline:
             in_decoded = df_i.loc[:,["bit_1_intensity","bit_2_intensity","bit_3_intensity","bit_4_intensity","bit_5_intensity","bit_6_intensity","bit_7_intensity","bit_8_intensity",
                 "bit_9_intensity","bit_10_intensity","bit_11_intensity","bit_12_intensity",	"bit_13_intensity","bit_14_intensity","bit_15_intensity","bit_16_intensity",]].fillna(0)
 
+
             ids = (df_i.hamming_distance <= 2/16)
             sel = df_i[ids]
             known_barcodes = []
@@ -1417,9 +1419,9 @@ class Pipeline:
             in_decoded = in_decoded[ids].values
 
             print('Training BayesEEL: ', ch)
-            random_dots = np.random.choice(np.arange(in_decoded.shape[0]), size=250000,replace=False)
+
             BE = BayesEEL()
-            BE_ = BE.fit(known_x=in_decoded,known_barcodes=known_barcodes)
+            BE_ = BE.fit(known_x=normalize(in_decoded),known_barcodes=known_barcodes)
             print('Transforming BayesEEL: ', ch)
             known_barcodes = []
             for x in df_i.raw_barcodes:
@@ -1435,13 +1437,14 @@ class Pipeline:
                 bs.append(np.array([True if y == 1 else False for y in b]))
             bs = np.array(bs)
 
-            idx, probabilities = BE_.transform(input_transform,bs)
+            idx, probabilities = BE_.transform(normalize(input_transform),bs)
             decoded_genes = np.array([barcodes.Gene.values[x] for x in idx])
             df_i['decoded_genes'] = decoded_genes
-            print(df_i.shape, probabilities.shape)
+            print('All dots: ',df_i.shape[0])
 
             df_i['probability'] = probabilities
             df_i = df_i[df_i['probability'] >= 0.75]
+            print('All dots above 75% probability: ', df_i.shape[0])
             dfs.append(df_i)
     
         return pd.concat(dfs)

@@ -4,7 +4,7 @@ import numpy as np
 from KDEpy import FFTKDE
 from scipy.special import logsumexp
 from scipy.interpolate import interp1d
-
+from tqdm import trange
 
 class FasterKDE:
 	def __init__(self, kernel: str = "epa", bandwidth: Union[str, float] = "ISJ"):
@@ -40,7 +40,7 @@ class BayesEEL:
 		
 		# Estimate the unconditional intensity probability distribution, per cycle
 		self.m = []
-		for i in range(n_cycles):
+		for i in trange(n_cycles):
 			x0 = known_x[:, i]
 			kde = FasterKDE(bandwidth=self.bandwidth, kernel=self.kernel)
 			kde.fit(x0[:, None])
@@ -49,15 +49,17 @@ class BayesEEL:
 		# Estimate the conditional intensity probability distributions, per cycle
 		self.p0 = []
 		self.p1 = []
-		for i in range(n_cycles):
+		for i in trange(n_cycles):
 			x0 = known_x[:, i][~known_barcodes[:, i]]
 			kde = FasterKDE(bandwidth=self.bandwidth, kernel=self.kernel)
 			kde.fit(x0[:, None])
+
 			self.p0.append(kde)
 
 			x1 = known_x[:, i][known_barcodes[:, i]]
 			kde = FasterKDE(bandwidth=self.bandwidth, kernel=self.kernel)
 			kde.fit(x1[:, None])
+
 			self.p1.append(kde)
 		return self
 		
@@ -77,7 +79,7 @@ class BayesEEL:
 		n_barcodes = valid_barcodes.shape[0]
 		
 		log_posterior = np.zeros(shape=(n_spots, n_barcodes))
-		for b in range(n_barcodes):
+		for b in trange(n_barcodes):
 			logp = np.zeros((n_spots,))
 			for j in range(n_cycles):
 				if valid_barcodes[b, j]:
