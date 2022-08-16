@@ -265,7 +265,7 @@ def filter_remove_large_objs(
     else:
         logger.info(f'loaded {zarr_grp_name} raw fish image')
 
-        img = img_as_float64(img)
+        img = convert_from_uint16_to_float64(img)# img_as_float64(img)
         img -= dark_img
         img[img<0] = 0
 
@@ -333,7 +333,7 @@ def filter_remove_large_objs_no_flat(
     else:
         logger.info(f'loaded {zarr_grp_name} raw fish image')
 
-        img = img_as_float64(img)
+        img = convert_from_uint16_to_float64(img) #img_as_float64(img)
         img -= dark_img
         img[img<0] = 0
 
