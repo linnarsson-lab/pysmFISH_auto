@@ -1382,6 +1382,9 @@ class Pipeline:
 
         df = pd.read_parquet(fname_rna_merge)
         df = self.process_bayesian(df)
+        df.to_parquet(fname_rna_merge.split('.')[0]+'_bayesian.parquet' )
+
+        df = df[df['probability'] >= 0.5]
         df = df[~df.decoded_genes.isna()]
         df.loc[
             :,
@@ -1443,8 +1446,6 @@ class Pipeline:
             print('All dots: ',df_i.shape[0])
 
             df_i['probability'] = probabilities
-            df_i = df_i[df_i['probability'] >= 0.75]
-            print('All dots above 75% probability: ', df_i.shape[0])
             dfs.append(df_i)
     
         return pd.concat(dfs)

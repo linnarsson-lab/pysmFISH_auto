@@ -1,3 +1,4 @@
+from ast import excepthandler
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KDTree, KernelDensity
@@ -766,35 +767,47 @@ def clean_microscope_stitched(
 
     # Save RNA results
     fname_rna_merge = os.path.join(out_folder, (exp_name + "_RNA_microscope_stitched.parquet"),)
-    merged_df.loc[
-        :,
-        [
-            "r_px_microscope_stitched",
-            "c_px_microscope_stitched",
-            "hamming_distance",
-            "decoded_genes",
-            "channel",
-            "round_num",
-            "raw_barcodes",
-            "mapped_beads_type",
-            "bit_1_intensity",	
-            "bit_2_intensity",	
-            "bit_3_intensity",
-            "bit_4_intensity",
-            "bit_5_intensity",
-            "bit_6_intensity",
-            "bit_7_intensity",
-            "bit_8_intensity",
-            "bit_9_intensity",
-            "bit_10_intensity",	
-            "bit_11_intensity",	
-            "bit_12_intensity",	
-            "bit_13_intensity",
-            "bit_14_intensity",
-            "bit_15_intensity",
-            "bit_16_intensity",
-        ],
-    ].to_parquet(fname_rna_merge)
+
+    try:
+        merged_df.loc[
+            :,
+            [
+                "r_px_microscope_stitched",
+                "c_px_microscope_stitched",
+                "hamming_distance",
+                "decoded_genes",
+                "channel",
+                "round_num",
+                "raw_barcodes",
+                "mapped_beads_type",
+                "bit_1_intensity",	
+                "bit_2_intensity",	
+                "bit_3_intensity",
+                "bit_4_intensity",
+                "bit_5_intensity",
+                "bit_6_intensity",
+                "bit_7_intensity",
+                "bit_8_intensity",
+                "bit_9_intensity",
+                "bit_10_intensity",	
+                "bit_11_intensity",	
+                "bit_12_intensity",	
+                "bit_13_intensity",
+                "bit_14_intensity",
+                "bit_15_intensity",
+                "bit_16_intensity",
+            ],
+        ].to_parquet(fname_rna_merge)
+    except:
+        merged_df.loc[
+            :,
+            [
+                "r_px_microscope_stitched",
+                "c_px_microscope_stitched",
+                "hamming_distance",
+                "decoded_genes",
+            ],
+        ].to_parquet(fname_rna_merge)
     
     # Save Large bead results
     fname_large_beads = os.path.join(out_folder, (exp_name + "_large_beads_microscope_stitched.parquet"))
