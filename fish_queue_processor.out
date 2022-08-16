@@ -1,0 +1,86 @@
+NOTE: You have to manually do 'conda activate test_d' before starting this script.
+NOTE: Reading extra papermill parameters from fish_papermill_xparams.yaml
+Tue Aug 16 16:16:52 CEST 2022 INFO: Processing of /date/sl/fish_rawdata/JJEXP20220719_EEL_SL061A_S2 starting. Dashboard port: 25399
+Tue Aug 16 16:16:52 CEST 2022 INFO: Command is papermill -k test_d notebooks/Template_running_pysmFISH_pipeline.ipynb /date/sl/fish_rawdata/JJEXP20220719_EEL_SL061A_S2/notebooks/220816-full-run.ipynb -p experiment_fpath /date/sl/fish_rawdata/JJEXP20220719_EEL_SL061A_S2 -p run_type new -p parsing_type original -p scheduler_port 36116 --start_timeout 6000 -p dashboard_port 25399 -f fish_papermill_xparams.yaml --log-output --stdout-file /date/sl/fish_rawdata/JJEXP20220719_EEL_SL061A_S2/logs/220816_papermill.stdout --stderr-file /date/sl/fish_rawdata/JJEXP20220719_EEL_SL061A_S2/logs/220816_papermill.stderr
+/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/iorw.py:50: FutureWarning: pyarrow.HadoopFileSystem is deprecated as of 2.0.0, please use pyarrow.fs.HadoopFileSystem instead.
+  from pyarrow import HadoopFileSystem
+Input Notebook:  notebooks/Template_running_pysmFISH_pipeline.ipynb
+Output Notebook: /date/sl/fish_rawdata/JJEXP20220719_EEL_SL061A_S2/notebooks/220816-full-run.ipynb
+Generating grammar tables from /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/blib2to3/Grammar.txt
+Writing grammar tables to /home/simone/.cache/black/21.7b0/Grammar3.8.5.final.0.pickle
+Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmpinaeq5o8'
+Generating grammar tables from /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/blib2to3/PatternGrammar.txt
+Writing grammar tables to /home/simone/.cache/black/21.7b0/PatternGrammar3.8.5.final.0.pickle
+Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmpcdlwlo0f'
+Kernel Provisioning: The 'local-provisioner' is not found.  This is likely due to the presence of multiple jupyter_client distributions and a previous distribution is being used as the source for entrypoints - which does not include 'local-provisioner'.  That distribution should be removed such that only the version-appropriate distribution remains (version >= 7).  Until then, a 'local-provisioner' entrypoint will be automatically constructed and used.
+The candidate distribution locations are: ['/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/jupyter_client-6.1.11.dist-info', '/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/jupyter_client-7.0.5.dist-info']
+Executing notebook with kernel: test_d
+Executing Cell 1---------------------------------------
+Ending Cell 1------------------------------------------
+Executing Cell 2---------------------------------------
+/home/simone/mini/envs/test_d/lib/python3.8/site-packages/dask_jobqueue/core.py:19: FutureWarning: format_bytes is deprecated and will be removed in a future release. Please use dask.utils.format_bytes instead.
+  from distributed.utils import format_bytes, parse_bytes, tmpfile
+/home/simone/mini/envs/test_d/lib/python3.8/site-packages/dask_jobqueue/core.py:19: FutureWarning: parse_bytes is deprecated and will be removed in a future release. Please use dask.utils.parse_bytes instead.
+  from distributed.utils import format_bytes, parse_bytes, tmpfile
+/home/simone/mini/envs/test_d/lib/python3.8/site-packages/dask_jobqueue/htcondor.py:6: FutureWarning: parse_bytes is deprecated and will be removed in a future release. Please use dask.utils.parse_bytes instead.
+  from distributed.utils import parse_bytes
+
+Ending Cell 2------------------------------------------
+Traceback (most recent call last):
+  File "/home/simone/mini/envs/test_d_seg/bin/papermill", line 8, in <module>
+    sys.exit(papermill())
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/core.py", line 1137, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/core.py", line 1062, in main
+    rv = self.invoke(ctx)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/core.py", line 1404, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/core.py", line 763, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/decorators.py", line 26, in new_func
+    return f(get_current_context(), *args, **kwargs)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/cli.py", line 250, in papermill
+    execute_notebook(
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/execute.py", line 122, in execute_notebook
+    raise_for_execution_errors(nb, output_path)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/execute.py", line 234, in raise_for_execution_errors
+    raise error
+papermill.exceptions.PapermillExecutionError: 
+---------------------------------------------------------------------------
+Exception encountered at "In [1]":
+---------------------------------------------------------------------------
+ImportError                               Traceback (most recent call last)
+/tmp/ipykernel_222377/1732792479.py in <module>
+      2 import time
+      3 
+----> 4 from pysmFISH.pipeline import Pipeline
+
+~/tmp_code/pysmFISH_auto/pysmFISH/pipeline.py in <module>
+     54 from pysmFISH import data_organization
+     55 from pysmFISH import processing_cluster_setup
+---> 56 from pysmFISH import segmentation
+     57 from pysmFISH import FOV_alignment
+     58 
+
+~/tmp_code/pysmFISH_auto/pysmFISH/segmentation.py in <module>
+     15 
+     16 from pysmFISH import configuration_files
+---> 17 from pysmFISH.cell_assignment import Cell_Assignment
+     18 from pysmFISH.bead_alignment import BeadAlignment
+     19 
+
+~/tmp_code/pysmFISH_auto/pysmFISH/cell_assignment.py in <module>
+      4 import math
+      5 import gc
+----> 6 from skimage.segmentation import expand_labels
+      7 from scipy.spatial import KDTree
+      8 import numpy_groupies as npg
+
+ImportError: cannot import name 'expand_labels' from 'skimage.segmentation' (/home/simone/mini/envs/test_d/lib/python3.8/site-packages/skimage/segmentation/__init__.py)
+
+Tue Aug 16 16:17:54 CEST 2022 ERROR: papermill quit with exit code 1
+Tue Aug 16 16:17:54 CEST 2022        Log files are named /date/sl/fish_rawdata/JJEXP20220719_EEL_SL061A_S2/logs/220816_xxx
+Tue Aug 16 16:17:54 CEST 2022 INFO: Now cleaning all started python processes and dask-worker-space:s...
+python: no process found
+python: no process found
+Tue Aug 16 16:18:03 CEST 2022 INFO: Processing of /date/sl/fish_rawdata/JJEXP20220719_EEL_SL061A_S2 failed.
