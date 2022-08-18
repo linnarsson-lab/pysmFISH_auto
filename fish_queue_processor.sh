@@ -2,7 +2,7 @@
 
 . fish_queue_config.sh
 
-echo "NOTE: You have to manually do 'conda activate test_d' before starting this script."
+echo "NOTE: You have to manually do 'conda activate test_d_seg' before starting this script."
 echo "NOTE: Reading extra papermill parameters from fish_papermill_xparams.yaml"
 
 while :
@@ -38,7 +38,7 @@ do
         [[ -d "$rawdir/logs" ]] || mkdir $rawdir/logs
         notebookfile=$rawdir/notebooks/${timestamp}-full-run.ipynb
 
-        cmd="papermill -k test_d notebooks/Template_running_pysmFISH_pipeline.ipynb $notebookfile -p experiment_fpath $rawdir -p run_type new -p parsing_type original -p scheduler_port $portnum --start_timeout 6000 -p dashboard_port $DASHBOARDPORT -f fish_papermill_xparams.yaml --log-output --stdout-file $stdoutfile --stderr-file $stderrfile"
+        cmd="papermill -k test_d_seg notebooks/Template_running_pysmFISH_pipeline.ipynb $notebookfile -p experiment_fpath $rawdir -p run_type new -p parsing_type original -p scheduler_port $portnum --start_timeout 6000 -p dashboard_port $DASHBOARDPORT -f fish_papermill_xparams.yaml --log-output --stdout-file $stdoutfile --stderr-file $stderrfile"
         echo "$(date) INFO: Command is $cmd"
         #echo "$(date) INFO: papermill output goes to $pmllogfile"
         $cmd # > $pmllogfile 2&>1
