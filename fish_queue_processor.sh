@@ -5,8 +5,17 @@
 echo "NOTE: You have to manually do 'conda activate test_d_seg' before starting this script."
 echo "NOTE: Reading extra papermill parameters from fish_papermill_xparams.yaml"
 
+stopfile=fish_queue_rm_me_to_gently_shutdown.txt
+stoplogfile=fish_queue_has_gently_shutdown.txt
+rm -f $stoplogfile
+[ ! -f "$stopfile" ] && touch $stopfile
+
 while :
 do
+  if [[ ! -f "$stopfile" ]]; then
+    echo "Quit at $(date)" > $stoplogfile
+    exit 0
+  fi
   sleepafter=1
   for datadir in $DATADIRS
   do
@@ -49,6 +58,7 @@ do
           [[ -f "$stdoutfile" ]] && echo "$(date)        You need to delete $stdoutfile to make the pipeline retry."
           echo "$(date) INFO: Now cleaning all started python processes and dask-worker-space:s..."
           killall -u simone python > /dev/null
+          ssh monod09 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
           ssh monod10 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
           ssh monod11 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
           ssh monod12 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
@@ -66,3 +76,6 @@ do
     sleep $SLEEPMINUTES
   fi
 done
+
+rm -f $stopfile
+

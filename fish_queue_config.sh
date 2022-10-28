@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # Dirs to search for new subdirs to process. Put a space between paths.
-DATADIRS="/fish/current_folder /datd/sl/fish_rawdata /date/sl/fish_rawdata /datc/sl/fish_rawdata"
+DATADIRS="/fish/current_folder /datd/sl/fish_rawdata /date/sl/fish_rawdata /datc/sl/fish_rawdata /datb/sl/fish_rawdata"
 
 # Status log file to create in each subdir.
 PROCESSTATUSFILENAME="processing.log"
