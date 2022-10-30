@@ -1,17 +1,17 @@
 NOTE: You have to manually do 'conda activate test_d_seg' before starting this script.
 NOTE: Reading extra papermill parameters from fish_papermill_xparams.yaml
-Sun Oct 30 14:25:15 CET 2022 INFO: Processing of /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3 starting. Dashboard port: 25399
-Sun Oct 30 14:25:15 CET 2022 INFO: Command is papermill -k test_d_seg notebooks/Template_reprocess_pysmFISH_pipeline.ipynb /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/notebooks/221030-full-run.ipynb -p experiment_fpath /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3 -p run_type new -p parsing_type no_parsing -p scheduler_port 36256 --start_timeout 6000 -p dashboard_port 25399 -f fish_papermill_xparams.yaml --log-output --stdout-file /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/logs/221030_papermill.stdout --stderr-file /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/logs/221030_papermill.stderr
+Sun Oct 30 18:06:17 CET 2022 INFO: Processing of /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3 starting. Dashboard port: 25399
+Sun Oct 30 18:06:17 CET 2022 INFO: Command is papermill -k test_d_seg notebooks/Template_reprocess_pysmFISH_pipeline.ipynb /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/notebooks/221030-full-run.ipynb -p experiment_fpath /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3 -p run_type new -p parsing_type no_parsing -p scheduler_port 36257 --start_timeout 6000 -p dashboard_port 25399 -f fish_papermill_xparams.yaml --log-output --stdout-file /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/logs/221030_papermill.stdout --stderr-file /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/logs/221030_papermill.stderr
 /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/iorw.py:50: FutureWarning: pyarrow.HadoopFileSystem is deprecated as of 2.0.0, please use pyarrow.fs.HadoopFileSystem instead.
   from pyarrow import HadoopFileSystem
 Input Notebook:  notebooks/Template_reprocess_pysmFISH_pipeline.ipynb
 Output Notebook: /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/notebooks/221030-full-run.ipynb
 Generating grammar tables from /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/blib2to3/Grammar.txt
 Writing grammar tables to /home/simone/.cache/black/21.7b0/Grammar3.8.5.final.0.pickle
-Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmpkpooxb24'
+Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmpkamq0h9m'
 Generating grammar tables from /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/blib2to3/PatternGrammar.txt
 Writing grammar tables to /home/simone/.cache/black/21.7b0/PatternGrammar3.8.5.final.0.pickle
-Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmp59mzhsqw'
+Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmpfwt_f7da'
 Kernel Provisioning: The 'local-provisioner' is not found.  This is likely due to the presence of multiple jupyter_client distributions and a previous distribution is being used as the source for entrypoints - which does not include 'local-provisioner'.  That distribution should be removed such that only the version-appropriate distribution remains (version >= 7).  Until then, a 'local-provisioner' entrypoint will be automatically constructed and used.
 The candidate distribution locations are: ['/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/jupyter_client-6.1.11.dist-info', '/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/jupyter_client-7.0.5.dist-info']
 Executing notebook with kernel: test_d_seg
@@ -71,343 +71,343 @@ distributed.deploy.ssh - INFO - distributed.scheduler - INFO - -----------------
 
 distributed.deploy.ssh - INFO - distributed.scheduler - INFO - Clear task state
 
-distributed.deploy.ssh - INFO - distributed.scheduler - INFO -   Scheduler at:  tcp://193.10.16.58:36256
+distributed.deploy.ssh - INFO - distributed.scheduler - INFO -   Scheduler at:  tcp://193.10.16.58:36257
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44653'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41327'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46221'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38305'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33023'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37681'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34287'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38449'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38625'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33757'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46471'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46447'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41061'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42169'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46181'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44493'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40403'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33887'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33535'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44057'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:35303'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33615'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46675'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33679'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46261'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:32863'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39139'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36321'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42915'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44703'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39427'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33949'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44835'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38321'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33875'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42483'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37943'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37697'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43021'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40363'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43547'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43465'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44453'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43527'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46767'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:35445'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42361'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42421'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43461'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:35457'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43747'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37663'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39409'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46341'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33701'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38241'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45713'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44393'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41557'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40547'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33355'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37887'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46493'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46351'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35135'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39519'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33729'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39817'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37195'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:32847'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44039'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42683'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45359'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39641'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45499'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45069'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40581'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45587'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41511'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38413'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35385'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42473'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42877'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46833'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43193'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45605'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33583'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44321'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44361'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46105'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33353'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36215'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41799'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36683'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42475'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35529'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44733'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42799'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38005'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38029'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34489'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41239'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43293'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45001'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38773'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33479'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40717'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36213'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36363'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39039'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42691'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36757'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45513'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36893'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37157'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44791'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:35307'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:46035'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39703'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44811'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42029'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33301'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43501'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34075'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33387'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33481'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44075'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34825'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38853'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37913'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37461'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37161'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:46161'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43349'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33133'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40337'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41633'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38047'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40591'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45285'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40867'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33199'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43869'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35689'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:32979'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35073'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40019'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38661'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34359'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34007'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39835'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38835'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34001'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35189'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43141'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:41335'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43799'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35357'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37569'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42263'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44901'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38841'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34441'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38465'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:41889'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44231'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36965'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46007'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42787'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45947'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34207'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46223'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:32789'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44807'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34199'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45779'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:41331'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37807'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42483'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33563'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40473'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44779'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:41059'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44667'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36389'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34607'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37743'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43679'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35891'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46273'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44549'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44561'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38501'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42733'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37957'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39671'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43279'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45027'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42887'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39787'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42735'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39417'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42737'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37391'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33781'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:41539'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42473'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44427'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37991'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40957'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37799'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37143'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34473'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46517'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40229'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34337'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36763'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43957'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38475'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42137'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43981'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36597'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38673'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45403'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43791'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42339'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45783'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37265'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43249'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33635'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:41481'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45585'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:46577'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37357'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:32879'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35225'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:41919'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45009'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42575'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:46715'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39639'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:36633'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43459'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34607'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44059'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46111'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43913'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41491'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37129'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44279'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34509'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46813'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42297'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37655'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43583'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46197'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35601'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34401'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41483'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42733'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40611'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40209'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35923'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43291'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41719'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37607'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37663'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42825'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41649'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35541'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40407'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34473'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34565'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34807'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38133'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42329'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:36383'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35341'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38913'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41537'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:32847'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38075'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34459'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38111'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41937'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39439'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:33635'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43461'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34069'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34451'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41293'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43289'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40271'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42179'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42243'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42319'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42857'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34847'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42241'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38869'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37835'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45375'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44503'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44079'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45093'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46249'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45453'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37035'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44011'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34323'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40741'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44295'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:33877'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38775'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:33855'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38197'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37399'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41331'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42327'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38563'
 
-distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.10:33137
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.10:41265
 
-distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.11:45887
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.11:33585
 
-distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.33:33441
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.33:39103
 
-distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.12:37245
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.12:42091
 
-distributed.worker - INFO - cluster properties: htcondor_cluster_setup {'processing_engine': 'unmanaged_cluster', 'cores': 20, 'memory': '6GB', 'disk': '0.1GB', 'local_directory': '/tmp', 'logs_directory': '/datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/logs', 'adaptive': True, 'maximum_jobs': 15, 'scheduler_port': 36256, 'dashboard_port': 25399, 'scheduler_address': 'localhost', 'workers_addresses_list': ['monod10', 'monod11', 'monod12', 'monod33'], 'nprocs': 40, 'nthreads': 1} 
+distributed.worker - INFO - cluster properties: htcondor_cluster_setup {'processing_engine': 'unmanaged_cluster', 'cores': 20, 'memory': '6GB', 'disk': '0.1GB', 'local_directory': '/tmp', 'logs_directory': '/datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3/logs', 'adaptive': True, 'maximum_jobs': 15, 'scheduler_port': 36257, 'dashboard_port': 25399, 'scheduler_address': 'localhost', 'workers_addresses_list': ['monod10', 'monod11', 'monod12', 'monod33'], 'nprocs': 40, 'nthreads': 1} 
 
 distributed.worker - INFO - Started unmanaged cluster
 
 distributed.worker - INFO - selected functions for eel-human-GBM
 
-CPU times: user 2min 13s, sys: 4.1 s, total: 2min 17s
+CPU times: user 2min 12s, sys: 4.03 s, total: 2min 16s
 Wall time: 3min 31s
 
 Ending Cell 9------------------------------------------
@@ -454,4 +454,886 @@ Calculating unique genes
 Analysis complete
 
 Ending Cell 11-----------------------------------------
-Sun Oct 30 14:50:43 CET 2022 INFO: Processing of /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3 finished successfully.
+Sun Oct 30 18:29:53 CET 2022 INFO: Processing of /datb/sl/fish_rawdata/JJEXP20211022_EEL_SL016A_S3 finished successfully.
+Sun Oct 30 18:47:05 CET 2022 INFO: Processing of /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 starting. Dashboard port: 25399
+Sun Oct 30 18:47:06 CET 2022 INFO: Command is papermill -k test_d_seg notebooks/Template_reprocess_pysmFISH_pipeline.ipynb /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/notebooks/221030-full-run.ipynb -p experiment_fpath /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 -p run_type new -p parsing_type no_parsing -p scheduler_port 36258 --start_timeout 6000 -p dashboard_port 25399 -f fish_papermill_xparams.yaml --log-output --stdout-file /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs/221030_papermill.stdout --stderr-file /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs/221030_papermill.stderr
+/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/iorw.py:50: FutureWarning: pyarrow.HadoopFileSystem is deprecated as of 2.0.0, please use pyarrow.fs.HadoopFileSystem instead.
+  from pyarrow import HadoopFileSystem
+Input Notebook:  notebooks/Template_reprocess_pysmFISH_pipeline.ipynb
+Output Notebook: /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/notebooks/221030-full-run.ipynb
+Generating grammar tables from /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/blib2to3/Grammar.txt
+Writing grammar tables to /home/simone/.cache/black/21.7b0/Grammar3.8.5.final.0.pickle
+Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmph30o61l_'
+Generating grammar tables from /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/blib2to3/PatternGrammar.txt
+Writing grammar tables to /home/simone/.cache/black/21.7b0/PatternGrammar3.8.5.final.0.pickle
+Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmpyk7gzg2_'
+Kernel Provisioning: The 'local-provisioner' is not found.  This is likely due to the presence of multiple jupyter_client distributions and a previous distribution is being used as the source for entrypoints - which does not include 'local-provisioner'.  That distribution should be removed such that only the version-appropriate distribution remains (version >= 7).  Until then, a 'local-provisioner' entrypoint will be automatically constructed and used.
+The candidate distribution locations are: ['/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/jupyter_client-6.1.11.dist-info', '/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/jupyter_client-7.0.5.dist-info']
+Executing notebook with kernel: test_d_seg
+Executing Cell 1---------------------------------------
+Ending Cell 1------------------------------------------
+Executing Cell 2---------------------------------------
+/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/dask_jobqueue/core.py:19: FutureWarning: format_bytes is deprecated and will be removed in a future release. Please use dask.utils.format_bytes instead.
+  from distributed.utils import format_bytes, parse_bytes, tmpfile
+/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/dask_jobqueue/core.py:19: FutureWarning: parse_bytes is deprecated and will be removed in a future release. Please use dask.utils.parse_bytes instead.
+  from distributed.utils import format_bytes, parse_bytes, tmpfile
+/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/dask_jobqueue/htcondor.py:6: FutureWarning: parse_bytes is deprecated and will be removed in a future release. Please use dask.utils.parse_bytes instead.
+  from distributed.utils import parse_bytes
+
+version cpu
+
+Ending Cell 2------------------------------------------
+Executing Cell 3---------------------------------------
+Ending Cell 3------------------------------------------
+Executing Cell 4---------------------------------------
+Ending Cell 4------------------------------------------
+Executing Cell 5---------------------------------------
+Ending Cell 5------------------------------------------
+Executing Cell 6---------------------------------------
+no notes
+
+Ending Cell 6------------------------------------------
+Executing Cell 7---------------------------------------
+Ending Cell 7------------------------------------------
+Executing Cell 8---------------------------------------
+Ending Cell 8------------------------------------------
+Executing Cell 9---------------------------------------
+distributed.worker - INFO - raw_data already exist
+
+distributed.worker - INFO - original_robofish_logs already exist
+
+distributed.worker - INFO - extra_processing_data already exist
+
+distributed.worker - INFO - extra_files already exist
+
+distributed.worker - INFO - pipeline_config already exist
+
+distributed.worker - INFO - output_figures already exist
+
+distributed.worker - INFO - probes already exist
+
+distributed.worker - INFO - logs already exist
+
+distributed.worker - INFO - results already exist
+
+distributed.worker - INFO - microscope_tiles_coords already exist
+
+distributed.worker - INFO - notebooks already exist
+
+distributed.deploy.ssh - INFO - distributed.scheduler - INFO - -----------------------------------------------
+
+distributed.deploy.ssh - INFO - /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/distributed/node.py:160: UserWarning: Port 25399 is already in use.
+
+distributed.deploy.ssh - INFO - Perhaps you already have a cluster running?
+
+distributed.deploy.ssh - INFO - Hosting the HTTP server on port 24282 instead
+
+distributed.deploy.ssh - INFO - warnings.warn(
+
+distributed.deploy.ssh - INFO - distributed.scheduler - INFO - -----------------------------------------------
+
+distributed.deploy.ssh - INFO - distributed.scheduler - INFO - Clear task state
+
+distributed.deploy.ssh - INFO - distributed.scheduler - INFO -   Scheduler at:  tcp://193.10.16.58:36258
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44809'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43029'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34155'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39269'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35909'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38099'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46829'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35529'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35245'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39245'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33769'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42925'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:46523'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:41715'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35179'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43671'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43017'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34885'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34703'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44791'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40009'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42341'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40413'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35959'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38027'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38043'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45939'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:41599'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39147'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39545'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37061'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42121'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33439'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33125'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33315'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35811'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44505'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:46285'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36261'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36029'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42321'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33875'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33585'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46095'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36573'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34343'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:32815'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43333'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34795'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36031'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33171'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45941'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33787'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38947'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:41251'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33847'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39725'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45931'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34607'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35065'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44785'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46195'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40435'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33155'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34099'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39829'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45995'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40047'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45591'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35775'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35927'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38599'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35747'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42335'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43109'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39921'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46287'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45441'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33967'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34413'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35095'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45757'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:36407'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39289'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46227'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46611'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36405'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34211'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39637'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40345'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36671'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44957'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43503'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:36435'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34237'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:36161'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42625'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:33223'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37331'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34447'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41751'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34687'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:35579'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:33705'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39103'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42809'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37845'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37757'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44773'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:33333'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33411'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35377'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33999'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43711'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46007'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43591'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43747'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38699'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35357'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45311'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44155'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39727'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45365'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42073'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:32847'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40961'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33011'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43145'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43335'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45033'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38143'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35663'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43193'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44653'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34219'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44459'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41809'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43431'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33741'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34395'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:35483'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39295'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45583'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38379'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34353'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39535'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35599'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37847'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40313'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39503'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34509'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40847'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33067'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44383'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41033'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39639'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:36711'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37399'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40417'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33291'
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ussj6g1r', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-bnuzmpzb', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-rugf7jdc', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-fvjuhoug', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-r1mzpi6z', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-y238apdc', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-gp6s1akm', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-139v5q3j', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-fm561cq2', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-kezbv6ud', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-yt5slzyl', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-xvytqa8r', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-oysorevj', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-fjf83gou', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-379pcoom', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-8d__oyg1', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-yvwtdg32', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-jvix8nzj', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-0egmf26g', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-idtddav3', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-7rp443uu', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-o20_wntf', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-pa4ndax5', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-r7v6x3_1', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-1w5flzcm', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ixy821a1', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-k5ub3rx8', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-cln2m30q', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-o8fil5u9', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ntc5thrg', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-wzyu4ljf', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-x4t9gcvy', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-0fvkkwev', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-na_l5zgx', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-1duzc_49', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-y5uulotk', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-l9upzbf_', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-m475axtb', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-b39a11c0', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-14ph_jis', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-8wi8uzxq', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-7yzjlzq1', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-b4coluu9', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-mz5v6skc', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-qv7yuu4y', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-tzixptvm', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-up_x6cam', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-b7evcld_', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-edvslzga', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ppw3ynlh', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ckk9nuja', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-60exd5t0', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-bjohkg2f', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-2lhlx17r', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-wrathpf4', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-fxt7117i', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-b408c59c', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-v7li_549', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-d9owm8fn', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-n3hfnwjf', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ppymlugk', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-alw2u3jh', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-rb3xu_j3', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-7swe70c3', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-jeit6hm4', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-i7vogeqk', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-kuiylop9', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-cwqds0uo', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-cgu8thsr', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-14lxyxs4', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-u7i1u17h', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-9ftjgzg6', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-xxxr3vsm', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-t7q5todb', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-x2z4k453', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-armjcz3l', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-0ts36pgl', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-f9k3i4c7', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-sq891lew', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-eigfdt5c', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-3g7czgom', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-92d_vl85', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-qo1i4n9v', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-miraf2ir', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-_4g3jpo3', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-b6ilce94', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ojxjmxbe', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-lt95mqtp', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-dw1vocuq', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-uf6eilev', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-9dxl41uq', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-9r3hjrbb', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-nr1r7edz', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-k1bn1wr0', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ldm385kb', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-t764qr85', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-2icc08gb', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-4nauu7wl', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-o1qopyju', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-c6n14i8z', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-nbkqnwuk', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ezag9z6c', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-vspvudmb', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-sjbugpzr', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-vy3qfmj6', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-93_jcln7', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-wfuoi5t3', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-5kp8zwu7', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-klgqvzqy', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-x472j5bt', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-nz9xm68v', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ir8_83p1', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-tct8algl', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-0d6qv5rm', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-hsg7m3sb', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-b2b7xr9n', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-2v27byf3', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-rezgmfo9', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-7ygn18nl', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-n_9rggod', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-3vzijh3c', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-5rm7h2fu', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-8c3n03gu', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-53vod0bt', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-hervrdxu', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-9bfesg8k', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-626ey30i', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-jgtyq61p', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-0yh38arg', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-xb5304p_', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-185fhq9n', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-w9l3oi9b', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-nlpzmphg', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-7kq6gfml', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ftnc5zwn', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-70kdnw3v', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-7x4y2tyo', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-i5uwabwp', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-_l6gui8i', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-6xlt7o9p', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-qtpfat0h', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-3hi9ubv_', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-yg7ay41f', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-eycdq_c8', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-_vtvtezy', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ldcq4xai', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-vczu0ug5', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-ygchv5ox', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-t2m0ylq4', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-9cjdnxd2', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-vqzbw_eo', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-oolb8f3a', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-6r88svev', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-t0wob89y', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-vrf13iml', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-w_gm9cjy', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-zmwtyxyz', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-zbm00anr', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-mf8emu45', purging
+
+distributed.deploy.ssh - INFO - distributed.diskutils - INFO - Found stale lock file and directory '/tmp/dask-worker-space/worker-cf59dl0v', purging
+
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.10:40367
+
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.11:38735
+
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.12:42665
+
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.33:40027
+
+distributed.worker - INFO - cluster properties: htcondor_cluster_setup {'processing_engine': 'unmanaged_cluster', 'cores': 20, 'memory': '6GB', 'disk': '0.1GB', 'local_directory': '/tmp', 'logs_directory': '/datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs', 'adaptive': True, 'maximum_jobs': 15, 'scheduler_port': 36258, 'dashboard_port': 25399, 'scheduler_address': 'localhost', 'workers_addresses_list': ['monod10', 'monod11', 'monod12', 'monod33'], 'nprocs': 40, 'nthreads': 1} 
+
+distributed.worker - INFO - Started unmanaged cluster
+
+distributed.worker - INFO - selected functions for eel-human-GBM
+
+CPU times: user 9min 17s, sys: 5.5 s, total: 9min 22s
+Wall time: 10min 36s
+
+Ending Cell 9------------------------------------------
+Executing Cell 10--------------------------------------
+Ending Cell 10-----------------------------------------
+Executing Cell 11--------------------------------------
+Bead alignment cleaning version
+
+performing cleaning
+
+performing cleaning
+
+Bead Alignment: Performing optimization of: center
+
+Bead Alignment: Performing optimization of: scale
+
+Ending Cell 11-----------------------------------------
+Traceback (most recent call last):
+  File "/home/simone/mini/envs/test_d_seg/bin/papermill", line 8, in <module>
+    sys.exit(papermill())
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/core.py", line 1137, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/core.py", line 1062, in main
+    rv = self.invoke(ctx)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/core.py", line 1404, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/core.py", line 763, in invoke
+    return __callback(*args, **kwargs)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/click/decorators.py", line 26, in new_func
+    return f(get_current_context(), *args, **kwargs)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/cli.py", line 250, in papermill
+    execute_notebook(
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/execute.py", line 122, in execute_notebook
+    raise_for_execution_errors(nb, output_path)
+  File "/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/execute.py", line 234, in raise_for_execution_errors
+    raise error
+papermill.exceptions.PapermillExecutionError: 
+---------------------------------------------------------------------------
+Exception encountered at "In [10]":
+---------------------------------------------------------------------------
+KilledWorker                              Traceback (most recent call last)
+/tmp/ipykernel_2800814/904771899.py in <module>
+----> 1 running_pipeline.processing_assign_dots()
+
+~/tmp_code/pysmFISH_auto/pysmFISH/pipeline.py in processing_assign_dots(self)
+   1624         ),
+   1625         )
+-> 1626         segmentation.register_assign(
+   1627             self.experiment_fpath,
+   1628             segmented_object_dict_recalculated,
+
+~/tmp_code/pysmFISH_auto/pysmFISH/segmentation.py in register_assign(experiment_path, segmented_object_dict_recalculated, dataset_experiment, dataset_nuclei, experiment_metadata, nuclei_metadata, pipeline_run_name, segmentation_output_path, mask_expansion_radius, hamming_distance, centering_mode, search_radius)
+    852 
+    853     # Fit alignment model
+--> 854     model.fit(target_beads, source_beads, plot=True)
+    855     #Save all beads
+    856     np.save(os.path.join(experiment_path, "fresh_tissue","Bead_Alignment_Target_low_magnification_beads"), target_beads)
+
+~/tmp_code/pysmFISH_auto/pysmFISH/bead_alignment.py in fit(self, target, source, plot)
+   1150         """     
+   1151 
+-> 1152         factor, center, delta, angle = self.find_transform(target, source, self.initial_scale_factor, self.serach_fraction,
+   1153                                                             self.initial_rotation, self.rotation_search_width,
+   1154                                                             self.samples, self.max_broad_sweeps, self.num_narrow_sweeps,
+
+~/tmp_code/pysmFISH_auto/pysmFISH/bead_alignment.py in find_transform(self, target, source, initial_scale_factor, scale_search_fraction, initial_rotation, rotation_search_width, samples, max_broad_sweep, num_narrow_sweeps, search_radius, bins, centering_mode, scan_chunk_size, scan_density, scan_min_points, plot)
+    963         while True:
+    964             search_space = np.linspace(min_search, max_search, num=samples)
+--> 965             result = self.eval_param_worker_parallel(target, 
+    966                                                      source,
+    967                                                      scale_search_space = search_space,
+
+~/tmp_code/pysmFISH_auto/pysmFISH/bead_alignment.py in eval_param_worker_parallel(self, target, source, scale_search_space, angle_search_space, center_search_space, target_filt, source_filt, search_radius, bins, centering_mode, find_offset, evaluator)
+    726         #Compute
+    727         with ProgressBar():
+--> 728             result = dask.compute(results)
+    729 
+    730         return result[0]
+
+~/mini/envs/test_d_seg/lib/python3.8/site-packages/dask/base.py in compute(*args, **kwargs)
+    566         postcomputes.append(x.__dask_postcompute__())
+    567 
+--> 568     results = schedule(dsk, keys, **kwargs)
+    569     return repack([f(r, *a) for r, (f, a) in zip(results, postcomputes)])
+    570 
+
+~/mini/envs/test_d_seg/lib/python3.8/site-packages/distributed/client.py in get(self, dsk, keys, workers, allow_other_workers, resources, sync, asynchronous, direct, retries, priority, fifo_timeout, actors, **kwargs)
+   2669                     should_rejoin = False
+   2670             try:
+-> 2671                 results = self.gather(packed, asynchronous=asynchronous, direct=direct)
+   2672             finally:
+   2673                 for f in futures.values():
+
+~/mini/envs/test_d_seg/lib/python3.8/site-packages/distributed/client.py in gather(self, futures, errors, direct, asynchronous)
+   1946             else:
+   1947                 local_worker = None
+-> 1948             return self.sync(
+   1949                 self._gather,
+   1950                 futures,
+
+~/mini/envs/test_d_seg/lib/python3.8/site-packages/distributed/client.py in sync(self, func, asynchronous, callback_timeout, *args, **kwargs)
+    843             return future
+    844         else:
+--> 845             return sync(
+    846                 self.loop, func, *args, callback_timeout=callback_timeout, **kwargs
+    847             )
+
+~/mini/envs/test_d_seg/lib/python3.8/site-packages/distributed/utils.py in sync(loop, func, callback_timeout, *args, **kwargs)
+    324     if error[0]:
+    325         typ, exc, tb = error[0]
+--> 326         raise exc.with_traceback(tb)
+    327     else:
+    328         return result[0]
+
+~/mini/envs/test_d_seg/lib/python3.8/site-packages/distributed/utils.py in f()
+    307             if callback_timeout is not None:
+    308                 future = asyncio.wait_for(future, callback_timeout)
+--> 309             result[0] = yield future
+    310         except Exception:
+    311             error[0] = sys.exc_info()
+
+~/mini/envs/test_d_seg/lib/python3.8/site-packages/tornado/gen.py in run(self)
+    760 
+    761                     try:
+--> 762                         value = future.result()
+    763                     except Exception:
+    764                         exc_info = sys.exc_info()
+
+~/mini/envs/test_d_seg/lib/python3.8/site-packages/distributed/client.py in _gather(self, futures, errors, direct, local_worker)
+   1811                             exc = CancelledError(key)
+   1812                         else:
+-> 1813                             raise exception.with_traceback(traceback)
+   1814                         raise exc
+   1815                     if errors == "skip":
+
+KilledWorker: ('eval_param_worker-45cb05b5-f71f-44af-a97a-8e2f8009caa7', <WorkerState 'tcp://192.168.0.10:39889', name: 0-5, memory: 0, processing: 1>)
+
+Sun Oct 30 19:04:50 CET 2022 ERROR: papermill quit with exit code 1
+Sun Oct 30 19:04:50 CET 2022        Log files are named /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs/221030_xxx
+Sun Oct 30 19:04:50 CET 2022        You need to delete /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs/221030_papermill.stdout to make the pipeline retry.
+Sun Oct 30 19:04:50 CET 2022 INFO: Now cleaning all started python processes and dask-worker-space:s...
+python: no process found
+python: no process found
+python: no process found
+python: no process found
+Sun Oct 30 19:04:59 CET 2022 INFO: Processing of /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 failed.
