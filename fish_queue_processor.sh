@@ -47,7 +47,7 @@ do
         [[ -d "$rawdir/logs" ]] || mkdir $rawdir/logs
         notebookfile=$rawdir/notebooks/${timestamp}-full-run.ipynb
 
-        cmd="papermill -k test_d_seg notebooks/Template_running_pysmFISH_pipeline.ipynb $notebookfile -p experiment_fpath $rawdir -p run_type new -p parsing_type original -p scheduler_port $portnum --start_timeout 6000 -p dashboard_port $DASHBOARDPORT -f fish_papermill_xparams.yaml --log-output --stdout-file $stdoutfile --stderr-file $stderrfile"
+        cmd="papermill -k test_d_seg notebooks/Template_reprocess_pysmFISH_pipeline.ipynb $notebookfile -p experiment_fpath $rawdir -p run_type new -p parsing_type no_parsing -p scheduler_port $portnum --start_timeout 6000 -p dashboard_port $DASHBOARDPORT -f fish_papermill_xparams.yaml --log-output --stdout-file $stdoutfile --stderr-file $stderrfile"
         echo "$(date) INFO: Command is $cmd"
         #echo "$(date) INFO: papermill output goes to $pmllogfile"
         $cmd # > $pmllogfile 2&>1
