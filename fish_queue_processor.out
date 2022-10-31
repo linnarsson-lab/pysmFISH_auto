@@ -1176,3 +1176,34 @@ distributed.worker - INFO - cluster properties: htcondor_cluster_setup {'process
 
 distributed.worker - INFO - Started unmanaged cluster
 
+distributed.worker - INFO - selected functions for eel-human-GBM
+
+CPU times: user 10min 9s, sys: 6.87 s, total: 10min 16s
+Wall time: 11min 28s
+
+Ending Cell 8------------------------------------------
+Executing Cell 9---------------------------------------
+Ending Cell 9------------------------------------------
+Executing Cell 10--------------------------------------
+Bead alignment cleaning version
+
+performing cleaning
+
+performing cleaning
+
+Bead Alignment: Performing optimization of: scale
+
+Bead Alignment: Performing optimization of: angle
+
+Bead Alignment: Performing optimization of: angle
+
+Bead Alignment: Performing optimization of: scale
+
+Bead Alignment: Performing optimization of: angle
+
+Bead Alignment: Performing optimization of: scale
+
+Expanding segmentation: 0, 0, 5000
+
+Expanding segmentation: 1, 5000, 10000
+
