@@ -1,17 +1,17 @@
 NOTE: You have to manually do 'conda activate test_d_seg' before starting this script.
 NOTE: Reading extra papermill parameters from fish_papermill_xparams.yaml
-Fri Nov 11 15:45:58 CET 2022 INFO: Processing of /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 starting. Dashboard port: 25399
-Fri Nov 11 15:45:58 CET 2022 INFO: Command is papermill -k test_d_seg notebooks/Template_reprocess_pysmFISH_pipeline.ipynb /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/notebooks/221111-full-run.ipynb -p experiment_fpath /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 -p run_type new -p parsing_type no_parsing -p scheduler_port 36284 --start_timeout 6000 -p dashboard_port 25399 -f fish_papermill_xparams.yaml --log-output --stdout-file /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs/221111_papermill.stdout --stderr-file /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs/221111_papermill.stderr
+Fri Nov 11 16:36:44 CET 2022 INFO: Processing of /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 starting. Dashboard port: 25399
+Fri Nov 11 16:36:44 CET 2022 INFO: Command is papermill -k test_d_seg notebooks/Template_reprocess_pysmFISH_pipeline.ipynb /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/notebooks/221111-full-run.ipynb -p experiment_fpath /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 -p run_type new -p parsing_type no_parsing -p scheduler_port 36285 --start_timeout 6000 -p dashboard_port 25399 -f fish_papermill_xparams.yaml --log-output --stdout-file /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs/221111_papermill.stdout --stderr-file /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs/221111_papermill.stderr
 /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/papermill/iorw.py:50: FutureWarning: pyarrow.HadoopFileSystem is deprecated as of 2.0.0, please use pyarrow.fs.HadoopFileSystem instead.
   from pyarrow import HadoopFileSystem
 Input Notebook:  notebooks/Template_reprocess_pysmFISH_pipeline.ipynb
 Output Notebook: /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/notebooks/221111-full-run.ipynb
 Generating grammar tables from /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/blib2to3/Grammar.txt
 Writing grammar tables to /home/simone/.cache/black/21.7b0/Grammar3.8.5.final.0.pickle
-Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmp2pptclgu'
+Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmp2yxch1bb'
 Generating grammar tables from /home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/blib2to3/PatternGrammar.txt
 Writing grammar tables to /home/simone/.cache/black/21.7b0/PatternGrammar3.8.5.final.0.pickle
-Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmpl1s3lzgb'
+Writing failed: [Errno 2] No such file or directory: '/home/simone/.cache/black/21.7b0/tmpl0g72tk8'
 Kernel Provisioning: The 'local-provisioner' is not found.  This is likely due to the presence of multiple jupyter_client distributions and a previous distribution is being used as the source for entrypoints - which does not include 'local-provisioner'.  That distribution should be removed such that only the version-appropriate distribution remains (version >= 7).  Until then, a 'local-provisioner' entrypoint will be automatically constructed and used.
 The candidate distribution locations are: ['/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/jupyter_client-6.1.11.dist-info', '/home/simone/mini/envs/test_d_seg/lib/python3.8/site-packages/jupyter_client-7.0.5.dist-info']
 Executing notebook with kernel: test_d_seg
@@ -41,8 +41,8 @@ Ending Cell 6------------------------------------------
 Executing Cell 7---------------------------------------
 Ending Cell 7------------------------------------------
 Executing Cell 8---------------------------------------
-CPU times: user 13 µs, sys: 7 µs, total: 20 µs
-Wall time: 39.1 µs
+CPU times: user 14 µs, sys: 8 µs, total: 22 µs
+Wall time: 44.3 µs
 
 Ending Cell 8------------------------------------------
 Executing Cell 9---------------------------------------
@@ -74,337 +74,337 @@ distributed.deploy.ssh - INFO - distributed.scheduler - INFO - -----------------
 
 distributed.deploy.ssh - INFO - distributed.scheduler - INFO - Clear task state
 
-distributed.deploy.ssh - INFO - distributed.scheduler - INFO -   Scheduler at:  tcp://193.10.16.58:36284
+distributed.deploy.ssh - INFO - distributed.scheduler - INFO -   Scheduler at:  tcp://193.10.16.58:36285
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45097'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37611'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46061'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33863'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38973'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37827'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39293'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40031'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41033'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36233'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42541'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39459'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41965'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34827'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:32851'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34959'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46163'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44667'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35569'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40315'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39865'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39143'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46409'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45693'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38895'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38975'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43003'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37401'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33097'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36447'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35773'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35613'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37989'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34155'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38607'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38379'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38985'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35545'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34407'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34237'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34959'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43047'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:41223'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43839'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37495'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44965'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44497'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37157'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34361'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45375'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37299'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37193'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38219'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40067'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36903'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:36923'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38119'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44067'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45253'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36437'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35891'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45033'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44817'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42753'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35787'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40145'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42115'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38275'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44305'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39303'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33075'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44813'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41395'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44335'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34973'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34207'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:36325'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43571'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:32987'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44769'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39895'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42591'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45173'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44113'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40805'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45035'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46321'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:42931'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42947'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40737'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34193'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:41231'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44185'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33507'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41001'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37005'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40007'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36695'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40935'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46175'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39007'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41529'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43051'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43119'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39751'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33977'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33591'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39873'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41271'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46437'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45291'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38579'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39085'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44757'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46025'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:46063'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38483'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39383'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44525'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40553'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43709'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40429'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34433'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41939'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40765'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44211'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:32945'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45837'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46449'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45275'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42311'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37729'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44581'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45131'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34589'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38607'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41133'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46173'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37745'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46867'
+
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42153'
 
 distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43641'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39595'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46279'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33259'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43853'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44131'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43599'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40807'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46339'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39855'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:35475'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40909'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42099'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43593'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36631'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41063'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34503'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:32859'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39075'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38659'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39693'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43259'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43235'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:45249'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36525'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:43795'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42225'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41665'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46709'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39651'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46761'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:32995'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42497'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37973'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37519'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37299'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43345'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40309'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33257'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40189'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43651'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34183'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41095'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37273'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41205'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46321'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43517'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46099'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:41119'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34695'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42155'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:34495'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34599'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:39391'
+distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38473'
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40559'
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.10:35113
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41067'
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.33:41585
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37509'
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.12:35419
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:41575'
+distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.11:41201
 
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:46697'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:38311'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:40055'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:44807'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.12:37691'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34659'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43171'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34691'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45093'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38087'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37667'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36565'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38975'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:35283'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:42317'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40331'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43403'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34653'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33127'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:45385'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43567'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36771'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:33541'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:34005'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:39483'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:40245'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:35291'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38645'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44937'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:43941'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44291'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46475'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38507'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43643'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:46467'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36603'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40637'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39457'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44385'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36535'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:38189'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40445'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37553'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36309'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45009'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:36799'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34039'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40961'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40639'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:37805'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42285'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42025'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44651'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.33:44793'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:32863'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39009'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46211'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:41595'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:43221'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33527'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40335'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43311'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37925'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39425'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34837'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:37051'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44147'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39385'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40987'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36451'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:36949'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:41961'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35455'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37529'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40069'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37709'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42667'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40075'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45055'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38767'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40017'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:39479'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40585'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:45475'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43633'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:41535'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:36283'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:43729'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35895'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:33437'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:46217'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33879'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:40633'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:39019'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37415'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:42735'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34887'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44649'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34971'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34865'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:35225'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:37201'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44101'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40469'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38643'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:35797'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:38517'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:44135'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:44157'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:32807'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:34729'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:34487'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:45117'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:40719'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:38759'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.10:33225'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:46709'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42069'
-
-distributed.deploy.ssh - INFO - distributed.nanny - INFO -         Start Nanny at: 'tcp://192.168.0.11:42801'
-
-distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.33:33335
-
-distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.12:33779
-
-distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.11:33509
-
-distributed.deploy.ssh - INFO - distributed.worker - INFO -       Start worker at:   tcp://192.168.0.10:42363
-
-distributed.worker - INFO - cluster properties: htcondor_cluster_setup {'processing_engine': 'unmanaged_cluster', 'cores': 20, 'memory': '6GB', 'disk': '0.1GB', 'local_directory': '/tmp', 'logs_directory': '/datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs', 'adaptive': True, 'maximum_jobs': 15, 'scheduler_port': 36284, 'dashboard_port': 25399, 'scheduler_address': 'localhost', 'workers_addresses_list': ['monod10', 'monod11', 'monod12', 'monod33'], 'nprocs': 40, 'nthreads': 1} 
+distributed.worker - INFO - cluster properties: htcondor_cluster_setup {'processing_engine': 'unmanaged_cluster', 'cores': 20, 'memory': '6GB', 'disk': '0.1GB', 'local_directory': '/tmp', 'logs_directory': '/datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1/logs', 'adaptive': True, 'maximum_jobs': 15, 'scheduler_port': 36285, 'dashboard_port': 25399, 'scheduler_address': 'localhost', 'workers_addresses_list': ['monod10', 'monod11', 'monod12', 'monod33'], 'nprocs': 40, 'nthreads': 1} 
 
 distributed.worker - INFO - Started unmanaged cluster
 
@@ -447,4 +447,4 @@ Calculating unique genes
 Analysis complete
 
 Ending Cell 9------------------------------------------
-Fri Nov 11 16:25:37 CET 2022 INFO: Processing of /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 finished successfully.
+Fri Nov 11 17:17:07 CET 2022 INFO: Processing of /datd/sl/fish_rawdata/JJEXP20220513_EEL_SL046A_S1 finished successfully.
