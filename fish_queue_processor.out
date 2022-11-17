@@ -410,3 +410,37 @@ distributed.worker - INFO - Started unmanaged cluster
 
 distributed.worker - INFO - selected functions for eel-human-GBM
 
+Bead alignment cleaning version
+
+performing cleaning
+performing cleaning
+Bead Alignment: Performing optimization of: scale
+
+Bead Alignment: Performing optimization of: angle
+
+Bead Alignment: Performing optimization of: angle
+
+Bead Alignment: Performing optimization of: scale
+
+Bead Alignment: Performing optimization of: angle
+
+Bead Alignment: Performing optimization of: scale
+
+Expanding segmentation: 0, 0, 5000
+
+Expanding segmentation: 1, 5000, 10000
+
+Expanding segmentation: 2, 10000, 15000
+
+Expanding segmentation: 3, 15000, 20000
+
+Expanding segmentation: 4, 20000, 25000
+
+Expanding segmentation: 5, 25000, 30000
+
+Calculating unique genes
+
+Analysis complete
+
+Ending Cell 9------------------------------------------
+Thu Nov 17 13:55:50 CET 2022 INFO: Processing of /date/sl/fish_rawdata/JJEXP20221004_EEL_SL040BE_S1 finished successfully.
