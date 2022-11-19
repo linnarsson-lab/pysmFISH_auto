@@ -278,9 +278,9 @@ def filter_remove_large_objs(
         img = np.abs(img) # to avoid -0.0 issues
         img = img.max(axis=0)
 
-        img_mean_z = np.quantile(img, 0.95)
-        img_std_z = img.std()
-        img= (img - img_mean_z)/ img_std_z
+        #img_mean_z = np.quantile(img, 0.95)
+        #img_std_z = img.std()
+        #img= (img - img_mean_z)/ img_std_z
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)
@@ -351,15 +351,14 @@ def filter_remove_large_objs_no_flat(
         img = np.abs(img) # to avoid -0.0 issues
         img = img.max(axis=0)
         #img = normalize(img,clip=True, dtype=np.float64)
-        img_mean_z = np.quantile(img, 0.95)
-        img_std_z = img.std()
-        img= (img - img_mean_z)/ img_std_z
+        
+        #img_mean_z = np.quantile(img, 0.95)
+        #img_std_z = img.std()
+        #img= (img - img_mean_z)/ img_std_z
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)
         mask[idx] = 1
-    
-        labels = nd.label(mask)
     
         labels = nd.label(mask)
 
