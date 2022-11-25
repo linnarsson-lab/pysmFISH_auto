@@ -270,17 +270,15 @@ def filter_remove_large_objs(
         img[img<0] = 0
 
         background = filters.gaussian(img,(1, 5, 5),preserve_range=False)
-        #background = filters.gaussian(background,(1, 50, 50),preserve_range=False)
+        #background = (dark_img/np.median(dark_img))*np.median(background)
+
         img /= background
-        img = nd.gaussian_laplace(img,LaplacianKernel)
+        img = nd.gaussian_laplace(img,(0.02, 1, 1))
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
         img = img.max(axis=0)
-
-        #img_mean_z = np.quantile(img, 0.95)
-        #img_std_z = img.std()
-        #img= (img - img_mean_z)/ img_std_z
+        img =( img-img.min())/(img.max()-img.min())
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)
@@ -343,18 +341,15 @@ def filter_remove_large_objs_no_flat(
         img[img<0] = 0
 
         background = filters.gaussian(img,(1, 5, 5),preserve_range=False)
-        #background = filters.gaussian(background,(1, 50, 50),preserve_range=False)
+        #background = (dark_img/np.median(dark_img))*np.median(background)
+
         img /= background
-        img = nd.gaussian_laplace(img,LaplacianKernel)
+        img = nd.gaussian_laplace(img,(0.02, 1, 1))
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
         img = img.max(axis=0)
-        #img = normalize(img,clip=True, dtype=np.float64)
-        
-        #img_mean_z = np.quantile(img, 0.95)
-        #img_std_z = img.std()
-        #img= (img - img_mean_z)/ img_std_z
+        img =( img-img.min())/(img.max()-img.min())
 
         mask = np.zeros_like(img)
         idx=  img > np.percentile(img,LargeObjRemovalPercentile)
