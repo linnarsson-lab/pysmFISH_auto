@@ -341,7 +341,7 @@ def filter_remove_large_objs_no_flat(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,(1, 5, 5),preserve_range=False)
+        background = filters.gaussian(img,(1, 5, 5), preserve_range=False)
         img /= background
 
         img = nd.gaussian_laplace(img,(0.02, 0.5, 0.5))
