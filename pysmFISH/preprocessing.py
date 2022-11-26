@@ -228,7 +228,7 @@ def standard_norm_preprocessing(
 
 
 
-def filter_remove_large_objs(
+'''def filter_remove_large_objs(
         zarr_grp_name: str,
         parsed_raw_data_fpath: str,
         processing_parameters: dict,
@@ -281,7 +281,7 @@ def filter_remove_large_objs(
         img =( img-img.min())/(img.max()-img.min())
 
         mask = np.zeros_like(img)
-        idx=  img > np.percentile(img,LargeObjRemovalPercentile)
+        idx=  img > np.quantile(img,0.99)
         mask[idx] = 1
     
         labels = nd.label(mask)
@@ -295,7 +295,7 @@ def filter_remove_large_objs(
         mask = np.logical_not(mask)
 
         masked_img = img*mask
-        return ((masked_img,img),metadata)
+        return ((masked_img,img),metadata)'''
 
 
 def filter_remove_large_objs_no_flat(
@@ -341,10 +341,9 @@ def filter_remove_large_objs_no_flat(
         img[img<0] = 0
 
         background = filters.gaussian(img,(1, 5, 5),preserve_range=False)
-        #background = (dark_img/np.median(dark_img))*np.median(background)
-
         img /= background
-        img = nd.gaussian_laplace(img,(0.02, 1, 1))
+
+        img = nd.gaussian_laplace(img,(0.02, 0.5, 0.5))
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
@@ -352,9 +351,8 @@ def filter_remove_large_objs_no_flat(
         img =( img-img.min())/(img.max()-img.min())
 
         mask = np.zeros_like(img)
-        idx=  img > np.percentile(img,LargeObjRemovalPercentile)
+        idx=  img > np.quantile(img,0.99)
         mask[idx] = 1
-    
         labels = nd.label(mask)
 
         properties = measure.regionprops(labels[0])    
