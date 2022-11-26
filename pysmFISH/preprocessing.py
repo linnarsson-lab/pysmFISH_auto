@@ -337,8 +337,8 @@ def filter_remove_large_objs_no_flat(
         logger.info(f'loaded {zarr_grp_name} raw fish image')
 
         img = convert_from_uint16_to_float64(img) #img_as_float64(img)
-        dark_img = convert_from_uint16_to_float64(dark_img)
-        img -= dark_img
+        #dark_img = convert_from_uint16_to_float64(dark_img)
+        #img -= dark_img
         img[img<0] = 0
 
         background = filters.gaussian(img,(1, 5, 5), preserve_range=False)
