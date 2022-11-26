@@ -365,7 +365,7 @@ def filter_remove_large_objs_no_flat(
         mask = np.logical_not(mask)
 
         masked_img = img*mask
-        return ((img,img),metadata)
+        return ((masked_img,img),metadata)
 
 
 
