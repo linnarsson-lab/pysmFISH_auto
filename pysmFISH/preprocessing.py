@@ -350,6 +350,7 @@ def filter_remove_large_objs_no_flat(
         img = np.abs(img) # to avoid -0.0 issues
         img = img.max(axis=0)
         #img =(img-img.min())/(img.max()-img.min())
+        img = img - img.min()
 
         mask = np.zeros_like(img)
         idx=  img > np.quantile(img,0.95)
