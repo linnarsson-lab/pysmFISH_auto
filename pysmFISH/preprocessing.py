@@ -21,7 +21,7 @@ import sys
 
 import numpy as np
 import scipy.ndimage as nd
-from skimage import filters, morphology, measure
+from skimage import filters, morphology, measure, exposure
 from skimage import img_as_float64
 from pathlib import Path
 
@@ -341,9 +341,15 @@ def filter_remove_large_objs_no_flat(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,(1, 5, 5), preserve_range=False)
-        img /= background
-
+        background = filters.gaussian(img,(10, 25, 25), preserve_range=False)
+        img_background = img/background
+        img = (img_background-img_background.min())/(img_background.max()-img_background.min())
+        img_adapteq = exposure.equalize_adapthist(img, clip_limit=0.01)
+        img = img_adapteq.max(axis=0)
+        img *= 4000
+        
+        #img /= background
+        '''
         img = nd.gaussian_laplace(img,(0.02, 0.5, 0.5))
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
@@ -351,9 +357,10 @@ def filter_remove_large_objs_no_flat(
         img = img.max(axis=0)
         #img =(img-img.min())/(img.max()-img.min())
         img = img - img.min()
+        '''
 
         mask = np.zeros_like(img)
-        idx=  img > np.quantile(img,0.95)
+        idx=  img > np.quantile(img,0.99)
         mask[idx] = 1
         labels = nd.label(mask)
 
@@ -366,6 +373,7 @@ def filter_remove_large_objs_no_flat(
         mask = np.logical_not(mask)
 
         masked_img = img*mask
+
         return ((masked_img,img),metadata)
 
 
