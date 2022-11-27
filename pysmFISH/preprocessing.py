@@ -341,24 +341,17 @@ def filter_remove_large_objs_no_flat(
         img -= dark_img
         img[img<0] = 0
 
-        #background = filters.gaussian(img,(10, 25, 25), preserve_range=False)
-        img_background = img#/background
+        background = filters.gaussian(img,(1, 25, 25), preserve_range=False, mode='mirror')
+        img = img/(background.min(axis=0)*0.75)
+        img = img[3:14,:,:]
 
-        img = (img_background-img_background.min())/(img_background.max()-img_background.min())
-        img_adapteq = exposure.equalize_adapthist(img, clip_limit=0.01)
-        img = img_adapteq.max(axis=0)
-        img *= 4000
-        
-        #img /= background
-        '''
-        img = nd.gaussian_laplace(img,(0.02, 0.5, 0.5))
+        img = nd.gaussian_laplace(img,(0.02, 0.01, 0.01))
         img = -img # the peaks are negative so invert the signal
         img[img<=0] = 0 # All negative values set to zero also = to avoid -0.0 issues
         img = np.abs(img) # to avoid -0.0 issues
         img = img.max(axis=0)
-        #img =(img-img.min())/(img.max()-img.min())
-        img = img - img.min()
-        '''
+
+        #img = 1000*img_background.max(axis=0)
 
         mask = np.zeros_like(img)
         idx=  img > np.quantile(img,0.99)
