@@ -341,8 +341,9 @@ def filter_remove_large_objs_no_flat(
         img -= dark_img
         img[img<0] = 0
 
-        background = filters.gaussian(img,(10, 25, 25), preserve_range=False)
-        img_background = img/background
+        #background = filters.gaussian(img,(10, 25, 25), preserve_range=False)
+        img_background = img#/background
+
         img = (img_background-img_background.min())/(img_background.max()-img_background.min())
         img_adapteq = exposure.equalize_adapthist(img, clip_limit=0.01)
         img = img_adapteq.max(axis=0)
