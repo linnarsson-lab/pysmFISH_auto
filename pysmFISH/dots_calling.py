@@ -465,7 +465,8 @@ def osmFISH_peak_based_detection_fast(ImgStack: np.ndarray,
     # List with the total peaks calculated for each threshold
     thr_used = []
 
-    binning = 100
+    #binning = 100
+    binning = 200
     # Define the range of thr to be tested
     if min_int and max_int:
         ThrArray = np.linspace(min_int,max_int,num=binning)

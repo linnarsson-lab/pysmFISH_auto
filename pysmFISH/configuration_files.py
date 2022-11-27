@@ -1242,8 +1242,8 @@ def create_function_runner(experiment_fpath: str, metadata: dict) -> dict:
     if pipeline == "eel-human-GBM":
         running_functions = {
             "fish_channels_preprocessing": "filter_remove_large_objs_no_flat",
-            #"fish_channels_dots_calling": "osmFISH_peak_based_detection_fast",
-            "fish_channels_dots_calling": "osmFISH_peak_based_detection",
+            "fish_channels_dots_calling": "osmFISH_peak_based_detection_fast",
+            #"fish_channels_dots_calling": "osmFISH_peak_based_detection",
             "fresh_sample_reference_preprocessing": "fresh_tissue_beads_preprocessing",
             "fresh_sample_reference_dots_calling": "osmFISH_peak_based_detection_fast",
             "fresh_sample_nuclei_preprocessing": "fresh_nuclei_filtering",
