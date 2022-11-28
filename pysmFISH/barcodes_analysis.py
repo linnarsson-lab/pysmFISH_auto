@@ -14,6 +14,7 @@ from itertools import groupby
 from pysmFISH.logger_utils import selected_logger
 from pysmFISH.data_models import Output_models
 from pysmFISH.errors import Registration_errors
+from scipy.spatial import distance
 
 
 class simplify_barcodes_reference():
@@ -280,6 +281,13 @@ def merge_with_concat(dfs: list)->pd.DataFrame:
     """
 
 
+def assign_dist(point):
+    center = np.array(([1024,1024])).T
+    d= distance.euclidean(point, center)
+    return abs((d*3)/1448.15)
+
+
+
 def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, analysis_parameters: Dict,
                 codebook_df: pd.DataFrame, metadata:dict)-> Tuple[pd.DataFrame,pd.DataFrame]:
     """Function used to extract the barcodes from the registered
@@ -336,8 +344,10 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
                     nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
                     dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
 
+                    barcodes_extraction_resolution_ = compare_df.loc[:,['r_px_registered','c_px_registered']].apply(lambda x: assign_dist(x.values),axis=1) +barcodes_extraction_resolution
+                    barcodes_extraction_resolution_ = barcodes_extraction_resolution_.values
                     # select only the nn that are below barcodes_extraction_resolution distance
-                    idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
+                    idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution_)[0]
 
                     comp_idx = idx_distances_below_resolution
                     ref_idx = indices[comp_idx].flatten()

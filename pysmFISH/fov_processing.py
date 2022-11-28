@@ -16,7 +16,6 @@ from dask import dataframe as dd
 from dask.base import tokenize
 from skimage import img_as_uint
 
-
 import pysmFISH
 from pysmFISH import dots_calling
 from pysmFISH import io
@@ -505,14 +504,14 @@ def processing_barcoded_eel_fov_graph(
 
                 if save_bits_int:
 
-                    # all_filtered_images = {}
-                    # group_bits = channel_grpd.get_group(processing_channel)
-                    # for index_value, fov_subdataset in group_bits.iterrows():
+                    #all_filtered_images = {}
+                    #group_bits = channel_grpd.get_group(processing_channel)
+                    #for index_value, fov_subdataset in group_bits.iterrows():
                     #     round_num = fov_subdataset.round_num
                     #     name = 'load_filtered_image_' +experiment_name + '_' \
                     #             + '_fov_' +str(fov_num) + '-' + tokenize()
                     #     filt_out = delayed(io.load_general_zarr,name=name)(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
-                    # all_filtered_images[round_num] = filt_out
+                    #all_filtered_images[round_num] = filt_out
 
                     name = (
                         "combine_shifted_images_"
@@ -779,7 +778,7 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(
 
     all_fovs = list(grpd_fovs.groups.keys())
     chunks = [all_fovs[x : x + chunk_size] for x in range(0, len(all_fovs), chunk_size)]
-
+    
     for chunk in chunks:
         all_processing = []
         for fov_num in chunk:
@@ -926,6 +925,20 @@ def processing_barcoded_eel_fov_starting_from_registration_graph(
                     #             + '_fov_' +str(fov_num) + '-' + tokenize()
                     #     filt_out = delayed(io.load_general_zarr,name=name)(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
                     # all_filtered_images[round_num] = filt_out
+
+                    all_filtered_images = {}
+                    for channel_proc in list_all_channels:
+                        all_filtered_images[channel_proc] = {}
+                        
+                        group = channel_grpd.get_group(channel_proc)
+                        for index_value, fov_subdataset in group.iterrows():
+                            round_num = fov_subdataset.round_num
+                            channel = fov_subdataset.channel
+                            if channel_proc != fov_subdataset.stitching_channel:
+                                name = 'load_filtered_image_' +experiment_name + '_' \
+                                + '_fov_' +str(fov_num) + '-' + tokenize()
+                                filt_out = delayed(io.load_general_zarr,name=name)(fov_subdataset,preprocessed_zarr_fpath,tag='preprocessed_data')
+                                all_filtered_images[channel_proc][round_num] = filt_out
 
                     name = (
                         "combine_shifted_images_"
