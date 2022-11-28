@@ -344,10 +344,10 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
                     nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
                     dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
 
-                    barcodes_extraction_resolution_ = compare_df.loc[:,['r_px_registered','c_px_registered']].apply(lambda x: assign_dist(x.values),axis=1) +barcodes_extraction_resolution
-                    barcodes_extraction_resolution_ = barcodes_extraction_resolution_.values
+                    #barcodes_extraction_resolution_ = compare_df.loc[:,['r_px_registered','c_px_registered']].apply(lambda x: assign_dist(x.values),axis=1) +barcodes_extraction_resolution
+                    #barcodes_extraction_resolution_ = barcodes_extraction_resolution_.values
                     # select only the nn that are below barcodes_extraction_resolution distance
-                    idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution_)[0]
+                    idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
 
                     comp_idx = idx_distances_below_resolution
                     ref_idx = indices[comp_idx].flatten()
