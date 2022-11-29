@@ -464,6 +464,7 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
     registered_counts_df.dropna(subset=['dot_id'],inplace=True)
     # Starting level for selection of dots
     dropping_counts = registered_counts_df.copy(deep=True)
+    dropping_counts_recollect = registered_counts_df.copy(deep=True)
 
     all_decoded_dots_list = []
     barcoded_round = []
@@ -484,7 +485,7 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
         
     else:
         for recollect in range(3):
-            barcodes_extraction_resolution = (recollect+1)*barcodes_extraction_resolution
+            barcodes_extraction_resolution_ = (recollect+1)*barcodes_extraction_resolution
             for ref_round_number in np.arange(1,barcode_length+1):
 
                 #ref_round_number = 1
@@ -501,7 +502,7 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
                         #barcodes_extraction_resolution_ = compare_df.loc[:,['r_px_registered','c_px_registered']].apply(lambda x: assign_dist(x.values),axis=1) +barcodes_extraction_resolution
                         #barcodes_extraction_resolution_ = barcodes_extraction_resolution_.values
                         # select only the nn that are below barcodes_extraction_resolution distance
-                        idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
+                        idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution_)[0]
 
                         comp_idx = idx_distances_below_resolution
                         ref_idx = indices[comp_idx].flatten()
@@ -576,7 +577,7 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
                 all_decoded_dots_df.loc[:,'hamming_distance'] = dists_arr
                 all_decoded_dots_df.loc[:,'number_positive_bits'] = all_barcodes.sum(axis=1)
 
-                all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
+                all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution_
             else:
                 all_decoded_dots_df = pd.DataFrame(columns = registered_counts_df.columns)
                 all_decoded_dots_df['decoded_genes'] = np.nan
@@ -584,10 +585,11 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
                 all_decoded_dots_df['number_positive_bits'] = np.nan
                 all_decoded_dots_df['barcode_reference_dot_id'] = np.nan
                 all_decoded_dots_df['raw_barcodes'] = np.nan
-                all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
+                all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution_
 
             hm = all_decoded_dots_df[all_decoded_dots_df.hamming_distance <= 2/16 ]
-            dropping_counts = dropping_counts[np.isin(dropping_counts.dot_id, all_decoded_dots_df.dot_id, invert=True)]
+            dropping_counts_recollect = dropping_counts_recollect[np.isin(dropping_counts_recollect.dot_id, hm.dot_id, invert=True)]
+            dropping_counts = dropping_counts_recollect
             
             barcoded_round_list.append(barcoded_round)
             all_decoded_dots_df_list.append(all_decoded_dots_df)

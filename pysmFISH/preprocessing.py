@@ -343,7 +343,7 @@ def filter_remove_large_objs_no_flat(
 
         background = filters.gaussian(img,(1, 25, 25), preserve_range=False, mode='mirror')
         img = img/(background.min(axis=0)*0.75)
-        img = img[3:14,:,:]
+        img = img[1:16,:,:]
 
         img = nd.gaussian_laplace(img,(0.02, 0.01, 0.01))
         img = -img # the peaks are negative so invert the signal

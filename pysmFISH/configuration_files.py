@@ -225,7 +225,7 @@ def create_general_analysis_config_file(config_db_path: str):
     ] = (0.02, 0.01, 0.01)
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fish"][
         "CountingFishMinObjDistance"
-    ] = 1
+    ] = 0.5 #modified by alejandro, before =1
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fish"][
         "CountingFishMaxObjSize"
     ] = 200
