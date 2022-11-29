@@ -437,6 +437,170 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
         return barcoded_round, all_decoded_dots_df
 
 
+def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataFrame, analysis_parameters: Dict,
+                codebook_df: pd.DataFrame, metadata:dict)-> Tuple[pd.DataFrame,pd.DataFrame]:
+    """Function used to extract the barcodes from the registered
+    counts using nearest neighbour. if there is a problem with the registration the barcode assigned 
+    will be 0*barcode_length
+
+    Args:
+        registered_counts_df (pd.Dataframe): Fov counts after registration
+        analysis_parameters (Dict): Parameters for data processing 
+        codebook_df (pd.DataFrame): codebook used to deconvolve the barcode
+    Returns:
+        Tuple[pd.DataFrame,pd.DataFrame]: (barcoded_round, all_decoded_dots_df)
+    """
+
+    logger = selected_logger()
+
+    barcodes_extraction_resolution = analysis_parameters['BarcodesExtractionResolution']
+    RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
+    barcode_length = metadata['barcode_length']
+    registration_errors = Registration_errors()
+
+    stitching_channel = metadata['stitching_channel']
+    
+ 
+    registered_counts_df.dropna(subset=['dot_id'],inplace=True)
+    # Starting level for selection of dots
+    dropping_counts = registered_counts_df.copy(deep=True)
+
+    all_decoded_dots_list = []
+    barcoded_round = []
+
+    barcoded_round_list = []
+    all_decoded_dots_df_list = []
+    if registered_counts_df['r_px_registered'].isnull().values.any():
+        
+        all_decoded_dots_df = pd.DataFrame(columns = registered_counts_df.columns)
+        all_decoded_dots_df['decoded_genes'] = np.nan
+        all_decoded_dots_df['hamming_distance'] = np.nan
+        all_decoded_dots_df['number_positive_bits'] = np.nan
+        all_decoded_dots_df['barcode_reference_dot_id'] = np.nan
+        all_decoded_dots_df['raw_barcodes'] = np.nan
+        all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
+        # Save barcoded_round and all_decoded_dots_df
+        return registered_counts_df, all_decoded_dots_df
+        
+    else:
+        for recollect in range(3):
+            barcodes_extraction_resolution = (recollect+1)*barcodes_extraction_resolution
+            for ref_round_number in np.arange(1,barcode_length+1):
+
+                #ref_round_number = 1
+                reference_round_df = dropping_counts.loc[dropping_counts.round_num == ref_round_number,:]
+                # Step one (all dots not in round 1)
+                compare_df = dropping_counts.loc[dropping_counts.round_num!=ref_round_number,:]
+
+                if (not reference_round_df.empty):
+                    if not compare_df.empty:
+                        nn = NearestNeighbors(n_neighbors=1, metric="euclidean")
+                        nn.fit(reference_round_df[['r_px_registered','c_px_registered']])
+                        dists, indices = nn.kneighbors(compare_df[['r_px_registered','c_px_registered']], return_distance=True)
+
+                        #barcodes_extraction_resolution_ = compare_df.loc[:,['r_px_registered','c_px_registered']].apply(lambda x: assign_dist(x.values),axis=1) +barcodes_extraction_resolution
+                        #barcodes_extraction_resolution_ = barcodes_extraction_resolution_.values
+                        # select only the nn that are below barcodes_extraction_resolution distance
+                        idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution)[0]
+
+                        comp_idx = idx_distances_below_resolution
+                        ref_idx = indices[comp_idx].flatten()
+
+                        # Subset the dataframe according to the selected points
+                        # The reference selected will have repeated points
+                        comp_selected_df = compare_df.iloc[comp_idx]
+                        ref_selected_df = reference_round_df.iloc[ref_idx]
+
+                        # The size of ref_selected_df w/o duplicates may be smaller of reference_round_df if 
+                        # some of the dots in reference_round_df have no neighbours
+
+                        # Test approach where we get rid of the single dots
+                        comp_selected_df.loc[:,'barcode_reference_dot_id'] = ref_selected_df['dot_id'].values
+                        ref_selected_df_no_duplicates = ref_selected_df.drop_duplicates()
+                        ref_selected_df_no_duplicates.loc[:,'barcode_reference_dot_id'] = ref_selected_df_no_duplicates['dot_id'].values
+
+                        # Collect singletons
+                        # Remeber that this method works only because there are no duplicates inside the dataframes
+                        # https://stackoverflow.com/questions/48647534/python-pandas-find-difference-between-two-data-frames
+                        if reference_round_df.shape[0] > ref_selected_df_no_duplicates.shape[0]:
+                            singletons_df = pd.concat([reference_round_df,ref_selected_df_no_duplicates]).drop_duplicates(keep=False)
+                            singletons_df.loc[:,'barcode_reference_dot_id'] = singletons_df['dot_id'].values
+                            barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
+                        else:
+                            barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates], axis=0,ignore_index=False)
+
+                        # barcoded_round = pd.concat([comp_selected_df, ref_selected_df_no_duplicates,singletons_df], axis=0,ignore_index=False)
+                        barcoded_round_grouped = barcoded_round.groupby('barcode_reference_dot_id')
+
+                        compare_df = compare_df.drop(comp_selected_df.index)
+                        dropping_counts = compare_df
+
+                    else:
+                        # Collecting singleton of last bit
+                        reference_round_df.loc[:,'barcode_reference_dot_id'] = reference_round_df['dot_id'].values
+                        barcoded_round_grouped = reference_round_df.groupby('barcode_reference_dot_id')
+                        ref_selected_df_no_duplicates = reference_round_df
+
+                    for brdi, grp in barcoded_round_grouped:
+                        barcode = np.zeros([barcode_length],dtype=np.int8)
+                        barcode[grp.round_num.values.astype(np.int8)-1] = 1
+                        #hamming_dist, index_gene = nn_sklearn.kneighbors(barcode.reshape(1, -1), return_distance=True)
+                        #gene= codebook_df.loc[index_gene.reshape(index_gene.shape[0]),'Gene'].tolist()
+
+                        barcode = barcode.tostring()
+                        if len(ref_selected_df_no_duplicates) !=  0:
+                            ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'raw_barcodes'] = barcode
+                        #ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'decoded_gene_name'] = gene
+                        #ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'hamming_distance'] = hamming_dist.flatten()[0]
+
+                        #fish_counts.loc[grp.index,'barcode_reference_dot_id'] = brdi
+                        #fish_counts.loc[grp.index,'raw_barcodes'] = barcode
+                        #dists, index = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
+
+                    all_decoded_dots_list.append(ref_selected_df_no_duplicates)
+
+            if all_decoded_dots_list:
+                all_decoded_dots_df = pd.concat(all_decoded_dots_list,ignore_index=False)
+                        
+                    
+                codebook_df = convert_str_codebook(codebook_df,'Code')
+                codebook_array = make_codebook_array(codebook_df,'Code')
+                nn_sklearn = NearestNeighbors(n_neighbors=1, metric="hamming")
+                nn_sklearn.fit(codebook_array)
+
+                all_barcodes = np.vstack(all_decoded_dots_df.raw_barcodes.map(lambda x: np.frombuffer(x, np.int8)).values)
+                dists_arr, index_arr = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
+                genes=codebook_df.loc[index_arr.reshape(index_arr.shape[0]),'Gene'].tolist()
+
+                all_decoded_dots_df.loc[:,'decoded_genes'] = genes
+                all_decoded_dots_df.loc[:,'hamming_distance'] = dists_arr
+                all_decoded_dots_df.loc[:,'number_positive_bits'] = all_barcodes.sum(axis=1)
+
+                all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
+            else:
+                all_decoded_dots_df = pd.DataFrame(columns = registered_counts_df.columns)
+                all_decoded_dots_df['decoded_genes'] = np.nan
+                all_decoded_dots_df['hamming_distance'] = np.nan
+                all_decoded_dots_df['number_positive_bits'] = np.nan
+                all_decoded_dots_df['barcode_reference_dot_id'] = np.nan
+                all_decoded_dots_df['raw_barcodes'] = np.nan
+                all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution
+
+            hm = all_decoded_dots_df[all_decoded_dots_df.hamming_distance <= 2/16 ]
+            dropping_counts = dropping_counts[np.isin(dropping_counts.dot_id, all_decoded_dots_df.dot_id, invert=True)]
+            
+            barcoded_round_list.append(barcoded_round)
+            all_decoded_dots_df_list.append(all_decoded_dots_df)
+            
+        barcoded_round = pd.concat(barcoded_round_list)
+        all_decoded_dots_df = pd.concat(all_decoded_dots_df_list)
+        # Save barcoded_round and all_decoded_dots_df
+
+        
+        # Save barcoded_round and all_decoded_dots_df
+        return barcoded_round, all_decoded_dots_df
+
+
 
 # TODO Remove all the functions below
 ######## -------------------------------------------------------------------
