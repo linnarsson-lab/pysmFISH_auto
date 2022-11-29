@@ -341,9 +341,10 @@ def filter_remove_large_objs_no_flat(
         img -= dark_img
         img[img<0] = 0
 
+        img = img[1:16,:,:]
         background = filters.gaussian(img,(1, 25, 25), preserve_range=False, mode='mirror')
         img = img/(background.min(axis=0)*0.75)
-        img = img[1:16,:,:]
+        
 
         img = nd.gaussian_laplace(img,(0.02, 0.01, 0.01))
         img = -img # the peaks are negative so invert the signal
@@ -354,7 +355,7 @@ def filter_remove_large_objs_no_flat(
         #img = 1000*img_background.max(axis=0)
 
         mask = np.zeros_like(img)
-        idx=  img > np.quantile(img,0.95)
+        idx=  img > np.quantile(img, 0.95)
         mask[idx] = 1
         labels = nd.label(mask)
 
@@ -364,6 +365,7 @@ def filter_remove_large_objs_no_flat(
                 mask[ob.coords[:,0],ob.coords[:,1]]=0
 
         mask = morphology.binary_dilation(mask, selem=morphology.disk(LargeObjRemovalSelem))
+        #mask = morphology.binary_dilation(mask, selem=morphology.disk(7))
         mask = np.logical_not(mask)
 
         masked_img = img*mask
