@@ -354,7 +354,7 @@ def filter_remove_large_objs_no_flat(
         #img = 1000*img_background.max(axis=0)
 
         mask = np.zeros_like(img)
-        idx=  img > np.quantile(img,0.99)
+        idx=  img > np.quantile(img,0.95)
         mask[idx] = 1
         labels = nd.label(mask)
 

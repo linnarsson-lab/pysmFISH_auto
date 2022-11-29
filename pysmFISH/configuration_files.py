@@ -241,7 +241,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fish"][
         "LargeObjRemovalMinObjSize"
     ] = 50
-    analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fish"]["LargeObjRemovalSelem"] = 20#7
+    analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fish"]["LargeObjRemovalSelem"] = 50#7
 
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["small-beads"][
         "PreprocessingFishFlatFieldKernel"
@@ -873,10 +873,10 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["fresh-tissue"] = {}
     analysis_parameters["smfish-serial"]["ROBOFISH2"][
         "BarcodesExtractionResolution"
-    ] = 5#3
+    ] = 3
     analysis_parameters["smfish-serial"]["ROBOFISH2"][
         "RegistrationReferenceHybridization"
-    ] = 7#1
+    ] = 1
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["RegistrationTollerancePxl"] = 3
     analysis_parameters["smfish-serial"]["ROBOFISH2"][
         "RegistrationMinMatchingBeads"
@@ -911,7 +911,7 @@ def create_general_analysis_config_file(config_db_path: str):
     ] = 50
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["fish"][
         "LargeObjRemovalSelem"
-    ] = 7
+    ] = 20
 
     analysis_parameters["smfish-serial"]["ROBOFISH2"]["small-beads"][
         "PreprocessingFishFlatFieldKernel"
