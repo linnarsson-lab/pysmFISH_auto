@@ -531,7 +531,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["eel-barcoded"]["NOT_DEFINED"]["fresh-tissue"] = {}
     analysis_parameters["eel-barcoded"]["NOT_DEFINED"][
         "BarcodesExtractionResolution"
-    ] = 2
+    ] = 3
     analysis_parameters["eel-barcoded"]["NOT_DEFINED"][
         "RegistrationReferenceHybridization"
     ] = 1
