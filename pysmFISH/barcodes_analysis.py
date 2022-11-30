@@ -485,7 +485,7 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
         
     else:
         for recollect in range(2):
-            barcodes_extraction_resolution_ = (recollect+1)*barcodes_extraction_resolution
+            barcodes_extraction_resolution_ = (recollect+1)*(barcodes_extraction_resolution+1)
             for ref_round_number in np.arange(1,barcode_length+1):
 
                 #ref_round_number = 1
@@ -503,7 +503,6 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
                         #barcodes_extraction_resolution_ = barcodes_extraction_resolution_.values
                         # select only the nn that are below barcodes_extraction_resolution distance
                         idx_distances_below_resolution = np.where(dists <= barcodes_extraction_resolution_)[0]
-
                         comp_idx = idx_distances_below_resolution
                         ref_idx = indices[comp_idx].flatten()
 
@@ -541,22 +540,18 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
                         reference_round_df.loc[:,'barcode_reference_dot_id'] = reference_round_df['dot_id'].values
                         barcoded_round_grouped = reference_round_df.groupby('barcode_reference_dot_id')
                         ref_selected_df_no_duplicates = reference_round_df
-
+                    
+                    dic_barcodes = {}
                     for brdi, grp in barcoded_round_grouped:
                         barcode = np.zeros([barcode_length],dtype=np.int8)
                         barcode[grp.round_num.values.astype(np.int8)-1] = 1
                         #hamming_dist, index_gene = nn_sklearn.kneighbors(barcode.reshape(1, -1), return_distance=True)
                         #gene= codebook_df.loc[index_gene.reshape(index_gene.shape[0]),'Gene'].tolist()
+                        barcode = barcode.tobytes()
+                        dic_barcodes[brdi] = barcode
+                    if len(ref_selected_df_no_duplicates) !=  0:
+                        ref_selected_df_no_duplicates['raw_barcodes'] = [dic_barcodes[x] for x in ref_selected_df_no_duplicates['barcode_reference_dot_id']]
 
-                        barcode = barcode.tostring()
-                        if len(ref_selected_df_no_duplicates) !=  0:
-                            ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'raw_barcodes'] = barcode
-                        #ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'decoded_gene_name'] = gene
-                        #ref_selected_df_no_duplicates.loc[ref_selected_df_no_duplicates.barcode_reference_dot_id == brdi,'hamming_distance'] = hamming_dist.flatten()[0]
-
-                        #fish_counts.loc[grp.index,'barcode_reference_dot_id'] = brdi
-                        #fish_counts.loc[grp.index,'raw_barcodes'] = barcode
-                        #dists, index = nn_sklearn.kneighbors(all_barcodes, return_distance=True)
 
                     all_decoded_dots_list.append(ref_selected_df_no_duplicates)
 

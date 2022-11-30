@@ -203,7 +203,7 @@ def create_general_analysis_config_file(config_db_path: str):
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["both-beads"] = {}
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["staining"] = {}
     analysis_parameters["eel-barcoded"]["ROBOFISH2"]["fresh-tissue"] = {}
-    analysis_parameters["eel-barcoded"]["ROBOFISH2"]["BarcodesExtractionResolution"] = 3
+    analysis_parameters["eel-barcoded"]["ROBOFISH2"]["BarcodesExtractionResolution"] = 2
     analysis_parameters["eel-barcoded"]["ROBOFISH2"][
         "RegistrationReferenceHybridization"
     ] = 1
