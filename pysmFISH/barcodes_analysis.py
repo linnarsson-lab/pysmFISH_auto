@@ -599,9 +599,6 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
         barcoded_round = pd.concat(barcoded_round_list)
         all_decoded_dots_df = pd.concat(all_decoded_dots_df_list)
         # Save barcoded_round and all_decoded_dots_df
-
-        
-        # Save barcoded_round and all_decoded_dots_df
         return barcoded_round, all_decoded_dots_df
 
 
