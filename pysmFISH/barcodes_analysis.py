@@ -485,6 +485,7 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
         
     else:
         for recollect in range(2):
+            barcoded_round_rounds = []
             barcodes_extraction_resolution_ = (recollect+1)*(barcodes_extraction_resolution)
             for ref_round_number in np.arange(1,barcode_length+1):
 
@@ -552,8 +553,9 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
                     if len(ref_selected_df_no_duplicates) !=  0:
                         ref_selected_df_no_duplicates['raw_barcodes'] = [dic_barcodes[x] for x in ref_selected_df_no_duplicates['barcode_reference_dot_id']]
 
-
                     all_decoded_dots_list.append(ref_selected_df_no_duplicates)
+                    barcoded_round_rounds.append(barcoded_round)
+
 
             if all_decoded_dots_list:
                 all_decoded_dots_df = pd.concat(all_decoded_dots_list,ignore_index=False)
@@ -582,8 +584,13 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
                 all_decoded_dots_df['raw_barcodes'] = np.nan
                 all_decoded_dots_df['barcodes_extraction_resolution'] = barcodes_extraction_resolution_
 
-            hm = all_decoded_dots_df[all_decoded_dots_df.hamming_distance <= 2/16 ]
-            dropping_counts_recollect = dropping_counts_recollect[np.isin(dropping_counts_recollect.dot_id, hm.dot_id, invert=True)]
+            barcoded_rounds = pd.concat(barcoded_round_rounds)
+            dic_hm = {}
+            for hm, ref in zip(all_decoded_dots_df.hamming_distance, all_decoded_dots_df.barcode_reference_dot_id):
+                dic_hm[ref] = hm
+            
+            barcoded_rounds['hamming_distance'] = [dic_hm[ref] if ref in dic_hm else 8/16 for ref in barcoded_rounds.barcode_reference_dot_id]
+            dropping_counts_recollect = barcoded_rounds[barcoded_rounds.hamming_distance > 2/16]
             dropping_counts = dropping_counts_recollect
             
             barcoded_round_list.append(barcoded_round)
