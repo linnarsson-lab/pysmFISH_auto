@@ -305,6 +305,7 @@ def extract_barcodes_NN_fast_multicolor(registered_counts_df: pd.DataFrame, anal
     logger = selected_logger()
 
     barcodes_extraction_resolution = analysis_parameters['BarcodesExtractionResolution']
+    barcodes_extraction_resolution = 1
     RegistrationMinMatchingBeads = analysis_parameters['RegistrationMinMatchingBeads']
     barcode_length = metadata['barcode_length']
     registration_errors = Registration_errors()
