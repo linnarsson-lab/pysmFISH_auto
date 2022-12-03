@@ -406,3 +406,7 @@ distributed.worker - INFO - cluster properties: htcondor_cluster_setup {'process
 
 distributed.worker - INFO - Started unmanaged cluster
 
+distributed.worker - INFO - selected functions for eel-human-GBM
+
+distributed.worker - INFO - loaded ROBOFISH2_dark_img dark image
+
