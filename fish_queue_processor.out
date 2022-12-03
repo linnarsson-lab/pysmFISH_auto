@@ -408,3 +408,36 @@ distributed.worker - INFO - Started unmanaged cluster
 
 distributed.worker - INFO - selected functions for eel-human-GBM
 
+Kernel died while waiting for execute reply.
+Ending Cell 9------------------------------------------
+Traceback (most recent call last):
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/nbclient/client.py", line 846, in async_execute_cell
+    exec_reply = await self.task_poll_for_reply
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/papermill/cli.py", line 250, in papermill
+    execute_notebook(
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/papermill/execute.py", line 107, in execute_notebook
+    nb = papermill_engines.execute_notebook_with_engine(
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/papermill/engines.py", line 49, in execute_notebook_with_engine
+    return self.get_engine(engine_name).execute_notebook(nb, kernel_name, **kwargs)
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/papermill/engines.py", line 343, in execute_notebook
+    cls.execute_managed_notebook(nb_man, kernel_name, log_output=log_output, **kwargs)
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/papermill/engines.py", line 402, in execute_managed_notebook
+    return PapermillNotebookClient(nb_man, **final_kwargs).execute()
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/papermill/clientwrap.py", line 45, in execute
+    self.papermill_execute_cells()
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/papermill/clientwrap.py", line 72, in papermill_execute_cells
+    self.execute_cell(cell, index)
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/nbclient/util.py", line 78, in wrapped
+    return just_run(coro(*args, **kwargs))
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/nbclient/util.py", line 57, in just_run
+    return loop.run_until_complete(coro)
+  File "/home/simone/mini/envs/test_d/lib/python3.8/asyncio/base_events.py", line 616, in run_until_complete
+    return future.result()
+  File "/home/simone/mini/envs/test_d/lib/python3.8/site-packages/nbclient/client.py", line 850, in async_execute_cell
+    raise DeadKernelError("Kernel died")
+nbclient.exceptions.DeadKernelError: Kernel died
