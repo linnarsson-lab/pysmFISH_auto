@@ -342,7 +342,7 @@ def filter_remove_large_objs_no_flat(
         img[img<0] = 0
 
         img = img[1:16,:,:]
-        background = filters.gaussian(img,(1, 25, 25), preserve_range=False, mode='mirror')
+        background = filters.gaussian(img,(1, 5, 5), preserve_range=False, mode='mirror')
         img = img/(background.min(axis=0)*0.75)
         
 
