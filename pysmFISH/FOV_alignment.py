@@ -820,7 +820,7 @@ def clean_microscope_stitched(
     return fname_rna_merge, fname_large_beads
 
 
-def clean_microscope_stitched(
+def clean_microscope_stitched2(
     fovs: Union[list, np.ndarray],
     fov_df: dict,
     overlapping_regions: dict,
@@ -921,7 +921,7 @@ def clean_microscope_stitched(
     large_beads_df = large_beads_df.dropna(subset=['r_px_microscope_stitched','c_px_microscope_stitched','mapped_beads_type'])
 
     # Merge overlapping points.
-    for reremove in range([1,2]):
+    for reremove in [1,2]:
         for i in fovs:
             # Get neighbours of FOV
             fov_neigbours = overlapping_regions[i]
