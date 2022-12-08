@@ -501,7 +501,7 @@ def clip_overlap(
     # FOVs overlap left-right
     if dc > dr:
         column = "r_px_microscope_stitched"  # Select on Y (row) coordinate
-        cutoff = r_min + (1.10 * dr)
+        cutoff = r_min + (0.5 * dr)
         if fov0[0] > fov1[0]:
             orrientation = "fov0_right_of_fov1"
         else:
@@ -510,7 +510,7 @@ def clip_overlap(
     # FOVs overlap top-bottom
     else:
         column = "c_px_microscope_stitched"  # Select on X (column) coordinate
-        cutoff = c_min + (1.10 * dc)
+        cutoff = c_min + (0.5 * dc)
         if fov0[1] > fov1[1]:
             orrientation = "fov0_above_fov1"
         else:
@@ -703,6 +703,339 @@ def clean_microscope_stitched(
                             filt0_overlap,
                             ["r_px_microscope_stitched", "c_px_microscope_stitched"],
                         ] = d0_merged
+                        fov_df[fov0] = df0_cleaned
+
+                        # Delet positions in dataset 1 that are merged and should only be in dataset 0
+                        df1_cleaned = d1[d1_filt_rna]
+                        index_to_drop = df1_cleaned[filt1_overlap].index[d1_match_filt]
+                        df1_cleaned = df1_cleaned.drop(index_to_drop)
+                        fov_df[fov1] = df1_cleaned
+
+                    # Overlap could not be determined, just delete non-(valid-)RNA points
+                    else:
+                        # Dataset 0
+                        df0_cleaned = d0[d0_filt_rna]
+                        fov_df[fov0] = df0_cleaned
+
+                        # Dataset 1
+                        df1_cleaned = d1[d1_filt_rna]
+                        fov_df[fov1] = df1_cleaned
+
+                elif mode == "clip":
+                    column, cutoff, orrientation = clip_overlap(
+                        corner_coordinates, fov_coords[fov0], fov_coords[fov1]
+                    )
+                    # Clean RNA
+                    df0_cleaned = d0[d0_filt_rna]
+                    df1_cleaned = d1[d1_filt_rna]
+                    # Get clips
+                    if orrientation == "fov0_under_fov1":
+                        df0_clip_filt = df0_cleaned.loc[:, column] < cutoff
+                        df1_clip_filt = df1_cleaned.loc[:, column] > cutoff
+                    elif orrientation == "fov0_above_fov1":
+                        df0_clip_filt = df0_cleaned.loc[:, column] > cutoff
+                        df1_clip_filt = df1_cleaned.loc[:, column] < cutoff
+                    elif orrientation == "fov0_right_of_fov1":
+                        df0_clip_filt = df0_cleaned.loc[:, column] > cutoff
+                        df1_clip_filt = df1_cleaned.loc[:, column] < cutoff
+                    elif orrientation == "fov0_left_of_fov1":
+                        df0_clip_filt = df0_cleaned.loc[:, column] < cutoff
+                        df1_clip_filt = df1_cleaned.loc[:, column] > cutoff
+                    # Clip datasets
+                    fov_df[fov0] = df0_cleaned.loc[df0_clip_filt]
+                    fov_df[fov1] = df1_cleaned.loc[df1_clip_filt]
+
+        # FOV has no neighbours. Just delete beads and non-valid-RNA points
+        else:
+            d = fov_df[i]
+            d_filt_rna = np.logical_and(
+                d.channel != bead_channel, d.hamming_distance < max_hamming_dist
+            )
+            fov_df[i] = d[d_filt_rna]
+
+    # Save individual FOV RNA results
+    for i in fovs:
+        fname = os.path.join(
+            out_folder, (exp_name + f"_microscope_merged_fov_{i}.parquet")
+        )
+        fov_df[i].to_parquet(fname)
+
+    # Merge RNA results
+    #merged_df = pd.concat([fov_df[i] for i in fovs])
+    merged_df = pd.concat([clip_borders(fov_df[i], clip_size) for i in fovs])
+    merged_df = merged_df.dropna(subset=['r_px_microscope_stitched','c_px_microscope_stitched','decoded_genes'])
+
+    # Save RNA results
+    fname_rna_merge = os.path.join(out_folder, (exp_name + "_RNA_microscope_stitched.parquet"),)
+
+    try:
+        merged_df.loc[
+            :,
+            [
+                "r_px_microscope_stitched",
+                "c_px_microscope_stitched",
+                "hamming_distance",
+                "decoded_genes",
+                "channel",
+                "round_num",
+                "raw_barcodes",
+                "mapped_beads_type",
+                "bit_1_intensity",	
+                "bit_2_intensity",	
+                "bit_3_intensity",
+                "bit_4_intensity",
+                "bit_5_intensity",
+                "bit_6_intensity",
+                "bit_7_intensity",
+                "bit_8_intensity",
+                "bit_9_intensity",
+                "bit_10_intensity",	
+                "bit_11_intensity",	
+                "bit_12_intensity",	
+                "bit_13_intensity",
+                "bit_14_intensity",
+                "bit_15_intensity",
+                "bit_16_intensity",
+            ],
+        ].to_parquet(fname_rna_merge)
+    except:
+        merged_df.loc[
+            :,
+            [
+                "r_px_microscope_stitched",
+                "c_px_microscope_stitched",
+                "hamming_distance",
+                "decoded_genes",
+            ],
+        ].to_parquet(fname_rna_merge)
+    
+    # Save Large bead results
+    fname_large_beads = os.path.join(out_folder, (exp_name + "_large_beads_microscope_stitched.parquet"))
+    large_beads_df.loc[:,["r_px_microscope_stitched", "c_px_microscope_stitched"]].to_parquet(fname_large_beads)
+    
+    if verbose:
+        print(f"Merged RNA output saved in: {fname_rna_merge}")
+        print(f"Merged Large bead output saved in: {fname_large_beads}")
+
+    return fname_rna_merge, fname_large_beads
+
+
+def clean_microscope_stitched2(
+    fovs: Union[list, np.ndarray],
+    fov_df: dict,
+    overlapping_regions: dict,
+    fov_coords: Union[np.ndarray, None] = None,
+    mode: str = "merge",
+    bead_channel: str = "Europium",
+    max_hamming_dist: float = 3 / 16,
+    matching_dot_radius: float = 5,
+    out_folder: str = "",
+    exp_name: str = "",
+    remove_distinct_genes:bool=False,
+    clip_size:int = 0, 
+    verbose: bool = False,
+) -> Tuple[str, str]:
+    """Remove overlapping dots in microscope stitched data.
+
+    Caveat: If the same gene name is present in different channels the overlap
+    removal likely merges these points. Make sure they have unique names.
+
+    Args:
+        fovs (Union[list, np.ndarray]): List or array with FOV numbers.
+        fov_df (dict): Dictionary with FOV numbers as keys and dataframe with
+            decoded point data as values. Dataframes should contain the
+            following columns: `channel`, `hamming_distance`,
+            `r_px_microscope_stitched`, `c_px_microscope_stitched`,
+            `decoded_genes` and `round_num`.
+            It is advised to also include `dot_id` so that output can be
+            matched to input.
+        overlapping_regions (dict): Dictionary with FOV numbers as keys and as
+            value a dictionary with a tuple of neighbouring FOV IDs as keys,
+            like (1, 30). And the 4 extrema that define the overlapping region
+            between the two FOVs. These extrema should be in the format:
+            [row_min, row_max, col_min, col_max]
+        fov_coords (Union[np.ndarray, None], optional): When mode is `merge`
+            coordinates of fovs need to be given. Coordinates should be a
+            (n,2) array in the same order as `fovs`. Defaults to None.
+        mode (str, optional): Mode to handle overlap. Options: `merge` or
+            `clip`. If `merge`, will discard points that are found in both FOVs
+            and keep unique points. If `clip`, will clip a FOV up to the middle
+            of the overlap. Defaults to 'merge'.
+        bead_channel (str, optional): Name of bead channel to exclude.
+            If nothing needs to be excluded set to a nonsense name.
+            Defaults to 'Europium'.
+        max_hammin_dist (float, optional): Maximum hamming distance for a point
+            to be considered valid. Defaults to 3/16.
+        matching_dot_radius (float, optional): Radius to look for matching
+            points for removal. Search will be conducted after alignment.
+            Defaults to 5.
+        out_folder (str, optional): Path to output folder. Needs to have
+            trailing slash. Defaults to '/'.
+        exp_name (str, optional): Name of experiment to name the output files.
+            Defaults to ''.
+        remove_distinct_genes (bool, optional): If True overlapping dots from
+            different genes will be removed. Defaults to False.
+        clip_size (int, optional): If more than 0 the FOVs outmost pixels will
+            be clipped to avoid edge effects. Defaults to 0.
+        verbose (bool, optional): If True prints progress. Defaults to False.
+
+    Returns:
+        Tuple[str, str]
+        filename (str): Path and name of merged RNA output file.
+        filename (str): Path and name of merge large beads output file.
+
+        Output is saved:
+        - For each FOV a reduced dataframe is saved in the output folder with
+          the extension: _microscope_merged_fov_X.parquet where X is the FOV
+          number. This dataframe contains all RNA points with new locations
+          if they had a match with an adjacent FOV. In the other FOV these
+          points will have been deleted.
+        - Merged dataframe with all the points after merging. File extension
+          will be: _RNA_microscope_stitched.parquet. and located in the 
+          out_folder. The file will contain the following columns: 
+          `r_px_microscope_stitched`, `c_px_microscope_stitched`,
+          `hamming_distance` and `decoded_genes`.
+        - Merged dataframe with all the large bead coordinates after merging.
+          File extention will be: _large_beads_microscope_stitched.parquet. The
+          file will contain the the following columns: 
+          `r_px_microscope_stitched` and `c_px_microscope_stitched`.
+
+    """
+
+    valid_modes = ['clip', 'merge']
+    if mode not in valid_modes:
+        raise Exception(f'Dot removal mode not recognized. Input mode: {mode} is not part of implemented modes: {valid_modes}')
+    if mode == 'clip':
+        clip_size=0
+        
+    # Fetch all large beads (Does not run bead removal in overlapping regions)
+    large_beads_list = []
+    for i in fovs:
+        bead_data = fov_df[i]
+        large_bead_filt = combine_boolean([bead_data.channel == bead_channel, 
+                                           bead_data.mapped_beads_type == "large",
+                                           bead_data.round_num == 1])
+        bead_data = bead_data.loc[large_bead_filt]
+        large_beads_list.append(bead_data)
+    large_beads_df = pd.concat(large_beads_list)
+    large_beads_df = large_beads_df.dropna(subset=['r_px_microscope_stitched','c_px_microscope_stitched','mapped_beads_type'])
+
+    # Merge overlapping points.
+    for i in fovs:
+        # Get neighbours of FOV
+        fov_neigbours = overlapping_regions[i]
+
+        # Check if FOV has neighbours
+        if fov_neigbours:
+            key, values = zip(*fov_neigbours.items())
+            # Iterate through neighbours
+            for k, v in zip(key, values):
+                pair, corner_coordinates = k, v
+                fov0, fov1 = pair
+                if verbose:
+                    print(
+                        f"FOV :{i}/{fovs[-1]}. Pair: {fov0} - {fov1}           ",
+                        end="\r",
+                    )
+
+                # Get FOV 0 RNA
+                d0 = fov_df[fov0]
+                # Load all valid RNA signal
+                d0_filt_rna = np.logical_and(
+                    d0.channel != bead_channel, d0.hamming_distance < max_hamming_dist
+                )
+                d0_filt = deepcopy(d0_filt_rna)
+                d0_rc = d0.loc[
+                    d0_filt, ["r_px_microscope_stitched", "c_px_microscope_stitched"]
+                ].to_numpy()
+                # Select RNA in overlap
+                filt0_overlap = select_overlap(d0_rc, corner_coordinates)
+                d0_rc_overlap = d0_rc[filt0_overlap]
+                d0_filt[d0_filt] = filt0_overlap
+                # Get gene ID of each point
+                d0_id = d0.loc[d0_filt, "decoded_genes"].to_numpy()
+
+                # Get FOV 1 RNA
+                d1 = fov_df[fov1]
+                # Load all valid RNA signal
+                d1_filt_rna = np.logical_and(
+                    d1.channel != bead_channel, d1.hamming_distance < max_hamming_dist
+                )
+                d1_filt = deepcopy(d1_filt_rna)
+                d1_rc = d1.loc[
+                    d1_filt, ["r_px_microscope_stitched", "c_px_microscope_stitched"]
+                ].to_numpy()
+                # Select RNA in overlap
+                filt1_overlap = select_overlap(d1_rc, corner_coordinates)
+                d1_rc_overlap = d1_rc[filt1_overlap]
+                d1_filt[d1_filt] = filt1_overlap
+                # Get gene ID of each point
+                d1_id = d1.loc[d1_filt, "decoded_genes"].to_numpy()
+
+                if mode == "merge":
+                    # Check if there are overlapping points
+                    if d0_rc_overlap.shape[0] > 10 and d1_rc_overlap.shape[0] > 10:
+
+                        # Find offset between FOVs
+                        offset = find_offset(
+                            d0_rc_overlap, d1_rc_overlap, resolution=0.05
+                        )
+                        # Find matching dots between FOVs
+                        (
+                            final_positions,
+                            d0_merged,
+                            d1_merged,
+                            d0_match_filt,
+                            d1_match_filt,
+                        ) = find_matches(
+                            d0_rc_overlap,
+                            d1_rc_overlap,
+                            d0_id,
+                            d1_id,
+                            offset,
+                            max_radius=matching_dot_radius,
+                            remove_distinct_genes=remove_distinct_genes
+                        )
+
+                        # Merged points will be put only in dataset 0, and deleted from dataset 1
+                        # Correct new positions of merged points in dataset 0
+                        df0_cleaned = d0[d0_filt_rna]
+                        df0_cleaned.loc[
+                            filt0_overlap,
+                            ["r_px_microscope_stitched", "c_px_microscope_stitched"],
+                        ] = d0_merged
+
+                        d0_rc_overlap = d0_merged
+                        d0_id = d0_merged.loc[d0_filt, "decoded_genes"].to_numpy()
+
+                        (
+                            final_positions,
+                            d0_merged,
+                            d1_merged,
+                            d0_match_filt,
+                            d1_match_filt,
+                        ) = find_matches(
+                            d0_rc_overlap,
+                            d1_rc_overlap,
+                            d0_id,
+                            d1_id,
+                            offset,
+                            max_radius=matching_dot_radius*2,
+                            remove_distinct_genes=remove_distinct_genes
+                        )
+
+                        # Merged points will be put only in dataset 0, and deleted from dataset 1
+                        # Correct new positions of merged points in dataset 0
+                        df0_cleaned = d0[d0_filt_rna]
+                        df0_cleaned.loc[
+                            filt0_overlap,
+                            ["r_px_microscope_stitched", "c_px_microscope_stitched"],
+                        ] = d0_merged
+
+
+
+
+
                         fov_df[fov0] = df0_cleaned
 
                         # Delet positions in dataset 1 that are merged and should only be in dataset 0
