@@ -1032,10 +1032,6 @@ def clean_microscope_stitched2(
                             ["r_px_microscope_stitched", "c_px_microscope_stitched"],
                         ] = d0_merged
 
-
-
-
-
                         fov_df[fov0] = df0_cleaned
 
                         # Delet positions in dataset 1 that are merged and should only be in dataset 0
