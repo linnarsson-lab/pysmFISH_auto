@@ -487,6 +487,7 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
     else:
         for recollect in [1,2,3]:
             barcoded_round_rounds = []
+            old_recollect = recollect
             barcodes_extraction_resolution_ = recollect
             for ref_round_number in np.arange(1,barcode_length+1):
 
