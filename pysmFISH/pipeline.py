@@ -1047,6 +1047,13 @@ class Pipeline:
             k: FOV_alignment.load_parquet(fov_filenames[k], columns_to_load)
             for k in fovs
         }
+        fov_df2 = {}
+        for fov in fov_df:
+            df = fov_df[fov]
+            df['r_px_microscope_stitched'] = df['r_px_global_stitched']
+            df['c_px_microscope_stitched'] = df['c_px_global_stitched']
+            fov_df2[fov] = df
+        fov_df = fov_df2
 
         selected_Hdistance = self.hamming_distance / self.metadata["barcode_length"]
 
