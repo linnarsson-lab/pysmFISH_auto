@@ -1002,6 +1002,74 @@ class Pipeline:
             file_tag="removed_global_stitched",
         )
 
+        assert isinstance(self.data.dataset, pd.DataFrame), self.logger.error(
+            f"cannot remove duplicated dots because missing dataset attr"
+        )
+        assert isinstance(
+            self.tiles_org, pysmFISH.stitching.organize_square_tiles
+        ), self.logger.error(
+            f"cannot remove duplicated dots because tiles_org is missing attr"
+        )
+
+        # Input parameters
+        # Folder with parquet files from the Results folder, like: LBEXP20210718_EEL_Mouse_448_2_decoded_fov_670.parquet
+        folder = os.path.join(self.experiment_fpath.as_posix(), "results")
+
+        columns_to_load = [
+            "dot_id",
+            "r_px_global_stitched",
+            "c_px_global_stitched",
+            "r_px_original",
+            "c_px_original",
+            "channel",
+            "hamming_distance",
+            "decoded_genes",
+            "round_num",
+            "mapped_beads_type"
+        ]
+
+        # FOV numbers
+        fovs = list(self.tiles_org.overlapping_regions.keys())
+
+        # List of file names
+        filenames = [
+            os.path.join(
+                folder, f"{self.metadata['experiment_name']}_decoded_fov_{i}.parquet"
+            )
+            for i in fovs
+        ]
+
+        # Dictionary with fov ID as keys a filename as value
+        fov_filenames = dict(zip(fovs, filenames))
+
+        # Load all dataframes in dictionary
+        fov_df = {
+            k: FOV_alignment.load_parquet(fov_filenames[k], columns_to_load)
+            for k in fovs
+        }
+
+        selected_Hdistance = self.hamming_distance / self.metadata["barcode_length"]
+
+        # Run cleaning
+        fname_rna_merge, fname_large_beads = FOV_alignment.clean_microscope_stitched2(
+            fovs,
+            fov_df,
+            self.tiles_org.overlapping_regions,
+            self.tiles_org.tile_corners_coords_pxl,
+            mode=self.fov_alignment_mode,
+            bead_channel=self.metadata["stitching_channel"],
+            max_hamming_dist=selected_Hdistance,
+            matching_dot_radius=self.same_dot_radius_duplicate_dots,
+            out_folder=folder,
+            exp_name=self.metadata["experiment_name"],
+            remove_distinct_genes=self.remove_distinct_genes,
+            clip_size=self.clip_size,
+            verbose=False,
+        )  # Set to False in pipeline
+
+        self.metadata["fname_rna_merge"] = fname_rna_merge
+        self.metadata["fname_large_beads"] = fname_large_beads
+
     def stitch_and_remove_dots_serial_graph_step(self):
 
         """
