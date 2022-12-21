@@ -501,7 +501,7 @@ def clip_overlap(
     # FOVs overlap left-right
     if dc > dr:
         column = "r_px_microscope_stitched"  # Select on Y (row) coordinate
-        cutoff = r_min + (0.5 * dr)
+        cutoff = r_min + (0.25 * dr)
         if fov0[0] > fov1[0]:
             orrientation = "fov0_right_of_fov1"
         else:
@@ -510,7 +510,7 @@ def clip_overlap(
     # FOVs overlap top-bottom
     else:
         column = "c_px_microscope_stitched"  # Select on X (column) coordinate
-        cutoff = c_min + (0.5 * dc)
+        cutoff = c_min + (0.25 * dc)
         if fov0[1] > fov1[1]:
             orrientation = "fov0_above_fov1"
         else:
