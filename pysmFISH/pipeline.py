@@ -267,6 +267,8 @@ class Pipeline:
         self.bead_alignment_centering_mode = kwarg.pop("bead_alignment_centering_mode", 'scan')
         self.bead_alignment_radius = kwarg.pop("bead_alignment_radius", 5000)
         self.keep_intensities = False
+        self.clip_r=0.5
+        self.clip_c=0.5
 
     # -----------------------------------
     # PROCESSING STEPS
