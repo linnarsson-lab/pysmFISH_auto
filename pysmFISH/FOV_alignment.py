@@ -477,7 +477,8 @@ def clip_borders(dataframe:pd.array, bounds:int=0,
 
 
 def clip_overlap(
-    corner_coordinates: Union[list, np.ndarray], fov0: np.ndarray, fov1: np.ndarray
+    corner_coordinates: Union[list, np.ndarray], fov0: np.ndarray, fov1: np.ndarray,
+    clip_r=0.5, clip_c=0.5
 ) -> Tuple[str, float, str]:
     """Calculate position to clip two adjacent FOVs.
 
