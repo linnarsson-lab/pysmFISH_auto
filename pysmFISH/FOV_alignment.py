@@ -502,7 +502,7 @@ def clip_overlap(
     # FOVs overlap left-right
     if dc > dr:
         column = "r_px_microscope_stitched"  # Select on Y (row) coordinate
-        cutoff = r_min + (0.90 * dr)
+        cutoff = r_min + (clip_r * dr)
         if fov0[0] > fov1[0]:
             orrientation = "fov0_right_of_fov1"
         else:
@@ -511,7 +511,7 @@ def clip_overlap(
     # FOVs overlap top-bottom
     else:
         column = "c_px_microscope_stitched"  # Select on X (column) coordinate
-        cutoff = c_min + (0.25 * dc)
+        cutoff = c_min + (clip_c * dc)
         if fov0[1] > fov1[1]:
             orrientation = "fov0_above_fov1"
         else:
@@ -533,6 +533,8 @@ def clean_microscope_stitched(
     exp_name: str = "",
     remove_distinct_genes:bool=False,
     clip_size:int = 0, 
+    clip_r=0.5,
+    clip_c=0.5,
     verbose: bool = False,
 ) -> Tuple[str, str]:
     """Remove overlapping dots in microscope stitched data.
@@ -724,7 +726,8 @@ def clean_microscope_stitched(
 
                 elif mode == "clip":
                     column, cutoff, orrientation = clip_overlap(
-                        corner_coordinates, fov_coords[fov0], fov_coords[fov1]
+                        corner_coordinates, fov_coords[fov0], fov_coords[fov1],
+                        clip_r=clip_r, clip_c=clip_c
                     )
                     # Clean RNA
                     df0_cleaned = d0[d0_filt_rna]

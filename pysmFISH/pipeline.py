@@ -1058,7 +1058,7 @@ class Pipeline:
         selected_Hdistance = self.hamming_distance / self.metadata["barcode_length"]
 
         # Run cleaning
-        fname_rna_merge, fname_large_beads = FOV_alignment.clean_microscope_stitched2(
+        fname_rna_merge, fname_large_beads = FOV_alignment.clean_microscope_stitched(
             fovs,
             fov_df,
             self.tiles_org.overlapping_regions,
@@ -1071,6 +1071,8 @@ class Pipeline:
             exp_name=self.metadata["experiment_name"],
             remove_distinct_genes=self.remove_distinct_genes,
             clip_size=self.clip_size,
+            clip_r=self.clip_r,
+            clip_c=self.clip_c,
             verbose=False,
         )  # Set to False in pipeline
 
