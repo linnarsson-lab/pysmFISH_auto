@@ -1,4 +1,5 @@
 killall fish_queue_processor.sh
+killall fish_queue_processor_stitch.sh
 killall -u simone python
 ssh monod09 'rm -Rf /tmp/dask-worker-space && killall -u simone python'
 ssh monod10 'rm -Rf /tmp/dask-worker-space && killall -u simone python'

@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-. fish_queue_config.sh
+. fish_queue_config_stitch.sh
 
 stopfile=fish_queue_rm_me_to_gently_shutdown.txt
 stoplogfile=fish_queue_has_gently_shutdown.txt
@@ -49,7 +49,7 @@ do
         [[ -d "$rawdir/logs" ]] || mkdir $rawdir/logs
         notebookfile=$rawdir/notebooks/${timestamp}-full-run.ipynb
 
-        cmd="papermill -k test_d_seg notebooks/Template_reprocess_pysmFISH_pipeline.ipynb $notebookfile -p experiment_fpath $rawdir -p run_type new -p parsing_type no_parsing -p scheduler_port $portnum --start_timeout 6000 -p dashboard_port $DASHBOARDPORT -f fish_papermill_xparams.yaml --log-output --stdout-file $stdoutfile --stderr-file $stderrfile"
+        cmd="papermill -k test_d_seg notebooks/Template_stitch_pysmFISH_pipeline.ipynb $notebookfile -p experiment_fpath $rawdir -p run_type new -p parsing_type no_parsing -p scheduler_port $portnum --start_timeout 6000 -p dashboard_port $DASHBOARDPORT -f fish_papermill_xparams_stitch.yaml --log-output --stdout-file $stdoutfile --stderr-file $stderrfile"
         echo "$(date) INFO: Command is $cmd"
         #echo "$(date) INFO: papermill output goes to $pmllogfile"
         $cmd # > $pmllogfile 2&>1
@@ -60,12 +60,12 @@ do
           [[ -f "$stdoutfile" ]] && echo "$(date)        You need to delete $stdoutfile to make the pipeline retry."
           echo "$(date) INFO: Now cleaning all started python processes and dask-worker-space:s..."
           #killall -u simone python > /dev/null
-          killall fish_queue_processor.sh
-          #ssh monod09 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
-          ssh monod10 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
-          ssh monod11 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
-          ssh monod12 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
-          ssh monod33 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
+          killall fish_queue_processor_stitch.sh
+          ssh monod09 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
+          #ssh monod10 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
+          #ssh monod11 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
+          #ssh monod12 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
+          #ssh monod33 'rm -Rf /tmp/dask-worker-space && killall -u simone python' > /dev/null
           echo "$(date) INFO: Processing of $rawdir failed."
         else
           echo "$(date) INFO: Processing of $rawdir finished successfully."
