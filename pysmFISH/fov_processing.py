@@ -494,7 +494,7 @@ def processing_barcoded_eel_fov_graph(
                     + tokenize()
                 )
                 decoded = delayed(
-                    barcodes_analysis.extract_barcodes_NN_fast_multicolor_recollect, name=name
+                    barcodes_analysis.extract_barcodes_NN_fast_multicolor, name=name
                 )(
                     registered_counts,
                     analysis_parameters,

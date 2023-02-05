@@ -13,7 +13,7 @@ import zarr
 class Cell_Assignment:
     
     def expand_labels_mask(self, mask, distance, out_file_name='expanded', 
-                           chunk_size=8000, overlap_percentage=10, 
+                           chunk_size=5000, overlap_percentage=10, 
                            dtype = np.uint32):
         """Expand segmentation mask without overlapping labels.
         
