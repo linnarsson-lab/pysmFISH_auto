@@ -485,7 +485,7 @@ def extract_barcodes_NN_fast_multicolor_recollect(registered_counts_df: pd.DataF
         return registered_counts_df, all_decoded_dots_df
         
     else:
-        for recollect in [1,3]:
+        for recollect in [2,3]:
             barcoded_round_rounds = []
             old_recollect = recollect
             barcodes_extraction_resolution_ = recollect
